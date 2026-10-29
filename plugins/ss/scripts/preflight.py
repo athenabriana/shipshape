@@ -230,7 +230,11 @@ def probe_wiki(cwd: str, diff_range: str, ss_root: str) -> list[dict]:
     `.ss/` itself is left out of the file list: the wiki's own diff is the writer's
     record, and a fact governs code, never another fact.
     """
-    names = run_ok(["git", "diff", diff_range, "--name-only", "--", ".", ":(exclude).ss/"], cwd=cwd)
+    # Unquoted, a non-ASCII path arrives octal-escaped and matches no fact.
+    names = run_ok(
+        ["git", "-c", "core.quotePath=false", "diff", diff_range, "--name-only", "--", ".", ":(exclude).ss/"],
+        cwd=cwd,
+    )
     files = [f for f in (names or "").splitlines() if f]
     if not files:
         return []
