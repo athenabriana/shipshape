@@ -67,7 +67,7 @@ Happy path:
 
 ### The docs
 
-- [ ] **2. The skill lists**: `/ss:diagnose` in the `README.md` skill table and in the `.claude/CLAUDE.md` structure tree. · verify: reading
+- [x] **2. The skill lists**: `/ss:diagnose` in the `README.md` skill table and in the `.claude/CLAUDE.md` structure tree. · verify: reading
 
 ## Out of scope
 
