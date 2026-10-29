@@ -126,7 +126,7 @@ Happy path, local runs forbidden:
 
 ### The two readers
 
-- [ ] **3. Build proves it**: `build/SKILL.md` step 8 and the in-context fallback say how a
+- [x] **3. Build proves it**: `build/SKILL.md` step 8 and the in-context fallback say how a
       `repro:` task is proven, and that its pending proof rides to ship. · verify: reading
 - [ ] **4. Ship requires it**: `ship/SKILL.md` gains the proof step before the ship: local proof
       into the PR, pending proof through CI in two steps, and every stop above. · verify: reading
