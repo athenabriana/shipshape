@@ -21,7 +21,7 @@ plugins/ss/
 └── skills/
     ├── shape, build, ship
     ├── review, review-setup
-    └── gather-branch-context, maintain-repo, code-deep-research, write-readme, orchestrate
+    └── gather-branch-context, maintain-repo, research, write-readme, orchestrate
 ```
 
 ### Naming Conventions
