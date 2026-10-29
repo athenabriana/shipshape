@@ -68,7 +68,7 @@ How the second half is shown depends on `runnable`:
 - **`runnable` is true**: run the focused test with the fix stashed or reverted, watch it fail, restore the fix, watch it pass. Then run every command in `commands`, as `/ss:ship` does.
 - **`runnable` is false**: local runs are forbidden, and `policy.evidence` says where. Name `policy.scope` when you explain it: `repo` is the project's rule, `machine` is this machine's. Commit the focused test alone, push it, and read the CI run (`gh run watch`) until the new test shows red. Then commit the fix, push it, and read the CI run until it is green. This half needs a pushed branch, so at the **Fix only** scope ask once before the first push.
 
-When the destination ends up being a protected branch, where nothing is pushed before the user does it, the test-fails-first half was not shown in CI: the report says so in plain words.
+Read the CI triggers in `.github/workflows/` before the first push. When CI runs only on `pull_request` and no PR exists yet, or the user declines the push, a pushed test shows no red, so the test-fails-first half was not shown in CI: the report says so in plain words.
 
 When CI stays red on the new test after the fix, the fix did not hold: go back to Step 3 with what CI printed. The three-hypothesis limit of Step 3 counts these returns too.
 
@@ -95,7 +95,7 @@ A bug can turn out not to be a bug. When the fix depends on a business rule nobo
 | the failure cannot be reproduced                       | stop, report what ran and the open hypotheses, fix nothing                |
 | the project has no test framework                      | the reproduction is the proof; the report says no focused test exists     |
 | `runnable` is false and the destination is a PR        | the test is pushed alone first, CI shows red, then the fix turns it green |
-| `runnable` is false and the destination is main        | the report says the test-fails-first half was not shown                   |
+| `runnable` is false and no CI run can show the red     | the report says the test-fails-first half was not shown                   |
 | the fix needs a business rule decided                  | stop and hand off to `/ss:shape` with the findings                        |
 | the fix grows past a small change                      | stop and propose `/ss:shape`                                              |
 | on a protected branch                                  | create `fix/<slug>` before the first edit                                 |

@@ -47,7 +47,7 @@ Happy path:
 | WHEN the failure cannot be reproduced                     | THEN the skill stops, reports what it tried and its hypotheses, and fixes nothing    |
 | WHEN the project has no test framework                    | THEN the reproduction is the proof, and the report says no focused test exists       |
 | WHEN `runnable` is false and the destination is a PR      | THEN the test is pushed alone first, CI shows red, then the fix turns it green       |
-| WHEN `runnable` is false and the destination is main      | THEN the report says the test-fails-first half of the proof was not shown            |
+| WHEN `runnable` is false and no CI run can show the red   | THEN the report says the test-fails-first half of the proof was not shown            |
 | WHEN the bug reveals an undefined business rule           | THEN the run stops and hands off to `/ss:shape` with the findings                    |
 | WHEN the fix grows past a small change                    | THEN the skill stops and proposes `/ss:shape` instead of a large unspecced change    |
 | WHEN the user is on `main` or another protected branch    | THEN the skill creates a `fix/<slug>` branch before the first edit                   |
