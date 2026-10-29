@@ -234,8 +234,9 @@ function taskPrompt(t, conventions, checks, specPath, together) {
   const wikiLine = facts.length
     ? `\nWhat the repo already knows about the files your task names (\`.ss/wiki/\`, current facts).
 Each one governs that code today: build within it, and when your task has to reverse one, say
-so as a \`wiki:\` line in the convention note:
-${facts.map((f) => `- ${f.file}: ${f.title}${f.description ? `. ${f.description}` : ""}`).join("\n")}
+so as a \`wiki:\` line in the convention note. The rest of what it knows is listed in
+\`.ss/wiki/entities/index.md\`.
+${facts.map((f) => `- .ss/wiki${f.file}: ${f.title}${f.description ? `. ${f.description}` : ""}`).join("\n")}
 `
     : "";
 
