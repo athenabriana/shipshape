@@ -128,7 +128,7 @@ Happy path, called by shape:
 
 ### Foundation
 
-- [ ] **1. The research skill**: `plugins/ss/skills/research/` exists with `SKILL.md`
+- [x] **1. The research skill**: `plugins/ss/skills/research/` exists with `SKILL.md`
       (three fronts, cap, verifiers, report at `.ss/<slug>/research.md`, no gate),
       `scripts/search_repos.py` and the image script; `plugins/ss/skills/code-deep-research/`
       is gone. · verify: CI
