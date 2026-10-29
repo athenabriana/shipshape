@@ -30,9 +30,12 @@ The research picks which fronts the topic needs, and they combine:
   then clone and read them. Evidence is `file:line` in a cloned repo.
 - **Content**: the web, official docs, articles, discussions. Evidence is a URL plus the
   passage that supports the claim.
-- **Visual**: design references, screens and flows. The Mobbin MCP when it is connected,
-  otherwise screenshots of real pages through a browser tool when one is available.
-  Evidence is a link to the screen or flow.
+- **Visual**: design references, screens and flows, found on the open web: public design
+  galleries and the real products' own sites. A bundled stdlib script downloads a page's
+  `og:image` and its images to a temporary folder, and the agent opens them with `Read`,
+  so it sees the reference without a browser. A page that only renders in JavaScript
+  yields little that way; a browser screenshot covers it when a browser tool is
+  connected. Evidence is the page URL and the image it shows.
 
 A topic like "how do apps do onboarding with a paywall" takes the visual and content
 fronts; "how does vscode build its WSL server" takes code and content.
@@ -62,8 +65,10 @@ and what the cap left out. The research returns a short summary plus the path.
   its evidence: the code it cites, the page it quotes, the screen it links. A refuted claim
   leaves the report or sends the research back for another round; an unverified claim is
   an open question, never a finding.
-- A front with no tool to run it (no Mobbin, no browser, no `gh`) is skipped and named in
-  the open section; the research continues on the fronts it has.
+- The visual front works from the open web with no account and no MCP: web search, then
+  the image script, then a browser screenshot only for pages the script cannot read.
+- A front with no tool to run it (no web search, no `gh`) is skipped and named in the open
+  section; the research continues on the fronts it has.
 - The research runs its own pipeline and depends on no outside skill. The native
   deep-research skill is a model for the content front, not a dependency.
 - Shape decides on its own to run the research before the draft, when the draft depends
@@ -94,7 +99,8 @@ Happy path, called by shape:
 | WHEN `.ss/<slug>/research.md` exists and research reruns | THEN the file is rewritten whole                           |
 | WHEN shape finds an existing `research.md` for the slug  | THEN shape reads it and does not rerun the research        |
 | WHEN the idea needs no outside facts                     | THEN shape skips the research and drafts as before         |
-| WHEN the Mobbin MCP is not connected                     | THEN the visual front uses a browser, or is skipped        |
+| WHEN a reference page renders only in JavaScript         | THEN a browser screenshot, else it is listed as unseen     |
+| WHEN a page has no image the script can pull             | THEN the reference is a link only, marked unverified       |
 | WHEN no tool exists for any front the topic needs        | THEN the report says so and the open section lists it      |
 | WHEN discovery finds more than three good repositories   | THEN it clones three and lists the rest as left out        |
 | WHEN every load-bearing claim is refuted after the cap   | THEN the report says nothing was verified, with what tried |
@@ -110,6 +116,9 @@ Happy path, called by shape:
   `spec.md` has one writer; `research.md` is a second file with a different writer.
 - Clones landing inside the repo would end up in a commit; the clone directory sits
   outside the worktree, and Windows has no `/tmp`.
+- Downloaded images and pages are untrusted data: the image script writes into its own
+  empty folder outside the repo, and a page can serve huge files or non-image content
+  under an image name.
 - `plugin.json` carries the skill list in its `description` and a `version`; four other
   PRs open in parallel touch the same plugin and can conflict on both.
 - `shape/references/spec-format.md` is being edited on another branch and stays untouched
@@ -120,8 +129,9 @@ Happy path, called by shape:
 ### Foundation
 
 - [ ] **1. The research skill**: `plugins/ss/skills/research/` exists with `SKILL.md`
-      (three fronts, cap, verifiers, report at `.ss/<slug>/research.md`, no gate) and
-      `scripts/search_repos.py`; `plugins/ss/skills/code-deep-research/` is gone. · verify: CI
+      (three fronts, cap, verifiers, report at `.ss/<slug>/research.md`, no gate),
+      `scripts/search_repos.py` and the image script; `plugins/ss/skills/code-deep-research/`
+      is gone. · verify: CI
 
 ### Callers and references
 
