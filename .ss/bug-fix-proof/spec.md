@@ -115,7 +115,7 @@ Happy path, local runs forbidden:
 
 ### Foundation
 
-- [ ] **1. The repro marker**: `spec-format.md` gains `verify: repro:` and what the build and
+- [x] **1. The repro marker**: `spec-format.md` gains `verify: repro:` and what the build and
       the ship do with it, including what does not count as the focused test. · verify: reading
 
 ### The task agent's contract
