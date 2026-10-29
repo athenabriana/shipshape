@@ -22,6 +22,8 @@ and everything durable about that work lives inside it:
   because past it the next `.ss/` up belongs to another project, or to the home
   directory, and a run standing in a repo of its own would adopt someone else's specs.
   `scripts/scan_specs.py` resolves it, and `find_ss_root` is that rule in code.
+- **`wiki` is a reserved slug.** `.ss/wiki/` is the project's knowledge base, not a
+  spec folder; its contract is `references/wiki-state.md`.
 - **The folder may be a symlink into a canonical store** (the pattern used when a
   project's specs live outside the repo). Read through it and write to the canonical
   target. The Edit tool refuses to write through a symlink on purpose, and that refusal

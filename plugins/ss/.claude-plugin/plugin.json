@@ -1,7 +1,7 @@
 {
   "name": "ss",
-  "description": "Ship Shape (ss): technical skills for building software, invoked as /ss:<skill>. The flow is shape → build → ship (/ss:shape aligns on a spec, /ss:build runs it, /ss:ship lands the branch), with /ss:review, /ss:review-setup, /ss:gather-branch-context, /ss:maintain-repo, /ss:code-deep-research, /ss:write-readme and /ss:orchestrate alongside. It never merges, with one exception: /ss:orchestrate merges a PR only on the person's explicit authorization, given in their own conversation, and under the repository's rules.",
-  "version": "4.0.0",
+  "description": "Ship Shape (ss): technical skills for building software, invoked as /ss:<skill>. The flow is shape → build → ship (/ss:shape aligns on a spec, /ss:build runs it, /ss:ship lands the branch) and a per-project wiki at .ss/wiki/ that shape and build keep up to date, with /ss:review, /ss:review-setup, /ss:gather-branch-context, /ss:maintain-repo, /ss:code-deep-research, /ss:write-readme and /ss:orchestrate alongside. It never merges, with one exception: /ss:orchestrate merges a PR only on the person's explicit authorization, given in their own conversation, and under the repository's rules.",
+  "version": "4.1.0",
   "author": {
     "name": "Athena Briana",
     "email": "me@athenabriana.com"

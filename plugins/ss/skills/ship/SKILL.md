@@ -13,7 +13,7 @@ Take the current branch all the way to shipped (checks green, committed), then s
 
 ## Prerequisites
 
-One call answers the whole ground this run stands on: `python3 <plugin-root>/scripts/preflight.py` prints `gh_authenticated`, the branch with its `base_branch`, `merge_base` and resolved `diff_range`, the `pr` for this branch with its `checks` buckets, `code_review_guide`, the spec the branch belongs to and whether the diff's hunks contain `ui`. Every step below reads that one payload instead of probing again.
+One call answers the whole ground this run stands on: `python3 <plugin-root>/scripts/preflight.py` prints `gh_authenticated`, the branch with its `base_branch`, `merge_base` and resolved `diff_range`, the `pr` for this branch with its `checks` buckets, `code_review_guide`, the spec the branch belongs to, the `wiki` facts covering the diff and whether the diff's hunks contain `ui`. Every step below reads that one payload instead of probing again.
 
 - For the PR path: `gh_authenticated: false` means `gh auth status` came back non-zero, so either nobody is logged in or `gh` is not on the PATH at all; instruct the user to run `gh auth login`. Authenticated is not the same as sufficient: the PR path needs the `repo` and `workflow` scopes, and a login predating the `workflow` scope fails on the first push that touches `.github/workflows/`. `gh auth refresh -s repo,workflow` is the remedy for that one.
 - A non-null `pr` is the default destination ("finish the PR").
