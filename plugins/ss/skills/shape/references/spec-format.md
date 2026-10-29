@@ -119,6 +119,29 @@ delivers, and how it gets checked.
 `verify:` is `reading` (the task agent inspects what it produced), a command it runs, or
 `CI` when only the pipeline can prove it.
 
+### A task that fixes a bug: `verify: repro:`
+
+A task that fixes a bug carries `verify: repro: <how the failure shows>`: the command, the
+test or the steps that make the bug visible today. It is the only marker a bug fix needs, and
+it asks for a proof with an order to it:
+
+```
+- [ ] **2. Empty cart total**: the total of an empty cart reads 0, not NaN.
+      · verify: repro: pnpm test cart -t "empty total"
+```
+
+1. The reproduction runs first and fails. One that passes before the fix means the `repro:`
+   is wrong, and the task comes back `underspecified`.
+2. A focused test goes in, alone, in a commit of its own, and fails.
+3. The fix goes in, with the task's tick, in a second commit, and the same reproduction and
+   the test pass.
+
+The focused test exercises the code path the fix changes. A test that mocks the unit the fix
+changed, or that passes on the code before the fix, proves nothing about the bug and does not
+count. Where the checks may not run locally, the task agent writes the same two commits and
+returns the proof `pending`; `/ss:ship` then takes the red half from CI on the test commit
+alone, before it opens or finishes the PR.
+
 ### The `###` headings inside `## Tasks` are the build's phases
 
 The author orders the work by what depends on what, and writes that order as phases:

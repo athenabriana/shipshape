@@ -23,11 +23,12 @@ one plugin, `ss`; the skills are organized by use.
 
 ### shape → build → ship
 
-| skill       | description                                                                                                                       |
-| ----------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `/ss:shape` | align on the idea before building: draft, loop on the gray areas through questions, map behavior, order the tasks, write the spec |
-| `/ss:build` | run a spec end to end: build every phase of tasks, track its `status`, chain into review and ship when the scope says so          |
-| `/ss:ship`  | land the branch your way: green the checks, then push to a branch, prep a push to main, or open a PR and tend it until you stop   |
+| skill          | description                                                                                                                       |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `/ss:shape`    | align on the idea before building: draft, loop on the gray areas through questions, map behavior, order the tasks, write the spec |
+| `/ss:build`    | run a spec end to end: build every phase of tasks, track its `status`, chain into review and ship when the scope says so          |
+| `/ss:ship`     | land the branch your way: green the checks, then push to a branch, prep a push to main, or open a PR and tend it until you stop   |
+| `/ss:diagnose` | fix a bug with no spec: find the cause, reproduce it, make the smallest fix, prove it, hand it to ship                            |
 
 shape and build keep `.ss/wiki/` up to date by themselves: a per-project knowledge base of the facts the code does not show (a choice, a trap, a constraint), each tied to the paths it covers. shape reads it before the draft, build hands each task the facts covering its files, and review's contract front checks the diff against them. The contract is `plugins/ss/references/wiki-state.md`.
 
@@ -43,8 +44,9 @@ shape and build keep `.ss/wiki/` up to date by themselves: a per-project knowled
 | skill                       | description                                                                      |
 | --------------------------- | -------------------------------------------------------------------------------- |
 | `/ss:gather-branch-context` | summarize every change on the branch against main                                |
-| `/ss:maintain-repo`         | triage PRs, dependabot and outdated deps, report what's mergeable (never merges) |
-| `/ss:code-deep-research`    | find, clone and explore real repos, verifying every finding against source       |
+| `/ss:caretake`              | look after the repo: triage open PRs and deps, suggest a takeover (never merges) |
+| `/ss:takeover`              | adopt or modernize someone else's PR, keeping the author's credit (never merges) |
+| `/ss:research`              | research code, content and visual references, verifying every claim              |
 | `/ss:write-readme`          | generate a minimal centered-header README from repo facts                        |
 | `/ss:orchestrate`           | split a large piece of work into side sessions and relay between them            |
 

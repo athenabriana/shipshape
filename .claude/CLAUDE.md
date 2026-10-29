@@ -20,8 +20,9 @@ plugins/ss/
 ├── workflows/                         # Workflow scripts (build-tasks.js)
 └── skills/
     ├── shape, build, ship
+    ├── diagnose
     ├── review, review-setup
-    └── gather-branch-context, maintain-repo, code-deep-research, write-readme, orchestrate
+    └── gather-branch-context, caretake, takeover, research, write-readme, orchestrate
 ```
 
 ### Naming Conventions
@@ -58,4 +59,4 @@ Each skill is a folder with a `SKILL.md` containing YAML frontmatter (`name`, `d
 
 - No AI attribution in commits, PRs, or code comments
 - Conventional commit style: `<type>(<scope>): <description>`
-- Scope is the skill name (`shape`, `maintain-repo`, …), `hooks` for the hook layer, or `repo` for repo-wide changes
+- Scope is the skill name (`shape`, `caretake`, …), `hooks` for the hook layer, or `repo` for repo-wide changes

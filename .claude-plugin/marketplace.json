@@ -9,7 +9,7 @@
     {
       "name": "ss",
       "source": "./plugins/ss",
-      "description": "shape → build → ship, plus review, repo maintenance and code research, invoked as /ss:<skill>"
+      "description": "shape → build → ship, plus review, repo maintenance and research, invoked as /ss:<skill>"
     }
   ]
 }
