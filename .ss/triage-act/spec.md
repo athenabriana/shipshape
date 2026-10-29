@@ -149,7 +149,7 @@ the user doing the checkout, the rebase or the CI loop by hand.
 
 ### Close
 
-- [ ] **5. The skill's entry**: `skills/triage/SKILL.md` gains the action phase, the
+- [x] **5. The skill's entry**: `skills/triage/SKILL.md` gains the action phase, the
       trigger phrases for takeover and modernize, and the bundled references; the README
       line describes both actions. · verify: CI
 

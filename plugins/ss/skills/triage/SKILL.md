@@ -1,19 +1,23 @@
 ---
 name: triage
-description: Triages repo maintenance and reports what is safe to merge. Never merges. Scans open PRs, Dependabot security alerts and outdated dependencies, prioritizes them, and delivers a digest in Slack or as a sticky comment on the PR. The merge stays with a human. Use when the user says "what can I merge", "triage my PRs", "review the open PRs", "check Dependabot", "are the dependency updates safe", or "set up a maintenance digest". Don't use it to fix one specific PR (use /ss:review or /ss:ship) or to open a PR (use /ss:ship).
+description: Triages repo maintenance and acts on other people's PRs. Never merges. Scans open PRs, Dependabot security alerts and outdated dependencies, reports what is safe to merge and suggests an action per PR, in Slack or as a sticky comment. On a PR the user names, takeover finishes somebody else's PR (CI, review threads) keeping the author's credit, and modernize rebases an old PR on its base or closes it, after confirmation, when the problem is already solved. Use when the user says "what can I merge", "triage my PRs", "review the open PRs", "check Dependabot", "are the dependency updates safe", "set up a maintenance digest", "take over PR 12", "finish this contributor's PR", "modernize PR 8", "rebase this old PR", or "close the PRs that are already fixed". Don't use it on the user's own branch or PR (use /ss:ship) or to review a diff (use /ss:review).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 2.3.0
+  version: 3.0.0
 ---
 
 # Triage
 
-Triage a repo's open PRs and dependency updates, then tell the user **what is safe to merge**: to Slack, as a sticky PR comment, or both. Merge is **never** performed by this skill; it is decision-support that ends with the human clicking merge.
+Triage a repo's open PRs and dependency updates, then tell the user **what is safe to merge** and what each blocked or stale PR needs: to Slack, as a sticky PR comment, or both. On a PR the user names, act on it: **takeover** finishes somebody else's PR, **modernize** brings an old one up to date or closes it. Merge is **never** performed by this skill; the human clicks merge.
 
 ## Prerequisites
 
-Ensure `gh` is authenticated: `gh auth status` (read scopes on the target repo + `security_events` to read Dependabot alerts). If not authenticated, instruct the user to run `gh auth login`.
+Ensure `gh` is authenticated: `gh auth status` (read scopes on the target repo + `security_events` to read Dependabot alerts; the actions also need `repo` to push, comment and close). If not authenticated, instruct the user to run `gh auth login`.
+
+## Triage or act
+
+A request that names a PR and an action ("take over #12", "modernize #8", a `suggest:` pick from the digest) skips Phases 1 to 4 and goes straight to Phase 5. Everything else is triage.
 
 ## The trust model (read before changing behavior)
 
@@ -38,6 +42,14 @@ The verdict per PR is one of:
 - **`no`**: CI failing, merge conflict, or changes requested.
 - **`needs-human`** covers anything else: major bump, async-`UNKNOWN` mergeability, CI not settled, non-bot author, touches CI/workflows, or unparsed/grouped title. (Default; the verdict only relaxes when every check explicitly passes.)
 
+Each PR also carries a `suggested_action`, from the same structured fields:
+
+- **`modernize`**: a Dependabot PR behind or conflicting with its base, or another person's PR untouched for 30 days and behind or conflicting.
+- **`takeover`**: another person's PR with CI failing, changes requested or a merge conflict.
+- **none**: drafts, the user's own PRs, other bots, and everything else.
+
+The suggestion is text in the digest. It never runs anything.
+
 ### Phase 3: Render (de-duplicated digest)
 
 `python scripts/scan_repo.py --repo <owner/name> | python scripts/render_digest.py --state <state.json>` → `{slack_markdown, changed, new_state, comments}`. Only PRs whose settled state changed since `state.json` appear in the digest, so a recurring run never re-pings. Persist `new_state` for the next run.
@@ -49,7 +61,26 @@ The verdict per PR is one of:
 
 Every delivery ends on the explicit line: **mergeable verdicts are decision-support; you merge.**
 
+### Phase 5: Act on one PR (only when the user names it)
+
+Load the reference for the action and follow it:
+
+| Action    | Reference                 |
+| --------- | ------------------------- |
+| takeover  | `references/takeover.md`  |
+| modernize | `references/modernize.md` |
+
+One PR per run. A comment on a PR somebody else opened is posted only here, by the action the user started on that PR. The hard line holds on both: never merge, never approve, never force-push; modernize hands the user the push command for a rewritten branch, and closes a PR only on the user's yes.
+
 ## Bundled resources
+
+### references/takeover.md
+
+Finishing somebody else's PR: the push path (the author's branch, or a new PR crediting the author), the checkout, and the hand-over to `/ss:ship`'s PR path for threads and CI.
+
+### references/modernize.md
+
+Bringing an old PR up to date: `@dependabot rebase` for Dependabot, the already-solved evidence, the local rebase with its pinned push command, and the confirmed close.
 
 ### scripts/scan_repo.py
 
