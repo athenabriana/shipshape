@@ -179,7 +179,7 @@ Happy path:
 - [x] **6. Build's wiki pass**: `skills/build/SKILL.md` and its workflow reference feed
       each task agent the covering facts, and run the end pass (promote, record,
       supersede, follow renames, rebuild, validate, commit). · verify: reading
-- [ ] **7. The review reads the facts**: `skills/review/references/front-contract.md`
+- [x] **7. The review reads the facts**: `skills/review/references/front-contract.md`
       checks the diff against `preflight.py`'s `wiki`. · verify: reading
 
 ### Close

@@ -16,7 +16,7 @@ door as any other run.
 | `correctness`     | Correctness     | bugs in the diff, logic, edges, contracts, concurrency, security                                                                      | the diff is not empty                                                     | `front-correctness.md`     |
 | `quality`         | Quality         | behavior-preserving cleanup, reuse, simplification, efficiency, dead weight, altitude, consistency                                    | the diff is not empty                                                     | `front-quality.md`         |
 | `rules`           | Project rules   | deviations from the repo's `CODE_REVIEW_GUIDE.md`                                                                                     | there is a `CODE_REVIEW_GUIDE.md` at the root                             | `front-rules.md`           |
-| `contract`        | Spec contract   | the diff built what was agreed, and only that                                                                                         | the branch has a spec (`.ss/<slug>/spec.md`)                              | `front-contract.md`        |
+| `contract`        | Spec contract   | the diff built what was agreed, and only that, and reverses no current wiki fact                                                      | the branch has a spec, or `wiki` carries a fact                           | `front-contract.md`        |
 | `a11y`            | Accessibility   | WCAG AA on the UI the diff touched, semantics, accessible name, keyboard, focus, contrast                                             | the diff touches a UI file                                                | `front-a11y.md`            |
 | `design`          | Design system   | raw values where a token exists, rebuilt components, missing states, drift from the direction                                         | the diff touches a UI file and a design source resolves                   | `front-design.md`          |
 | `threads`         | PR threads      | unresolved review comments                                                                                                            | there is an open PR for the branch                                        | `front-threads.md`         |
@@ -39,7 +39,10 @@ call `/ss:ship` makes. What each field settles:
   only rule source (`front-rules.md`), so a false is what makes that front
   unavailable.
 - `branch_spec`: the spec this branch belongs to, resolved through the plugin-root
-  `references/spec-state.md` contract. Null makes `contract` unavailable.
+  `references/spec-state.md` contract.
+- `wiki`: the `current` facts of `.ss/wiki/` whose `paths` match a file of the diff
+  (plugin-root `references/wiki-state.md`). A null `branch_spec` and an empty `wiki`
+  together make `contract` unavailable.
 - `ui`: whether the diff's hunks contain UI, decided by **what the hunks contain**,
   never by the file's extension. `ui.markers` names which of markup, template,
   semantics, interaction and style matched and `ui.examples` carries the lines that
