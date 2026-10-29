@@ -43,7 +43,7 @@ shape and build keep `.ss/wiki/` up to date by themselves: a per-project knowled
 | skill                       | description                                                                      |
 | --------------------------- | -------------------------------------------------------------------------------- |
 | `/ss:gather-branch-context` | summarize every change on the branch against main                                |
-| `/ss:maintain-repo`         | triage PRs, dependabot and outdated deps, report what's mergeable (never merges) |
+| `/ss:triage`                | triage PRs, dependabot and outdated deps, report what's mergeable (never merges) |
 | `/ss:code-deep-research`    | find, clone and explore real repos, verifying every finding against source       |
 | `/ss:write-readme`          | generate a minimal centered-header README from repo facts                        |
 | `/ss:orchestrate`           | split a large piece of work into side sessions and relay between them            |

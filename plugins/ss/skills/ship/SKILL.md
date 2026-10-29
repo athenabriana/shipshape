@@ -1,6 +1,6 @@
 ---
 name: ship
-description: Takes the current branch to shipped, your way. It does not review; it greens the project's checks, commits and ships through the destination you pick (push to a feature branch, push to main, or open or finish a pull request). On the PR path it handles the review comments, follows CI to green and watches the PR until you stop. Never merges and never pushes a protected branch; it hands you the command. Use when the user says "ship it", "ship this branch", "push to main", "open the PR", "finish the PR", "green the PR", "watch my PR". Don't use it to triage every open PR and dependency (use /ss:maintain-repo) or to only summarize the branch (use /ss:gather-branch-context).
+description: Takes the current branch to shipped, your way. It does not review; it greens the project's checks, commits and ships through the destination you pick (push to a feature branch, push to main, or open or finish a pull request). On the PR path it handles the review comments, follows CI to green and watches the PR until you stop. Never merges and never pushes a protected branch; it hands you the command. Use when the user says "ship it", "ship this branch", "push to main", "open the PR", "finish the PR", "green the PR", "watch my PR". Don't use it to triage every open PR and dependency (use /ss:triage) or to only summarize the branch (use /ss:gather-branch-context).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana

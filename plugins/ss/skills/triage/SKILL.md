@@ -1,5 +1,5 @@
 ---
-name: maintain-repo
+name: triage
 description: Triages repo maintenance and reports what is safe to merge. Never merges. Scans open PRs, Dependabot security alerts and outdated dependencies, prioritizes them, and delivers a digest in Slack or as a sticky comment on the PR. The merge stays with a human. Use when the user says "what can I merge", "triage my PRs", "review the open PRs", "check Dependabot", "are the dependency updates safe", or "set up a maintenance digest". Don't use it to fix one specific PR (use /ss:review or /ss:ship) or to open a PR (use /ss:ship).
 license: MIT
 metadata:
@@ -7,7 +7,7 @@ metadata:
   version: 2.3.0
 ---
 
-# Repo maintenance
+# Triage
 
 Triage a repo's open PRs and dependency updates, then tell the user **what is safe to merge**: to Slack, as a sticky PR comment, or both. Merge is **never** performed by this skill; it is decision-support that ends with the human clicking merge.
 

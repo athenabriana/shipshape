@@ -130,7 +130,7 @@ the user doing the checkout, the rebase or the CI loop by hand.
 
 ### Foundation
 
-- [ ] **1. The rename**: `plugins/ss/skills/maintain-repo/` becomes
+- [x] **1. The rename**: `plugins/ss/skills/maintain-repo/` becomes
       `plugins/ss/skills/triage/` with `name: triage`, and every `/ss:maintain-repo`
       reference in the plugin, README and `.claude/CLAUDE.md` follows; the marker stays.
       · verify: CI
