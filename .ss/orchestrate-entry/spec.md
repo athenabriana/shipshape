@@ -41,7 +41,7 @@ Reads stay with the orchestrator; anything that writes code goes to a front, eve
 - A front that stops on the usage limit is resumed by the orchestrator after the reset: it tells the person the reset time in one line, and sends each stopped front a message to continue once the reset passes.
 - A front that needs another front's result opens after that front's PR lands, or the orchestrator says why it opens earlier. PRs land in the order of what depends on what.
 - The orchestrator keeps no run log. A new orchestrator on the same project rebuilds the state from `list_sessions` and the open PRs.
-- The brief names the ss skill a front runs, by the route: a bug runs `/ss:diagnose`, an idea that needs research runs `/ss:research` then `/ss:shape`, someone else's PR to adopt or bring up to date runs `/ss:triage`'s takeover or modernize, and a branch to read runs `/ss:review`'s loop.
+- The brief names the ss skill a front runs, by the route: a bug runs `/ss:diagnose`, an idea that needs research runs `/ss:research` then `/ss:shape`, someone else's PR to adopt or bring up to date runs `/ss:takeover`, and a branch to read runs `/ss:review`'s loop. `/ss:caretake` only reads the repo, so the orchestrator runs it in place.
 
 ## Behavior
 
@@ -78,8 +78,8 @@ Happy path:
 - A front waiting for an answer is a side session that ended its turn; the orchestrator learns of it through `wake_when_done` or `notify_when_idle`, and a message that arrives while the front is mid-turn can be read late.
 - Resuming after the reset needs the orchestrator awake at the reset time, which the session tools do not give; `ScheduleWakeup` exists only in loop mode.
 - `start_session` creates no worktree when the session's folder is not a git repository, as when the orchestrator runs from a parent folder holding several repos.
-- The route names `/ss:diagnose`, `/ss:research`, `/ss:triage` and the review loop, which live on branches not yet in `main` (PRs #6, #8 and #9, and the open research front); `/ss:triage` is `/ss:maintain-repo` renamed by PR #9.
-- Shape, build, review, ship and `references/handoff-gate.md` are also changed by the open PRs #7, #8 and #9, so the passages this spec adds sit next to lines those PRs change.
+- The route names `/ss:research`, `/ss:caretake` and `/ss:takeover`, which land with PRs #9 and #10; `/ss:caretake` and `/ss:takeover` replace `/ss:maintain-repo`.
+- Shape, build, review, ship and `references/handoff-gate.md` are also changed by PRs #9 and #10, so the build runs on a `main` that carries them.
 
 ## Tasks
 
@@ -102,7 +102,7 @@ Happy path:
 - The README rewrite around the orchestrator: a run of its own after this lands.
 - A run log or a state file for the orchestrator. _revisit_ if rebuilding from `list_sessions` loses decisions the person cares about.
 - A queue or a hard cap on fronts at once.
-- Building `/ss:diagnose`, `/ss:research`, `/ss:triage` or the review loop: their own fronts own them.
+- Building `/ss:diagnose`, `/ss:research`, `/ss:caretake`, `/ss:takeover` or the review loop: their own fronts own them.
 
 ## Open
 
