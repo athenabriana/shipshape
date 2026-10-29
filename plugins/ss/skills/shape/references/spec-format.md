@@ -181,18 +181,18 @@ half under the name it actually has in that problem.
 python3 plugins/ss/skills/shape/scripts/lint_spec.py .ss/<slug>/spec.md
 ```
 
-| code | level   | what it catches                                                       |
-| ---- | ------- | --------------------------------------------------------------------- |
-| E001 | error   | frontmatter missing, incomplete, or with an invalid status or date    |
-| E002 | error   | no `## Decisions` or no `## Open`                                     |
-| E003 | error   | a dead section name (`## design`, `## still open`)                    |
-| E004 | error   | a table cell above 100 characters                                     |
-| E005 | error   | a row whose cell count differs from the header                        |
-| W001 | warning | no `## Behavior`                                                      |
-| W002 | warning | no `## Tasks`                                                         |
-| W003 | warning | no `## Attention points`                                              |
-| W004 | warning | no `## Out of scope`                                                  |
-| W005 | warning | above 800 lines, or above 100 rows in the `## Behavior` tables        |
+| code | level   | what it catches                                                    |
+| ---- | ------- | ------------------------------------------------------------------ |
+| E001 | error   | frontmatter missing, incomplete, or with an invalid status or date |
+| E002 | error   | no `## Decisions` or no `## Open`                                  |
+| E003 | error   | a dead section name (`## design`, `## still open`)                 |
+| E004 | error   | a table cell above 100 characters                                  |
+| E005 | error   | a row whose cell count differs from the header                     |
+| W001 | warning | no `## Behavior`                                                   |
+| W002 | warning | no `## Tasks`                                                      |
+| W003 | warning | no `## Attention points`                                           |
+| W004 | warning | no `## Out of scope`                                               |
+| W005 | warning | above 800 lines, or above 100 rows in the `## Behavior` tables     |
 
 Whether the document repeats itself, recounts the conversation, or carries a fix inside an
 attention point is not a lint check. That is the author's judgment, against the rules
