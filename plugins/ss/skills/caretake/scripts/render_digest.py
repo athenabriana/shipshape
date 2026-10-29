@@ -36,7 +36,7 @@ import json
 import sys
 from typing import Any
 
-# Keeps the skill's old name: comments posted before the rename to triage are found by it.
+# Keeps the skill's old name: comments posted before the rename to caretake are found by it.
 MARKER = "<!-- ss:maintain-repo:pr-{n} -->"
 
 SAFE = "yes"

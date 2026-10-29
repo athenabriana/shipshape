@@ -1,6 +1,6 @@
 # Action → takeover
 
-Reached when the user names a PR somebody else opened and asks to take it over ("take over #12", or a `suggest: takeover` pick from the digest). takeover finishes that PR, CI green and review threads handled, while the PR's author keeps the credit. One PR per run. Never merge, never approve, never force-push.
+Reached when the user names a PR somebody else opened and asks to take it over ("take over #12", or a `suggest: takeover` pick from `/ss:caretake`'s digest). takeover finishes that PR, CI green and review threads handled, while the PR's author keeps the credit. One PR per run. Never merge, never approve, never force-push.
 
 ## 1. Read the PR before touching the tree
 

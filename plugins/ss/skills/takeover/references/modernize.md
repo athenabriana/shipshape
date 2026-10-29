@@ -1,6 +1,6 @@
 # Action → modernize
 
-Reached when the user names an old PR and asks to modernize it ("modernize #8", or a `suggest: modernize` pick from the digest). modernize brings the PR up to date with its base branch, or closes it with a comment when the problem it solves is already solved. One PR per run. It never merges and never force-pushes: the rewritten branch goes back through a command the user runs.
+Reached when the user names an old PR and asks to modernize it ("modernize #8", or a `suggest: modernize` pick from `/ss:caretake`'s digest). modernize brings the PR up to date with its base branch, or closes it with a comment when the problem it solves is already solved. One PR per run. It never merges and never force-pushes: the rewritten branch goes back through a command the user runs.
 
 ## 1. Read the PR
 
