@@ -168,7 +168,7 @@ Happy path:
 - [x] **3. `validate_wiki.py`**: `<plugin-root>/scripts/validate_wiki.py` checks
       frontmatter, the status values, reserved files, link resolution and YAML-safe
       scalars, warns on orphan paths, and prints JSON. · verify: reading
-- [ ] **4. The probe**: `preflight.py` returns `wiki`, the `current` facts whose `paths`
+- [x] **4. The probe**: `preflight.py` returns `wiki`, the `current` facts whose `paths`
       match the diff's files. · verify: reading
 
 ### The writers and the readers

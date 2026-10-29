@@ -3,7 +3,8 @@
 One call for the probes a run does before it decides anything: the branch and its
 diff range, whether `gh` is authenticated, the PR for this branch and its check
 buckets, whether the repo has a `CODE_REVIEW_GUIDE.md`, which spec this branch
-belongs to, and whether the diff's hunks contain UI.
+belongs to, whether the diff's hunks contain UI, and the `current` facts of
+`.ss/wiki/` whose `paths` match the diff's files (`wiki`).
 
 Consumed by /ss:ship (Prerequisites and Step 0) and by /ss:review (the availability
 probe in `skills/review/references/fronts.md`), which read this one payload instead
@@ -28,6 +29,7 @@ from shutil import which
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from build_wiki import match_facts  # noqa: E402
 from gather_context import resolve_merge_base  # noqa: E402
 from inspect_pr_checks import parse_available_fields  # noqa: E402
 from scan_specs import scan  # noqa: E402
@@ -222,6 +224,19 @@ def branch_spec(specs: list[dict], branch: str | None) -> dict | None:
     return None
 
 
+def probe_wiki(cwd: str, diff_range: str, ss_root: str) -> list[dict]:
+    """The `current` facts of `.ss/wiki/` whose `paths` match a file the diff touches.
+
+    `.ss/` itself is left out of the file list: the wiki's own diff is the writer's
+    record, and a fact governs code, never another fact.
+    """
+    names = run_ok(["git", "diff", diff_range, "--name-only", "--", ".", ":(exclude).ss/"], cwd=cwd)
+    files = [f for f in (names or "").splitlines() if f]
+    if not files:
+        return []
+    return match_facts(Path(ss_root) / ".ss" / "wiki", files)
+
+
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Probe the ground a run stands on: branch, diff range, PR, checks, spec, UI."
@@ -293,6 +308,7 @@ def main() -> None:
         # payload has no reader here and is not copied into this one.
         "branch_spec": branch_spec(specs["specs"], branch),
         "ui": probe_ui(cwd, diff_range) if diff_range else {"hit": False, "markers": [], "examples": {}},
+        "wiki": probe_wiki(cwd, diff_range, specs["ss_root"]) if diff_range else [],
     }
 
     if not merge_base:
