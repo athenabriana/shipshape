@@ -162,7 +162,7 @@ Happy path:
 
 ### Scripts and probe
 
-- [ ] **2. `build_wiki.py`**: `<plugin-root>/scripts/build_wiki.py` writes `index.md`,
+- [x] **2. `build_wiki.py`**: `<plugin-root>/scripts/build_wiki.py` writes `index.md`,
       `entities/index.md` and every backlinks block from the facts and their links. ·
       verify: reading
 - [ ] **3. `validate_wiki.py`**: `<plugin-root>/scripts/validate_wiki.py` checks
