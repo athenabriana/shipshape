@@ -13,6 +13,7 @@ Usage:
 
 from __future__ import annotations
 
+import http.client
 import json
 import os
 import sys
@@ -41,7 +42,8 @@ META_IMAGE_KEYS = {
     "twitter:image",
     "twitter:image:src",
 }
-IMG_ATTRS = ("src", "data-src", "data-original", "data-lazy-src")
+# Lazy-load attributes first: on those pages `src` is a tiny placeholder.
+IMG_ATTRS = ("data-src", "data-original", "data-lazy-src", "src")
 
 # The Content-Type header can lie, so the bytes decide the type.
 MAGIC = (
@@ -135,7 +137,8 @@ def fetch_html(url: str) -> tuple[str, str]:
 def download(url: str, dest_base: str, max_bytes: int) -> dict:
     with open_url(url) as resp:
         ctype = (resp.headers.get("Content-Type") or "").lower()
-        if ctype and not ctype.startswith("image/"):
+        # Some CDNs serve images as octet-stream; the magic bytes decide below.
+        if ctype and not ctype.startswith(("image/", "application/octet-stream", "binary/octet-stream")):
             return {"skip": f"Content-Type {ctype}"}
         length = resp.headers.get("Content-Length")
         if length and length.isdigit() and int(length) > max_bytes:
@@ -169,6 +172,9 @@ def prepare_out(out: str | None) -> str:
     if not out:
         return tempfile.mkdtemp(prefix="ss-research-images-")
     out = os.path.abspath(out)
+    # Checked before makedirs, so a refused run leaves no folder behind in the repo.
+    if inside_git_repo(out):
+        raise ValueError(f"output folder sits inside a git repository: {out}")
     os.makedirs(out, exist_ok=True)
     if os.listdir(out):
         raise ValueError(f"output folder is not empty: {out}")
@@ -214,9 +220,6 @@ def main() -> None:
     except (OSError, ValueError) as exc:
         print(json.dumps({"error": str(exc)}))
         sys.exit(1)
-    if inside_git_repo(out_dir):
-        print(json.dumps({"error": f"output folder sits inside a git repository: {out_dir}"}))
-        sys.exit(1)
 
     pages: list[dict] = []
     total = 0
@@ -228,7 +231,7 @@ def main() -> None:
             continue
         try:
             final_url, html = fetch_html(page_url)
-        except (urllib.error.URLError, ValueError, OSError) as exc:
+        except (urllib.error.URLError, http.client.HTTPException, LookupError, ValueError, OSError) as exc:
             page["error"] = str(exc)
             continue
 
@@ -251,14 +254,15 @@ def main() -> None:
         page["found"] = len(candidates)
 
         kept = 0
+        page["left_out_by_cap"] = 0
         for source, url in candidates:
             if kept >= opts["per_page"] or total >= opts["max_total"]:
-                page["skipped"].append({"url": url, "reason": "cap reached"})
+                page["left_out_by_cap"] += 1
                 continue
             base = os.path.join(out_dir, f"page{page_no:02d}-{kept + 1:02d}")
             try:
                 result = download(url, base, opts["max_bytes"])
-            except (urllib.error.URLError, OSError, ValueError) as exc:
+            except (urllib.error.URLError, http.client.HTTPException, OSError, ValueError) as exc:
                 result = {"skip": str(exc)}
             if "skip" in result:
                 page["skipped"].append({"url": url, "reason": result["skip"]})

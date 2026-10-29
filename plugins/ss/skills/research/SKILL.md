@@ -158,9 +158,10 @@ unsupported. Keep it under 500 words.
    Optional flags: `--out DIR` (a new or empty folder outside any repository; a fresh temp
    folder by default), `--per-page 6`, `--max-total 30`, `--max-bytes 5000000`. It fetches
    each page, collects `og:image`, `twitter:image` and `<img>` sources, downloads real PNG,
-   JPEG, GIF or WebP files within the size cap, and prints JSON: `out_dir`, and per page
-   its `url`, `title`, `images` (each with `url` and local `path`), `skipped` with a
-   reason, `error` and `note`.
+   JPEG, GIF or WebP files within the size cap, and prints JSON: `out_dir`, `images` (the
+   count downloaded) and `pages`. Each page carries its `url`, `title`, `found`, `images`
+   (each with `url`, `source`, local `path`, `bytes` and `type`), `skipped` (each with
+   `url` and `reason`), `left_out_by_cap`, `error` and `note`.
 
 3. Open each local `path` with `Read` to see the image, and describe what it shows against
    the questions.
