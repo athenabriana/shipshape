@@ -2,12 +2,7 @@
 type: fact
 title: "The research report lives beside the spec, uncommitted by research"
 description: "research.md must outlive the side session that wrote it, and only shape knows which branch it belongs to."
-paths:
-  [
-    "plugins/ss/skills/research/SKILL.md",
-    "plugins/ss/skills/shape/SKILL.md",
-    "plugins/ss/references/spec-state.md",
-  ]
+paths: ["plugins/ss/skills/research/SKILL.md", "plugins/ss/skills/shape/SKILL.md"]
 sources: ["spec:research-skill", "commit:add24e7", "commit:f787be9"]
 status: current
 created: 2026-10-29

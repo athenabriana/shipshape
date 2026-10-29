@@ -20,6 +20,7 @@ plugins/ss/
 ├── workflows/                         # Workflow scripts (build-tasks.js)
 └── skills/
     ├── shape, build, ship
+    ├── diagnose
     ├── review, review-setup
     └── gather-branch-context, maintain-repo, research, write-readme, orchestrate
 ```
