@@ -156,7 +156,7 @@ Happy path:
 
 ### Foundation
 
-- [ ] **1. The contract**: `plugins/ss/references/wiki-state.md` states the layout, the
+- [x] **1. The contract**: `plugins/ss/references/wiki-state.md` states the layout, the
       fact and entity frontmatter, the status lifecycle, the two writers' lanes, the rule
       of what becomes a fact, the seed, and the maintenance steps. · verify: reading
 
