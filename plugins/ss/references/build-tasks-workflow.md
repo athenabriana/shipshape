@@ -146,7 +146,8 @@ stringified one):
   reuseNotes: ["<one string per reuse note in ## Decisions>"],
   phases: [{ title: "<the ### heading>", tasks: [1, 2] }],
   tasks: [
-    { n: 1, title: "...", delivers: "...", verify: "...", model: "sonnet" }
+    { n: 1, title: "...", delivers: "...", verify: "...", model: "sonnet",
+      wiki: [{ file: "/facts/<slug>.md", title: "...", description: "..." }] }
   ]
 }
 ```
@@ -188,6 +189,16 @@ right answer for most tasks: the agent is doing the work the main context would 
 below is the rule the skill applies to decide, and resume is what makes it a rule rather than
 a judgment per run: the cache is keyed on the agent's `(prompt, opts)`, so a task whose model
 moved between two runs of the same spec re-runs from scratch.
+
+`wiki` on a task is **optional**: the `current` facts of `.ss/wiki/` covering the files and
+folders the task's line names, as `build_wiki.py match --files ...` prints them (`file`,
+`title`, `description`). Which files a task really touches is known only after it runs, so the
+match is by what the line names, read before the run; the agent finds the rest in
+`.ss/wiki/entities/index.md`. Omitted or empty, the prompt carries no wiki section. The
+match is made once per run and before invoke, so the prompt stays the same across a resume.
+In return, an agent writes each choice, trap or constraint the code will not reveal as a
+`wiki:` line of its convention note, and the note keeps those lines whole when it condenses:
+they are what the build's wiki pass turns into facts.
 
 `phases` is the `###` headings inside `## Tasks` on the wire, one entry per heading in
 document order, the heading's own text as `title` and its tasks named by `n`. The rule

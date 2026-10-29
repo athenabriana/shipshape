@@ -176,7 +176,7 @@ Happy path:
 - [x] **5. Shape writes and reads**: `skills/shape/SKILL.md` reads the catalog and the
       covering facts before the draft, writes `proposed` facts on finalize, reserves the
       slug `wiki`, and seeds the bundle on the first write. · verify: reading
-- [ ] **6. Build's wiki pass**: `skills/build/SKILL.md` and its workflow reference feed
+- [x] **6. Build's wiki pass**: `skills/build/SKILL.md` and its workflow reference feed
       each task agent the covering facts, and run the end pass (promote, record,
       supersede, follow renames, rebuild, validate, commit). · verify: reading
 - [ ] **7. The review reads the facts**: `skills/review/references/front-contract.md`

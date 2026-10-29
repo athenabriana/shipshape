@@ -222,11 +222,22 @@ function taskPrompt(t, conventions, checks, specPath, together) {
    you established: names and paths you introduced, signatures other tasks will call, a
    pattern you chose among alternatives, a technical gap you settled. Nothing already written
    in the spec. Past roughly ${NOTE_CEILING} characters, condense your oldest entries before
-   returning.`;
+   returning, keeping every \`wiki:\` line whole.`;
 
   const checksLine = together
     ? ""
     : `\nThe project's checks: ${checks && checks.length ? checks.join(" && ") : "none were found"}\n`;
+
+  // The facts arrive per task, matched by path before the run, so the prompt and its
+  // resume cache key stay fixed across runs of the same spec.
+  const facts = Array.isArray(t.wiki) ? t.wiki : [];
+  const wikiLine = facts.length
+    ? `\nWhat the repo already knows about the files your task names (\`.ss/wiki/\`, current facts).
+Each one governs that code today: build within it, and when your task has to reverse one, say
+so as a \`wiki:\` line in the convention note:
+${facts.map((f) => `- ${f.file}: ${f.title}${f.description ? `. ${f.description}` : ""}`).join("\n")}
+`
+    : "";
 
   return `Build one task of a spec you did not write, in a repo you have not seen.
 
@@ -243,10 +254,12 @@ Its \`verify:\` is: ${t.verify}
 What earlier tasks established (names, paths, signatures, patterns chosen, and any reuse
 target that moved). This outranks a path the spec names:
 ${conventions || "nothing was recorded; the spec is all you have."}
-${checksLine}
+${checksLine}${wikiLine}
 The spec says what gets built and how it behaves. A technical detail it leaves open (a name,
 a file layout, a library, an algorithm) is yours to settle with the code open: decide, build,
-and record the choice in the convention note. "underspecified" is for the one gap a decision
+and record the choice in the convention note. A choice, trap or external constraint the code
+alone will not reveal to the next reader goes in as a line starting \`wiki:\`, naming the
+paths it governs: the build turns those lines into the repo's facts after the last phase. "underspecified" is for the one gap a decision
 of yours cannot close: a business rule or a behavior your task needs that the spec does not
 state, or that contradicts another.
 
@@ -341,7 +354,8 @@ ${5 + n}. Return "landed" with the numbers of the tasks whose commits landed, "c
    "checksGreen", "blocker" when step 1 or a check stopped you, and "conventions": the note the
    phase started from plus what each landed task established, each entry as it came, plus a
    line for any fix step ${3 + n} made. Leave out what a task that did not land established.
-   Past roughly ${NOTE_CEILING} characters, condense the oldest entries.
+   Past roughly ${NOTE_CEILING} characters, condense the oldest entries, keeping every
+   \`wiki:\` line whole.
 
 No AI attribution in any commit message.`;
 }
