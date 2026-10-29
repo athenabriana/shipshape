@@ -115,24 +115,24 @@ Happy path:
    the diff against those facts.
 6. The PR carries the wiki diff with the code.
 
-| WHEN                                                         | THEN                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| the first write runs in a repo with no `.ss/wiki/`           | the bundle is created and seeded from the `done` specs, once |
-| the repo has no `done` spec at the first write               | the bundle starts with only what this write adds             |
-| a spec's decisions all restate what the code does            | shape writes no fact, and says so in one line at the gate    |
-| shape finalizes a spec that is never built                   | its facts stay `proposed` and no reader treats them as rules |
-| shape re-finalizes a spec after a change at the gate         | that spec's `proposed` facts are rewritten, not duplicated   |
-| build promotes a fact that contradicts a `current` one       | the old becomes `superseded`, `superseded_by` the new one    |
-| build would write a fact that already exists                 | the existing fact gains the new source and `updated`         |
-| build stops before the last phase lands                      | no wiki pass runs; the `proposed` facts stay `proposed`      |
-| a fact's path was renamed outside ss                         | the maintenance rewrites the glob to the new path            |
-| a fact's file was deleted outside ss                         | the maintenance marks it `superseded` with no successor      |
-| `validate_wiki.py` reports an error in the pass              | build fixes it before the commit; still red stops the run    |
-| the diff touches no file any `current` fact covers           | `preflight.py`'s `wiki` is empty; readers go on without it   |
-| the review sees a diff reversing a `current` fact            | the `contract` front reports it as a finding                 |
-| an idea gets the slug `wiki`                                 | shape picks another slug                                     |
-| a fact's frontmatter carries an unsafe free-text scalar      | the validator reports it; the pass quotes it and rebuilds    |
-| `scan_specs.py` walks `.ss/`                                 | `.ss/wiki/` has no `spec.md` and is not read as a spec       |
+| WHEN                                                    | THEN                                                         |
+| ------------------------------------------------------- | ------------------------------------------------------------ |
+| the first write runs in a repo with no `.ss/wiki/`      | the bundle is created and seeded from the `done` specs, once |
+| the repo has no `done` spec at the first write          | the bundle starts with only what this write adds             |
+| a spec's decisions all restate what the code does       | shape writes no fact, and says so in one line at the gate    |
+| shape finalizes a spec that is never built              | its facts stay `proposed` and no reader treats them as rules |
+| shape re-finalizes a spec after a change at the gate    | that spec's `proposed` facts are rewritten, not duplicated   |
+| build promotes a fact that contradicts a `current` one  | the old becomes `superseded`, `superseded_by` the new one    |
+| build would write a fact that already exists            | the existing fact gains the new source and `updated`         |
+| build stops before the last phase lands                 | no wiki pass runs; the `proposed` facts stay `proposed`      |
+| a fact's path was renamed outside ss                    | the maintenance rewrites the glob to the new path            |
+| a fact's file was deleted outside ss                    | the maintenance marks it `superseded` with no successor      |
+| `validate_wiki.py` reports an error in the pass         | build fixes it before the commit; still red stops the run    |
+| the diff touches no file any `current` fact covers      | `preflight.py`'s `wiki` is empty; readers go on without it   |
+| the review sees a diff reversing a `current` fact       | the `contract` front reports it as a finding                 |
+| an idea gets the slug `wiki`                            | shape picks another slug                                     |
+| a fact's frontmatter carries an unsafe free-text scalar | the validator reports it; the pass quotes it and rebuilds    |
+| `scan_specs.py` walks `.ss/`                            | `.ss/wiki/` has no `spec.md` and is not read as a spec       |
 
 ## Attention points
 

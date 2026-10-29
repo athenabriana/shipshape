@@ -75,16 +75,16 @@ The hard line holds throughout: build never merges, never approves, never force-
 
 | WHEN                                             | THEN                                                                                                                   |
 | ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------- |
-| `/ss:build <slug>`, slug exists, not done    | run it at the scope step 2 settles                                                                                     |
-| `/ss:build <slug>`, slug not found           | report the error, list `pending_slugs`, stop                                                                           |
-| `/ss:build <slug>`, status `done`            | report it's done, ask whether to re-run                                                                                |
+| `/ss:build <slug>`, slug exists, not done        | run it at the scope step 2 settles                                                                                     |
+| `/ss:build <slug>`, slug not found               | report the error, list `pending_slugs`, stop                                                                           |
+| `/ss:build <slug>`, status `done`                | report it's done, ask whether to re-run                                                                                |
 | bare, this session is already on a spec          | take that one, confirmed against the scan                                                                              |
 | bare, nothing in context, one or more pending    | take `scan_specs.py`'s `selected`                                                                                      |
 | bare, nothing in context, none pending           | report "no pending specs", stop                                                                                        |
 | bare, the oldest spec is `blocked`               | skipped, and reported with the blocker its `## Open` carries and where that blocker sends it                           |
-| spec has no frontmatter                          | the scan still selects it; run it, and `/ss:shape` backfills the block next time                                        |
+| spec has no frontmatter                          | the scan still selects it; run it, and `/ss:shape` backfills the block next time                                       |
 | selected spec already `in-progress`              | resume: ticked tasks and a phase with none left are skipped; `status` stays `in-progress` until the ship               |
-| invoked from `/ss:shape`'s exit gate              | that gate's answer is the scope; step 2 asks nothing                                                                   |
+| invoked from `/ss:shape`'s exit gate             | that gate's answer is the scope; step 2 asks nothing                                                                   |
 | invoked on its own                               | step 2 asks the gate's second question, with the boxes the invocation leads with marked `(Recommended)`                |
 | every task already ticked                        | nothing dispatched; the wiki pass runs if it has not, then whatever the scope has next                                 |
 | `## Tasks` carries no `###` heading              | no `phases` in the payload; the tasks run one at a time, in document order, under the card's fixed titles              |
@@ -93,7 +93,7 @@ The hard line holds throughout: build never merges, never approves, never force-
 | one task of a phase comes back red               | the others land, the red one goes to `## Open`, the run stops before the next phase                                    |
 | two tasks of a phase changed the same lines      | the one that did not land names the other and the files; the run stops before the next phase                           |
 | a task line still carries `dep:`                 | read and left out of the payload; phase order is the only dependency                                                   |
-| safety valve fires (underspecified)              | `status: blocked`, the blocker into the spec's `## Open`, point back to `/ss:shape`, stop; do not improvise             |
+| safety valve fires (underspecified)              | `status: blocked`, the blocker into the spec's `## Open`, point back to `/ss:shape`, stop; do not improvise            |
 | the build stops (stage zero or a task)           | `status: blocked`, the blocker into the spec's `## Open`, no review and no ship                                        |
 | the build falls back to this context             | it runs the same way; the reason names which step of the reference's fallback chain, in one line and again in step 14  |
 | the review finds nothing                         | say so in one line and go on to the ship                                                                               |

@@ -11,16 +11,16 @@ door as any other run.
 
 ## The catalog
 
-| id                | Label           | What it covers                                                                                                                        | Available when                                                            | Reference                  |
-| ----------------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- | -------------------------- |
-| `correctness`     | Correctness     | bugs in the diff, logic, edges, contracts, concurrency, security                                                                      | the diff is not empty                                                     | `front-correctness.md`     |
-| `quality`         | Quality         | behavior-preserving cleanup, reuse, simplification, efficiency, dead weight, altitude, consistency                                    | the diff is not empty                                                     | `front-quality.md`         |
-| `rules`           | Project rules   | deviations from the repo's `CODE_REVIEW_GUIDE.md`                                                                                     | there is a `CODE_REVIEW_GUIDE.md` at the root                             | `front-rules.md`           |
-| `contract`        | Spec contract   | the diff built what was agreed, and only that, and reverses no current wiki fact                                                      | the branch has a spec, or `wiki` carries a fact                           | `front-contract.md`        |
-| `a11y`            | Accessibility   | WCAG AA on the UI the diff touched, semantics, accessible name, keyboard, focus, contrast                                             | the diff touches a UI file                                                | `front-a11y.md`            |
-| `design`          | Design system   | raw values where a token exists, rebuilt components, missing states, drift from the direction                                         | the diff touches a UI file and a design source resolves                   | `front-design.md`          |
-| `threads`         | PR threads      | unresolved review comments                                                                                                            | there is an open PR for the branch                                        | `front-threads.md`         |
-| `ci`              | CI              | red checks, evidence, diagnosis, root cause                                                                                           | a check is failing on the PR or on the branch's last run                  | `front-ci.md`              |
+| id            | Label         | What it covers                                                                                     | Available when                                           | Reference              |
+| ------------- | ------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | ---------------------- |
+| `correctness` | Correctness   | bugs in the diff, logic, edges, contracts, concurrency, security                                   | the diff is not empty                                    | `front-correctness.md` |
+| `quality`     | Quality       | behavior-preserving cleanup, reuse, simplification, efficiency, dead weight, altitude, consistency | the diff is not empty                                    | `front-quality.md`     |
+| `rules`       | Project rules | deviations from the repo's `CODE_REVIEW_GUIDE.md`                                                  | there is a `CODE_REVIEW_GUIDE.md` at the root            | `front-rules.md`       |
+| `contract`    | Spec contract | the diff built what was agreed, and only that, and reverses no current wiki fact                   | the branch has a spec, or `wiki` carries a fact          | `front-contract.md`    |
+| `a11y`        | Accessibility | WCAG AA on the UI the diff touched, semantics, accessible name, keyboard, focus, contrast          | the diff touches a UI file                               | `front-a11y.md`        |
+| `design`      | Design system | raw values where a token exists, rebuilt components, missing states, drift from the direction      | the diff touches a UI file and a design source resolves  | `front-design.md`      |
+| `threads`     | PR threads    | unresolved review comments                                                                         | there is an open PR for the branch                       | `front-threads.md`     |
+| `ci`          | CI            | red checks, evidence, diagnosis, root cause                                                        | a check is failing on the PR or on the branch's last run | `front-ci.md`          |
 
 ## Probe availability before asking
 
@@ -55,7 +55,8 @@ call `/ss:ship` makes. What each field settles:
   activate it.
 - design source, resolved by the caller when `ui.hit` passed (preflight carries no
   field for it): a token source the project reads (a `tokens.json`, CSS custom
-  properties, a Tailwind theme config or a?
+  properties, a Tailwind theme config or a
+  ?
   `styles.css`), or the branch's `.ss/<slug>/design.md` (or `design/`). One resolving
   makes `design`
   available; the resolution order and what each rung is worth are `front-design.md`'s.

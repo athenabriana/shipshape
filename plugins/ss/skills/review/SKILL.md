@@ -264,7 +264,7 @@ offered, which needs no row here. What this table covers is everything else:
 | `gh` unauthenticated                         | `threads`/`ci` and the intent read unavailable; say so once with `gh auth login`, offer the diff fronts               |
 | a11y or design finding needs a rendered page | report it as out of static reach; the gate offers the surface-scope audit                                             |
 | accessibility audit asked outside a git repo | surface scope needs no diff and no repo, so step 0's probe and intent read are skipped                                |
-| design review asked and no design source     | say what would create one (a token file the build reads), stop                                                         |
+| design review asked and no design source     | say what would create one (a token file the build reads), stop                                                        |
 | an external PR at the intent read            | skipped here; `mode-external-pr.md` reads that PR's own body, comments and diff                                       |
 | legacy `.claude/skills/code-review/` present | flag as superseded; the user deletes it                                                                               |
 | uncommitted changes present                  | include in diff scope, flagged separately                                                                             |

@@ -83,11 +83,11 @@ of facts that link to it, `current` first. That block is derived: never edit it 
 
 ## The status lifecycle
 
-| status       | written by                  | meaning                                        |
-| ------------ | --------------------------- | ---------------------------------------------- |
-| `proposed`   | `/ss:shape`, on finalize    | a decision of a spec that has not landed yet   |
-| `current`    | `/ss:build`, in its pass    | knowledge that governs the code today          |
-| `superseded` | `/ss:build`, in its pass    | replaced by a newer fact, or left with no code |
+| status       | written by               | meaning                                        |
+| ------------ | ------------------------ | ---------------------------------------------- |
+| `proposed`   | `/ss:shape`, on finalize | a decision of a spec that has not landed yet   |
+| `current`    | `/ss:build`, in its pass | knowledge that governs the code today          |
+| `superseded` | `/ss:build`, in its pass | replaced by a newer fact, or left with no code |
 
 - **A `proposed` fact never supersedes anything**, and no reader treats it as a rule: a
   spec that is never built changes nothing that governs the code.
