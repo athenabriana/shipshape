@@ -12,8 +12,8 @@ the run branch.
 
 ## Facts
 
+- [A repro task lands as two commits, the test first](/facts/repro-task-lands-test-first.md) (current)
 - [Task facts are matched once, before the workflow is invoked](/facts/task-facts-matched-before-invoke.md) (current)
 - [Task worktrees never write the wiki](/facts/worktrees-never-write-the-wiki.md) (current)
-- [A repro task lands as two commits, the test first](/facts/repro-task-lands-test-first.md) (proposed)
 
 <!-- backlinks:end -->

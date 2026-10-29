@@ -3,10 +3,10 @@ type: fact
 title: "A repro task lands as two commits, the test first"
 description: "The test commit alone is what lets CI show the red half of a bug fix's proof without rewriting history."
 paths: ["plugins/ss/workflows/build-tasks.js", "plugins/ss/skills/build/SKILL.md", "plugins/ss/skills/ship/SKILL.md"]
-sources: ["spec:bug-fix-proof"]
-status: proposed
+sources: ["spec:bug-fix-proof", "commit:e7ea657"]
+status: current
 created: 2026-10-28
-updated: 2026-10-28
+updated: 2026-10-29
 ---
 
 A task whose `verify:` is `repro:` commits its focused test alone, then the fix with the
