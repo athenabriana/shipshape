@@ -66,7 +66,31 @@ jobs:
         run: |
           python3 plugins/ss/scripts/build_wiki.py --wiki .github/fixtures/wiki
           git --no-pager diff --exit-code -- .github/fixtures/wiki
+          untracked=$(git status --porcelain -- .github/fixtures/wiki)
+          if [ -n "$untracked" ]; then echo "$untracked"; exit 1; fi
           python3 plugins/ss/scripts/validate_wiki.py --wiki .github/fixtures/wiki
+          python3 - <<'PY'
+          import sys
+          sys.path.insert(0, "plugins/ss/scripts")
+          from build_wiki import fact_matches
+          cases = [
+              (["src/*"], "src/a.py", True),
+              (["src/*"], "src/auth/a.py", False),
+              (["src/**"], "src/auth/a.py", True),
+              (["**/*.py"], "a/b/c.py", True),
+              (["src/auth"], "src/auth/a.py", True),
+              (["src/auth/**"], "src/auth/", True),
+              (["src/auth/*.py"], "src/auth/", True),
+              (["src/auth/*.py"], "src/", True),
+              (["src/*.py"], "src/auth/", False),
+              (["src/**/*.ts"], "src/a/", True),
+              (["lib/**"], "src/", False),
+          ]
+          bad = [c for c in cases if bool(fact_matches(c[0], [c[1]])) != c[2]]
+          for paths, f, want in bad:
+              print(f"fact_matches({paths}, [{f!r}]) should be {want}")
+          sys.exit(1 if bad else 0)
+          PY
           if [ -d .ss/wiki ]; then python3 plugins/ss/scripts/validate_wiki.py --wiki .ss/wiki; fi
 
       - name: Check formatting
