@@ -135,11 +135,11 @@ Happy path, called by shape:
 
 ### Callers and references
 
-- [ ] **2. Shape runs the research**: `plugins/ss/skills/shape/SKILL.md` runs the research
+- [x] **2. Shape runs the research**: `plugins/ss/skills/shape/SKILL.md` runs the research
       before the draft when the idea needs outside facts and commits `research.md` with the
       spec; `plugins/ss/references/spec-state.md` lists `research.md` in the slug folder.
       · verify: reading
-- [ ] **3. The old name goes away**: `README.md` rows, `.claude/CLAUDE.md`, `plugin.json`,
+- [x] **3. The old name goes away**: `README.md` rows, `.claude/CLAUDE.md`, `plugin.json`,
       `plugins/ss/references/handoff-gate.md` and any other trigger name `research`.
       · verify: CI
 
