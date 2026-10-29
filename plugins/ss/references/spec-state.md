@@ -3,6 +3,8 @@
 The single on-disk contract for a slug's durable state. **`spec.md` has exactly one
 writer**: `/ss:shape` writes it, and `/ss:build` and `/ss:ship` read it. Any skill that
 reads or writes this state follows this file. The contract lives here and nowhere else.
+**`research.md` has its own writer**: `/ss:research` writes it and never commits it;
+`/ss:shape` reads it before the draft and commits it with the spec.
 
 ## Location
 
@@ -11,8 +13,13 @@ and everything durable about that work lives inside it:
 
 ```
 .ss/<slug>/
-└── spec.md        # the contract, /ss:shape, single writer
+├── spec.md        # the contract, /ss:shape, single writer
+└── research.md    # optional, the research report, /ss:research, single writer
 ```
+
+- **A slug is a folder holding `spec.md`.** Every reader that lists slugs globs
+  `.ss/*/spec.md`, so a folder holding only `research.md` (a standalone research run
+  that no shape has followed yet) is not a spec and stays out of every selection.
 
 - The `.ss/` root is the nearest ancestor of the cwd that already has one, searching
   no further up than the repository, the directory holding `.git`; if none inside it

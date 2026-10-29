@@ -22,7 +22,7 @@ plugins/ss/
     ├── shape, build, ship
     ├── diagnose
     ├── review, review-setup
-    └── gather-branch-context, caretake, takeover, code-deep-research, write-readme, orchestrate
+    └── gather-branch-context, caretake, takeover, research, write-readme, orchestrate
 ```
 
 ### Naming Conventions

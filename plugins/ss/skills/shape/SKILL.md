@@ -4,7 +4,7 @@ description: Align on the idea before building. Develops a draft, iterates the g
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 4.0.0
+  version: 4.1.0
 ---
 
 # Shape
@@ -28,6 +28,8 @@ Always required: reach alignment, **map the behavior, run the lint before every 
 You bring the idea; Claude develops it, then loops with you through the **`AskUserQuestion` tool** until the picture is consistent and you sign off. Never interrogate from a blank page, and never decide silently; drive it through real questions.
 
 1. **Develop the draft (draft-first).** Read the one-liner, look at the codebase and at what the repo already knows about it (below), and write a short draft spec with your best guesses filled in: what/why, the business rules, the scope edges, the behavior you expect. For Large work, also describe the pieces in the top half before breaking it into tasks. Bring something concrete to react to.
+
+   **Research first when the draft needs outside facts.** When the draft depends on facts the repo does not hold (how others build something, a library nobody here has used, a UI pattern), run `/ss:research` on the idea with the spec's slug before writing the draft. Decide it alone: say in one line that the research runs first, and ask nothing. An existing `.ss/<slug>/research.md` is read instead of rerun. The research writes that file, returns a short summary and the path, and stops; the draft is written on top of it, citing it, and its open section feeds the gray areas. An idea the repo and the wiki already cover drafts as before.
 
 2. **Highest-stakes question first, ask before you anchor.** On the single call most expensive to get wrong about what gets built, ask the user how _they'd_ call it _before_ you reveal your own pick (an open `AskUserQuestion`). Anchoring is strongest on the choice that matters most. Don't pre-frame that one. One question only; everything else stays draft-first.
 
@@ -127,6 +129,8 @@ On finalize, open the spec with the frontmatter block (`status: pending`, `creat
 
 The review's verdict is not part of the block: it belongs to this session, and it reaches the user at the gate, which is where a person can still act on it.
 
+A `.ss/<slug>/research.md` beside the spec is committed with it on finalize. The research never commits its own report, and shape is the caller that knows which branch it belongs to.
+
 **Large** work carries `## Behavior`, `## Attention points` and `## Tasks` as their own sections: the acceptance contract, the risks the builder handles and the phased tasks the build side consumes. **Medium** work can keep the behavior and the tasks inline in the decisions.
 
 ## The wiki: read before the draft, write on finalize
@@ -140,7 +144,7 @@ The review's verdict is not part of the block: it belongs to this session, and i
 
 ## Don't fabricate
 
-Before asserting how something works: check the codebase, then its docs, then the web; if you still don't know, **say so**. A wrong assumption here cascades into the build, and a draft full of confident guesses is worse than one that flags what it's unsure of. Uncertainty flagged beats confidence invented.
+Before asserting how something works: check the codebase, then its docs, then the web (the research report, when the idea needed one); if you still don't know, **say so**. A wrong assumption here cascades into the build, and a draft full of confident guesses is worse than one that flags what it's unsure of. Uncertainty flagged beats confidence invented.
 
 ## Hand off: the gate decides whether to roll on
 
