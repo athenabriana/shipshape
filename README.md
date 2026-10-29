@@ -30,14 +30,14 @@ one plugin, `ss`; the skills are organized by use.
 | `/ss:ship`     | land the branch your way: green the checks, then push to a branch, prep a push to main, or open a PR and tend it until you stop   |
 | `/ss:diagnose` | fix a bug with no spec: find the cause, reproduce it, make the smallest fix, prove it, hand it to ship                            |
 
-shape and build keep `.ss/wiki/` up to date by themselves: a per-project knowledge base of the facts the code does not show (a choice, a trap, a constraint), each tied to the paths it covers. shape reads it before the draft, build hands each task the facts covering its files, and review's contract front checks the diff against them. The contract is `plugins/ss/references/wiki-state.md`.
+shape and build keep `.ss/wiki/` up to date by themselves: a per-project knowledge base of the facts the code does not show (a choice, a trap, a constraint), each tied to the paths it covers. shape reads it before the draft, build hands each task the facts covering its files, and review's contract front checks the diff against them. the contract is `plugins/ss/references/wiki-state.md`.
 
 ### review
 
-| skill              | description                                                                                        |
-| ------------------ | -------------------------------------------------------------------------------------------------- |
-| `/ss:review`       | pick the fronts, fan out read-only finders, verify every finding, then fix or comment item by item |
-| `/ss:review-setup` | generate or update the repo's `CODE_REVIEW_GUIDE.md`, the rule source `/ss:review` reads           |
+| skill              | description                                                                                                                                   |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/ss:review`       | loop over the branch: every front in parallel, a second-model judge, fixes and re-reviews, up to 3 rounds (`manual` to pick fronts and items) |
+| `/ss:review-setup` | generate or update the repo's `CODE_REVIEW_GUIDE.md`, the rule source `/ss:review` reads                                                      |
 
 ### helpers
 
@@ -53,8 +53,8 @@ shape and build keep `.ss/wiki/` up to date by themselves: a per-project knowled
 develop locally:
 
 ```bash
-git clone git@github.com:athenabriana/shipshape.git
-claude --plugin-dir ./shipshape-skills/plugins/ss    # load the plugin from disk to test
+git clone https://github.com/athenabriana/shipshape.git
+claude --plugin-dir ./shipshape/plugins/ss    # load the plugin from disk to test
 ```
 
 <sub>parts of `/ss:review` are adapted from Claude Code's `/simplify` and `/code-review` (Anthropic, Apache-2.0). individual components retain their original licenses.</sub>
