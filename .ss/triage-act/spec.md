@@ -140,7 +140,7 @@ the user doing the checkout, the rebase or the CI loop by hand.
 - [x] **2. The suggested action**: `scan_repo.py` adds a suggested action per PR with
       self-test fixtures for it, and `render_digest.py` shows it beside each PR.
       · verify: CI
-- [ ] **3. takeover**: `skills/triage/references/takeover.md` carries the flow, the two
+- [x] **3. takeover**: `skills/triage/references/takeover.md` carries the flow, the two
       push paths and the credit rules, and hands over to `/ss:ship`'s PR path.
       · verify: reading
 - [ ] **4. modernize**: `skills/triage/references/modernize.md` carries the rebase, the
