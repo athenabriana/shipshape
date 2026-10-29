@@ -184,7 +184,7 @@ Happy path:
 
 ### Close
 
-- [ ] **8. The repo catches up**: CI validates a sample bundle with `validate_wiki.py`;
+- [x] **8. The repo catches up**: CI validates a sample bundle with `validate_wiki.py`;
       `README.md`, `.claude/CLAUDE.md`, `spec-state.md` and `plugin.json` name the wiki. ·
       verify: CI
 

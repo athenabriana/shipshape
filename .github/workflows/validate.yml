@@ -7,6 +7,7 @@ on:
       - "plugins/**"
       - ".ss/**"
       - ".github/scripts/**"
+      - ".github/fixtures/**"
       - ".github/workflows/validate.yml"
 
 jobs:
@@ -57,6 +58,16 @@ jobs:
           fi
           mapfile -t specs <<< "$changed"
           python3 plugins/ss/skills/shape/scripts/lint_spec.py "${specs[@]}"
+
+      # The fixture bundle is the scripts' executable coverage: a rebuild that changes a
+      # derived file means build_wiki.py drifted from what it wrote before. The repo's own
+      # `.ss/wiki/` is validated too once it exists.
+      - name: Validate the wiki
+        run: |
+          python3 plugins/ss/scripts/build_wiki.py --wiki .github/fixtures/wiki
+          git --no-pager diff --exit-code -- .github/fixtures/wiki
+          python3 plugins/ss/scripts/validate_wiki.py --wiki .github/fixtures/wiki
+          if [ -d .ss/wiki ]; then python3 plugins/ss/scripts/validate_wiki.py --wiki .ss/wiki; fi
 
       - name: Check formatting
         id: fmt

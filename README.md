@@ -29,6 +29,8 @@ one plugin, `ss`; the skills are organized by use.
 | `/ss:build` | run a spec end to end: build every phase of tasks, track its `status`, chain into review and ship when the scope says so            |
 | `/ss:ship`  | land the branch your way: green the checks, then push to a branch, prep a push to main, or open a PR and tend it until you stop    |
 
+shape and build keep `.ss/wiki/` up to date by themselves: a per-project knowledge base of the facts the code does not show (a choice, a trap, a constraint), each tied to the paths it covers. shape reads it before the draft, build hands each task the facts covering its files, and review's contract front checks the diff against them. The contract is `plugins/ss/references/wiki-state.md`.
+
 ### review
 
 | skill               | description                                                                                         |

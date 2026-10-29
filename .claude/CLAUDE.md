@@ -29,6 +29,7 @@ plugins/ss/
 - Skills live in `plugins/ss/skills/<name>/SKILL.md`, invoked as `/ss:<name>`. Keep the dir name identical to the frontmatter `name`.
 - A skill's own `scripts/` and `references/*.md` are relative to the skill dir. Shared ones live at the plugin root and are written `<plugin-root>/...`; the SessionStart hook resolves that placeholder to the install path once per session.
 - Spec state lives in `.ss/<slug>/spec.md`; `plugins/ss/references/spec-state.md` is the contract.
+- The project wiki lives in `.ss/wiki/`; `plugins/ss/references/wiki-state.md` is the contract. `.github/fixtures/wiki/` is the bundle CI rebuilds and validates.
 - Hook commands reference files via `${CLAUDE_PLUGIN_ROOT}/...`, which only works inside `hooks.json`.
 
 ## Skills
