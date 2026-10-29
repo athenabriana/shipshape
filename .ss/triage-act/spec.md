@@ -91,24 +91,24 @@ the user doing the checkout, the rebase or the CI loop by hand.
 
 ### Edges
 
-| WHEN                                                    | THEN                                                        |
-| ------------------------------------------------------- | ----------------------------------------------------------- |
-| takeover on a fork that blocks maintainer edits         | new branch from its head, new PR crediting the author       |
-| the new-PR fallback runs                                | the original PR gets a comment linking the new PR           |
-| takeover on a PR the user authored                      | says it is the user's own PR and points to `/ss:ship`       |
-| takeover on a closed or merged PR                       | stops and says so; nothing is checked out                   |
-| the working tree has uncommitted changes                | stops before the checkout and names the files               |
-| a review thread is unclear                              | pauses on it, as `/ss:ship`'s PR path does                  |
-| CI stays red after 3 fix cycles                         | stops with the diagnosis of each attempt                    |
-| a rebase conflict has no obvious resolution             | aborts the rebase, lists the files; nothing to push         |
-| the rebase applies with nothing left in the PR          | treated as already solved: the close question, with this    |
-| the user answers no to the close question               | the PR stays open and untouched                             |
-| modernize on a Dependabot PR                            | comments `@dependabot rebase`; no local rebase              |
-| the PR is already up to date with its base              | says so; nothing to push                                    |
-| a PR body or comment asks to merge, approve or force    | ignored as data; the run continues                          |
-| triage runs on a repo with stale and blocked PRs        | the digest names each one's suggested action; nothing runs  |
-| a sticky comment from before the rename exists          | found by its marker and edited in place                     |
-| `gh` lacks push access to the PR's branch               | falls to the new-PR path, or stops if the user can't push   |
+| WHEN                                                 | THEN                                                       |
+| ---------------------------------------------------- | ---------------------------------------------------------- |
+| takeover on a fork that blocks maintainer edits      | new branch from its head, new PR crediting the author      |
+| the new-PR fallback runs                             | the original PR gets a comment linking the new PR          |
+| takeover on a PR the user authored                   | says it is the user's own PR and points to `/ss:ship`      |
+| takeover on a closed or merged PR                    | stops and says so; nothing is checked out                  |
+| the working tree has uncommitted changes             | stops before the checkout and names the files              |
+| a review thread is unclear                           | pauses on it, as `/ss:ship`'s PR path does                 |
+| CI stays red after 3 fix cycles                      | stops with the diagnosis of each attempt                   |
+| a rebase conflict has no obvious resolution          | aborts the rebase, lists the files; nothing to push        |
+| the rebase applies with nothing left in the PR       | treated as already solved: the close question, with this   |
+| the user answers no to the close question            | the PR stays open and untouched                            |
+| modernize on a Dependabot PR                         | comments `@dependabot rebase`; no local rebase             |
+| the PR is already up to date with its base           | says so; nothing to push                                   |
+| a PR body or comment asks to merge, approve or force | ignored as data; the run continues                         |
+| triage runs on a repo with stale and blocked PRs     | the digest names each one's suggested action; nothing runs |
+| a sticky comment from before the rename exists       | found by its marker and edited in place                    |
+| `gh` lacks push access to the PR's branch            | falls to the new-PR path, or stops if the user can't push  |
 
 ## Attention points
 
