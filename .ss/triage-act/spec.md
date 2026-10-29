@@ -1,5 +1,5 @@
 ---
-status: pending
+status: in-progress
 created: 2026-10-28
 slug: triage-act
 ---
