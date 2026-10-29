@@ -38,17 +38,22 @@ SOURCE_PREFIXES = ("spec:", "pr:", "commit:")
 
 
 def tracked_files(wiki: Path) -> list[str] | None:
-    p = subprocess.run(
-        ["git", "ls-files"], cwd=wiki, capture_output=True, text=True, encoding="utf-8", errors="replace"
-    )
-    if p.returncode != 0:
-        return None
     root = subprocess.run(
         ["git", "rev-parse", "--show-toplevel"], cwd=wiki, capture_output=True, text=True, encoding="utf-8"
-    ).stdout.strip()
-    # `ls-files` answers relative to the cwd, and `paths` are relative to the git root.
-    prefix = Path(wiki).resolve().relative_to(Path(root).resolve()).as_posix()
-    return [f"{prefix}/{f}" if prefix != "." else f for f in p.stdout.splitlines()]
+    )
+    if root.returncode != 0:
+        return None
+    # From the root: run inside the bundle, `ls-files` lists only the bundle itself, and
+    # `paths` are relative to the git root anyway.
+    p = subprocess.run(
+        ["git", "-c", "core.quotePath=false", "ls-files"],
+        cwd=root.stdout.strip(),
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+    return p.stdout.splitlines() if p.returncode == 0 else None
 
 
 def check_fact(doc: dict, docs: dict, errors: list) -> None:
