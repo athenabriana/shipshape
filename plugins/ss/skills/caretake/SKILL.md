@@ -1,15 +1,15 @@
 ---
-name: maintain-repo
-description: Triages repo maintenance and reports what is safe to merge. Never merges. Scans open PRs, Dependabot security alerts and outdated dependencies, prioritizes them, and delivers a digest in Slack or as a sticky comment on the PR. The merge stays with a human. Use when the user says "what can I merge", "triage my PRs", "review the open PRs", "check Dependabot", "are the dependency updates safe", or "set up a maintenance digest". Don't use it to fix one specific PR (use /ss:review or /ss:ship) or to open a PR (use /ss:ship).
+name: caretake
+description: Looks after the repo. Never merges. Scans open PRs, Dependabot security alerts and outdated dependencies, reports what is safe to merge and suggests an action per PR (takeover or modernize, both run by /ss:takeover), in Slack or as a sticky comment. Use when the user says "look after the repo", "what can I merge", "triage my PRs", "review the open PRs", "check Dependabot", "are the dependency updates safe", or "set up a maintenance digest". Don't use it to act on one PR somebody else opened (use /ss:takeover), on the user's own branch or PR (use /ss:ship), or to review a diff (use /ss:review).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 2.3.0
+  version: 4.0.0
 ---
 
-# Repo maintenance
+# Caretake
 
-Triage a repo's open PRs and dependency updates, then tell the user **what is safe to merge**: to Slack, as a sticky PR comment, or both. Merge is **never** performed by this skill; it is decision-support that ends with the human clicking merge.
+Look after a repo's open PRs and dependency updates, then tell the user **what is safe to merge** and what each blocked or stale PR needs: to Slack, as a sticky PR comment, or both. Merge is **never** performed by this skill; the human clicks merge. Acting on one PR is `/ss:takeover`'s: caretake suggests it and never runs it.
 
 ## Prerequisites
 
@@ -38,6 +38,14 @@ The verdict per PR is one of:
 - **`no`**: CI failing, merge conflict, or changes requested.
 - **`needs-human`** covers anything else: major bump, async-`UNKNOWN` mergeability, CI not settled, non-bot author, touches CI/workflows, or unparsed/grouped title. (Default; the verdict only relaxes when every check explicitly passes.)
 
+Each PR also carries a `suggested_action`, from the same structured fields, naming a mode of `/ss:takeover`:
+
+- **`modernize`**: a Dependabot PR behind or conflicting with its base, or another person's PR untouched for 30 days and behind or conflicting.
+- **`takeover`**: another person's PR with CI failing, changes requested or a merge conflict.
+- **none**: drafts, the user's own PRs, other bots, and everything else.
+
+The suggestion is text in the digest. It never runs anything: the user picks one and runs `/ss:takeover` on that PR.
+
 ### Phase 3: Render (de-duplicated digest)
 
 `python scripts/scan_repo.py --repo <owner/name> | python scripts/render_digest.py --state <state.json>` → `{slack_markdown, changed, new_state, comments}`. Only PRs whose settled state changed since `state.json` appear in the digest, so a recurring run never re-pings. Persist `new_state` for the next run.
@@ -53,8 +61,8 @@ Every delivery ends on the explicit line: **mergeable verdicts are decision-supp
 
 ### scripts/scan_repo.py
 
-Read-only scan → schema-versioned JSON (PRs + alerts + outdated). Computes priority, eligibility deny-list, and the fail-closed mergeability verdict. `--self-test` runs the verdict fixtures and exits non-zero on mismatch.
+Read-only scan → schema-versioned JSON (PRs + alerts + outdated). Computes priority, eligibility deny-list, the fail-closed mergeability verdict and the suggested action. `--self-test` runs the verdict and action fixtures and exits non-zero on mismatch.
 
 ### scripts/render_digest.py
 
-Renders the Slack digest + per-PR sticky-comment bodies from the scan JSON, de-duplicating against a prior-state file so recurring runs only surface real changes.
+Renders the Slack digest + per-PR sticky-comment bodies from the scan JSON, de-duplicating against a prior-state file so recurring runs only surface real changes. The sticky comment's marker keeps the skill's old name, `<!-- ss:maintain-repo:pr-N -->`, so comments posted before the rename are still edited in place.
