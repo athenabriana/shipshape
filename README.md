@@ -1,60 +1,56 @@
 <div align="center">
 
-# skills
+# ship shape
 
-[![github](https://img.shields.io/badge/github-athenabriana%2Fskills-111111?style=flat-square&logo=github)](https://github.com/athenabriana/skills)
+[![github](https://img.shields.io/badge/github-athenabriana%2Fshipshape--skills-111111?style=flat-square&logo=github)](https://github.com/athenabriana/shipshape-skills)
 
-_a claude code plugin — agent skills grouped by use, with an operating-context hook shipped alongside them._
+_a claude code plugin of technical skills: shape → build → ship._
 
 </div>
 
 add the marketplace, then install the one plugin:
 
 ```bash
-claude plugin marketplace add athenabriana/skills
-claude plugin install ath@athenabriana
+claude plugin marketplace add athenabriana/shipshape-skills
+claude plugin install ss@shipshape-skills
 ```
 
-it ships a `SessionStart` operating-context hook, auto-active on install. skills are invoked as `/ath:<skill>` — e.g. `/ath:shape`, `/ath:ship`, `/ath:answer-yourself`.
+it ships a `SessionStart` operating-context hook, auto-active on install. skills are invoked as `/ss:<skill>`, e.g. `/ss:shape`, `/ss:build`, `/ss:ship`.
 
 ## what's inside
 
-one plugin, `ath`; the skills are organized by use.
+one plugin, `ss`; the skills are organized by use.
 
-### shape & ship — write & ship code, you-driven
+### shape → build → ship
 
-| skill                        | description                                                                                                                                                              |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `/ath:shape`                 | align on the idea before building — develop, loop on gray areas via questions, validate                                                                                  |
-| `/ath:implement`             | implement a validated shape brief — build the slices, run the gate, then offer to ship (or chain straight to it)                                                         |
-| `/ath:ship`                  | land the branch your way — review + green the checks, then push to a branch, prep a push to main, or open a PR & auto-tend it (handle comments, green CI, keep watching) |
-| `/ath:address-comments`      | address review comments on github PRs                                                                                                                                    |
-| `/ath:gather-branch-context` | summarize all changes on the branch vs main                                                                                                                              |
-| `/ath:improve-code`          | improve a diff's quality with a hard regression guard (no bugs)                                                                                                          |
+| skill       | description                                                                                                                         |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `/ss:shape` | align on the idea before building: draft, loop on the gray areas through questions, map behavior, order the tasks, write the spec |
+| `/ss:build` | run a spec end to end: build every phase of tasks, track its `status`, chain into review and ship when the scope says so            |
+| `/ss:ship`  | land the branch your way: green the checks, then push to a branch, prep a push to main, or open a PR and tend it until you stop    |
 
-### loops — run across time (scheduled / event-driven)
+### review
 
-there's no dedicated overnight skill — the unattended path **is** the trio: a [Cloud Routine](plugins/ath/references/routines.md) sets `ATH_UNATTENDED` and runs `/ath:implement` → `/ath:ship` against a committed brief, building the whole backlog and leaving a draft PR. for that path, never-merge is enforced by **capability scoping** — the routine runs with a token that has no merge/branch-push permission and no merge-capable connector — backed by GitHub branch protection. server-side controls, not a local hook.
+| skill               | description                                                                                         |
+| ------------------- | --------------------------------------------------------------------------------------------------- |
+| `/ss:review`        | pick the fronts, fan out read-only finders, verify every finding, then fix or comment item by item  |
+| `/ss:review-setup`  | generate or update the repo's `CODE_REVIEW_GUIDE.md`, the rule source `/ss:review` reads            |
 
-| skill                  | description                                                              |
-| ---------------------- | ------------------------------------------------------------------------ |
-| `/ath:maintain-repo`   | triage PRs + dependabot/outdated, report what's mergeable (never merges) |
-| `/ath:digest-research` | scheduled, read-only research/monitoring digest to slack or a branch     |
+### helpers
 
-### helpers — standalone
-
-| skill                  | description                                                                      |
-| ---------------------- | -------------------------------------------------------------------------------- |
-| `/ath:research-topic`  | deep research using parallel agents                                              |
-| `/ath:research-code`   | find, clone, and explore relevant repos                                          |
-| `/ath:write-readme`    | generate a minimal centered-header README from repo facts                        |
-| `/ath:answer-yourself` | honest, decisive recommendation — commit, name the unseen tension, no sycophancy |
+| skill                       | description                                                                 |
+| --------------------------- | --------------------------------------------------------------------------- |
+| `/ss:gather-branch-context` | summarize every change on the branch against main                           |
+| `/ss:maintain-repo`         | triage PRs, dependabot and outdated deps, report what's mergeable (never merges) |
+| `/ss:code-deep-research`    | find, clone and explore real repos, verifying every finding against source  |
+| `/ss:write-readme`          | generate a minimal centered-header README from repo facts                   |
+| `/ss:orchestrate`           | split a large piece of work into side sessions and relay between them       |
 
 develop locally:
 
 ```bash
-git clone git@github.com:athenabriana/skills.git
-claude --plugin-dir ./skills/plugins/ath    # load the plugin from disk to test
+git clone git@github.com:athenabriana/shipshape-skills.git
+claude --plugin-dir ./shipshape-skills/plugins/ss    # load the plugin from disk to test
 ```
 
-<sub>`/ath:improve-code` is adapted from Claude Code's `/simplify` (Anthropic, Apache-2.0). individual components retain their original licenses.</sub>
+<sub>parts of `/ss:review` are adapted from Claude Code's `/simplify` and `/code-review` (Anthropic, Apache-2.0). individual components retain their original licenses.</sub>

@@ -1,15 +1,15 @@
 {
-  "name": "athenabriana",
+  "name": "shipshape-skills",
   "owner": {
     "name": "Athena Briana",
     "email": "me@athenabriana.com"
   },
-  "description": "Athena's agent skills as a single installable plugin.",
+  "description": "Ship Shape: Athena's technical agent skills as a single installable plugin.",
   "plugins": [
     {
-      "name": "ath",
-      "source": "./plugins/ath",
-      "description": "shape & ship code, run loops across time (never-merge enforced by cloud capability scoping), and helpers — invoked as /ath:<skill>"
+      "name": "ss",
+      "source": "./plugins/ss",
+      "description": "shape → build → ship, plus review, repo maintenance and code research, invoked as /ss:<skill>"
     }
   ]
 }

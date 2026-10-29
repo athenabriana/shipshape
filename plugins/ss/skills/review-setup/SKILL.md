@@ -1,0 +1,92 @@
+---
+name: review-setup
+description: Generates or updates the repository's CODE_REVIEW_GUIDE.md. Runs automatic discovery with parallel subagents, interviews the maintainer to validate every rule, and writes the guide at the root as the source of truth /ss:review consumes. Generates from scratch when there is no guide; when one exists, it updates surgically, only what changed. Use when the user says "set up code review", "generate the review guide", "create the CODE_REVIEW_GUIDE", "update the review guide", "the review guide is stale", or when /ss:review reports drift. Don't use it to review code (use /ss:review).
+license: MIT
+metadata:
+  author: Athena Briana - github.com/athenabriana
+  version: 2.4.0
+---
+
+# Review setup
+
+Produce the repo's `CODE_REVIEW_GUIDE.md`, the single source of truth for what
+"good" means in this codebase: rules with IDs, finding levels, and evidence, validated
+by the maintainer in an interview. `/ss:review` reads it fresh on every run;
+developers read it before opening PRs. **The guide is the only output**, no
+per-repo skill is generated; the review engine is `/ss:review` itself.
+
+This SKILL.md is the router: it picks the mode, and each phase's method lives in
+its own reference, loaded only when that phase runs.
+
+## Finding levels
+
+Every rule in the guide carries one of two levels, `HIGH` or `LOW`, defined
+once in the plugin-root `references/finding-levels.md`: what each one means, the
+concrete-cost gate that separates an inline comment from a body line, and how a rule
+still ranked `MEDIUM` reads. The guide is the surface that states them as `HIGH` and
+`LOW`; a review reports the same two as Bloqueante and Sugestão, and that file carries
+which name goes where. Read it before discovery suggests a
+level, and again before the guide is written. `/ss:review` reads the same file, which
+is why the scale lives outside both skills.
+
+## Mode selection
+
+- `CODE_REVIEW_GUIDE.md` absent at the repo root → **setup** (full generation).
+- Present → **update** (delta only: never re-interview what didn't change).
+
+If `$ARGUMENTS` names a focus area, constrain discovery (either mode) to that
+domain.
+
+## Setup mode
+
+1. **Discovery** → `references/discovery.md`: 5 parallel read-only subagents
+   (stack & structure, patterns & conventions, git history & PRs, CI/CD &
+   quality, security & contracts), then rule extraction into
+   Confirmed/Candidate tables with IDs, levels, and evidence.
+2. **Interview** → `references/interview.md`: the maintainer validates via
+   `AskUserQuestion`: confirmed rules in one batch, candidates one at a
+   time. Every rule in the guide was accepted by a human, none slipped in.
+3. **Generate** → `references/guide-template.md`: write `CODE_REVIEW_GUIDE.md`
+   at the repo root from the validated rules.
+
+## Update mode
+
+Follow `references/update-delta.md`: read the existing guide, run 3 delta
+subagents (new patterns, drifted rules, git history since the guide's last
+change), interview **only** on what changed, then edit the guide surgically:
+preserve rule IDs, never renumber, never rewrite untouched sections.
+
+## Closing
+
+No handoff gate, report and stop:
+
+- Name what was written/changed: rule counts per level, new/updated/removed
+  IDs (update mode). When the ladder was migrated, say so on its own line.
+- Remind: "The guide takes effect on the next `/ss:review`. It reads
+  CODE_REVIEW_GUIDE.md fresh on every run."
+- If a legacy generated skill exists at `.claude/skills/code-review/SKILL.md`,
+  flag it as superseded by `/ss:review` and suggest the user delete it (their
+  action, not yours).
+- Suggest committing the guide so CI-side and teammates' reviews see it.
+
+## Edge cases
+
+| WHEN                                             | THEN                                                                  |
+| ------------------------------------------------ | --------------------------------------------------------------------- |
+| update mode, no changes detected by any subagent | report "no significant changes since the last update", stop           |
+| the existing guide still ranks a rule `MEDIUM`   | migrate the ladder in the same pass, no interview                     |
+| repo > 1000 files                                | sample representative files per directory instead of exhaustive scans |
+| maintainer rejects every candidate               | guide ships with confirmed rules only; thin is fine, invented is not  |
+| legacy `.claude/skills/code-review/` present     | flag as superseded; never regenerate it                               |
+| not a git repo                                   | report the error, stop                                                |
+
+## Bundled resources
+
+- `references/discovery.md`: the 5 discovery subagent prompts + rule extraction format.
+- `references/interview.md`: the `AskUserQuestion` validation protocol (setup and update variants).
+- `references/guide-template.md`: the CODE_REVIEW_GUIDE.md template and generation rules.
+- `references/update-delta.md`: delta discovery, incremental interview, surgical edits.
+
+References (plugin root):
+
+- `<plugin-root>/references/finding-levels.md`: `HIGH` / `LOW` in the guide (Bloqueante / Sugestão in a review), the concrete-cost gate and the `MEDIUM` collapse. Shared with `/ss:review`.

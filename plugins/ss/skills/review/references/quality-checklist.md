@@ -1,0 +1,58 @@
+# Quality checklist
+
+The canonical quality pass over the code a branch changed, the single source of
+truth behind `/ss:review`'s quality lens and its apply step, so a diff is judged
+identically on every run. **Quality only, strictly behavior-preserving**: finding
+or fixing bugs is correctness review (Pass 1), not this.
+
+Read every hunk with its surrounding context (open the file, not just the diff)
+before judging it.
+
+**Scope rule:** only touch code already changed by this branch. Do not refactor
+untouched code "while at it".
+
+**Behavior rule:** zero behavior change. Same inputs, same outputs, same side
+effects. A "simplification" that changes what the code does is a regression.
+
+**Clarity rule:** clarity over brevity. Explicit, readable code beats clever or
+compact code; never trade legibility for fewer lines (no nested ternaries, no
+dense one-liners). Prefer a `switch` or an `if`/`else` chain over stacked
+ternaries for multiple conditions.
+
+## The six criteria
+
+- **Reuse**: logic duplicated within the diff, or re-implementing a helper that
+  already exists in the codebase (search before concluding it doesn't).
+- **Simplification**: collapse needless indirection, flatten over-nested
+  conditionals, remove flags/params with a single caller.
+- **Dead weight**: unused imports/variables/branches introduced by the branch,
+  leftover debug code, commented-out code.
+- **Efficiency**: obvious O(n²) over collections that can be O(n), repeated I/O
+  or queries inside loops, recomputing invariants per iteration, independent
+  operations run sequentially, blocking work added to startup or a hot path. Also
+  long-lived objects built from closures or captured environments: they keep the
+  whole enclosing scope alive for the object's lifetime, which is a leak when that
+  scope holds large values. A struct/class copying only the fields it needs is the
+  cheaper form.
+- **Altitude**: code placed at the wrong layer (e.g. project-specific logic in
+  shared, or reusable logic buried in a feature folder), respecting the project's
+  stated architecture conventions. Special cases stacked on shared infrastructure
+  belong here too: generalizing the underlying mechanism is the real fix.
+- **Consistency**: naming, error envelopes, and patterns matching what
+  neighboring code does.
+
+## Maintain balance: over-simplification is its own defect
+
+A cleanup that hurts the code is not a cleanup. Hold back when an edit would:
+
+- combine separate concerns into one function/component just to save a definition,
+- remove a helpful abstraction that genuinely organizes the code,
+- make the code harder to debug, extend, or read, or
+- buy a marginal line count at a real cost to clarity.
+
+When in doubt, leave the code and flag the idea instead of applying it silently.
+
+## After each edit
+
+Re-run the relevant local check (lint / typecheck / tests for the touched area).
+A simplification that breaks behavior is a regression, not a cleanup.

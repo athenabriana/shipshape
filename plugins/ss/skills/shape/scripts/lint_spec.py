@@ -1,0 +1,236 @@
+#!/usr/bin/env python3
+"""Check the mechanical shape of a spec.
+
+Judgment (does it repeat itself, is it recounting the conversation) is the author's, read
+against `spec-format.md`; `ss-spec-reviewer` reads for content, not for how the prose repeats.
+This only catches what is decidable by reading the bytes: the required sections, dead names,
+frontmatter, malformed tables, and a size (`W005`) past which one review pass cannot cover
+the spec. That ceiling measures the review surface, so its advice is to split, never to trim
+prose.
+
+Usage: lint_spec.py <path>...
+Output: `path:line CODE message` on stdout. Exit 1 when any E-code fired.
+"""
+
+import re
+import sys
+
+# The heading is matched lowercased, so `## decisions` and `## Decisions` are one name.
+REQUIRED_SECTIONS = (
+    ("Decisions", "decisions"),
+    ("Open", "open"),
+)
+RECOMMENDED_SECTIONS = (
+    ("Behavior", "behavior", "W001", "the behavior map is the acceptance contract"),
+    ("Tasks", "tasks", "W002", "with no tasks the build has nothing to consume"),
+    (
+        "Attention points",
+        "attention points",
+        "W003",
+        "it names the technical risks the builder has to handle; write `Nothing.` when "
+        "there are none",
+    ),
+    ("Out of scope", "out of scope", "W004", "it is the boundary the build stays inside"),
+)
+# `{raw}` takes the heading as the file spells it, so the message quotes the string the
+# author will search for.
+DEAD_SECTIONS = {
+    "design": (
+        "`## {raw}` is a dead name: architecture belongs in the free top half, under the "
+        "name it has in this problem."
+    ),
+    "still open": "section `## {raw}`: the name is `## Open`.",
+}
+VALID_STATUS = ("pending", "in-progress", "done", "blocked")
+MAX_CELL = 100
+MAX_LINES = 800
+MAX_BEHAVIOR_ROWS = 100
+SPLIT_ADVICE = "split it along its `###` phases into sibling specs"
+
+HEADING = re.compile(r"^##\s+(.+?)\s*$")
+FENCE = re.compile(r"^\s*(```|~~~)")
+DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
+SEPARATOR_CELL = re.compile(r"^:?-{2,}:?$")
+# A `|` escaped as `\|` is content, not a column boundary.
+CELL_SPLIT = re.compile(r"(?<!\\)\|")
+
+
+def split_row(line):
+    """Return a table row's cells, dropping the empty edges around the outer pipes."""
+    parts = CELL_SPLIT.split(line.strip())
+    if parts and not parts[0].strip():
+        parts = parts[1:]
+    if parts and not parts[-1].strip():
+        parts = parts[:-1]
+    return [p.strip() for p in parts]
+
+
+def check_frontmatter(lines):
+    """Yield problems with the `---` block the spec-state contract requires."""
+    if not lines or lines[0].strip() != "---":
+        yield 1, "E001", "no frontmatter: the `---` block with status/created/slug opens the file"
+        return
+
+    end = next((i for i, line in enumerate(lines[1:], start=1) if line.strip() == "---"), None)
+    if end is None:
+        yield 1, "E001", "frontmatter never closed with `---`"
+        return
+
+    fields = {}
+    for i in range(1, end):
+        key, sep, value = lines[i].partition(":")
+        if sep:
+            fields[key.strip()] = (i + 1, value.strip())
+
+    for key in ("status", "created", "slug"):
+        if key not in fields:
+            yield 1, "E001", f"frontmatter without `{key}`"
+
+    if "status" in fields:
+        line_no, value = fields["status"]
+        if value not in VALID_STATUS:
+            yield line_no, "E001", f"status `{value}` is invalid: use {', '.join(VALID_STATUS)}"
+
+    if "created" in fields:
+        line_no, value = fields["created"]
+        if not DATE.match(value):
+            yield line_no, "E001", f"created `{value}` is not in YYYY-MM-DD format"
+
+
+def check_body(lines):
+    """Yield problems with sections and tables."""
+    seen = set()
+    fence_marker = None  # the marker (``` or ~~~) that opened the current fence
+    section = None  # the current `##` heading, lowercased
+    table = []  # (line_no, cells) of the current run of table rows
+    behavior_line = None  # the `## Behavior` heading's line, anchors the size warning
+    behavior_rows = 0  # body rows across the `## Behavior` tables, for the size ceiling
+
+    def flush(rows):
+        nonlocal behavior_rows
+        if len(rows) < 2:
+            return
+        header_no, header = rows[0]
+        width = len(header)
+        delimiter = rows[1] if all(SEPARATOR_CELL.match(c) for c in rows[1][1]) else None
+        body = rows[2:] if delimiter else rows[1:]
+        if section == "behavior":
+            behavior_rows += len(body)
+        # The delimiter row is width-checked like any other: GFM needs it to match the
+        # header, and a short one turns the whole table back into a paragraph of pipes.
+        for line_no, cells in rows:
+            if len(cells) != width:
+                remedy = (
+                    "the delimiter row needs the same cells as the header, or GFM stops "
+                    "reading it as a table"
+                    if delimiter and line_no == delimiter[0]
+                    else "a literal `|` has to become `\\|`"
+                )
+                yield (
+                    line_no,
+                    "E005",
+                    f"row with {len(cells)} cells against the header's {width}: {remedy}",
+                )
+        for line_no, cells in [rows[0]] + body:
+            for cell in cells:
+                if len(cell) > MAX_CELL:
+                    yield (
+                        line_no,
+                        "E004",
+                        f"cell of {len(cell)} characters (ceiling {MAX_CELL}): "
+                        "content that long is prose or a bullet, not a table",
+                    )
+
+    for i, line in enumerate(lines, start=1):
+        # A fence ends the current run of rows; two tables around a code block are
+        # two tables, not one with a mismatched header. Only the marker that opened
+        # a fence closes it: a ``` line inside a ~~~ block is content.
+        fence = FENCE.match(line)
+        if fence_marker is not None:
+            if fence and fence.group(1) == fence_marker:
+                fence_marker = None
+            continue
+        if fence:
+            fence_marker = fence.group(1)
+            if table:
+                yield from flush(table)
+                table = []
+            continue
+
+        if line.strip().startswith("|"):
+            table.append((i, split_row(line)))
+            continue
+        if table:
+            # Drained before the heading match below, while `section` still names the
+            # heading the table sits under.
+            yield from flush(table)
+            table = []
+
+        match = HEADING.match(line)
+        if match:
+            raw = match.group(1).strip()
+            name = raw.lower()
+            seen.add(name)
+            section = name
+            if name == "behavior" and behavior_line is None:
+                behavior_line = i
+            if name in DEAD_SECTIONS:
+                yield i, "E003", DEAD_SECTIONS[name].format(raw=raw)
+
+    if table:
+        yield from flush(table)
+
+    if len(lines) > MAX_LINES:
+        yield (
+            1,
+            "W005",
+            f"spec of {len(lines)} lines (ceiling {MAX_LINES}): too large for one review "
+            f"pass; {SPLIT_ADVICE}",
+        )
+    if behavior_rows > MAX_BEHAVIOR_ROWS:
+        yield (
+            behavior_line,
+            "W005",
+            f"{behavior_rows} rows in the `## Behavior` tables (ceiling {MAX_BEHAVIOR_ROWS}): "
+            f"too large for one review pass; {SPLIT_ADVICE}",
+        )
+
+    for name, spelling in REQUIRED_SECTIONS:
+        if spelling not in seen:
+            yield 1, "E002", f"no `## {name}`: the format requires it"
+
+    for name, spelling, code, why in RECOMMENDED_SECTIONS:
+        if spelling not in seen:
+            yield 1, code, f"no `## {name}`: {why}"
+
+
+def lint(path):
+    try:
+        data = open(path, encoding="utf-8").read()
+    except OSError as err:
+        return [(1, "E001", f"could not read the file: {err}")]
+    except UnicodeDecodeError as err:
+        # A ValueError, not an OSError: one bad byte costs this file one finding,
+        # never the whole run.
+        return [(1, "E001", f"not valid UTF-8: {err}")]
+    # Markdown's line breaks are `\n` and `\r\n`; splitlines() also splits on \v,
+    # \f and U+2028/29, which shifts every reported line number after one.
+    lines = data.replace("\r\n", "\n").replace("\r", "\n").split("\n")
+    return sorted([*check_frontmatter(lines), *check_body(lines)], key=lambda p: (p[0], p[1]))
+
+
+def main(argv):
+    if not argv:
+        print("usage: lint_spec.py <path>...", file=sys.stderr)
+        return 2
+
+    failed = False
+    for path in argv:
+        for line_no, code, message in lint(path):
+            print(f"{path}:{line_no} {code} {message}")
+            failed |= code.startswith("E")
+    return 1 if failed else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

@@ -1,6 +1,7 @@
 #!/usr/bin/env bun
 /**
- * Validates YAML frontmatter in SKILL.md files.
+ * Validates YAML frontmatter in SKILL.md files and in agent definitions
+ * (any .md directly under an `agents/` directory).
  *
  * Usage:
  *   bun validate-frontmatter.ts                    # scan current directory
@@ -8,47 +9,34 @@
  *   bun validate-frontmatter.ts file1.md file2.md  # validate specific files
  */
 
-import { parse as parseYaml } from "yaml";
-import { readdir, readFile } from "fs/promises";
-import { basename, join, relative, resolve } from "path";
+import { readFile } from "fs/promises";
+import { basename } from "path";
 
-const FRONTMATTER_REGEX = /^---\s*\n([\s\S]*?)---\s*\n?/;
+import {
+  type FileIssues,
+  type ValidationIssue,
+  isAgentFile,
+  parseFrontmatter,
+  reportAndExit,
+  resolveTargets,
+  runMain,
+} from "./lib/validate-common";
 
-interface ParseResult {
-  frontmatter: Record<string, unknown>;
-  error?: string;
+/** Agents in this plugin are read-only roles; a write tool there is a defect, not a choice. */
+const FORBIDDEN_AGENT_TOOLS = ["Write", "Edit", "MultiEdit", "NotebookEdit"];
+
+type FileKind = "skill" | "agent";
+
+function classify(filePath: string): FileKind | null {
+  if (basename(filePath) === "SKILL.md") return "skill";
+  if (isAgentFile(filePath)) return "agent";
+  return null;
 }
 
-function parseFrontmatter(markdown: string): ParseResult {
-  const match = markdown.match(FRONTMATTER_REGEX);
-
-  if (!match) {
-    return { frontmatter: {}, error: "No frontmatter found" };
-  }
-
-  try {
-    const parsed = parseYaml(match[1] || "");
-    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
-      return { frontmatter: parsed as Record<string, unknown> };
-    }
-    return {
-      frontmatter: {},
-      error: `YAML parsed but result is not an object (got ${typeof parsed})`,
-    };
-  } catch (err) {
-    return {
-      frontmatter: {},
-      error: `YAML parse failed: ${err instanceof Error ? err.message : err}`,
-    };
-  }
-}
-
-interface ValidationIssue {
-  level: "error" | "warning";
-  message: string;
-}
-
-function validateSkill(frontmatter: Record<string, unknown>): ValidationIssue[] {
+function validateFrontmatter(
+  frontmatter: Record<string, unknown>,
+  kind: FileKind,
+): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
 
   if (!frontmatter["name"] || typeof frontmatter["name"] !== "string") {
@@ -61,78 +49,112 @@ function validateSkill(frontmatter: Record<string, unknown>): ValidationIssue[] 
     });
   }
 
+  if (kind === "skill" && typeof frontmatter["description"] === "string") {
+    issues.push(...validateSkillDescription(frontmatter["description"]));
+  }
+
+  if (kind === "agent") issues.push(...validateAgentTools(frontmatter["tools"]));
+
   return issues;
 }
 
-async function findSkillFiles(baseDir: string): Promise<{ path: string }[]> {
-  const results: { path: string }[] = [];
+/** claude.ai cuts the description at this length on upload; Claude Code reads it whole. */
+const MAX_SKILL_DESCRIPTION = 1024;
 
-  async function walk(dir: string) {
-    const entries = await readdir(dir, { withFileTypes: true });
-    for (const entry of entries) {
-      const fullPath = join(dir, entry.name);
-      if (entry.isDirectory()) {
-        if (entry.name === "node_modules" || entry.name === ".git") continue;
-        await walk(fullPath);
-      } else if (entry.name === "SKILL.md") {
-        results.push({ path: fullPath });
-      }
-    }
+/**
+ * claude.ai rejects a skill whose description breaks its upload rules, while Claude Code
+ * reads the file as is, so the defect only shows on claude.ai unless the build catches it.
+ */
+function validateSkillDescription(description: string): ValidationIssue[] {
+  const issues: ValidationIssue[] = [];
+
+  if (description.length > MAX_SKILL_DESCRIPTION) {
+    issues.push({
+      level: "error",
+      message: `"description" has ${description.length} characters; claude.ai allows at most ${MAX_SKILL_DESCRIPTION}`,
+    });
+  }
+  if (/[<>]/.test(description)) {
+    issues.push({
+      level: "error",
+      message: '"description" contains "<" or ">"; claude.ai rejects XML tags there',
+    });
   }
 
-  await walk(baseDir);
-  return results;
+  return issues;
+}
+
+/**
+ * The `tools:` list is how far the read-only rule is enforced rather than asked for,
+ * so a write tool landing in it fails the build instead of waiting for review.
+ */
+function validateAgentTools(tools: unknown): ValidationIssue[] {
+  if (tools === undefined) {
+    return [
+      {
+        level: "error",
+        message: 'Missing "tools" field: an agent without it inherits every tool',
+      },
+    ];
+  }
+
+  const listed = Array.isArray(tools)
+    ? tools.map(String)
+    : typeof tools === "string"
+      ? tools.split(",")
+      : null;
+
+  if (listed === null) {
+    return [
+      {
+        level: "error",
+        message: `"tools" must be a list or a comma-separated string (got ${typeof tools})`,
+      },
+    ];
+  }
+
+  const names = listed.map((t) => t.trim()).filter(Boolean);
+  const forbidden = names.filter((t) => FORBIDDEN_AGENT_TOOLS.includes(t) || t === "*");
+
+  if (forbidden.length > 0) {
+    const list = forbidden.join(", ");
+    return [
+      {
+        level: "error",
+        message: `Write-capable tools in "tools": ${list}; ss agents are read-only roles`,
+      },
+    ];
+  }
+
+  return [];
 }
 
 async function main() {
-  const args = process.argv.slice(2);
+  const { baseDir, files, notes } = await resolveTargets(
+    process.argv.slice(2),
+    (p) => classify(p) !== null,
+  );
 
-  let files: { path: string }[];
-  let baseDir: string;
+  const skills = files.filter((f) => classify(f) === "skill").length;
+  console.log(`Validating ${skills} skill files and ${files.length - skills} agent files...\n`);
 
-  if (args.length > 0 && args.every((a) => a.endsWith(".md"))) {
-    baseDir = process.cwd();
-    files = args.map((a) => ({ path: resolve(a) }));
-  } else {
-    baseDir = args[0] || process.cwd();
-    files = await findSkillFiles(baseDir);
-  }
+  const reports: FileIssues[] = [];
 
-  let totalErrors = 0;
-
-  console.log(`Validating ${files.length} skill files...\n`);
-
-  for (const { path: filePath } of files) {
-    const rel = relative(baseDir, filePath);
-    const content = await readFile(filePath, "utf-8");
+  for (const path of files) {
+    const content = await readFile(path, "utf-8");
     const result = parseFrontmatter(content);
-
     const issues: ValidationIssue[] = [];
 
     if (result.error) {
       issues.push({ level: "error", message: result.error });
     } else {
-      issues.push(...validateSkill(result.frontmatter));
+      issues.push(...validateFrontmatter(result.frontmatter, classify(path) as FileKind));
     }
 
-    if (issues.length > 0) {
-      console.log(rel);
-      for (const issue of issues) {
-        const prefix = issue.level === "error" ? "  ERROR" : "  WARN ";
-        console.log(`${prefix}: ${issue.message}`);
-        if (issue.level === "error") totalErrors++;
-      }
-      console.log();
-    }
+    reports.push({ path, issues });
   }
 
-  console.log("---");
-  console.log(`Validated ${files.length} files: ${totalErrors} errors`);
-
-  if (totalErrors > 0) process.exit(1);
+  reportAndExit(baseDir, reports, notes, "files");
 }
 
-main().catch((err) => {
-  console.error("Fatal error:", err);
-  process.exit(2);
-});
+runMain(main);
