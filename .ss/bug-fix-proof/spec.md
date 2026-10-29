@@ -59,7 +59,7 @@ proof is what a human reads before they do.
 
 Happy path, local runs allowed:
 
-1. The spec carries `- [ ] **2. Empty cart total** ... · verify: repro: pnpm test cart -t total`.
+1. The spec carries `- [x] **2. Empty cart total** ... · verify: repro: pnpm test cart -t total`.
 2. The task agent runs the reproduction; it fails.
 3. It writes the focused test, runs it, sees it fail, commits it alone.
 4. It applies the fix; the reproduction and the test pass; it commits the fix with the tick and
@@ -77,24 +77,24 @@ Happy path, local runs forbidden:
 4. The ship pushes the rest, follows CI to green, and writes both runs into the PR's proof
    section.
 
-| WHEN                                                    | THEN                                                                       |
-| ------------------------------------------------------- | -------------------------------------------------------------------------- |
-| the reproduction passes before the fix                  | task returns `underspecified`; build stops and points to `/ss:shape`       |
-| the focused test passes before the fix (local)          | task returns red; the test does not catch the bug                          |
-| the test mocks the code the fix changed                 | task returns red; the proof does not count                                 |
-| a repro task returns green with no test commit          | the script reads it as red                                                 |
-| a repro task built in a phase with others               | both commits land on the run branch, test commit first                     |
-| local proof present for every repro task                | ship copies it into the PR; no extra CI run                                |
-| proof pending, PR destination                           | PR opens at the test commit; red run, then the fix push                    |
-| proof pending, feature-branch destination               | same two pushes; the red run is the CI run on the test commit's sha        |
-| proof pending, protected-branch destination             | ship stops with a blocker; it never pushes there                           |
-| proof pending, no CI run appears for the test commit    | ship stops with a blocker naming the sha                                   |
-| CI on the test commit is red on another check           | ship stops with a blocker; that red proves nothing about the bug           |
-| CI on the test commit is green                          | ship stops with a blocker; the test does not catch the bug                 |
-| two repro tasks, proof pending                          | two red runs, each at its own test commit, then the final push             |
-| the fix already on the remote, no red run recorded      | ship stops, names the task and the command to prove it by hand             |
-| branch with no spec, or a spec with no repro task       | ship runs as today                                                         |
-| build runs the tasks in this context (fallback)         | the same two commits and the same proof, in the same order                 |
+| WHEN                                                 | THEN                                                                 |
+| ---------------------------------------------------- | -------------------------------------------------------------------- |
+| the reproduction passes before the fix               | task returns `underspecified`; build stops and points to `/ss:shape` |
+| the focused test passes before the fix (local)       | task returns red; the test does not catch the bug                    |
+| the test mocks the code the fix changed              | task returns red; the proof does not count                           |
+| a repro task returns green with no test commit       | the script reads it as red                                           |
+| a repro task built in a phase with others            | both commits land on the run branch, test commit first               |
+| local proof present for every repro task             | ship copies it into the PR; no extra CI run                          |
+| proof pending, PR destination                        | PR opens at the test commit; red run, then the fix push              |
+| proof pending, feature-branch destination            | same two pushes; the red run is the CI run on the test commit's sha  |
+| proof pending, protected-branch destination          | ship stops with a blocker; it never pushes there                     |
+| proof pending, no CI run appears for the test commit | ship stops with a blocker naming the sha                             |
+| CI on the test commit is red on another check        | ship stops with a blocker; that red proves nothing about the bug     |
+| CI on the test commit is green                       | ship stops with a blocker; the test does not catch the bug           |
+| two repro tasks, proof pending                       | two red runs, each at its own test commit, then the final push       |
+| the fix already on the remote, no red run recorded   | ship stops, names the task and the command to prove it by hand       |
+| branch with no spec, or a spec with no repro task    | ship runs as today                                                   |
+| build runs the tasks in this context (fallback)      | the same two commits and the same proof, in the same order           |
 
 ## Attention points
 
@@ -120,7 +120,7 @@ Happy path, local runs forbidden:
 
 ### The task agent's contract
 
-- [ ] **2. Test first in the script**: `build-tasks.js` gives a repro task the ordered steps,
+- [x] **2. Test first in the script**: `build-tasks.js` gives a repro task the ordered steps,
       the two commits, the evidence in the fix commit, `testCommit` in the result, the landing
       order, and `failureOf` reading a repro task without its proof as red. · verify: CI
 

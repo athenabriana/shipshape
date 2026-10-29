@@ -77,12 +77,16 @@ const TASK_RESULT = {
     verify: {
       type: "object",
       properties: {
-        kind: { type: "string", enum: ["command", "reading", "ci"] },
+        kind: { type: "string", enum: ["command", "reading", "ci", "repro"] },
         result: { type: "string", enum: ["passed", "failed", "pending"] },
         evidence: { type: "string" },
       },
     },
     commit: { type: ["string", "null"] },
+    testCommit: {
+      type: "string",
+      description: "a repro task's commit with the focused test alone, the parent of `commit`",
+    },
     worktree: { type: "string", description: "the worktree's absolute path, when built in one" },
     conventions: { type: "string" },
     blocker: { type: "string" },
@@ -177,12 +181,25 @@ already failing a check, and "blocker" naming which command and why. Do not fix 
 do not edit any file: you are the baseline, not the first task.`;
 }
 
+// A task that fixes a bug is marked by its `verify:` alone, so the payload keeps its shape.
+function isRepro(t) {
+  return /^\s*repro\s*:/i.test(t.verify || "");
+}
+
+// The fix commit of a repro task carries its proof as git trailers, and `/ss:ship` reads them
+// back with `git log --format=%(trailers)` before it opens the PR. This is the one place the
+// form is written, so the writer and the reader cannot drift onto two spellings.
+const PROOF_TRAILERS = `Repro: <the reproduction, as \`verify:\` names it>
+   Repro-test: <the focused test's file> :: <its name>
+   Repro-test-commit: <the sha of the test commit>
+   Repro-proof: local | pending`;
+
 // `together` is the one fork in the contract: a task that shares its phase with others is built
 // in a worktree of its own, and what it would otherwise do on the shared tree (tick its box, run
 // the checks, extend the note) moves to the landing agent, which sees the whole phase at once.
 // Nothing about the phase's other members enters the prompt: the resume cache is keyed on it, and
 // the same task has to send the same string whichever of its neighbours already landed.
-function taskPrompt(t, conventions, checks, specPath, together) {
+function taskPrompt(t, conventions, checks, specPath, together, local) {
   const start = together
     ? `1. Start from the run branch. You are in a git worktree of your own, and other tasks of the
    same phase are being built at the same time, each in its own. The first entry
@@ -197,28 +214,84 @@ function taskPrompt(t, conventions, checks, specPath, together) {
    run is resumable and what already landed must not be redone.`;
 
   const k = together ? 1 : 0;
+  // A repro task takes one step more (the test before the fix), so `s` shifts what follows it.
+  // Every other task reads `s` as `k`, and its prompt stays byte for byte what it was.
+  const repro = isRepro(t);
+  const s = k + (repro ? 1 : 0);
+
+  const building = repro
+    ? `${2 + k}. Reproduce the bug before touching any code.${
+        local
+          ? ` Run the reproduction \`verify:\` names. It has to fail the way
+   the task describes: one that passes means the spec's reproduction is wrong, so return
+   "underspecified" with what you ran and what came back.`
+          : ` Local runs are forbidden here, so run nothing:
+   read the code until you can point at where the failure the reproduction describes comes from.`
+      }
+${3 + k}. Write the focused test, and only the test. It exercises the code path the fix will change,
+   through the real code: a test that mocks the unit the fix changes proves nothing about the bug.${
+     local
+       ? ` Run it: it has to fail. One that passes does not catch the bug, so return "red" saying so.`
+       : ""
+   }
+   Commit it alone, conventional style (\`test(...)\`), with no fix, no tick and no AI attribution.
+   That commit is what lets CI show the red half of the proof.
+${4 + k}. Build the fix. A stack choice the spec left open (framework, package manager, tooling)
+   follows what the repo already uses.${
+     local
+       ? ` Then run the reproduction and the test again: both have to pass.
+   "verify" is kind "repro", "result" is "passed" or "failed", and "evidence" names what failed
+   before the fix and what passes now.`
+       : ` "verify" is kind "repro" with "result" "pending": the ship
+   takes the red half from CI on the test commit alone, and the green half on the head.`
+   }`
+    : `${2 + k}. Build the task. A stack choice the spec left open (framework, package manager, tooling)
+   follows what the repo already uses.
+${3 + k}. Satisfy \`verify:\`. A command gets run, and "result" is "passed" or "failed". "reading"
+   means self-inspection: read what you produced against what the task delivers and the
+   \`## Behavior\` rows it touches, and return short evidence. "CI" is out of reach in here, so
+   return "pending", which is neither a pass nor a failure. Every \`verify:\` runs.`;
 
   const checking = together
-    ? `${4 + k}. Run none of the project's checks here: they run once over the whole phase after it
+    ? `${4 + s}. Run none of the project's checks here: they run once over the whole phase after it
    lands, on the run branch.`
-    : `${4 + k}. Run the project's checks and fix what broke. ${FLAKE_RULE}`;
+    : `${4 + s}. Run the project's checks and fix what broke. ${FLAKE_RULE}`;
 
-  const committing = together
-    ? `${5 + k}. Commit only the files this task touched, in exactly one commit, and leave \`## Tasks\`
+  // The fix commit's body is where the proof travels to the ship. "local" is a claim about three
+  // runs, so the prompt says which three.
+  const trailers = `Its body ends with these trailers, filled in:
+   ${PROOF_TRAILERS}
+   "local" only when you ran all three: the reproduction failed before the fix, the test failed
+   on the test commit, and both pass now.`;
+
+  const committing = repro
+    ? together
+      ? `${5 + s}. Commit the fix, only the files it touched, in one commit on top of the test commit, and
+   leave \`## Tasks\` as it is: each box is ticked on the run branch once the phase lands.
+   Conventional style (\`fix(...)\`), and no AI attribution anywhere in the message. ${trailers}
+   Return the fix's sha in "commit", the test commit's in "testCommit", and your worktree's
+   absolute path in "worktree".`
+      : `${5 + s}. Commit the fix, only the files it touched, together with its \`- [ ]\` to \`- [x]\`, in one
+   commit on top of the test commit, on the branch already checked out. Conventional style
+   (\`fix(...)\`), and no AI attribution anywhere in the message. ${trailers}
+   Return the fix's sha in "commit" and the test commit's in "testCommit". The two commits are
+   the checkpoint.`
+    : together
+      ? `${5 + s}. Commit only the files this task touched, in exactly one commit, and leave \`## Tasks\`
    as it is: each box is ticked on the run branch once the phase lands. Conventional style, and no
    AI attribution anywhere in the message. Return the sha in "commit" and your worktree's
    absolute path in "worktree".`
-    : `${5 + k}. Commit only the files this task touched, together with its \`- [ ]\` to \`- [x]\` in the
+      : `${5 + s}. Commit only the files this task touched, together with its \`- [ ]\` to \`- [x]\` in the
    same commit, on the branch already checked out. Conventional style, and no AI attribution
    anywhere in the message. The commit is the checkpoint.`;
 
   const noting = together
-    ? `${6 + k}. Return the structured result, with "conventions" carrying only what you established:
+    ? `${6 + s}. Return the structured result, with "conventions" carrying only what you established:
    names and paths you introduced, signatures other tasks will call, a pattern you chose among
    alternatives, a technical gap you settled. Leave out the note you received and anything
    already written in the spec: the notes of the whole phase are joined after it lands. Keep
    it short.`
-    : `${6 + k}. Return the structured result, with "conventions" carrying the note you received plus what
+    : `${6 + s}. Return the structured result, with "conventions" carrying the note you received plus what
    you established: names and paths you introduced, signatures other tasks will call, a
    pattern you chose among alternatives, a technical gap you settled. Nothing already written
    in the spec. Past roughly ${NOTE_CEILING} characters, condense your oldest entries before
@@ -267,12 +340,7 @@ state, or that contradicts another.
 Your steps:
 
 ${start}
-${2 + k}. Build the task. A stack choice the spec left open (framework, package manager, tooling)
-   follows what the repo already uses.
-${3 + k}. Satisfy \`verify:\`. A command gets run, and "result" is "passed" or "failed". "reading"
-   means self-inspection: read what you produced against what the task delivers and the
-   \`## Behavior\` rows it touches, and return short evidence. "CI" is out of reach in here, so
-   return "pending", which is neither a pass nor a failure. Every \`verify:\` runs.
+${building}
 ${checking}
 ${committing}
 ${noting}
@@ -292,7 +360,7 @@ function landPrompt(title, specPath, landed, failed, conventions, checks) {
   const commits = landed
     .map(
       (o) =>
-        `- task ${o.t.n} (${o.t.title}): ${o.r.commit}${o.r.worktree ? `, built in ${o.r.worktree}` : ""}`,
+        `- task ${o.t.n} (${o.t.title}): ${o.r.testCommit ? `${o.r.testCommit} then ` : ""}${o.r.commit}${o.r.worktree ? `, built in ${o.r.worktree}` : ""}`,
     )
     .join("\n");
   const stoppedList = failed
@@ -333,7 +401,8 @@ Your steps:
 
 1. Confirm the checkout is on a branch and its tree is clean. A detached HEAD or a dirty tree is
    a blocker: return it and touch nothing.
-2. Land each commit in the order above with \`git cherry-pick <sha>\`, and leave \`## Tasks\` as
+2. Land each commit in the order above with \`git cherry-pick <sha>\`; a task listed with two shas
+   lands both in one call, \`git cherry-pick <first> <second>\`, so an abort undoes both. Leave \`## Tasks\` as
    it is: the boxes are ticked once the checks have read the landed tree. Once a pick lands
    clean, remove the worktree it was built in with \`git worktree remove --force <path>\`: its
    commit now lives on the run branch. When a pick stops on a conflict, take the conflicted
@@ -452,6 +521,10 @@ function failureOf(r, t, together) {
         ? `task ${r.n} returned green with verify ${r.verify.result}`
         : `task ${r.n} returned green with no verify result`,
     };
+  }
+  // A repro task's red half is its test commit; without one there is nothing for the ship to push.
+  if (isRepro(t) && (r.verify.kind !== "repro" || !r.testCommit)) {
+    return { n: r.n, status: "red", blocker: `task ${r.n} returned green with no repro proof` };
   }
   if (together && !r.commit) {
     return { n: r.n, status: "red", blocker: `task ${r.n} returned green with no commit to land` };
@@ -668,12 +741,15 @@ const pendingVerify = [];
 // single unticked task, which is the way a task ran before phases ran together.
 async function runInLine(g) {
   for (const t of g.tasks) {
-    const r = await agent(taskPrompt(t, conventions, checks.commands, args.specPath, false), {
-      label: `task ${t.n}: ${t.title}`,
-      phase: g.title,
-      schema: TASK_RESULT,
-      ...taskTier(t),
-    });
+    const r = await agent(
+      taskPrompt(t, conventions, checks.commands, args.specPath, false, runChecks),
+      {
+        label: `task ${t.n}: ${t.title}`,
+        phase: g.title,
+        schema: TASK_RESULT,
+        ...taskTier(t),
+      },
+    );
     const failed = failureOf(r, t, false);
     if (failed) return failed;
     if (r.status === "skipped") {
@@ -700,7 +776,7 @@ async function runTogether(g) {
       (t) => () =>
         // No checks: a task that runs together leaves them to the landing, so its prompt has no
         // checks line to fill.
-        agent(taskPrompt(t, conventions, [], args.specPath, true), {
+        agent(taskPrompt(t, conventions, [], args.specPath, true, runChecks), {
           label: `task ${t.n}: ${t.title}`,
           phase: g.title,
           schema: TASK_RESULT,
