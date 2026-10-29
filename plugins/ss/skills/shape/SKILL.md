@@ -27,7 +27,7 @@ Always required: reach alignment, **map the behavior, run the lint before every 
 
 You bring the idea; Claude develops it, then loops with you through the **`AskUserQuestion` tool** until the picture is consistent and you sign off. Never interrogate from a blank page, and never decide silently; drive it through real questions.
 
-1. **Develop the draft (draft-first).** Read the one-liner, look at the codebase, and write a short draft spec with your best guesses filled in: what/why, the business rules, the scope edges, the behavior you expect. For Large work, also describe the pieces in the top half before breaking it into tasks. Bring something concrete to react to.
+1. **Develop the draft (draft-first).** Read the one-liner, look at the codebase and at what the repo already knows about it (below), and write a short draft spec with your best guesses filled in: what/why, the business rules, the scope edges, the behavior you expect. For Large work, also describe the pieces in the top half before breaking it into tasks. Bring something concrete to react to.
 
 2. **Highest-stakes question first, ask before you anchor.** On the single call most expensive to get wrong about what gets built, ask the user how _they'd_ call it _before_ you reveal your own pick (an open `AskUserQuestion`). Anchoring is strongest on the choice that matters most. Don't pre-frame that one. One question only; everything else stays draft-first.
 
@@ -121,13 +121,22 @@ Write a single `.ss/<slug>/spec.md`, the converged draft itself, written as some
 
 **The prose describes what to build.** How the conversation got there (what you first assumed, what a later read corrected, which message settled it) goes in the commit body instead. A landed spec that gets rewritten gains the new decision in the file and the reason in the commit.
 
-The on-disk contract (location, frontmatter schema, status lifecycle) is the plugin-level `references/spec-state.md`; follow it. In short: specs go to `.ss/<slug>/spec.md`. If a spec already exists for a _different_ idea under the same slug, suffix it (`-2`) or ask; never silently overwrite another spec.
+The on-disk contract (location, frontmatter schema, status lifecycle) is the plugin-level `references/spec-state.md`; follow it. In short: specs go to `.ss/<slug>/spec.md`. If a spec already exists for a _different_ idea under the same slug, suffix it (`-2`) or ask; never silently overwrite another spec. `wiki` is reserved under `.ss/`, so an idea whose slug comes out `wiki` gets another one.
 
 On finalize, open the spec with the frontmatter block (`status: pending`, `created: <today>`, `slug: <slug>`). This skill is the file's only writer, so the block is there from the first write. A spec landed before that rule can be missing it; backfill it on finalize. Leave the lifecycle after this to build; shape only seeds `pending`.
 
 The review's verdict is not part of the block: it belongs to this session, and it reaches the user at the gate, which is where a person can still act on it.
 
 **Large** work carries `## Behavior`, `## Attention points` and `## Tasks` as their own sections: the acceptance contract, the risks the builder handles and the phased tasks the build side consumes. **Medium** work can keep the behavior and the tasks inline in the decisions.
+
+## The wiki: read before the draft, write on finalize
+
+`.ss/wiki/` is the repo's memory of what the code cannot say, and shape is one of its two writers. The contract (layout, frontmatter, the status lifecycle, the rule of what becomes a fact) is the plugin-level `references/wiki-state.md`; follow it.
+
+- **Before the draft**, read `.ss/wiki/entities/index.md` and the facts covering the area the idea touches: `python3 <plugin-root>/scripts/build_wiki.py match --files <the files and folders the idea touches>`. A `current` fact is a decision that already governs that code, so the draft opens from it, and a draft that reverses one says so in `## Decisions`. With no `.ss/wiki/` there is nothing to read.
+- **On finalize**, each bullet of `## Decisions` that passes the rule becomes a `proposed` fact with `spec:<slug>` in `sources` and the paths the decision governs, and the entities it links are created when missing. A spec finalized again rewrites its own `proposed` facts in place. A spec whose decisions all restate what the code does writes no fact, and the gate says so in one line.
+- **The first write seeds the bundle**: with no `.ss/wiki/` yet, the `## Decisions` of every `done` spec pass through the same rule and become `current` facts first, once. Say in one line how many specs the seed read.
+- Then `python3 <plugin-root>/scripts/build_wiki.py`, then `python3 <plugin-root>/scripts/validate_wiki.py`, which must exit 0, append one line to `log.md`, and commit the wiki with the spec.
 
 ## Don't fabricate
 

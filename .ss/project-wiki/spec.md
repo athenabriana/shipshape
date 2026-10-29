@@ -173,7 +173,7 @@ Happy path:
 
 ### The writers and the readers
 
-- [ ] **5. Shape writes and reads**: `skills/shape/SKILL.md` reads the catalog and the
+- [x] **5. Shape writes and reads**: `skills/shape/SKILL.md` reads the catalog and the
       covering facts before the draft, writes `proposed` facts on finalize, reserves the
       slug `wiki`, and seeds the bundle on the first write. · verify: reading
 - [ ] **6. Build's wiki pass**: `skills/build/SKILL.md` and its workflow reference feed
