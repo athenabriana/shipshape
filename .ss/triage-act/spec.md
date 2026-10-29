@@ -143,7 +143,7 @@ the user doing the checkout, the rebase or the CI loop by hand.
 - [x] **3. takeover**: `skills/triage/references/takeover.md` carries the flow, the two
       push paths and the credit rules, and hands over to `/ss:ship`'s PR path.
       · verify: reading
-- [ ] **4. modernize**: `skills/triage/references/modernize.md` carries the rebase, the
+- [x] **4. modernize**: `skills/triage/references/modernize.md` carries the rebase, the
       Dependabot case, the solved-already evidence and the close confirmation.
       · verify: reading
 
