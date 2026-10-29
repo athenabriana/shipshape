@@ -5,15 +5,17 @@ Derived by `build_wiki.py`. The contract is `plugins/ss/references/wiki-state.md
 ## Facts
 
 - current: 6
-- proposed: 0
+- proposed: 2
 - superseded: 0
 
 ## Entities
 
-- [module](/entities/index.md#module): 2
+- [module](/entities/index.md#module): 3
 
 ## Recently updated
 
+- 2026-10-29 [The review loop's reviewer is another model when one is installed](/facts/review-loop-reviewer-is-another-model.md) (proposed)
+- 2026-10-29 [The review loop's outward record names no model](/facts/review-loop-record-names-no-model.md) (proposed)
 - 2026-10-29 [A repro task lands as two commits, the test first](/facts/repro-task-lands-test-first.md) (current)
 - 2026-10-29 [A red CI run proves a bug fix only when the focused test is what failed](/facts/red-run-names-the-focused-test.md) (current)
 - 2026-10-29 [The caretake sticky comment marker keeps the name maintain-repo](/facts/caretake-marker-keeps-old-name.md) (current)
