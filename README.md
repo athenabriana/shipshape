@@ -2,7 +2,7 @@
 
 # ship shape
 
-[![github](https://img.shields.io/badge/github-athenabriana%2Fshipshape--skills-111111?style=flat-square&logo=github)](https://github.com/athenabriana/shipshape-skills)
+[![github](https://img.shields.io/badge/github-athenabriana%2Fshipshape-111111?style=flat-square&logo=github)](https://github.com/athenabriana/shipshape)
 
 _a claude code plugin of technical skills: shape → build → ship._
 
@@ -11,7 +11,7 @@ _a claude code plugin of technical skills: shape → build → ship._
 add the marketplace, then install the one plugin:
 
 ```bash
-claude plugin marketplace add athenabriana/shipshape-skills
+claude plugin marketplace add athenabriana/shipshape
 claude plugin install ss@shipshape-skills
 ```
 
@@ -51,7 +51,7 @@ shape and build keep `.ss/wiki/` up to date by themselves: a per-project knowled
 develop locally:
 
 ```bash
-git clone git@github.com:athenabriana/shipshape-skills.git
+git clone git@github.com:athenabriana/shipshape.git
 claude --plugin-dir ./shipshape-skills/plugins/ss    # load the plugin from disk to test
 ```
 

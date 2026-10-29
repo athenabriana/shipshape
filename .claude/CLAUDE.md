@@ -1,6 +1,6 @@
 # Ship Shape
 
-A **Claude Code plugin** (`ss`) published through a one-plugin marketplace (`shipshape-skills`). Install via `claude plugin marketplace add athenabriana/shipshape-skills` then `claude plugin install ss@shipshape-skills`. Skills are invoked as `/ss:<skill>` (e.g. `/ss:ship`). The flow is shape → build → ship. The plugin ships a `SessionStart` operating-context hook, auto-active when the plugin is enabled.
+A **Claude Code plugin** (`ss`) published through a one-plugin marketplace (`shipshape-skills`). Install via `claude plugin marketplace add athenabriana/shipshape` then `claude plugin install ss@shipshape-skills`. Skills are invoked as `/ss:<skill>` (e.g. `/ss:ship`). The flow is shape → build → ship. The plugin ships a `SessionStart` operating-context hook, auto-active when the plugin is enabled.
 
 ## Structure
 
