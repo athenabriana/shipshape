@@ -63,7 +63,7 @@ Happy path:
 
 ### The skill
 
-- [ ] **1. `diagnose/SKILL.md`**: frontmatter (`name`, `description` with exact trigger phrases, `license`, `metadata`) and the workflow above, reusing `preflight.py`, `resolve_checks.py` and `/ss:ship`. · verify: CI
+- [x] **1. `diagnose/SKILL.md`**: frontmatter (`name`, `description` with exact trigger phrases, `license`, `metadata`) and the workflow above, reusing `preflight.py`, `resolve_checks.py` and `/ss:ship`. · verify: CI
 
 ### The docs
 
