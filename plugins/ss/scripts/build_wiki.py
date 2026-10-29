@@ -7,7 +7,8 @@ of files. The bundle's contract is `plugins/ss/references/wiki-state.md`.
 every entity hub, from the facts and the links in their bodies. Nothing else in the
 bundle is touched, so running it twice changes nothing the second time.
 
-`match --files ...` prints the facts whose `paths` match any of the files, as JSON.
+`match --files ...` prints the facts whose `paths` match any of the files, as JSON. A
+folder among them matches the facts naming any file under it.
 `preflight.py` imports `match_facts` for its `wiki` field; the subcommand is how a reader
 with no diff yet asks the same question.
 
@@ -40,19 +41,23 @@ KEY_LINE = re.compile(r"^([A-Za-z_][\w-]*):\s*(.*)$")
 LINK = re.compile(r"\]\((/[^)\s#]+\.md)(?:#[^)\s]*)?\)")
 
 
+DECODER = json.JSONDecoder()
+
+
 def parse_value(raw: str):
     """The YAML subset the bundle writes: a quoted string, an inline list, or a bare
     scalar with an optional ` #` comment. Quoted values and lists are JSON-compatible by
-    the contract, which is why `json` reads them."""
+    the contract, which is why `json` reads them. A quoted value that is not valid JSON
+    comes back as the raw text, quotes included, so the validator can name it."""
     raw = raw.strip()
     if raw.startswith(("\"", "[")):
+        try:
+            value, end = DECODER.raw_decode(raw)
+        except ValueError:
+            return raw
         # A trailing comment after a closing quote or bracket is legal YAML.
-        for end in range(len(raw), 0, -1):
-            try:
-                return json.loads(raw[:end])
-            except ValueError:
-                continue
-        return raw
+        rest = raw[end:].strip()
+        return value if not rest or rest.startswith("#") else raw
     return re.split(r"\s+#", raw, maxsplit=1)[0].strip()
 
 
@@ -109,13 +114,16 @@ def strip_backlinks(body: str) -> str:
     return body[:start] + body[end + len(BACKLINKS_END):]
 
 
+def normalize(pattern: str) -> str:
+    pattern = pattern.strip().replace("\\", "/").rstrip("/")
+    return pattern[2:] if pattern.startswith("./") else pattern
+
+
 def glob_regex(pattern: str) -> re.Pattern:
     """Git's pathspec glob: `*` and `?` stay inside one directory, `**` crosses them.
     `fnmatch` lets `*` cross `/`, which is why it is not used. A pattern with no glob
     character also matches everything under it, the way `git ls-files src/auth` does."""
-    pattern = pattern.strip().replace("\\", "/").rstrip("/")
-    if pattern.startswith("./"):
-        pattern = pattern[2:]
+    pattern = normalize(pattern)
     out, i = [], 0
     while i < len(pattern):
         if pattern.startswith("**/", i):
@@ -137,9 +145,33 @@ def glob_regex(pattern: str) -> re.Pattern:
     return re.compile("^" + "".join(out) + suffix + "$")
 
 
+def covers_folder(pattern: str, folder: str) -> bool:
+    """Whether a file the pattern names can live under `folder` (written with a trailing
+    `/`). Tested on the pattern's literal directory head, since a folder is no file."""
+    pattern = normalize(pattern)
+    glob = re.search(r"[*?]", pattern)
+    if not glob:
+        return (pattern + "/").startswith(folder) or folder.startswith(pattern + "/")
+    head = pattern[: pattern.rfind("/", 0, glob.start()) + 1]
+    # Only `**` reaches below the head; `*` stays in the head's own directory.
+    return head.startswith(folder) or ("**" in pattern and folder.startswith(head))
+
+
 def fact_matches(paths: list, files: list[str]) -> list[str]:
-    regexes = [glob_regex(p) for p in paths if isinstance(p, str) and p.strip()]
-    return [f for f in files if any(r.match(f.replace("\\", "/")) for r in regexes)]
+    """The `files` some pattern matches. An entry ending in `/` is a folder, and matches
+    a pattern naming any file under it."""
+    patterns = [p for p in paths if isinstance(p, str) and p.strip()]
+    regexes = [glob_regex(p) for p in patterns]
+    out = []
+    for f in files:
+        f = f.replace("\\", "/")
+        if f.endswith("/"):
+            hit = any(covers_folder(p, f) for p in patterns)
+        else:
+            hit = any(r.match(f) for r in regexes)
+        if hit:
+            out.append(f)
+    return out
 
 
 def facts(docs: dict) -> list[dict]:
@@ -204,10 +236,7 @@ def write_backlinks(hub: dict, all_facts: list[dict]) -> bool:
         new = text[:start] + block + text[end + len(BACKLINKS_END):]
     else:
         new = text.rstrip() + "\n\n" + block + "\n"
-    if new == text:
-        return False
-    hub["path"].write_text(new, encoding="utf-8", newline="\n")
-    return True
+    return write_if_changed(hub["path"], new)
 
 
 def entity_catalog(hubs: list[dict]) -> str:
@@ -301,7 +330,9 @@ def main() -> None:
     args = parse_args()
     wiki = wiki_dir(args.wiki)
     if args.cmd == "match":
-        print(json.dumps(match_facts(wiki, args.files, tuple(args.status)), indent=2))
+        # A caller names folders as they are; the trailing `/` is what marks one.
+        files = [f.rstrip("/\\") + "/" if Path(f).is_dir() else f for f in args.files]
+        print(json.dumps(match_facts(wiki, files, tuple(args.status)), indent=2))
         return
     if not wiki.is_dir():
         print(json.dumps({"error": f"No wiki at {wiki}"}))

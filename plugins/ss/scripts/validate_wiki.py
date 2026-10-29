@@ -27,6 +27,7 @@ from build_wiki import (  # noqa: E402
     STATUSES,
     fact_matches,
     load,
+    parse_value,
     split_frontmatter,
     strip_backlinks,
     wiki_dir,
@@ -74,18 +75,21 @@ def check_fact(doc: dict, docs: dict, errors: list) -> None:
     successor = meta.get("superseded_by")
     if successor and status != "superseded":
         errors.append(f"{key}: `superseded_by` on a fact that is `{status}`")
-    if successor:
+    if successor and not isinstance(successor, str):
+        errors.append(f"{key}: `superseded_by` must be one bundle path")
+    elif successor:
         target = docs.get(successor)
         if not target or target["meta"].get("type") != "fact":
             errors.append(f"{key}: `superseded_by` {successor} is not a fact of the bundle")
-    if status == "proposed" and successor:
-        errors.append(f"{key}: a proposed fact is never superseded")
 
 
 def check_scalars(doc: dict, errors: list) -> None:
     for k, raw in doc["raw"]:
-        if k in FREE_TEXT and not raw.strip().startswith("\""):
-            errors.append(f"{doc['key']}: `{k}` must be double-quoted")
+        if k not in FREE_TEXT:
+            continue
+        # `parse_value` hands back the raw text when the quoting is not valid JSON.
+        if not raw.strip().startswith("\"") or parse_value(raw) == raw.strip():
+            errors.append(f"{doc['key']}: `{k}` must be one double-quoted JSON string")
 
 
 def validate(wiki: Path, orphans_on: bool = True) -> dict:
