@@ -1,5 +1,5 @@
 ---
-status: pending
+status: done
 created: 2026-10-28
 slug: review-loop
 ---
@@ -65,22 +65,22 @@ Happy path: `/ss:review` → probe → round 1 fan-out → the loop's reviewer j
 the last Sugestões handled → push (PR open) → thread replies → CI read once → report with the
 loop record → gate.
 
-| WHEN                                                   | THEN                                                         |
-| ------------------------------------------------------ | ------------------------------------------------------------ |
-| Codex CLI is not on `PATH`                             | the reviewer is `ss-review-verifier`; the report says so     |
-| the outside reviewer fails in a round                  | that round falls back to `ss-review-verifier`, said in a line |
-| round 1 has no verified finding                        | the loop ends, verdict clean, nothing committed              |
-| a round returns only Sugestões                         | the owner handles them and the loop stops                    |
-| the budget is spent with a Bloqueante open             | stop; the report lists it; the gate offers **Apply more**    |
-| a round 1 Bloqueante is security, permission, data loss | the budget is 5 rounds                                       |
-| a finding asks for work outside the branch's change    | refused as out of scope, reported                            |
-| the reviewer contests a refusal                        | the owner fixes it or keeps it; kept means disputed          |
-| `/ss:review manual`                                    | today's flow, step 2 question and curation included          |
-| external PR, surface audit, or a direct front ask      | today's flow                                                 |
-| no open PR                                             | commits stay local; `threads` absent; the gate offers ship   |
-| uncommitted changes at the start                       | manual flow, with one line saying why                        |
-| CI still red after the final push                      | reported with the evidence; no extra round                   |
-| no Agent tool in the context                           | the loop runs in the main context, self-check, said in the report |
+| WHEN                                                    | THEN                                                              |
+| ------------------------------------------------------- | ----------------------------------------------------------------- |
+| Codex CLI is not on `PATH`                              | the reviewer is `ss-review-verifier`; the report says so          |
+| the outside reviewer fails in a round                   | that round falls back to `ss-review-verifier`, said in a line     |
+| round 1 has no verified finding                         | the loop ends, verdict clean, nothing committed                   |
+| a round returns only Sugestões                          | the owner handles them and the loop stops                         |
+| the budget is spent with a Bloqueante open              | stop; the report lists it; the gate offers **Apply more**         |
+| a round 1 Bloqueante is security, permission, data loss | the budget is 5 rounds                                            |
+| a finding asks for work outside the branch's change     | refused as out of scope, reported                                 |
+| the reviewer contests a refusal                         | the owner fixes it or keeps it; kept means disputed               |
+| `/ss:review manual`                                     | today's flow, step 2 question and curation included               |
+| external PR, surface audit, or a direct front ask       | today's flow                                                      |
+| no open PR                                              | commits stay local; `threads` absent; the gate offers ship        |
+| uncommitted changes at the start                        | manual flow, with one line saying why                             |
+| CI still red after the final push                       | reported with the evidence; no extra round                        |
+| no Agent tool in the context                            | the loop runs in the main context, self-check, said in the report |
 
 ## Attention points
 
@@ -96,20 +96,20 @@ loop record → gate.
 
 ### Foundation
 
-- [ ] **1. The loop contract**: `references/loop.md` states the rounds, the budget, the stop,
+- [x] **1. The loop contract**: `references/loop.md` states the rounds, the budget, the stop,
       the owner's fix or refuse, the out-of-scope refusal and the record. · verify: reading
 
 ### The reviewer and the fixes
 
-- [ ] **2. The loop's reviewer**: the outside reviewer's detection, read-only call, return
+- [x] **2. The loop's reviewer**: the outside reviewer's detection, read-only call, return
       shape and fallback, plus its seat in `verify.md`. · verify: reading
-- [ ] **3. Fixes and threads in the loop**: `act-apply-fixes.md`, `act-comment-findings.md`,
+- [x] **3. Fixes and threads in the loop**: `act-apply-fixes.md`, `act-comment-findings.md`,
       `front-threads.md` and `front-ci.md` gain the loop path (round in the commit body, push
       at the end, replies after it). · verify: reading
 
 ### The router
 
-- [ ] **4. `SKILL.md` routes to the loop**: default mode, `manual`, the skipped step 2, the
+- [x] **4. `SKILL.md` routes to the loop**: default mode, `manual`, the skipped step 2, the
       loop record in the report, the gate, the edge rows, bundled resources, version bump.
       · verify: CI
 

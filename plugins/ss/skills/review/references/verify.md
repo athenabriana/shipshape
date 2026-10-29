@@ -64,6 +64,12 @@ labeled `[0]`, `[1]`, … with the `file:line` each index sits at, and the adden
 below when the front calls for one. Back comes one verdict per index, each judged
 independently on its own claim, with evidence.
 
+**In the review loop the seat can change hands.** When `references/loop-reviewer.md`
+resolved an outside reviewer, it judges every file's candidates in one call instead of
+these agents, under the same rubric and the same addenda, and a call that fails falls back
+to the dispatch above for that round. Everything after the verdicts, §3 and §4, runs the
+same whoever judged.
+
 A candidate the verifier rendered no verdict on (agent died, index omitted) is
 **dropped**: never promoted to PLAUSIBLE on the strength of the finder alone. It
 still gets its line in the report (§4): a candidate nobody judged is a different
