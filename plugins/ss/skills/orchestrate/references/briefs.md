@@ -62,14 +62,17 @@ python scripts/front_name.py <slug> --live <name> <name> ...
 ```
 
 It prints `{slug, name, cut, collision}`. Pass `name` as `start_session`'s `name`, and the
-full `slug` as `branch_name`. Always pass `name`: when it is omitted, `start_session`
-derives one from the title and cuts it mid-word. A slug over 24 characters keeps its full
-form in the branch and the spec folder, and the `name` is cut at the last hyphen that fits
-(`orchestrate-session-naming` becomes `orchestrate-session`). When `collision` is true,
-another live session of the run holds that `name`: pick another slug and run the script
-again before the start. An archived session does not hold its `name`, so the build front
-of a shaped spec takes the same slug as the shape front did. When `start_session` refuses
-that `name`, pick another slug.
+full `slug` as `branch_name`; the app wraps the branch in the person's branch prefix and a
+suffix, so the slug is the part of the branch name that matches the spec folder. Always
+pass `name`: when it is omitted, `start_session` derives one from the title and cuts it
+mid-word. A slug over 24 characters keeps its full form in the branch and the spec folder,
+and the `name` is cut at the last hyphen that fits (`orchestrate-session-naming` becomes
+`orchestrate-session`). `start_session` does not enforce a unique `name`, but linked
+sessions and `SendMessage` reach a front by it, so two live fronts with one `name` are
+ambiguous. When `collision` is true, pick another slug and run the script again before the
+start. Pass `--live` only the `name`s of sessions that are not archived: an archived
+session does not hold its `name`, so the build front of a shaped spec takes the same slug
+as the shape front did.
 
 A front with no spec (a bug for `/ss:diagnose`, a PR for `/ss:takeover`) gets the slug of
 its branch, made from its title: pass the title to the script and use the `slug` it
