@@ -1,5 +1,5 @@
 ---
-status: in-progress
+status: done
 created: 2026-10-29
 slug: orchestrate-entry
 ---
@@ -100,7 +100,7 @@ Happy path:
 
 ### Close
 
-- [ ] **5. Versions and CI**: bump the version of every skill touched, format the touched files, and open the PR with green CI. · verify: CI
+- [x] **5. Versions and CI**: bump the version of every skill touched, format the touched files, and open the PR with green CI. · verify: CI
 
 ## Out of scope
 
