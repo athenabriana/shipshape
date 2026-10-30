@@ -38,7 +38,8 @@ When a front ends, run these in order:
 
 Outside auto mode the app asks the person to approve each archive. Say which approvals
 are waiting, so tidying up does not stall unnoticed. When the person declines an archive,
-the front stays in the sidebar and the orchestrator does not ask again.
+the front stays in the sidebar, and the orchestrator does not ask again for that front for
+the rest of the run.
 
 ## A follow-up on an archived front
 
