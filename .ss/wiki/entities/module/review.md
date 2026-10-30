@@ -12,6 +12,7 @@ or refuses what they verified, round after round.
 
 ## Facts
 
+- [A build whose review loop ends open still ships, flagged](/facts/build-review-loop-open-verdict-still-ships.md) (current)
 - [The review loop's outward record names no model](/facts/review-loop-record-names-no-model.md) (proposed)
 - [The review loop's reviewer is another model when one is installed](/facts/review-loop-reviewer-is-another-model.md) (proposed)
 

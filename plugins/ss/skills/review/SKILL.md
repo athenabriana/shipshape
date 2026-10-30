@@ -4,7 +4,7 @@ description: Reviews the change end to end. On the current branch it loops by de
 license: Apache-2.0
 metadata:
   author: Athena Briana - github.com/athenabriana; quality-pass material adapted from Claude Code's /simplify, angle/verify architecture adapted from Claude Code's /code-review (Anthropic, Apache-2.0), a11y front absorbed from rafael's ui-accessibility skill (loja inspira-skills, MIT)
-  version: 2.9.0
+  version: 2.9.1
 ---
 
 # Review
