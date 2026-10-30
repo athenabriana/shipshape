@@ -90,7 +90,7 @@ Happy path:
 
 ### The front's contract
 
-- [ ] **1. The front contract**: a plugin-level reference states how a session knows it is a front, how a skill sends a question to the orchestrator and waits, and what it reports; `hooks/operating-context.md` points to it. · verify: reading
+- [x] **1. The front contract**: a plugin-level reference states how a session knows it is a front, how a skill sends a question to the orchestrator and waits, and what it reports; `hooks/operating-context.md` points to it. · verify: reading
 
 ### The two sides
 
