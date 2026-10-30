@@ -63,7 +63,7 @@ Most runs cycle through all four many times: new fronts open while others land.
 - **Remote Control can refuse to open sessions.** Then run the front as a background agent, or ask the person to type the request in the desktop app.
 - **A turn that began with another session's message cannot open a session.** Bring the start to the person, who opens it with one word in their own turn.
 - **A repository the app never opened asks for "Trust repository"** before its first side session. Ask the person to open it once.
-- **Some calls wait on the person's approval.** Outside auto mode, the app asks the person to approve each archive and each Auto-fix switch, so say which approval is waiting. A rename of a title the person set waits on their approval in any mode, and an unattended session declines it, so the title stays.
+- **Some calls wait on the person's approval.** Outside auto mode, the app asks the person to approve each archive and each Auto-fix switch, so say which approval is waiting. A rename of a title the person set waits on their approval too (`references/briefs.md`, "Naming a front").
 
 ## Beside the other skills
 
