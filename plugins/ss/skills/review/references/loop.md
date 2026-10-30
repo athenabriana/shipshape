@@ -18,6 +18,26 @@ instead when:
 - the working tree has uncommitted changes. A fix commit would sweep in the user's own
   work, so say in one line why the manual flow runs.
 
+## When `/ss:build` runs the loop
+
+`/ss:build` with review in its scope runs this loop on the branch before its ship (its step
+11). The scope it settled at its step 2 is the authorization, so the run is the loop below with
+four differences, all because the ship comes next:
+
+- **Round 1 leaves out `threads` and `ci`**, even when a PR already exists for the branch:
+  the ship answers the threads and follows CI.
+- **After the last round nothing goes out**: no push, no thread replies, no CI read. The
+  commits stay on the branch for the ship.
+- **No gate**: the report goes back to build, which ships next.
+- **The verdict travels to the PR description.** `clean` is one line
+  (`Review loop: 2 rounds, verdict clean.`); `open` and `disputed` list each open Bloqueante
+  and each disputed refusal (number, `file:line`, claim), and `open` says the PR is not
+  ready to merge until they are settled. The outward rule of the record holds.
+
+The probe and the intent read (`SKILL.md`, step 0) still run first, and the depth is
+standard. Build's tree is committed when it calls, so the uncommitted route above does not
+apply.
+
 ## Round 1: the complete pass
 
 1. **Every available front runs.** The step 2 question is not asked: the probe's available
@@ -72,6 +92,8 @@ round.
   committed.
 
 ## After the last round
+
+A run `/ss:build` started skips this section (above).
 
 1. **Push once**, when an open PR exists, to the PR branch. With no PR the commits stay
    local and the gate offers `/ss:ship`.

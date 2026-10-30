@@ -89,7 +89,7 @@ Happy path:
 
 ### The loop's build caller
 
-- [ ] **1. loop.md knows the build caller**: a short section in
+- [x] **1. loop.md knows the build caller**: a short section in
       `plugins/ss/skills/review/references/loop.md` for a run that `/ss:build` starts: no
       `threads`/`ci`, no push, no thread replies, no CI read, no gate; review version patch
       bump. · verify: reading
