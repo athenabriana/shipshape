@@ -20,6 +20,8 @@ One call answers the whole ground this run stands on: `python3 <plugin-root>/scr
 
 ## Step 1: Settle the destination (default when known, ask only on doubt)
 
+In a front, any question of this skill goes through `<plugin-root>/references/front-contract.md` instead of a local dialog.
+
 Don't ask reflexively. If the destination is already settled by signal, **take it and just state which and why**. The question is for genuine ambiguity, not a toll on every run.
 
 **Take it without asking when:**
