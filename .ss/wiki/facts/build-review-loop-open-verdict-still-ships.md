@@ -4,7 +4,7 @@ title: "A build whose review loop ends open still ships, flagged"
 description: "A known Bloqueante is settled on the PR, where a human sees it; stalling the run on a possibly wrong finding costs more."
 paths: ["plugins/ss/skills/build/**", "plugins/ss/skills/review/references/loop.md"]
 sources: ["spec:build-review-loop"]
-status: proposed
+status: current
 created: 2026-10-29
 updated: 2026-10-29
 ---
