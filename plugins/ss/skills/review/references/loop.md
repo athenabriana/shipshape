@@ -29,10 +29,11 @@ four differences, all because the ship comes next:
 - **After the last round nothing goes out**: no push, no thread replies, no CI read. The
   commits stay on the branch for the ship.
 - **No gate**: the report goes back to build, which ships next.
-- **The verdict travels to the PR description.** `clean` is one line
-  (`Review loop: 2 rounds, verdict clean.`); `open` and `disputed` list each open Bloqueante
-  and each disputed refusal (number, `file:line`, claim), and `open` says the PR is not
-  ready to merge until they are settled. The outward rule of the record holds.
+- **The verdict note goes to the PR description.** It opens with
+  `Review loop: <N> rounds, verdict <verdict>.`, a round 1 with nothing verified included
+  (`1 round, verdict clean`). `open` and `disputed` add each open Bloqueante and each
+  disputed refusal (number, `file:line`, claim), and `open` says the PR is not ready to
+  merge until they are settled. The outward rule of the record holds.
 
 The probe and the intent read (`SKILL.md`, step 0) still run first, and the depth is
 standard. Build's tree is committed when it calls, so the uncommitted route above does not
@@ -41,7 +42,8 @@ apply.
 ## Round 1: the complete pass
 
 1. **Every available front runs.** The step 2 question is not asked: the probe's available
-   fronts are the scope, `threads` and `ci` included when the probe finds them. Depth is
+   fronts are the scope, `threads` and `ci` included when the probe finds them (a run
+   `/ss:build` started leaves them out, above). Depth is
    standard unless `deep` was asked (`SKILL.md`, step 1).
 2. **The finders fan out** as `references/fronts.md` describes.
 3. **The loop's reviewer judges the candidates.** It takes the verifier's seat in
