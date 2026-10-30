@@ -4,7 +4,7 @@ title: "start_session makes no worktree outside a git repo"
 description: "From a parent folder of several repos the front lands in the shared folder."
 paths: ["plugins/ss/skills/orchestrate/references/briefs.md"]
 sources: ["spec:orchestrate-entry"]
-status: proposed
+status: current
 created: 2026-10-29
 updated: 2026-10-29
 ---
