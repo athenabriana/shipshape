@@ -94,9 +94,9 @@ Happy path:
 
 ### The two sides
 
-- [ ] **2. The skills route their questions**: shape, build, review and ship, and `references/handoff-gate.md`, send every question through the front contract when the session is a front. · verify: reading
-- [ ] **3. The orchestrator as entry point**: `orchestrate/SKILL.md` drops the single-task exclusion, keeps reads and sends code to fronts, reads the wiki catalog, names the updated skill route, and rebuilds the state from `list_sessions` and open PRs. · verify: reading
-- [ ] **4. The brief and the run**: `references/briefs.md` carries the front marker, the orchestrator's session, the full scope by default and the worktree fallback; `relay.md` relays forwarded questions, opens and edits the fronts' artifacts, the usage limit and the warning above four fronts; `landing.md` lands in dependency order. · verify: reading
+- [x] **2. The skills route their questions**: shape, build, review and ship, and `references/handoff-gate.md`, send every question through the front contract when the session is a front. · verify: reading
+- [x] **3. The orchestrator as entry point**: `orchestrate/SKILL.md` drops the single-task exclusion, keeps reads and sends code to fronts, reads the wiki catalog, names the updated skill route, and rebuilds the state from `list_sessions` and open PRs. · verify: reading
+- [x] **4. The brief and the run**: `references/briefs.md` carries the front marker, the orchestrator's session, the full scope by default and the worktree fallback; `relay.md` relays forwarded questions, opens and edits the fronts' artifacts, the usage limit and the warning above four fronts; `landing.md` lands in dependency order. · verify: reading
 
 ### Close
 
