@@ -43,8 +43,9 @@ the rest of the run.
 
 ## A follow-up on an archived front
 
-A follow-up on an archived front with no PR goes to that front again. Unarchive it with
-`unarchive_session`, then send the message. Archiving removed the front's worktree, so the
+A follow-up on an archived front with no PR goes to that front again. First check that no
+live front of the run holds its `name`; when one does, the follow-up goes to that live
+front instead. Otherwise unarchive it with `unarchive_session`, then send the message. Archiving removed the front's worktree, so the
 message says its folder may be gone and its work lives on its branch or in the notes
 folder.
 
