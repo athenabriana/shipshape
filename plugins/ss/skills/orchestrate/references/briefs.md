@@ -71,8 +71,9 @@ and the `name` is cut at the last hyphen that fits (`orchestrate-session-naming`
 sessions and `SendMessage` reach a front by it, so two live fronts with one `name` are
 ambiguous. When `collision` is true, pick another slug and run the script again before the
 start. Pass `--live` only the `name`s of sessions that are not archived: an archived
-session does not hold its `name`, so the build front of a shaped spec takes the same slug
-as the shape front did.
+front has left the run, so its `name` is free again. The build front of a shaped spec takes
+the shape front's slug once the shape front is archived (`references/cleanup.md`, "When a
+front ends").
 
 A front with no spec (a bug for `/ss:diagnose`, a PR for `/ss:takeover`) gets the slug of
 its branch, made from its title: pass the title to the script and use the `slug` it

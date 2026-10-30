@@ -14,7 +14,9 @@ The orchestrator archives each front as soon as it ends, without asking the pers
 - **A front whose PR is abandoned** ends when the PR closes with its comment.
 
 A shaped spec's build opens a new front with the same slug as its `name`. The shape front
-ends with its report, so archive it before the build front opens.
+ends with its report, so archive it first, and open the build front only once that archive
+went through. While the archive waits on the person's approval, or after they declined it,
+the build front waits too: say so, since a live shape front still holds the `name`.
 
 ## The steps
 
