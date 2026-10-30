@@ -15,6 +15,15 @@ keep that id for every message below.
 Without such a brief, nothing on this page applies: the skill asks the person through
 `AskUserQuestion`, as it always does.
 
+## Write to the orchestrator in English
+
+Every message a front sends the orchestrator is English: its questions, its options and
+its reports. The traffic between sessions is read by sessions, so it narrows the rule of
+`references/doc-style.md` that a string the person reads follows their language. The
+orchestrator puts each question to the person in their language. The person's words stay
+as they said them: quote the request and every answer exactly as the brief and the
+orchestrator give them.
+
 ## Send each question to the orchestrator
 
 In a front, every question a skill would ask through `AskUserQuestion` goes to the
