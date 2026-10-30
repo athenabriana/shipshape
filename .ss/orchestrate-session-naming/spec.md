@@ -187,7 +187,7 @@ whose `description` is Portuguese. It becomes English.
 
 ### Foundation
 
-- [ ] **1. The `name` script**: `plugins/ss/skills/orchestrate/scripts/front_name.py`,
+- [x] **1. The `name` script**: `plugins/ss/skills/orchestrate/scripts/front_name.py`,
       stdlib, takes a slug or a title and the names of the run's live sessions, prints the `name`
       (charset, 24, cut at a hyphen, collision flagged). · verify: python3
       plugins/ss/skills/orchestrate/scripts/front_name.py orchestrate-session-naming
