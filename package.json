@@ -7,7 +7,7 @@
     "validate": "bun .github/scripts/validate-frontmatter.ts && bun .github/scripts/validate-workflow-script.ts && bun .github/scripts/validate-agent-names.ts"
   },
   "devDependencies": {
-    "lefthook": "latest",
+    "lefthook": "^2.2.2",
     "oxfmt": "0.43.0",
     "yaml": "^2.8.3"
   }
