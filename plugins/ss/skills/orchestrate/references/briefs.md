@@ -2,9 +2,9 @@
 
 A side session sees only its brief. It does not see this conversation, the person's
 earlier answers or the other fronts, so the brief is all the context it will ever have.
-This page covers what the brief carries, the scope and the skill it names, the rules every
-brief repeats, how a front reports and proves its work, and how it stays off the person's
-screen.
+This page covers what the brief carries, how a front is named, the scope and the skill it
+names, the rules every brief repeats, how a front reports and proves its work, and how it
+stays off the person's screen.
 
 ## The brief
 
@@ -30,9 +30,67 @@ requires, 80 characters or more. A brief carries ten things:
 10. **How to report**, as the last section of this page says, and the standing rules
     below, every one of them.
 
-Give each side session a short `name` and a title that says what the front does. Write
-every brief in the language the person speaks, and keep the person's quotes as they
-said them.
+Give each side session a title and a `name` as "Naming a front" says.
+
+Write the brief and its `background` in English. `<plugin-root>/references/doc-style.md`
+puts a string the person reads in their language; the traffic between sessions is read
+by sessions, so it is English, which costs fewer tokens across a run. That covers the
+brief, the front's questions and reports, and every message the orchestrator sends a
+front. The person's words keep the language they were said in: the brief quotes the
+request as said, and an answer goes back to the front quoted as the person gave it. What
+the person reads, the questions the orchestrator asks and the reports it gives, stays in
+their language.
+
+## Naming a front
+
+The sidebar is how the person tells the fronts apart, so every front carries one title
+pattern and one `name` rule. This section holds both, and when a title changes.
+
+**The title** is an English imperative, a verb and the outcome, in sentence case and under
+60 characters: "Fix session naming in orchestrate", "Add diagnose skill", "Migrate sites
+to Cloudflare". It says what the front delivers. The stage (shape, build, PR), the repo
+and the ss skill the front runs stay out of it, because the sidebar already shows the PR
+and its state. A skill appears only when it is the thing being built. When the title would
+pass 60 characters, write a shorter one.
+
+**The `name`** is the front's slug: the `.ss/<slug>/` folder its spec lives in and the
+branch it works on. Pick the slug when you open the front, then make the `name` with the
+script, passing the `name`s of the run's live sessions:
+
+```
+python3 scripts/front_name.py <slug> --live <name> <name> ...
+```
+
+It prints `{slug, name, cut, collision}`. Pass `name` as `start_session`'s `name`, and the
+full `slug` as `branch_name`; the app wraps the branch in the person's branch prefix and a
+suffix, so the slug is the part of the branch name that matches the spec folder. Always
+pass `name`: when it is omitted, `start_session` derives one from the title and cuts it
+mid-word. A slug over 24 characters keeps its full form in the branch and the spec folder,
+and the `name` is cut at the last hyphen that fits (`orchestrate-session-naming` becomes
+`orchestrate-session`). `start_session` does not enforce a unique `name`, but linked
+sessions and `SendMessage` reach a front by it, so two live fronts with one `name` are
+ambiguous. When `collision` is true, pick another slug and run the script again before the
+start. Pass `--live` only the `name`s of sessions that are not archived: an archived
+front has left the run, so its `name` is free again. The build front of a shaped spec takes
+the shape front's slug once the shape front is archived (`references/cleanup.md`, "When a
+front ends").
+
+A front with no spec (a bug for `/ss:diagnose`, a PR for `/ss:takeover`) gets the slug of
+its branch, made from its title: pass the title to the script and use the `slug` it
+prints.
+
+**The slug in the brief.** Write the slug into the brief as the one the front's
+`/ss:shape` uses for `.ss/<slug>/` and the branch it works on. When `/ss:shape` finds that
+folder taken by another spec, it suffixes the slug and reports it; the `name` stays.
+
+**Renaming.** The `name` never changes after the start. The title changes only when the
+front's work changes: you reuse the front for another task, or the scope grows or shrinks
+until the old title misleads. A new stage, a PR opening or a front finishing keeps the
+title; archiving is what closes a front. Rename with `set_session_title` on the front's
+session. When the person set the title themselves, the app asks them to approve the new
+one: tell them which approval is waiting. In an unattended run the call can decline
+instead, so read its result and tell the person the title stayed. When they decline, the
+title stays, and you do not ask again.
 
 ## The scope
 

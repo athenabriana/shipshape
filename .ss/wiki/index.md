@@ -4,7 +4,7 @@ Derived by `build_wiki.py`. The contract is `plugins/ss/references/wiki-state.md
 
 ## Facts
 
-- current: 16
+- current: 22
 - proposed: 2
 - superseded: 0
 
@@ -23,4 +23,4 @@ Derived by `build_wiki.py`. The contract is `plugins/ss/references/wiki-state.md
 - 2026-10-29 [fetch_images.py trusts the bytes, never the name, and writes outside any repo](/facts/research-downloads-stay-outside-the-repo.md) (current)
 - 2026-10-29 [A repro task lands as two commits, the test first](/facts/repro-task-lands-test-first.md) (current)
 - 2026-10-29 [A red CI run proves a bug fix only when the focused test is what failed](/facts/red-run-names-the-focused-test.md) (current)
-- 2026-10-29 [The orchestrator keeps no run log](/facts/orchestrator-keeps-no-run-log.md) (current)
+- 2026-10-29 [The orchestrator renames its own session](/facts/orchestrator-titles-itself.md) (current)

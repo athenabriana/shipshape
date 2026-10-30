@@ -61,7 +61,8 @@ another's code, schema or API waits for that PR, even when its own CI turned gre
 
 Tell the person that PRs merged in sequence are tested together only by `main`'s CI, and
 follow that run. After each merge, tell every side session with an open PR in the same
-area to merge `main` into its branch.
+area to merge `main` into its branch, and clean up the merged PR's front by
+`references/cleanup.md`.
 
 ## Repos that release on every merge
 

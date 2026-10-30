@@ -1,6 +1,6 @@
 ---
 name: ss-reuse-check
-description: "Papel interno do pipeline de build do ss. É o verificador somente de leitura que o estágio zero de /ss:build despacha uma vez por run, com todas as notas de reuso da spec numa chamada. Quem monta o contrato é o script do workflow (a lista de notas e o schema de retorno); este agente confirma cada nota no repo, devolve um veredito por índice e não edita nada. Não é ponto de entrada: para rodar uma spec, use /ss:build."
+description: "Internal role in ss's build pipeline: the read only verifier that /ss:build's stage zero dispatches once per run, with every reuse note of the spec in one call. The workflow script assembles the contract (the list of notes and the return schema); this agent confirms each note in the repo, returns one verdict per index and edits nothing. Not an entry point: to run a spec, use /ss:build."
 tools: ["Read", "Grep", "Glob"]
 ---
 
