@@ -96,7 +96,7 @@ Happy path:
 
 ### Build runs it
 
-- [ ] **2. Build step 11 runs the loop**: `plugins/ss/skills/build/SKILL.md` step 11
+- [x] **2. Build step 11 runs the loop**: `plugins/ss/skills/build/SKILL.md` step 11
       rewritten to run `loop.md` through its build caller section; steps 12 and 14 carry the
       verdict into the PR description and the `Loop` block into the report; the edge table
       rows on the review updated; build version minor bump. · verify: reading
