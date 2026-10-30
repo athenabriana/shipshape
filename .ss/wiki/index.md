@@ -5,7 +5,7 @@ Derived by `build_wiki.py`. The contract is `plugins/ss/references/wiki-state.md
 ## Facts
 
 - current: 10
-- proposed: 6
+- proposed: 7
 - superseded: 0
 
 ## Entities

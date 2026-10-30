@@ -7,3 +7,4 @@
 2026-10-29 shape research-skill: proposed 2 facts
 2026-10-29 build research-skill: promoted 2 facts, recorded 2 facts
 2026-10-29 shape orchestrate-session-naming: proposed 4 facts
+2026-10-29 shape orchestrate-session-naming: proposed 1 fact for archiving
