@@ -9,7 +9,8 @@ The orchestrator archives each front as soon as it ends, without asking the pers
 
 - **A front with a PR** ends when the PR merges into `main`.
 - **A front with no PR** (research, a report, a shape) ends when its report has arrived
-  and the person has received what they needed from it.
+  and the person has received what they needed from it. A report that leaves a question
+  open or a decision pending has not ended its front.
 - **A front whose PR is abandoned** ends when the PR closes with its comment.
 
 A shaped spec's build opens a new front with the same slug as its `name`. The shape front
