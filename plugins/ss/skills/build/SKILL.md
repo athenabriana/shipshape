@@ -4,7 +4,7 @@ description: Runs a spec (the `spec.md` under `.ss/`) as far as this run is mean
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 4.1.0
+  version: 4.2.0
 ---
 
 # Build

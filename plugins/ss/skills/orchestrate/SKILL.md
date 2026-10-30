@@ -4,7 +4,7 @@ description: The entry point of a project. Turns this session into an orchestrat
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.1.0
+  version: 2.0.0
 ---
 
 # Orchestrate
