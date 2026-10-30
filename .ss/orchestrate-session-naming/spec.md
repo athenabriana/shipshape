@@ -194,16 +194,16 @@ whose `description` is Portuguese. It becomes English.
 
 ### The rules
 
-- [ ] **2. Naming and language in the brief**: `references/briefs.md` gains "Naming a
+- [x] **2. Naming and language in the brief**: `references/briefs.md` gains "Naming a
       front" (title, `name`, slug in the brief) and the English rule replaces "the
       language the person speaks"; `plugins/ss/references/front-contract.md` says front
       messages are English. · verify: reading
-- [ ] **3. The orchestrator's side**: `SKILL.md` renames its own session at the start
+- [x] **3. The orchestrator's side**: `SKILL.md` renames its own session at the start
       and points at the rule in `briefs.md`; `references/cleanup.md` drops the archive
       question, archives each front when it ends and points its rename bullet at
       `briefs.md`; `references/relay.md` says the person reads a front's question in
       their language. · verify: reading
-- [ ] **4. Translate the reuse check**: the `description` of
+- [x] **4. Translate the reuse check**: the `description` of
       `plugins/ss/agents/ss-reuse-check.md` in English, same contract. · verify: CI
 
 ## Out of scope
