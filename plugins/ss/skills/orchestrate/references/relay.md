@@ -48,8 +48,7 @@ Every page a front produces reaches the person here, and the person changes it h
 ## Many fronts at once
 
 There is no fixed cap on fronts at once. Above four fronts working at the same time, tell
-the person before opening the next one, in one line with the fronts already running, and
-open it when the person agrees.
+the person before opening the next one, in one line with the fronts already running.
 
 ## The usage limit
 

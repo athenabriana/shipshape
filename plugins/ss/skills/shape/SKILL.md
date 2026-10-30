@@ -25,7 +25,7 @@ Always required: reach alignment, **map the behavior, run the lint before every 
 
 ## The loop
 
-You bring the idea; Claude develops it, then loops with you through the **`AskUserQuestion` tool** until the picture is consistent and you sign off. Never interrogate from a blank page, and never decide silently; drive it through real questions. In a front, every one of them (the gate included) goes through `<plugin-root>/references/front-contract.md` instead of a local dialog.
+You bring the idea; Claude develops it, then loops with you through the **`AskUserQuestion` tool** until the picture is consistent and you sign off. Never interrogate from a blank page, and never decide silently; drive it through real questions. In a front, every one of them (the gate included) goes through `<plugin-root>/references/front-contract.md` instead of a local dialog, and a brief that states the scope answers the gate's second question.
 
 1. **Develop the draft (draft-first).** Read the one-liner, look at the codebase and at what the repo already knows about it (below), and write a short draft spec with your best guesses filled in: what/why, the business rules, the scope edges, the behavior you expect. For Large work, also describe the pieces in the top half before breaking it into tasks. Bring something concrete to react to.
 

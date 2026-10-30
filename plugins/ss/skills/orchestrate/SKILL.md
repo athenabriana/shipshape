@@ -23,7 +23,7 @@ Run the whole project from this conversation while side sessions do the work. Th
 Before the first brief, gather what the briefs need:
 
 - **The wiki catalog.** When the repo has `.ss/wiki/entities/index.md`, read it, so each brief names the decisions that already govern the code its front touches. When the repo has no `.ss/wiki/`, skip this step.
-- **The state of the project.** The orchestrator keeps no run log. Rebuild the state from `list_sessions` with `linked: true` and the open PRs: which fronts run, which wait, and which PRs are open and at what CI state. A new orchestrator on a project with fronts running does the same, and picks them up from there (`references/relay.md`, "Sessions from before the run").
+- **The state of the project.** The orchestrator keeps no run log. Rebuild the state from `list_sessions` with `linked: true` and the open PRs: which fronts run, which wait, and which PRs are open and at what CI state. A new orchestrator on a project with fronts running does the same, and follows those fronts as its own from there: their PRs, their questions and their reports.
 
 ## What the mode needs
 
