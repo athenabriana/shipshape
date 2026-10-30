@@ -24,11 +24,17 @@ import sys
 import unicodedata
 
 MAX_LEN = 24
+# Letters NFKD does not decompose into an ASCII base would be dropped whole.
+FOLD = str.maketrans(
+    {"ß": "ss", "ø": "o", "Ø": "O", "æ": "ae", "Æ": "AE", "œ": "oe", "Œ": "OE",
+     "ł": "l", "Ł": "L", "đ": "d", "Đ": "D", "þ": "th", "Þ": "TH"}
+)
 
 
 def kebab(text):
     """Fold accents to ASCII and reduce to lowercase `[a-z0-9-]`."""
-    folded = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode()
+    folded = unicodedata.normalize("NFKD", text.translate(FOLD))
+    folded = folded.encode("ascii", "ignore").decode()
     return re.sub(r"[^a-z0-9]+", "-", folded.lower()).strip("-")
 
 
