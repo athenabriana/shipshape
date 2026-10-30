@@ -4,7 +4,7 @@ title: "Front titles are English imperatives naming the outcome"
 description: "No stage, repo or skill in a front's title, and it changes only when the work changes."
 paths: ["plugins/ss/skills/orchestrate/**"]
 sources: ["spec:orchestrate-session-naming"]
-status: proposed
+status: current
 created: 2026-10-29
 updated: 2026-10-29
 ---

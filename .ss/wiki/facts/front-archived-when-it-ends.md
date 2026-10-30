@@ -4,7 +4,7 @@ title: "A front is archived as soon as it ends"
 description: "No question first: at the merge, at the abandoned PR's close, or once the person has a PR-less front's report."
 paths: ["plugins/ss/skills/orchestrate/**"]
 sources: ["spec:orchestrate-session-naming"]
-status: proposed
+status: current
 created: 2026-10-29
 updated: 2026-10-29
 ---

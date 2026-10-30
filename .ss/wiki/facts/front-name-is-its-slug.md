@@ -4,7 +4,7 @@ title: "A front's name is its slug"
 description: "The same words name the sidebar row, the branch and the .ss folder of a front."
 paths: ["plugins/ss/skills/orchestrate/**"]
 sources: ["spec:orchestrate-session-naming"]
-status: proposed
+status: current
 created: 2026-10-29
 updated: 2026-10-29
 ---

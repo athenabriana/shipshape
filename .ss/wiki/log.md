@@ -10,3 +10,4 @@
 2026-10-29 shape orchestrate-session-naming: proposed 1 fact for archiving
 2026-10-29 shape orchestrate-entry: proposed 4 facts
 2026-10-29 build orchestrate-entry: promoted 4 facts, recorded 1 fact
+2026-10-29 build orchestrate-session-naming: promoted 5 facts, recorded 1 fact

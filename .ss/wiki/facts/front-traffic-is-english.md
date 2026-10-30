@@ -4,7 +4,7 @@ title: "Traffic between orchestrator and fronts is English"
 description: "Briefs, questions and reports between sessions are English; the person reads and answers in their own language."
 paths: ["plugins/ss/skills/orchestrate/**"]
 sources: ["spec:orchestrate-session-naming"]
-status: proposed
+status: current
 created: 2026-10-29
 updated: 2026-10-29
 ---
