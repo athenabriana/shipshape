@@ -12,11 +12,13 @@ recommended pick written in the message (see `<plugin-root>/references/front-con
 
 - **Relay it through `AskUserQuestion`**, in the same turn it arrives: the question in
   plain product words, every option the front sent with what it does and what it costs,
-  and the front's pick first, marked as the recommendation.
+  and the front's pick first, marked as the recommendation. The front writes in English;
+  the person reads the question and its options in the person's language.
 - **Send the answer back in the person's words**, quoted, through `SendMessage` to the
   side session's `local_…` id or its name from `ListAgents`. A pick goes back as the
-  option's label; free text goes back as the person wrote it. A paraphrase is a second
-  decision the person did not make.
+  option's label as the front sent it; free text goes back as the person wrote it, in
+  their language. A paraphrase or a translation is a second decision the person did not
+  make. The rest of the message is English, by the rule in `references/briefs.md`.
 - **A side session that stopped on a question for the person** shows as idle in
   `list_sessions`, with no message sent. Read its last message with `list_events`, relay
   the question from there, and send the answer as a new message; the person never has to
@@ -24,8 +26,8 @@ recommended pick written in the message (see `<plugin-root>/references/front-con
 
 ## Reports
 
-- **Say each report to the person** in plain product words, with a recommendation when it
-  leaves a decision.
+- **Say each report to the person** in plain product words and in the person's language,
+  with a recommendation when it leaves a decision.
 - **A report is that session's claim, not proof.** Check the PR, the diff or the file
   before telling the person a front is done.
 

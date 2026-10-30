@@ -20,8 +20,9 @@ Run the whole project from this conversation while side sessions do the work. Th
 
 ## Start a run
 
-Before the first brief, gather what the briefs need:
+Before the first brief, title this session and gather what the briefs need:
 
+- **This session's title.** Rename this session with `set_session_title` and `"self"` to `Orchestrate <project>`, the project being what the run covers: "Orchestrate shipshape". When the run moves to another project, rename it again. When the title already reads that way, make no call. When the person set the title themselves, the app asks them to approve the new one: say that approval is waiting, and when they decline, keep the title and ask no second time. Each front's title and `name` follow `references/briefs.md`, "Naming a front".
 - **The wiki catalog.** When the repo has `.ss/wiki/entities/index.md`, read it, so each brief names the decisions that already govern the code its front touches. When the repo has no `.ss/wiki/`, skip this step.
 - **The state of the project.** The orchestrator keeps no run log. Rebuild the state from `list_sessions` with `linked: true` and the open PRs: which fronts run, which wait, and which PRs are open and at what CI state. A new orchestrator on a project with fronts running does the same, and follows those fronts as its own from there: their PRs, their questions and their reports.
 
@@ -36,8 +37,9 @@ The mode runs on the Claude Code desktop app's session tools. When they are list
 | `list_sessions`     | the state of every front, with `linked: true`                                          |
 | `list_events`       | read the end of a side session's conversation                                          |
 | `SendUserFile`      | put a screenshot, a board, a video or a report in front of the person                  |
-| `archive_session`   | archive a side session once its PR lands                                               |
-| `set_session_title` | rename a side session when its scope changes                                           |
+| `archive_session`   | archive a front as soon as it ends (`references/cleanup.md`)                           |
+| `unarchive_session` | reopen an archived front with no PR for a follow-up                                    |
+| `set_session_title` | title this session, and rename a front when its work changes                           |
 
 **Wait without polling.** Pass `wake_when_done: true` to `start_session`, or `notify_when_idle: true` to `SendMessage`, and the app wakes the orchestrator when the side session ends its turn.
 
@@ -52,7 +54,7 @@ Each moment has its own reference. Load it when the moment happens:
 | Opening a front: the brief, its standing rules, how the front proves its work | `references/briefs.md`  |
 | While fronts run: messages, artifacts, conflicts, plan changes, old sessions  | `references/relay.md`   |
 | Landing: CI, the merge the person authorized, merges in sequence              | `references/landing.md` |
-| Cleaning up: archive, stop leftovers, close abandoned PRs, rename             | `references/cleanup.md` |
+| Cleaning up: stop leftovers, close abandoned PRs, archive each ended front    | `references/cleanup.md` |
 
 Most runs cycle through all four many times: new fronts open while others land.
 
@@ -61,7 +63,7 @@ Most runs cycle through all four many times: new fronts open while others land.
 - **Remote Control can refuse to open sessions.** Then run the front as a background agent, or ask the person to type the request in the desktop app.
 - **A turn that began with another session's message cannot open a session.** Bring the start to the person, who opens it with one word in their own turn.
 - **A repository the app never opened asks for "Trust repository"** before its first side session. Ask the person to open it once.
-- **Some calls wait on the person's approval.** Outside auto mode, the app asks the person to approve each archive and each Auto-fix switch, so say which approval is waiting.
+- **Some calls wait on the person's approval.** Outside auto mode, the app asks the person to approve each archive and each Auto-fix switch, so say which approval is waiting. A rename of a title the person set waits on their approval in any mode, and an unattended session declines it, so the title stays.
 
 ## Beside the other skills
 
