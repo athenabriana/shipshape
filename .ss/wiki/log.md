@@ -6,3 +6,5 @@
 2026-10-29 build triage-act: renamed 1 fact for the caretake and takeover split
 2026-10-29 shape research-skill: proposed 2 facts
 2026-10-29 build research-skill: promoted 2 facts, recorded 2 facts
+2026-10-29 shape orchestrate-entry: proposed 4 facts
+2026-10-29 build orchestrate-entry: promoted 4 facts, recorded 1 fact

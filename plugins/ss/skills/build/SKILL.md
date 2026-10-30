@@ -4,7 +4,7 @@ description: Runs a spec (the `spec.md` under `.ss/`) as far as this run is mean
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 4.1.0
+  version: 4.2.0
 ---
 
 # Build
@@ -29,6 +29,8 @@ Inside a git repository with a `.ss/` directory, and a validated spec with a `##
    Both empty is a build only: every task built, the checks green, the tree committed, and a gate at the end offering the ship. The ticks map to the scope by the table in `/ss:shape`'s `## The exit gate`, with the review running on the branch before the ship.
 
    **How it was invoked sets which boxes lead**, and each leading box carries `(Recommended)` in its label: the tool opens with every box empty, so the mark is what tells the user which ones to tick. "run everything", "do it all", "delegate this" lead with both; "build and ship the spec" leads with `Ship`; "implement the spec", "build the tasks", "build it" lead with neither, and the question says that both empty is a build only. **Invoked from `/ss:shape`'s exit gate the question is already answered**: that gate asked it, and its answer is the scope. Nothing else about the run is asked; the build itself is dispatched with no question of its own.
+
+   **In a front**, a brief that states the scope answers this step: build asks nothing. Any other question of the run (including the ship gate at the end) goes through `<plugin-root>/references/front-contract.md`.
 
 3. **Open the run, flip `status: in-progress`.** Edit the spec's frontmatter and commit that edit (conventional style; no AI attribution).
 

@@ -4,7 +4,7 @@ description: Takes a bug from a short report to a proven fix, with no spec. Inve
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # Diagnose
@@ -24,7 +24,7 @@ How far this run goes is the user's call, so it is asked once, at the start, and
 - **Fix only**: diagnose, fix, prove, commit. The run ends at a gate that offers `/ss:ship`.
 - **Fix and ship**: the same, then `/ss:ship` delivers it with its own destination logic. This answer is the up-front authorization, so the chain into `/ss:ship` asks nothing more.
 
-When the request already states the scope ("and ship", "and babysit", "open the PR", "abre o PR"), that phrase is the answer: skip the question and say in one line which scope you read. Otherwise ask one `AskUserQuestion` (plugin-level `references/handoff-gate.md` for the format), leading with **Fix and ship** when the request came with a PR open for this branch and with **Fix only** otherwise.
+When the request already states the scope ("and ship", "and babysit", "open the PR", "abre o PR"), that phrase is the answer: skip the question and say in one line which scope you read. Otherwise ask one `AskUserQuestion` (plugin-level `references/handoff-gate.md` for the format), leading with **Fix and ship** when the request came with a PR open for this branch and with **Fix only** otherwise. In a front, a brief that states the scope answers this question, and every other question goes through `<plugin-root>/references/front-contract.md`.
 
 ## Step 2: Get on a branch you can push
 

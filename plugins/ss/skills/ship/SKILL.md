@@ -4,7 +4,7 @@ description: Takes the current branch to shipped, your way. It does not review; 
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 4.1.0
+  version: 4.2.0
 ---
 
 # Ship
@@ -19,6 +19,8 @@ One call answers the whole ground this run stands on: `python3 <plugin-root>/scr
 - A non-null `pr` is the default destination ("finish the PR").
 
 ## Step 1: Settle the destination (default when known, ask only on doubt)
+
+In a front, any question of this skill goes through `<plugin-root>/references/front-contract.md` instead of a local dialog.
 
 Don't ask reflexively. If the destination is already settled by signal, **take it and just state which and why**. The question is for genuine ambiguity, not a toll on every run.
 
