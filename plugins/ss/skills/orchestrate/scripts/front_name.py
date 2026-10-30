@@ -45,7 +45,7 @@ def cut(slug):
     idx = slug.rfind("-", 0, MAX_LEN + 1)
     if idx <= 0:
         return slug[:MAX_LEN]
-    return slug[:idx].rstrip("-")
+    return slug[:idx]
 
 
 def live_names(values):
@@ -55,8 +55,15 @@ def live_names(values):
     return names
 
 
+class JsonArgumentParser(argparse.ArgumentParser):
+    # The caller parses stdout as JSON, so a usage error has to be JSON too.
+    def error(self, message):
+        print(json.dumps({"error": message}))
+        sys.exit(2)
+
+
 def main():
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser = JsonArgumentParser(description=__doc__.splitlines()[0])
     parser.add_argument("source", help="the front's slug or title")
     parser.add_argument(
         "--live",
