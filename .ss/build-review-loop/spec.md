@@ -61,19 +61,19 @@ Happy path:
    carries the verdict line or the review section.
 6. The build report shows the `Loop` block, the refusals and the PR.
 
-| WHEN                                          | THEN                                                                   |
-| --------------------------------------------- | ---------------------------------------------------------------------- |
-| round 1 has no verified finding               | loop ends `clean`, nothing committed, the ship runs                    |
-| budget spent with a Bloqueante open           | the ship runs; the PR description lists the open ones, not ready       |
-| a refusal stays contested                     | verdict `disputed`; the PR description lists it; the ship runs         |
-| no outside reviewer installed                 | `ss-review-verifier` judges every round, said in one line              |
-| the outside reviewer fails in a round         | that round falls back to `ss-review-verifier`; its row says so         |
-| a loop fix turns a check red                  | fixed through steps 7 to 9 before the next round or the ship           |
-| a finding asks for work outside the branch    | refused as out of scope, listed with the refusals                      |
-| the scope has review and no ship              | the loop runs the same; step 14 offers the ship with the verdict shown |
-| the build stopped before step 11              | no loop runs, as today                                                 |
+| WHEN                                          | THEN                                                                    |
+| --------------------------------------------- | ----------------------------------------------------------------------- |
+| round 1 has no verified finding               | loop ends `clean`, nothing committed, the ship runs                     |
+| budget spent with a Bloqueante open           | the ship runs; the PR description lists the open ones, not ready        |
+| a refusal stays contested                     | verdict `disputed`; the PR description lists it; the ship runs          |
+| no outside reviewer installed                 | `ss-review-verifier` judges every round, said in one line               |
+| the outside reviewer fails in a round         | that round falls back to `ss-review-verifier`; its row says so          |
+| a loop fix turns a check red                  | fixed through steps 7 to 9 before the next round or the ship            |
+| a finding asks for work outside the branch    | refused as out of scope, listed with the refusals                       |
+| the scope has review and no ship              | the loop runs the same; step 14 offers the ship with the verdict shown  |
+| the build stopped before step 11              | no loop runs, as today                                                  |
 | no Agent tool in the session                  | the loop runs in the main context with a self-check, said in the report |
-| a PR already exists for the branch (a re-run) | `threads` and `ci` still stay out; the ship handles them               |
+| a PR already exists for the branch (a re-run) | `threads` and `ci` still stay out; the ship handles them                |
 
 ## Attention points
 
