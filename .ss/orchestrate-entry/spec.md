@@ -40,6 +40,8 @@ Reads stay with the orchestrator; anything that writes code goes to a front, eve
 - No fixed cap on fronts at once. Above four fronts working at the same time, the orchestrator tells the person before it opens the next.
 - A front that stops on the usage limit is resumed by the orchestrator after the reset: it tells the person the reset time in one line, and sends each stopped front a message to continue once the reset passes.
 - A front that needs another front's result opens after that front's PR lands, or the orchestrator says why it opens earlier. PRs land in the order of what depends on what.
+- A front publishes every page it produces (a board, a report, a design) as an Artifact and sends its URL to the orchestrator. The orchestrator opens it for the person at once, with the `Artifact` tool's `open` action. A local file (a screenshot, a video) reaches the person through `SendUserFile`.
+- The person edits an artifact in the orchestrator's conversation. The orchestrator applies the edit itself, reading the artifact and publishing it again to the same URL, since an artifact is not the repo's code. An edit that needs the front's context or changes code goes back to the front.
 - The orchestrator keeps no run log. A new orchestrator on the same project rebuilds the state from `list_sessions` and the open PRs.
 - The brief names the ss skill a front runs, by the route: a bug runs `/ss:diagnose`, an idea that needs research runs `/ss:research` then `/ss:shape`, someone else's PR to adopt or bring up to date runs `/ss:takeover`, and a branch to read runs `/ss:review`'s loop. `/ss:caretake` only reads the repo, so the orchestrator runs it in place.
 
@@ -67,6 +69,9 @@ Happy path:
 | fronts stop on the usage limit                              | the person hears the reset time once; each front is told to continue after it         |
 | front B needs front A's result                              | B opens after A's PR lands, or the orchestrator says why earlier                      |
 | two PRs are green and one depends on the other              | the one depended on lands first                                                       |
+| a front publishes an artifact                               | the orchestrator opens it for the person in the same turn the URL arrives             |
+| the person asks to change an artifact                       | the orchestrator edits it and republishes to the same URL                             |
+| an artifact edit needs code or the front's context          | the orchestrator sends it to the front, quoted                                        |
 | the person asks for a build only                            | the brief sets that scope; the front stops at a green, committed branch               |
 | a new orchestrator opens on a project with fronts running   | it rebuilds the state from `list_sessions` and the open PRs                           |
 | the repo has no `.ss/wiki/`                                 | the orchestrator skips the catalog                                                    |
@@ -91,7 +96,7 @@ Happy path:
 
 - [ ] **2. The skills route their questions**: shape, build, review and ship, and `references/handoff-gate.md`, send every question through the front contract when the session is a front. · verify: reading
 - [ ] **3. The orchestrator as entry point**: `orchestrate/SKILL.md` drops the single-task exclusion, keeps reads and sends code to fronts, reads the wiki catalog, names the updated skill route, and rebuilds the state from `list_sessions` and open PRs. · verify: reading
-- [ ] **4. The brief and the run**: `references/briefs.md` carries the front marker, the orchestrator's session, the full scope by default and the worktree fallback; `relay.md` relays forwarded questions, the usage limit and the warning above four fronts; `landing.md` lands in dependency order. · verify: reading
+- [ ] **4. The brief and the run**: `references/briefs.md` carries the front marker, the orchestrator's session, the full scope by default and the worktree fallback; `relay.md` relays forwarded questions, opens and edits the fronts' artifacts, the usage limit and the warning above four fronts; `landing.md` lands in dependency order. · verify: reading
 
 ### Close
 
