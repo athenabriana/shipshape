@@ -34,11 +34,12 @@ Give each side session a title and a `name` as "Naming a front" says.
 
 Write the brief and its `background` in English. `<plugin-root>/references/doc-style.md`
 puts a string the person reads in their language; the traffic between sessions is read
-by sessions, so it is English, which costs fewer tokens across a run. That covers the brief, the front's
-questions and reports, and every message the orchestrator sends a front. The person's
-words keep the language they were said in: the brief quotes the request as said, and an
-answer goes back to the front quoted as the person gave it. What the person reads, the
-questions the orchestrator asks and the reports it gives, stays in their language.
+by sessions, so it is English, which costs fewer tokens across a run. That covers the
+brief, the front's questions and reports, and every message the orchestrator sends a
+front. The person's words keep the language they were said in: the brief quotes the
+request as said, and an answer goes back to the front quoted as the person gave it. What
+the person reads, the questions the orchestrator asks and the reports it gives, stays in
+their language.
 
 ## Naming a front
 
