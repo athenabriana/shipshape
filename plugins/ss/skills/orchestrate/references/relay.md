@@ -85,5 +85,5 @@ orchestrator. Say so in the same line as the reset time.
 
 A session that existed before `/ss:orchestrate` started does not become a side session.
 Ask it for a hand-over summary (what it did, what is left, its branch and PR), open a new
-side session with that summary in the brief, and archive the old one once the new one has
-started.
+side session with that summary in the brief, and once the new one has started, archive
+the old one by the steps in `references/cleanup.md`.
