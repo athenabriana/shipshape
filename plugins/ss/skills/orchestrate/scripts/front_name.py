@@ -13,8 +13,8 @@ Output (one JSON object on stdout):
   Exit 1 with {"error": ...} when nothing of the input survives the charset.
 
 Usage:
-  python front_name.py <slug-or-title> [--live NAME ...]
-  python front_name.py "Fix sessão naming" --live session-naming,add-diagnose
+  python3 front_name.py <slug-or-title> [--live NAME ...]
+  python3 front_name.py "Fix sessão naming" --live session-naming,add-diagnose
 """
 
 import argparse

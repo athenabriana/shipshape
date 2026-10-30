@@ -58,7 +58,7 @@ branch it works on. Pick the slug when you open the front, then make the `name` 
 script, passing the `name`s of the run's live sessions:
 
 ```
-python scripts/front_name.py <slug> --live <name> <name> ...
+python3 scripts/front_name.py <slug> --live <name> <name> ...
 ```
 
 It prints `{slug, name, cut, collision}`. Pass `name` as `start_session`'s `name`, and the
