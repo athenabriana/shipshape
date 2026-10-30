@@ -26,7 +26,11 @@ When a front ends, run these in order:
    from.
 3. **Close an abandoned PR with a comment** that says why it closed and where the work
    went, if anywhere.
-4. **Archive the front** with `archive_session`, the `reason` naming the PR ("PR #42
+4. **Make sure the front's work outlives its folder.** Archiving removes the worktree, so
+   everything the front wrote is committed and pushed on its branch, or sits in the notes
+   folder. When something is not, ask the front to commit and push it, and archive only
+   once its answer confirms it.
+5. **Archive the front** with `archive_session`, the `reason` naming the PR ("PR #42
    merged") or the report ("research report delivered").
 
 Outside auto mode the app asks the person to approve each archive. Say which approvals
