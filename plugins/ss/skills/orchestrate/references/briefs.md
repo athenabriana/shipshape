@@ -133,9 +133,9 @@ Every brief repeats these, whatever the front:
 - **No force push and no rebase on a shared branch.** Bring the base in with a merge.
 - **Turn Auto-fix on when the PR opens** (`set_monitor` with `auto_fix: true`). The app
   asks the person to approve the switch, so the brief says the front asks for it.
-- **On an interface front, design comes before code.** The front shows screenshots
-  first, two variations wherever there is a choice, and sends the choice to the
-  orchestrator with the recommended pick first. It writes the code only after the person
+- **On an interface front, design comes before code, on a Design canvas.** The front
+  follows "Designs go on a canvas" in `<plugin-root>/references/front-contract.md`: one
+  variation per artboard, the recommended one first, and code only after the person
   approves.
 
 ## How to report
@@ -144,8 +144,9 @@ Write this section into every brief:
 
 - **A question for the person** goes to the orchestrator through `SendMessage`, with its
   options and the recommended pick, as the front contract says. Then the front waits.
-- **A page** (a board, a report, a design) is published as an Artifact, and its URL goes
-  to the orchestrator in the same message that says what the page shows.
+- **A page** (a board, a report) is published as an Artifact, and its URL goes to the
+  orchestrator in the same message that says what the page shows. A design goes on a
+  Design canvas, by the front contract.
 - **A local file** (a screenshot, a video) goes to the notes folder, and its path goes to
   the orchestrator.
 - **The final report**, at done or at a blocker, carries the result, the PR url with the
@@ -171,7 +172,9 @@ reports done:
 4. Fix what diverges from what was asked, and walk it again.
 5. Send the person a board of the screenshots, through the orchestrator.
 
-Write these steps into the brief of every interface front.
+The board stays screenshots in the notes folder, apart from the design canvas: the canvas
+holds what was proposed, the board proves what was built. Write these steps into the
+brief of every interface front.
 
 ## The person's screen and files stay untouched
 
