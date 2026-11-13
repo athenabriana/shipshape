@@ -60,8 +60,9 @@ When the run ends, at done or at a blocker, send the orchestrator one message wi
 
 The person sees what the front produces through the orchestrator:
 
-- **A page** (a board, a report, a design): publish it as an Artifact and send its URL to
-  the orchestrator. The orchestrator opens it for the person.
+- **A page** (a board, a report): publish it as an Artifact and send its URL to the
+  orchestrator. The orchestrator opens it for the person. A design goes on a canvas, as
+  the next section says.
 - **A local file** (a screenshot, a video): leave it in the notes folder the brief names
   and send its path. The orchestrator puts it in front of the person with `SendUserFile`.
 
@@ -69,3 +70,22 @@ Edits to a published artifact belong to the orchestrator: it reads the artifact 
 publishes it again to the same URL. An edit that needs code or the front's context comes
 back to the front as a message, with the person's words quoted. Apply it, republish to the
 same URL, and send the URL again.
+
+## Designs go on a canvas
+
+An interface change shows its design before any code, on a Design canvas: the Artifact
+type for visual designs, which the person comments on artboard by artboard.
+
+1. Create it with the `Artifact` tool's `quickstart` action, `intent: "design"`, and
+   publish from the type it names.
+2. Put one variation per artboard, two wherever there is a choice, labeled A and B. The
+   recommended one is A, on the first artboard, and its label says it is the pick.
+3. Send the URL to the orchestrator, in one message with what each artboard shows and why
+   A is the pick, then wait.
+4. Each change the person asks for comes back quoted, from their comments on the
+   artboards. Apply it on the same canvas, republish to the same URL, and send the URL
+   again.
+5. Write the code only after the person approves a variation, and build that one.
+
+Outside a front the steps are the same, with the person reading the canvas and commenting
+directly.

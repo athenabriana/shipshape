@@ -43,6 +43,12 @@ Every page a front produces reaches the person here, and the person changes it h
 - **When the edit needs code or the front's context**, send it to the front with the
   person's words quoted. The front republishes to the same URL and sends it back; open it
   again.
+- **A design canvas** from a front (see "Designs go on a canvas" in
+  `<plugin-root>/references/front-contract.md`): open it, and watch it with
+  `ArtifactComments` so the comments the person sends to Claude land here. Answer each
+  comment in its thread, and send every design change to the front, the comment quoted
+  with the artboard it sits on. When the person approves a variation, send the front its
+  label quoted; that approval is what lets the front write code.
 - **A local file** (a screenshot, a video, a long report) reaches the person through
   `SendUserFile`, from the path the front sent or from the notes folder. Name what each
   file shows in one line, so the person knows what to look at.
