@@ -230,16 +230,16 @@ Happy path, a correction that repeats:
 
 ### Phase 2: the skills and the mechanisms
 
-- [ ] **2. explain-the-number**: the skill, out of the menu. · verify: reading
-- [ ] **3. attack-the-premise**: the skill, out of the menu. · verify: reading
-- [ ] **4. prove-the-fix**: the skill with the repro proof's rules and the
+- [x] **2. explain-the-number**: the skill, out of the menu. · verify: reading
+- [x] **3. attack-the-premise**: the skill, out of the menu. · verify: reading
+- [x] **4. prove-the-fix**: the skill with the repro proof's rules and the
       test-behavior rule, out of the menu. · verify: reading
-- [ ] **5. /ss:correct and the correction facts**: the skill and command; the correction
+- [x] **5. /ss:correct and the correction facts**: the skill and command; the correction
       fact and the third writer in `wiki-state.md` and `validate_wiki.py`; the build's second
       pass after the review loop and the report line that proposes `correct`. · verify: CI
-- [ ] **6. Execution-proven findings**: the lane in `review/references/verify.md` and the
+- [x] **6. Execution-proven findings**: the lane in `review/references/verify.md` and the
       verifier's rubric, gated on `runnable`. · verify: reading
-- [ ] **7. Patch-id**: a script that prints the branch's patch-id; the review loop records
+- [x] **7. Patch-id**: a script that prints the branch's patch-id; the review loop records
       it with the verdict; `/ss:ship` compares it and resolves a missing `Repro-test-commit`;
       the orchestrator's landing compares it before a merge. · verify: CI
 
