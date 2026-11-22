@@ -12,6 +12,7 @@ The script behind every derived file of the bundle.
 ## Facts
 
 - [Glob matching follows git, not fnmatch](/facts/git-pathspec-globs.md) (current)
+- [Open every file with an explicit encoding](/facts/explicit-encoding.md) (current)
 - [Globs used fnmatch](/facts/fnmatch-globs.md) (superseded)
 
 <!-- backlinks:end -->

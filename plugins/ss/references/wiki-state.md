@@ -2,10 +2,12 @@
 
 The repository's memory of what the code cannot say: the reason behind a decision, a
 business rule, an external constraint, a trap and the way around it. ss writes it and ss
-reads it, with no curation step. **Two skills write it, each in its own lane**:
-`/ss:shape` writes `proposed` facts on finalize, and `/ss:build` promotes them and runs the
-maintenance after its last phase lands. Every other skill reads. Any skill that reads or
-writes the wiki follows this file. The contract lives here and nowhere else.
+reads it, with no curation step. **Three skills write it, each in its own lane**:
+`/ss:shape` writes `proposed` facts on finalize; `/ss:build` promotes them and runs the
+maintenance after its last phase lands, then records the review loop's corrections after
+the loop; and `/ss:correct` supersedes the correction fact it encoded. Every other skill
+reads. Any skill that reads or writes the wiki follows this file. The contract lives here
+and nowhere else.
 
 ## Location
 
@@ -31,7 +33,7 @@ hanging off them by link, every aggregate file derived by a script.
 
 **Only what reading the code does not reveal.** The reason behind a decision, a business
 rule, an external constraint, a trap and the way around it. How a module works is the
-code's to say. Both writers apply this rule before they write, and a write pass that finds
+code's to say. Every writer applies this rule before it writes, and a write pass that finds
 nothing passing it writes nothing and says so in one line.
 
 **One claim per file.** A fact states one thing a reader can hold the code against. Two
@@ -58,13 +60,40 @@ superseded_by: "/facts/other-slug.md" # only when superseded by a newer fact
   govern yet (a decision for files the spec will create) names the paths the spec says
   they will have.
 - `sources`: where the fact came from, each prefixed `spec:`, `pr:` or `commit:`.
-- Every free-text scalar (`title`, `description`) is double-quoted, with an inner `"`
-  escaped as `\"`. An unquoted `: ` breaks the block and an unquoted ` #` truncates the
-  value, both silently, so `validate_wiki.py` checks it.
+- Every free-text scalar (`title`, `description`, `correction`) is double-quoted, with an
+  inner `"` escaped as `\"`. An unquoted `: ` breaks the block and an unquoted ` #`
+  truncates the value, both silently, so `validate_wiki.py` checks it.
 
 The body states the claim in a few sentences and links each entity it concerns with a
 bundle-absolute markdown link, `[importer](/entities/module/importer.md)`. Links are
 markdown, never `[[wikilinks]]`. A fact that replaced another names it in the body.
+
+## Correction facts
+
+A _correction_ is a fix someone asked for on code an agent wrote: a fix the review loop
+applied, a PR thread, the person through a front. It is named by its _class_ of error: the
+mistake stated so that a second occurrence reads as the same one, "unchecked `gh` exit
+code" and not the file it happened in. Each class is one fact, marked by one more key:
+
+```yaml
+correction: "unchecked gh exit code" # the class of error
+```
+
+- **Each source is one occurrence**: `commit:<sha>` of the commit that fixed it, or
+  `pr:<n>` for a PR thread that asked for it. The spec that surfaced an occurrence is named
+  in the body, never in `sources`, so the number of `sources` is the number of
+  occurrences.
+- **A new occurrence appends**: its source goes on the fact of its class and `updated` is
+  bumped. A source the fact already lists is not appended again, so a pass that runs twice
+  counts nothing twice.
+- `paths` are the files the fixes touched, and the body says what was wrong and what the
+  fix was, one line per occurrence.
+- A correction fact is `current` from its first write. It is never `proposed`.
+- **The second source triggers `correct`**: the class has repeated, and the next fix for it
+  belongs in a check. `validate_wiki.py` lists every `current` correction fact with two
+  sources or more in `repeated_corrections`.
+- A class whose fact `/ss:correct` superseded opens a new fact when it occurs again: what
+  `correct` landed did not hold, and the count starts over.
 
 ## Entity frontmatter
 
@@ -83,11 +112,11 @@ of facts that link to it, `current` first. That block is derived: never edit it 
 
 ## The status lifecycle
 
-| status       | written by               | meaning                                        |
-| ------------ | ------------------------ | ---------------------------------------------- |
-| `proposed`   | `/ss:shape`, on finalize | a decision of a spec that has not landed yet   |
-| `current`    | `/ss:build`, in its pass | knowledge that governs the code today          |
-| `superseded` | `/ss:build`, in its pass | replaced by a newer fact, or left with no code |
+| status       | written by                                | meaning                                        |
+| ------------ | ----------------------------------------- | ---------------------------------------------- |
+| `proposed`   | `/ss:shape`, on finalize                  | a decision of a spec that has not landed yet   |
+| `current`    | `/ss:build`, in its passes; `/ss:correct` | knowledge that governs the code today          |
+| `superseded` | `/ss:build`, in its passes; `/ss:correct` | replaced by a newer fact, or left with no code |
 
 - **A `proposed` fact never supersedes anything**, and no reader treats it as a rule: a
   spec that is never built changes nothing that governs the code.
@@ -96,7 +125,10 @@ of facts that link to it, `current` first. That block is derived: never edit it 
   diff is where a person sees it.
 - `superseded` is final. A fact that becomes true again is a new fact.
 
-## The two lanes
+## The lanes
+
+Each writer has its lane below, and writes nothing outside it. `/ss:build` has two passes,
+one before the review loop and one after it.
 
 **`/ss:shape`, on finalize.** For each bullet of the spec's `## Decisions` that passes the
 rule, write a `proposed` fact with `spec:<slug>` in `sources`, and create the entities it
@@ -124,6 +156,41 @@ order:
 
 A build that stops before its last phase lands runs no pass: its `proposed` facts stay
 `proposed`.
+
+**`/ss:build`, a second pass after the review loop.** It runs only when the run's scope
+includes the review, once the loop has ended, before the ship, and records the corrections
+the loop applied:
+
+1. **Read the fixes**: the commits of the loop, each with `Review round N.` in its body. A
+   refused finding is no correction, and neither is a fix the build made before the loop.
+2. **Name the class** of each fix, as a rule would state the mistake. A fix whose class
+   nobody would write as a rule (a typo, a wording) is not recorded.
+3. **Match**: compare the class with the `correction` of every `current` correction fact,
+   read whole, since a class repeats in files the first fix never touched. The same class
+   appends the fix commit as a source; a new class becomes a `current` correction fact with
+   one source.
+4. **Rebuild and validate**, as step 6 of the first pass.
+5. **Commit** as `docs(wiki): record the review loop's corrections`, on the run branch.
+
+The facts this pass appended to that `validate_wiki.py` lists in `repeated_corrections` are
+the ones the build's report proposes `/ss:correct` for. A loop that applied no fix, or none
+that passes step 2, writes nothing and says so in one line.
+
+**`/ss:correct`, on its own branch.** It writes once, after the change that encodes the
+class has landed on its branch, and only about that class:
+
+1. **Write the successor**: a `current` fact, with no `correction` key, naming what now
+   enforces the rule: the check, by its path and the command that runs it, or the
+   `CLAUDE.md` row that keeps the rule as prose. Its `paths` are the correction fact's plus
+   the check's own files; its `sources` are the correction fact's plus the commit that added
+   the check.
+2. **Supersede the correction fact**: `status: superseded`, `superseded_by` naming the
+   successor, `updated` bumped.
+3. **Rebuild and validate**, as step 6 of the build's first pass.
+4. **Commit** as `docs(wiki): <class> is enforced by <what>`, on `correct`'s branch.
+
+It promotes, records and supersedes nothing else. A check that was not landed writes
+nothing.
 
 ## The seed
 
@@ -164,8 +231,8 @@ only by the spec it belongs to.
 
 ## Validation
 
-`<plugin-root>/scripts/validate_wiki.py` prints JSON `{errors, warnings, orphans}` and
-exits non-zero on any error:
+`<plugin-root>/scripts/validate_wiki.py` prints JSON
+`{errors, warnings, orphans, repeated_corrections}` and exits non-zero on any error:
 
 - every non-reserved `.md` has frontmatter with `type` `fact` or `entity`;
 - a fact carries every key above, a known `status`, `paths` and `sources` non-empty, and
@@ -173,7 +240,10 @@ exits non-zero on any error:
 - an entity carries a known `kind`;
 - the reserved files (`index.md`, `entities/index.md`, `log.md`) carry no frontmatter;
 - every bundle-absolute link resolves to a real file, and no `[[wikilink]]` appears;
-- every free-text scalar is double-quoted.
+- every free-text scalar is double-quoted;
+- a correction fact names its class, is never `proposed`, and lists each source once,
+  every one prefixed `commit:` or `pr:`.
 
 A fact whose `paths` match no file is a warning, listed in `orphans`, never an error: the
-build's pass resolves it.
+build's pass resolves it. `repeated_corrections` is never an error either: each entry,
+`{file, correction, sources}`, is a `current` correction fact with two sources or more.

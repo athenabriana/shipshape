@@ -36,7 +36,7 @@ back to answer, which is the same stall as printing the question as text.
   business (gray areas, confirmations); the handoff gate is the last interaction.
 - **Skills without a natural next step have no gate**: they just report and stop:
   `ship`, `legal-lens`, `caretake`, `takeover`, `review-setup`, `write-readme`,
-  `research`, `gather-branch-context`, and `orchestrate`, which stays
+  `research`, `gather-branch-context`, `correct`, and `orchestrate`, which stays
   resident until the person ends it.
 
 ## The format

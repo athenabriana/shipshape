@@ -33,6 +33,9 @@ jobs:
       - name: Validate agent names
         run: bun .github/scripts/validate-agent-names.ts
 
+      - name: Validate the trigger table
+        run: bun .github/scripts/validate-triggers.ts
+
       # Lint the specs the PR touches, plus the whole corpus whenever the linter
       # itself changed: that corpus run is the only executable coverage the script
       # has. The diff lands in an assignment so a failed resolve fails the step

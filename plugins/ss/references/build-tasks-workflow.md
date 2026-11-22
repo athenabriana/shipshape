@@ -179,6 +179,7 @@ stringified one):
 {
   slug: "<slug>",
   specPath: ".ss/<slug>/spec.md",
+  pluginRoot: "<the plugin root this session resolved>",
   checks: {
     commands: ["..."],
     source: "<which tier answered, null when none did>",
@@ -196,6 +197,13 @@ stringified one):
   ]
 }
 ```
+
+`pluginRoot` is the path the SessionStart hook published for `<plugin-root>`, passed as it
+stands. The first line of every task prompt sends the agent to
+`<plugin-root>/references/triggers.md`, and a repro task's steps send it to
+`prove-the-fix`. A task agent may run without that hook, so the script writes the path into the
+prompt. Omitted, the prompt keeps the placeholder. The root is part of the prompt and so of the
+resume cache key: a run resumed after a plugin upgrade rebuilds its unticked tasks.
 
 `checks` is `scripts/resolve_checks.py`'s output, passed through
 whole (or `null` when the skill could not run it). The script walks the authority chain,
@@ -382,7 +390,8 @@ landed, and a half-landed phase is not that ground.
 
 ## What the task agent is told to do
 
-`taskPrompt()` in the script, and only there. It carries the spec path, the task's own
+`taskPrompt()` in the script, and only there. Its first line tells the agent to read
+`<plugin-root>/references/triggers.md` before anything else. It carries the spec path, the task's own
 line, the accumulated convention note and the check commands stage zero resolved, then
 tells the agent what to do with them: build inside `## Out of scope`, handle the risks
 `## Attention points` names the way it chooses, settle a technical gap itself and record the

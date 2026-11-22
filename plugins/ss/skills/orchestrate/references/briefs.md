@@ -10,24 +10,28 @@ stays off the person's screen.
 
 Write it in `start_session`'s `prompt`. With `context: "fresh"`, also write the shared
 goal, the decisions so far and how this front fits in `background`, which the call
-requires, 80 characters or more. A brief carries ten things:
+requires, 80 characters or more. A brief carries eleven things, in this order:
 
-1. **The front marker**: a line that says the session is a front of `/ss:orchestrate`,
+1. **The kickoff line**, as the brief's first line: "Read
+   `<plugin-root>/references/triggers.md` before anything else.", with `<plugin-root>`
+   replaced by the path this session resolved. The table there lists the situational skills,
+   and the front loads one by its path when its trigger fires.
+2. **The front marker**: a line that says the session is a front of `/ss:orchestrate`,
    names the orchestrator's session id (the `local_…` id `SendMessage` takes in `to`), and
    points to `<plugin-root>/references/front-contract.md`. Every ss skill reads that line
    and sends its questions to the orchestrator instead of asking a dialog.
-2. **The person's exact words**, in quotes. A paraphrase loses the detail the side
+3. **The person's exact words**, in quotes. A paraphrase loses the detail the side
    session needs to judge an edge case.
-3. **The goal and what done means**: the observable result, and the step it ends on (a
+4. **The goal and what done means**: the observable result, and the step it ends on (a
    PR open with green CI, a report, a board of screenshots).
-4. **The scope**, as the next section sets it.
-5. **The ss skill to run**, picked by the route below.
-6. **The files and areas** the front touches, as far as the orchestrator knows them.
-7. **The decisions already made**, so the side session does not ask them again. When the
+5. **The scope**, as the next section sets it.
+6. **The ss skill to run**, picked by the route below.
+7. **The files and areas** the front touches, as far as the orchestrator knows them.
+8. **The decisions already made**, so the side session does not ask them again. When the
    repo has `.ss/wiki/entities/index.md`, name the decisions it records for that code.
-8. **What not to do**: the areas another front owns, and anything the person ruled out.
-9. **How to validate**: the commands, the app run, the behaviors to walk.
-10. **How to report**, as the last section of this page says, and the standing rules
+9. **What not to do**: the areas another front owns, and anything the person ruled out.
+10. **How to validate**: the commands, the app run, the behaviors to walk.
+11. **How to report**, as the last section of this page says, and the standing rules
     below, every one of them.
 
 Give each side session a title and a `name` as "Naming a front" says.
@@ -115,6 +119,7 @@ Pick the skill from what the person asked for, and name it in the brief:
 | someone else's PR to adopt or bring up to date | `/ss:takeover`                   |
 | a branch to read for bugs                      | the loop of `/ss:review`         |
 | a built branch to land                         | `/ss:ship`                       |
+| a repeated correction the person chose to fix  | `/ss:correct <slug>`             |
 
 `/ss:caretake` only reads the repo, so the orchestrator runs it in place, with no front.
 When the route names a skill the installed plugin lacks, name the closest skill that
@@ -150,7 +155,8 @@ Write this section into every brief:
 - **A local file** (a screenshot, a video) goes to the notes folder, and its path goes to
   the orchestrator.
 - **The final report**, at done or at a blocker, carries the result, the PR url with the
-  state of its CI, and the blockers.
+  state of its CI, and the blockers. Every `Correction repeated:` line the front's skill
+  printed goes in it verbatim, so the orchestrator can ask the person about it.
 
 ## The notes folder
 

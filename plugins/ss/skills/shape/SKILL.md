@@ -4,7 +4,7 @@ description: Align on the idea before building. Develops a draft, iterates the g
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 4.2.0
+  version: 4.2.1
 ---
 
 # Shape
@@ -135,7 +135,7 @@ A `.ss/<slug>/research.md` beside the spec is committed with it on finalize. The
 
 ## The wiki: read before the draft, write on finalize
 
-`.ss/wiki/` is the repo's memory of what the code cannot say, and shape is one of its two writers. The contract (layout, frontmatter, the status lifecycle, the rule of what becomes a fact) is the plugin-level `references/wiki-state.md`; follow it.
+`.ss/wiki/` is the repo's memory of what the code cannot say, and shape is one of its three writers. The contract (layout, frontmatter, the status lifecycle, the rule of what becomes a fact) is the plugin-level `references/wiki-state.md`; follow it.
 
 - **Before the draft**, read `.ss/wiki/entities/index.md` and the facts covering the area the idea touches: `python3 <plugin-root>/scripts/build_wiki.py match --files <the files and folders the idea touches>`. A `current` fact is a decision that already governs that code, so the draft opens from it, and a draft that reverses one says so in `## Decisions`. With no `.ss/wiki/` there is nothing to read.
 - **On finalize**, each bullet of `## Decisions` that passes the rule becomes a `proposed` fact with `spec:<slug>` in `sources` and the paths the decision governs, and the entities it links are created when missing. A spec finalized again rewrites its own `proposed` facts in place. A spec whose decisions all restate what the code does writes no fact, and the gate says so in one line.

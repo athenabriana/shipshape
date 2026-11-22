@@ -4,7 +4,7 @@ description: The entry point of a project. Turns this session into an orchestrat
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 2.0.0
+  version: 2.1.0
 ---
 
 # Orchestrate
@@ -69,7 +69,7 @@ Most runs cycle through all four many times: new fronts open while others land.
 
 The side sessions run the ss skills, and the brief names which one a front runs, by the route in `references/briefs.md`, "The skill route": a bug runs `/ss:diagnose`, an idea that needs research runs `/ss:research` then `/ss:shape`, a feature runs `/ss:shape` then `/ss:build`. `/ss:caretake` only reads the repo, so the orchestrator runs it in place, with no front.
 
-In a front, each skill sends its questions to the orchestrator, by `<plugin-root>/references/front-contract.md`. Relay each one to the person through `AskUserQuestion`, and send the answer back quoted. A front publishes its pages as Artifacts: open each one for the person, and apply the person's edits to it here (`references/relay.md`, "Questions from a front" and "Artifacts").
+In a front, each skill sends its questions to the orchestrator, by `<plugin-root>/references/front-contract.md`. Relay each one to the person through `AskUserQuestion`, and send the answer back quoted. A front publishes its pages as Artifacts: open each one for the person, and apply the person's edits to it here (`references/relay.md`, "Questions from a front" and "Artifacts"). A report that carries `Correction repeated:` lines proposes a `correct` front: bring each one to the person as a question through `AskUserQuestion`, and open the front only on their pick (`references/relay.md`, "Reports").
 
 The merge is the one write to the repo the orchestrator makes itself. A merge is the person's action, authorized in the person's own conversation, so the session that conversation runs in is the one that executes it, and only for the PRs the person named (`references/landing.md`). Every other ss skill still never merges.
 

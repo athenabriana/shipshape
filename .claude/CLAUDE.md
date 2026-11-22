@@ -15,14 +15,15 @@ plugins/ss/
 │   ├── operating-context.md            # the injected operating frame (edit to tune)
 │   ├── enter_worktree.py               # worktree isolation for local autonomous runs
 │   └── scheduling-decision.md          # /loop vs Desktop task vs Cloud Routine decision table
-├── references/                        # plugin-level docs shared across skills (spec-state, handoff-gate, doc-style, ...)
+├── references/                        # plugin-level docs shared across skills (spec-state, handoff-gate, doc-style, triggers, ...)
 ├── scripts/                           # plugin-level scripts shared across skills (preflight, scan_specs, ...)
 ├── workflows/                         # Workflow scripts (build-tasks.js)
 └── skills/
     ├── shape, build, ship
     ├── diagnose
     ├── review, review-setup
-    └── gather-branch-context, caretake, takeover, research, write-readme, orchestrate
+    ├── gather-branch-context, caretake, takeover, research, write-readme, orchestrate
+    └── explain-the-number, attack-the-premise, prove-the-fix, correct   # situational, loaded by trigger (references/triggers.md)
 ```
 
 ### Naming Conventions
@@ -31,6 +32,7 @@ plugins/ss/
 - A skill's own `scripts/` and `references/*.md` are relative to the skill dir. Shared ones live at the plugin root and are written `<plugin-root>/...`; the SessionStart hook resolves that placeholder to the install path once per session.
 - Spec state lives in `.ss/<slug>/spec.md`; `plugins/ss/references/spec-state.md` is the contract.
 - The project wiki lives in `.ss/wiki/`; `plugins/ss/references/wiki-state.md` is the contract. `.github/fixtures/wiki/` is the bundle CI rebuilds and validates.
+- A situational skill carries `kind: situational` under `metadata` and one row in `plugins/ss/references/triggers.md`, the trigger table an agent reads first: the kickoff line of every build task prompt, every orchestrate brief, `/ss:diagnose`, `/ss:ship` and `/ss:correct` sends it there. `.github/scripts/validate-triggers.ts` checks that every situational skill has a row and every row a skill. `correct` stays in the menu as `/ss:correct`; the other three set `user-invocable: false`.
 - Hook commands reference files via `${CLAUDE_PLUGIN_ROOT}/...`, which only works inside `hooks.json`.
 
 ## Skills
@@ -53,7 +55,7 @@ Each skill is a folder with a `SKILL.md` containing YAML frontmatter (`name`, `d
 - Python scripts use `gh api graphql` for GitHub data (not the REST API directly)
 - Scripts write to stdout (JSON or plain text) for the LLM to consume
 - New scripts should use Python, stdlib only (no third-party imports)
-- CI (`.github/workflows/validate.yml`) validates frontmatter, workflow scripts, agent names, lints touched specs and checks formatting
+- CI (`.github/workflows/validate.yml`) validates frontmatter, workflow scripts, agent names, the trigger table, lints touched specs and checks formatting
 
 ## Commits
 

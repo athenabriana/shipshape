@@ -199,7 +199,12 @@ const PROOF_TRAILERS = `Repro: <the reproduction, as \`verify:\` names it>
 // the checks, extend the note) moves to the landing agent, which sees the whole phase at once.
 // Nothing about the phase's other members enters the prompt: the resume cache is keyed on it, and
 // the same task has to send the same string whichever of its neighbours already landed.
-function taskPrompt(t, conventions, checks, specPath, together, local) {
+//
+// `root` is the plugin root the caller resolved, since a task agent may not receive the
+// SessionStart hook that resolves `<plugin-root>`. It is part of the string, so the cache key moves
+// whenever the root does (a plugin upgrade changes the install path): a run resumed across it
+// rebuilds its unticked tasks, and the ticked ones still come back skipped.
+function taskPrompt(t, conventions, checks, specPath, together, local, root) {
   const start = together
     ? `1. Start from the run branch. You are in a git worktree of your own, and other tasks of the
    same phase are being built at the same time, each in its own. The first entry
@@ -219,21 +224,25 @@ function taskPrompt(t, conventions, checks, specPath, together, local) {
   const repro = isRepro(t);
   const s = k + (repro ? 1 : 0);
 
+  // The rules of the proof live in `prove-the-fix` alone; these steps keep only the commit layout
+  // this build needs and the status each outcome returns.
+  const testRun = local
+    ? ` Run it: it has to fail. One you cannot make fail does not catch the bug, so
+   return "red" saying so.`
+    : "";
   const building = repro
-    ? `${2 + k}. Reproduce the bug before touching any code.${
-        local
-          ? ` Run the reproduction \`verify:\` names. It has to fail the way
-   the task describes: one that passes means the spec's reproduction is wrong, so return
-   "underspecified" with what you ran and what came back.`
-          : ` Local runs are forbidden here, so run nothing:
-   read the code until you can point at where the failure the reproduction describes comes from.`
-      }
-${3 + k}. Write the focused test, and only the test. It exercises the code path the fix will change,
-   through the real code: a test that mocks the unit the fix changes proves nothing about the bug.${
+    ? `${2 + k}. Your task fixes a bug, so the \`prove-the-fix\` trigger of the table fires: read
+   \`${root}/skills/prove-the-fix/SKILL.md\` now and hold the fix to it. It states the rules
+   of the proof; the steps below are how this build lays that proof out in commits.
+   Reproduce the bug before touching any code.${
      local
-       ? ` Run it: it has to fail. One that passes does not catch the bug, so return "red" saying so.`
-       : ""
+       ? ` Run the reproduction \`verify:\` names. One that passes
+   before the fix is "underspecified": return it with what you ran and what came back.`
+       : ` Local runs are forbidden here, so run nothing:
+   read the code until you can point at where the failure the reproduction describes comes from.`
    }
+${3 + k}. Write the focused test, and only the test, as \`prove-the-fix\` says a focused test
+   counts.${testRun}
    Commit it alone, conventional style (\`test(...)\`), with no fix, no tick and no AI attribution.
    That commit is what lets CI show the red half of the proof.
 ${4 + k}. Build the fix. A stack choice the spec left open (framework, package manager, tooling)
@@ -261,8 +270,8 @@ ${3 + k}. Satisfy \`verify:\`. A command gets run, and "result" is "passed" or "
   // runs, so the prompt says which three.
   const trailers = `Its body ends with these trailers, filled in:
    ${PROOF_TRAILERS}
-   "local" only when you ran all three: the reproduction failed before the fix, the test failed
-   on the test commit, and both pass now.`;
+   "local" only when you saw all three runs \`prove-the-fix\` names: the reproduction failed
+   before the fix, the test failed on the test commit, and both pass now.`;
 
   const committing = repro
     ? together
@@ -313,7 +322,9 @@ ${facts.map((f) => `- .ss/wiki${f.file}: ${f.title}${f.description ? `. ${f.desc
 `
     : "";
 
-  return `Build one task of a spec you did not write, in a repo you have not seen.
+  return `Read \`${root}/references/triggers.md\` before anything else.
+
+Build one task of a spec you did not write, in a repo you have not seen.
 
 The spec: ${specPath}. Read it whole before touching anything: the opening and the free top
 half describe the thing, and the fixed sections are the contract. Build to \`## Behavior\`,
@@ -533,6 +544,8 @@ function failureOf(r, t, together) {
 }
 
 const taskList = args.tasks || [];
+// With no root passed, the placeholder stays for an agent whose own session resolves it.
+const pluginRoot = args.pluginRoot || "<plugin-root>";
 // The count is the groups that will actually announce, not the ones the payload declares: on
 // a resumed run a `###` group can arrive with no unticked task left in it.
 const groups = phaseGroups(taskList, args.phases);
@@ -742,7 +755,7 @@ const pendingVerify = [];
 async function runInLine(g) {
   for (const t of g.tasks) {
     const r = await agent(
-      taskPrompt(t, conventions, checks.commands, args.specPath, false, runChecks),
+      taskPrompt(t, conventions, checks.commands, args.specPath, false, runChecks, pluginRoot),
       {
         label: `task ${t.n}: ${t.title}`,
         phase: g.title,
@@ -776,7 +789,7 @@ async function runTogether(g) {
       (t) => () =>
         // No checks: a task that runs together leaves them to the landing, so its prompt has no
         // checks line to fill.
-        agent(taskPrompt(t, conventions, [], args.specPath, true, runChecks), {
+        agent(taskPrompt(t, conventions, [], args.specPath, true, runChecks, pluginRoot), {
           label: `task ${t.n}: ${t.title}`,
           phase: g.title,
           schema: TASK_RESULT,

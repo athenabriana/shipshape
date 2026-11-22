@@ -4,23 +4,24 @@ Derived by `build_wiki.py`. The contract is `plugins/ss/references/wiki-state.md
 
 ## Facts
 
-- current: 22
+- current: 49
 - proposed: 2
-- superseded: 0
+- superseded: 1
 
 ## Entities
 
-- [module](/entities/index.md#module): 3
+- [concept](/entities/index.md#concept): 2
+- [module](/entities/index.md#module): 6
 
 ## Recently updated
 
-- 2026-10-29 [start_session makes no worktree outside a git repo](/facts/start-session-no-worktree-outside-repo.md) (current)
-- 2026-10-29 [A slug is a folder holding spec.md](/facts/slug-is-a-folder-with-spec.md) (current)
-- 2026-10-29 [The review loop's reviewer is another model when one is installed](/facts/review-loop-reviewer-is-another-model.md) (proposed)
-- 2026-10-29 [The review loop's outward record names no model](/facts/review-loop-record-names-no-model.md) (proposed)
-- 2026-10-29 [The research report lives beside the spec, uncommitted by research](/facts/research-report-beside-the-spec.md) (current)
-- 2026-10-29 [Research never asks mid-run](/facts/research-never-asks-mid-run.md) (current)
-- 2026-10-29 [fetch_images.py trusts the bytes, never the name, and writes outside any repo](/facts/research-downloads-stay-outside-the-repo.md) (current)
-- 2026-10-29 [A repro task lands as two commits, the test first](/facts/repro-task-lands-test-first.md) (current)
-- 2026-10-29 [A red CI run proves a bug fix only when the focused test is what failed](/facts/red-run-names-the-focused-test.md) (current)
-- 2026-10-29 [The orchestrator renames its own session](/facts/orchestrator-titles-itself.md) (current)
+- 2026-11-21 [The wiki has three writers, correct in its own lane](/facts/wiki-has-three-writers.md) (current)
+- 2026-11-21 [The review verifier runs a trigger only in a disposable worktree at head](/facts/verifier-runs-trigger-in-own-worktree.md) (current)
+- 2026-11-21 [A correctness finding with a trigger is confirmed only by running it](/facts/unexecuted-finding-never-confirmed.md) (current)
+- 2026-11-21 [A trigger counts distinct valid entries, not the raw list](/facts/trigger-counts-raw-list.md) (current)
+- 2026-11-21 [A sha read from commit data is validated before git sees it](/facts/trailer-value-used-unvalidated.md) (current)
+- 2026-11-21 [Build passes the plugin root into every task prompt](/facts/task-prompt-carries-plugin-root.md) (current)
+- 2026-11-21 [A situational skill passes three tests before it exists](/facts/situational-skill-passes-three-tests.md) (current)
+- 2026-11-21 [A situational skill is marked by metadata kind, not by the menu flag](/facts/situational-marker-is-metadata-kind.md) (current)
+- 2026-11-21 [A shared skill takes what its caller already settled](/facts/shared-skill-rederives-caller-input.md) (current)
+- 2026-11-21 [The second source on a correction fact triggers correct](/facts/second-correction-triggers-correct.md) (current)

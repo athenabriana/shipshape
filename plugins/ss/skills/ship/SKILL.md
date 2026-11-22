@@ -4,10 +4,12 @@ description: Takes the current branch to shipped, your way. It does not review; 
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 4.2.0
+  version: 4.3.0
 ---
 
 # Ship
+
+Read `<plugin-root>/references/triggers.md` before anything else.
 
 Take the current branch all the way to shipped (checks green, committed), then ship it the way you pick: push to a branch, prepare a push to main, or open and green a PR. The checks are the same substance regardless of destination; the ship differs. Reviewing is **not** part of it: reading the change is `/ss:review`'s, and on a specced run `/ss:build` runs it on the branch before ship starts. **Never merges, and by default leaves the protected-branch push to you**: shipping to `main`/`master`/`release` stays your call (and is typically enforced server-side by branch protection), so ship preps everything and hands you the command.
 
@@ -93,7 +95,9 @@ part with no judgment in it: the checks CI would run anyway, and a clean commit.
 
 A task whose `verify:` is `repro:` fixes a bug, and ship does not open or finish the PR until each one carries its proof: the original failure shown red, then the same reproduction green, with a focused test that fails without the fix. The marker is `/ss:shape`'s `references/spec-format.md`. The step reads only the repro tasks of the spec `preflight.py` names; a branch with no spec, or a spec with no repro task, skips it and ships as it does today.
 
-1. **Find each task's proof.** `git log --format='%H%n%(trailers)' <diff_range>` lists the fix commits with the trailers `workflows/build-tasks.js` writes in `PROOF_TRAILERS`: `Repro`, `Repro-test`, `Repro-test-commit`, `Repro-proof`. A repro task with no fix commit carrying them, or whose `Repro-test-commit` is not on the branch, is a blocker: the build did not land it test first.
+1. **Find each task's proof.** `git log --format='%H%n%(trailers)' <diff_range>` lists the fix commits with the trailers `workflows/build-tasks.js` writes in `PROOF_TRAILERS`: `Repro`, `Repro-test`, `Repro-test-commit`, `Repro-proof`. A repro task with no fix commit carrying them is a blocker: the build did not land it test first.
+   - **Place each test commit** with `python3 <plugin-root>/scripts/patch_id.py --resolve <sha>`, one `--resolve` per `Repro-test-commit`. Each entry of `resolved` answers for one sha. `on_branch: true` is the sha as the trailer wrote it. Otherwise a history rewrite (`/ss:takeover`'s modernize) gave the test commit a new sha, and `match` is the branch's commit with the same patch-id: it stands for the test commit in every step below, and the proof section names both shas.
+   - **`match: null` means the proof is missing**, a blocker as before. `available: false` says why: the old commit could not be read, locally or from `origin`, so its patch-id was never taken.
 2. **`Repro-proof: local`** is enough: the task agent saw the reproduction and the test fail, and both pass after the fix. It goes into the proof section as it stands, and CI only has to be green at the end.
 3. **`Repro-proof: pending`** is proven by CI in two steps, one red run per pending task, in the order their test commits sit on the branch:
    - Push the branch up to that test commit and no further: `git push origin <test sha>:refs/heads/<branch>`. On the PR path the PR opens here, at the test commit, by `references/ship-pr.md`'s create step, since many workflows run only on `pull_request`.
@@ -106,6 +110,16 @@ A task whose `verify:` is `repro:` fixes a bug, and ship does not open or finish
    - The fix is already on the remote (`git merge-base --is-ancestor <fix sha> origin/<branch>`) with no red run recorded: name the task and hand the command that proves it by hand, a push of the test commit to a branch of its own (`git push origin <test sha>:refs/heads/<branch>-repro-<n>`) and a draft PR from it. Ship never force-pushes to put the test commit back on top.
    - The destination is a protected branch: ship never pushes there, so it cannot take the two steps.
 5. **The proof section.** One block per repro task, written into the PR description on the PR path and into the report on every path: the reproduction, the focused test, the red half (`local`, or the red run's URL at the test commit's sha) and the green half (`local`, or CI green on the head).
+
+## Step 2c: Check the review verdict still covers the branch
+
+A review verdict covers the change it read, and it carries that change's patch-id: the patch-id of the diff from the merge-base to the head, in the verdict line `/ss:review`'s loop writes (`<plugin-root>/skills/review/references/loop.md`, "The verdict line"). Run `python3 <plugin-root>/scripts/patch_id.py`. It measures the head, reads the verdict line from the open PR's description, and prints `{head, base_branch, base_ref, merge_base, patch_id, pr, recorded, unchanged}`. With no PR yet and a verdict line handed over in this session (`/ss:build`'s verdict note, or a review loop run here), pass that line's patch-id as `--expect <patch-id>`.
+
+- **`recorded: null`**: the branch has no recorded verdict. Skip this step and ship as before.
+- **`unchanged: true`**: the verdict holds, even when the base was merged in since.
+- **`unchanged: false`**: the review read code that has changed since. Ship goes on. On the PR path the description carries, right under the verdict line, `Review verdict predates the last change: given at patch-id <recorded>, the branch is now at <patch_id>.`, and on every path the report says it. Reviewing the delta is `/ss:review`'s, and its loop replaces both lines.
+
+On the PR path, run it again after every push (`references/ship-pr.md`), since each fix ship pushes can change the patch-id: the line is written while the two differ and removed once they are equal.
 
 ## Step 3: Ship it
 
@@ -148,6 +162,10 @@ The ground for the whole run in one call: `gh_authenticated`, branch, base, `mer
 ### <plugin-root>/scripts/resolve_checks.py
 
 Walk the checks authority chain without running anything. Its docstring states the chain, tier by tier, and is the one place that does. Prints `{commands, source, truncated, resolved_count, runnable, policy, notes, unresolved, candidates, git_root}`, where `unresolved` is what it saw and could not resolve, so an empty `commands` is never mistaken for a project with no checks. Shared with `/ss:build`, which also hands it to `workflows/build-tasks.js` as `args.checks`.
+
+### <plugin-root>/scripts/patch_id.py
+
+The patch-id of the branch's own change, the diff from the merge-base to the head, compared with the one the review verdict recorded in the PR description (Step 2c), and each `--resolve` sha placed on the branch by sha or by patch-id (Step 2b). Shared with `/ss:review`, whose loop records the patch-id, and the orchestrator's landing, which compares it with `--pr`. Prints JSON.
 
 ### <plugin-root>/scripts/inspect_pr_checks.py
 
