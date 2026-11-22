@@ -52,7 +52,7 @@ Check the test against two imagined edits before you trust it:
 
 ## Show each half
 
-How each half is shown depends on `runnable`, from `<plugin-root>/scripts/resolve_checks.py`:
+How each half is shown depends on `runnable`. Take it as your caller states it (a build task prompt does, by saying whether local runs are forbidden); with no caller stating it, take it from `<plugin-root>/scripts/resolve_checks.py`:
 
 - **`runnable` is true**: run all three yourself. The reproduction fails before the fix, the test fails without the fix, and both pass with it. The proof is `local` only when you saw all three.
 - **`runnable` is false**: local runs are forbidden, so run nothing. Read the code until you can point at where the failure comes from. CI shows the red half on the test commit alone and the green half on the head, and the proof is `pending` until it does.
@@ -73,7 +73,7 @@ When the bug is that something got slow, the reproduction is a benchmark. Load `
 | WHEN                                                 | THEN                                                                  |
 | ---------------------------------------------------- | --------------------------------------------------------------------- |
 | the reproduction passes before the fix               | stop and return it to your caller; nothing is fixed                   |
-| the focused test passes without the fix              | it does not catch the bug: rewrite it until it fails                  |
+| the focused test passes without the fix              | rewrite it until it fails; one that never fails goes back as red      |
 | the test mocks the unit the fix changes              | it does not count: drive the real code path                           |
 | the test fails without the fix for another reason    | it does not count: make it fail on the assertion about the behavior   |
 | `runnable` is false                                  | the test commit lands alone first; CI shows red, then green           |
