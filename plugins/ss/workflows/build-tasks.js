@@ -226,7 +226,10 @@ function taskPrompt(t, conventions, checks, specPath, together, local, root) {
 
   // The rules of the proof live in `prove-the-fix` alone; these steps keep only the commit layout
   // this build needs and the status each outcome returns.
-  const testRun = local ? " Run it: it has to fail." : "";
+  const testRun = local
+    ? ` Run it: it has to fail. One you cannot make fail does not catch the bug, so
+   return "red" saying so.`
+    : "";
   const building = repro
     ? `${2 + k}. Your task fixes a bug, so the \`prove-the-fix\` trigger of the table fires: read
    \`${root}/skills/prove-the-fix/SKILL.md\` now and hold the fix to it. It states the rules
