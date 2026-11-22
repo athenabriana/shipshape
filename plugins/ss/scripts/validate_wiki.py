@@ -2,9 +2,11 @@
 """
 Validate the `.ss/wiki/` bundle against `plugins/ss/references/wiki-state.md`.
 
-Prints JSON `{wiki, errors, warnings, orphans}` and exits 1 on any error. A fact whose
-`paths` match no tracked file is a warning listed in `orphans`, never an error: the build's
-wiki pass resolves it by following the rename or superseding the fact.
+Prints JSON `{wiki, errors, warnings, orphans, repeated_corrections}` and exits 1 on any
+error. A fact whose `paths` match no tracked file is a warning listed in `orphans`, never an
+error: the build's wiki pass resolves it by following the rename or superseding the fact.
+`repeated_corrections` lists the `current` correction facts with two sources or more, the
+classes `/ss:correct` is due for. It is information, never an error.
 
 Usage:
   python3 validate_wiki.py [--wiki .ss/wiki] [--no-orphans]
@@ -34,8 +36,12 @@ from build_wiki import (  # noqa: E402
 )
 
 FACT_KEYS = ("type", "title", "description", "paths", "sources", "status", "created", "updated")
-FREE_TEXT = ("title", "description")
+FREE_TEXT = ("title", "description", "correction")
 SOURCE_PREFIXES = ("spec:", "pr:", "commit:")
+# Each source of a correction fact is one occurrence, so a `spec:` source would be counted
+# as one and fire `/ss:correct` on the first.
+OCCURRENCE_PREFIXES = ("pr:", "commit:")
+REPEATED_AT = 2
 
 
 def tracked_files(wiki: Path) -> list[str] | None:
@@ -81,6 +87,41 @@ def check_fact(doc: dict, docs: dict, errors: list) -> None:
         target = docs.get(successor)
         if not target or target["meta"].get("type") != "fact":
             errors.append(f"{key}: `superseded_by` {successor} is not a fact of the bundle")
+    if "correction" in meta:
+        check_correction(meta, key, errors)
+
+
+def is_correction(meta: dict) -> bool:
+    return meta.get("type") == "fact" and "correction" in meta
+
+
+def check_correction(meta: dict, key: str, errors: list) -> None:
+    if not isinstance(meta["correction"], str) or not meta["correction"].strip():
+        errors.append(f"{key}: `correction` must name the class of error")
+    if meta.get("status") == "proposed":
+        errors.append(f"{key}: a correction fact is never `proposed`")
+    sources = meta.get("sources")
+    seen: set[str] = set()
+    for source in sources if isinstance(sources, list) else []:
+        if not isinstance(source, str):
+            continue
+        if not source.startswith(OCCURRENCE_PREFIXES):
+            errors.append(f"{key}: correction source `{source}` is not an occurrence (commit: or pr:)")
+        if source in seen:
+            errors.append(f"{key}: correction source `{source}` is listed twice")
+        seen.add(source)
+
+
+def repeated_corrections(docs: dict) -> list[dict]:
+    out = []
+    for doc in docs.values():
+        meta = doc["meta"]
+        if not is_correction(meta) or meta.get("status") != "current":
+            continue
+        sources = meta.get("sources") if isinstance(meta.get("sources"), list) else []
+        if len(sources) >= REPEATED_AT:
+            out.append({"file": doc["key"], "correction": meta["correction"], "sources": sources})
+    return out
 
 
 def check_scalars(doc: dict, errors: list) -> None:
@@ -142,7 +183,13 @@ def validate(wiki: Path, orphans_on: bool = True) -> dict:
             if orphans:
                 warnings.append(f"{len(orphans)} fact path(s) match no tracked file")
 
-    return {"wiki": str(wiki), "errors": errors, "warnings": warnings, "orphans": orphans}
+    return {
+        "wiki": str(wiki),
+        "errors": errors,
+        "warnings": warnings,
+        "orphans": orphans,
+        "repeated_corrections": repeated_corrections(docs),
+    }
 
 
 def parse_args() -> argparse.Namespace:
@@ -156,7 +203,8 @@ def main() -> None:
     args = parse_args()
     wiki = wiki_dir(args.wiki)
     if not wiki.is_dir():
-        print(json.dumps({"wiki": str(wiki), "errors": [], "warnings": ["no wiki"], "orphans": []}))
+        empty = {"errors": [], "warnings": ["no wiki"], "orphans": [], "repeated_corrections": []}
+        print(json.dumps({"wiki": str(wiki), **empty}))
         return
     result = validate(wiki, not args.no_orphans)
     print(json.dumps(result, indent=2))
