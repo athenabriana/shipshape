@@ -12,6 +12,7 @@ The check CI and both writers run after every rebuild of the bundle.
 ## Facts
 
 - [A correction fact's sources count its occurrences](/facts/correction-sources-are-occurrences.md) (current)
+- [A trigger counts distinct valid entries, not the raw list](/facts/trigger-counts-raw-list.md) (current)
 - [validate_wiki.py lists tracked files from the git root](/facts/ls-files-from-git-root.md) (current)
 
 <!-- backlinks:end -->

@@ -12,6 +12,7 @@ the run branch.
 
 ## Facts
 
+- [A prompt rewrite keeps the status each outcome returns](/facts/prompt-rewrite-drops-a-status.md) (current)
 - [A repro task lands as two commits, the test first](/facts/repro-task-lands-test-first.md) (current)
 - [Agents find situational skills through the trigger table, read first](/facts/agents-find-skills-through-trigger-table.md) (current)
 - [Build passes the plugin root into every task prompt](/facts/task-prompt-carries-plugin-root.md) (current)

@@ -15,3 +15,4 @@
 2026-10-29 build build-review-loop: promoted 1 fact
 2026-11-21 shape situational-skills: proposed 9 facts
 2026-11-21 build situational-skills: 9 promoted, 9 recorded, 1 superseded
+2026-11-21 build situational-skills: recorded 10 correction facts from the review loop

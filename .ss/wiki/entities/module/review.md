@@ -12,6 +12,7 @@ or refuses what they verified, round after round.
 
 ## Facts
 
+- [A PR description is read before a line of it is replaced](/facts/pr-body-written-unread.md) (current)
 - [A build whose review loop ends open still ships, flagged](/facts/build-review-loop-open-verdict-still-ships.md) (current)
 - [A correctness finding with a trigger is confirmed only by running it](/facts/unexecuted-finding-never-confirmed.md) (current)
 - [Files with a correctness candidate go to the verifier, not the outside reviewer](/facts/correctness-files-stay-with-verifier.md) (current)
