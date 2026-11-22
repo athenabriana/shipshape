@@ -123,7 +123,7 @@ def repeated_corrections(docs: dict) -> list[dict]:
         # error, and must not fire `/ss:correct` on its own.
         occurrences = {s for s in sources if isinstance(s, str) and s.startswith(OCCURRENCE_PREFIXES)}
         if len(occurrences) >= REPEATED_AT:
-            out.append({"file": doc["key"], "correction": meta["correction"], "sources": sources})
+            out.append({"file": doc["key"], "correction": meta["correction"], "sources": sorted(occurrences)})
     return out
 
 
