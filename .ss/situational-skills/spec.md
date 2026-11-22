@@ -225,17 +225,15 @@ Happy path, a correction that repeats:
 ### Phase 1: the table
 
 - [ ] **1. Trigger table and its check**: `references/triggers.md` with the three-test rule
-      and an empty table, and a CI check that every situational skill has a row and every row a
-      skill. · verify: CI
+      and one row for each of the four skills, and a CI check that every situational skill has
+      a row and every row a skill. · verify: CI
 
 ### Phase 2: the skills and the mechanisms
 
-- [ ] **2. explain-the-number**: the skill, out of the menu, with its row in the table. ·
-      verify: reading
-- [ ] **3. attack-the-premise**: the skill, out of the menu, with its row in the table. ·
-      verify: reading
+- [ ] **2. explain-the-number**: the skill, out of the menu. · verify: reading
+- [ ] **3. attack-the-premise**: the skill, out of the menu. · verify: reading
 - [ ] **4. prove-the-fix**: the skill with the repro proof's rules and the
-      test-behavior rule, out of the menu, with its row. · verify: reading
+      test-behavior rule, out of the menu. · verify: reading
 - [ ] **5. /ss:correct and the correction facts**: the skill and command; the correction
       fact and the third writer in `wiki-state.md` and `validate_wiki.py`; the build's second
       pass after the review loop and the report line that proposes `correct`. · verify: CI
@@ -257,7 +255,8 @@ Happy path, a correction that repeats:
 ### Phase 4: the record
 
 - [ ] **10. Docs and versions**: the repo's `CLAUDE.md` structure, the README and each
-      touched skill's version name the new skills and the table. · verify: reading
+      touched skill's version name the new skills and the table. Version bumps happen here
+      only, so the tasks before it leave `metadata.version` as it is. · verify: reading
 
 ## Out of scope
 
