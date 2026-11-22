@@ -3,8 +3,8 @@ type: fact
 title: "A correctness finding with a trigger is confirmed only by running it"
 description: "When local runs are forbidden it stays PLAUSIBLE, marked not executed; nothing is pushed to CI to prove a finding."
 paths: ["plugins/ss/skills/review/references/verify.md", "plugins/ss/agents/ss-review-verifier.md"]
-sources: ["spec:situational-skills"]
-status: proposed
+sources: ["spec:situational-skills", "commit:25d48d1"]
+status: current
 created: 2026-11-21
 updated: 2026-11-21
 ---
