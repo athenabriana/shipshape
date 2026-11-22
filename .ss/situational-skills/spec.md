@@ -224,7 +224,7 @@ Happy path, a correction that repeats:
 
 ### Phase 1: the table
 
-- [ ] **1. Trigger table and its check**: `references/triggers.md` with the three-test rule
+- [x] **1. Trigger table and its check**: `references/triggers.md` with the three-test rule
       and one row for each of the four skills, and a CI check that every situational skill has
       a row and every row a skill. · verify: CI
 
