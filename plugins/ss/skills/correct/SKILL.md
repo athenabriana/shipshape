@@ -54,7 +54,7 @@ A layer _holds_ the class when what it adds fails on a past occurrence, by Step 
 
 ## Step 4: Prove it on a past occurrence
 
-A past occurrence is the code before its fix: the tree at `<sha>^`, the parent of the commit that fixed it. What Step 3 added has to fail there, with its message.
+A past occurrence is the code before its fix: the tree at `<sha>^`, the parent of the commit that fixed it. What Step 3 added has to fail there, with its message. For a lint, a CI check or a test, what runs is that check. For a type or the architecture, it is the project's typecheck or build, from the `commands` of `resolve_checks.py`: the offending lines of `<sha>^`, written against the new type or the new structure, have to stop compiling or importing.
 
 - **`runnable` is true**: `git worktree add <scratchpad>/past <sha>^`, bring the check's files into it, run the check, and watch it fail. Then run it on the branch and remove the worktree.
 - **`runnable` is false**: local runs are forbidden, and `policy.evidence` says where. Commit the offending lines of `<sha>^` as a fixture beside the check's own test, with a test that asserts the check fails on the fixture. CI then shows the proof, and the fixture stays as the check's regression coverage. The proof is read from CI at Step 9.
