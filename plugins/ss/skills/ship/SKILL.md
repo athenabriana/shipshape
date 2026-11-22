@@ -9,6 +9,8 @@ metadata:
 
 # Ship
 
+Read `<plugin-root>/references/triggers.md` before anything else.
+
 Take the current branch all the way to shipped (checks green, committed), then ship it the way you pick: push to a branch, prepare a push to main, or open and green a PR. The checks are the same substance regardless of destination; the ship differs. Reviewing is **not** part of it: reading the change is `/ss:review`'s, and on a specced run `/ss:build` runs it on the branch before ship starts. **Never merges, and by default leaves the protected-branch push to you**: shipping to `main`/`master`/`release` stays your call (and is typically enforced server-side by branch protection), so ship preps everything and hands you the command.
 
 ## Prerequisites
