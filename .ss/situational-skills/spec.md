@@ -1,5 +1,5 @@
 ---
-status: pending
+status: in-progress
 created: 2026-11-21
 slug: situational-skills
 ---
@@ -39,15 +39,15 @@ it there.
 
 Applied to what this spec considered:
 
-| candidate                          | trigger | consumers                     | judgment | result                              |
-| ---------------------------------- | ------- | ----------------------------- | -------- | ----------------------------------- |
-| `explain-the-number`               | yes     | diagnose, build, review       | yes      | skill                               |
-| `attack-the-premise`               | yes     | build, diagnose, ship CI loop | yes      | skill                               |
-| `prove-the-fix`                    | yes     | diagnose, build repro tasks   | yes      | skill                               |
-| `correct`                          | yes     | build, review loop, person    | yes      | skill, and a command                |
-| `test-behavior-not-implementation` | yes     | build, diagnose               | yes      | folded into `prove-the-fix`         |
-| execution-proven findings          | yes     | review only                   | yes      | a lane of `/ss:review`              |
-| patch-id comparison                | yes     | ship, orchestrate             | no       | a script                            |
+| candidate                          | trigger | consumers                     | judgment | result                      |
+| ---------------------------------- | ------- | ----------------------------- | -------- | --------------------------- |
+| `explain-the-number`               | yes     | diagnose, build, review       | yes      | skill                       |
+| `attack-the-premise`               | yes     | build, diagnose, ship CI loop | yes      | skill                       |
+| `prove-the-fix`                    | yes     | diagnose, build repro tasks   | yes      | skill                       |
+| `correct`                          | yes     | build, review loop, person    | yes      | skill, and a command        |
+| `test-behavior-not-implementation` | yes     | build, diagnose               | yes      | folded into `prove-the-fix` |
+| execution-proven findings          | yes     | review only                   | yes      | a lane of `/ss:review`      |
+| patch-id comparison                | yes     | ship, orchestrate             | no       | a script                    |
 
 ## The trigger table
 
@@ -171,31 +171,31 @@ Happy path, a correction that repeats:
    rule's prose, and supersedes the correction fact with one naming the check. It opens its
    PR.
 
-| WHEN                                                                         | THEN                                                                                    |
-| ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| a skill under `skills/` is marked situational and has no row in the table    | CI fails, naming the skill                                                              |
-| a row of the table names a skill that does not exist                         | CI fails, naming the row                                                                |
-| the person types `/ss:` in the menu                                          | `correct` shows; the other situational skills do not                                    |
-| a task agent's environment has no `Skill` tool                               | it reads the skill's `SKILL.md` by the path the table gives                             |
-| a measured effect is smaller than the run-to-run spread                      | the verdict is `inconclusive`; nothing is reported as faster                            |
-| a performance fix gives `slower`                                             | the fix is wrong; diagnose goes back to the cause                                       |
-| a performance proof in CI ends `inconclusive` or `no measurable difference`  | the person gets that verdict with the runs; the report does not call the bug fixed      |
-| a task agent's second fix fails the same gate as the first                   | it loads `attack-the-premise`, writes the premise and tests it before a third attempt   |
-| a `correctness` candidate has a trigger and `runnable` is true, reproduced   | CONFIRMED, with the command and its output                                              |
-| a `correctness` candidate has a trigger and `runnable` is true, not reproduced | REFUTED                                                                               |
-| a `correctness` candidate has a trigger and `runnable` is false              | PLAUSIBLE, marked "not executed"; the loop decides it as it decides any PLAUSIBLE       |
-| a candidate has no concrete trigger                                          | the verifier gives today's reading verdict                                              |
-| a correction class is seen for the first time                                | one fact with one source; nothing else happens                                          |
-| a correction class gets its second source                                    | the build report proposes `/ss:correct`; in orchestrate, the person is asked            |
-| the check `correct` wrote passes on the past occurrence                      | it is not landed; the report says the check does not catch the error                   |
-| the new check fails on existing code of the same class                       | `correct` fixes those occurrences in the same branch                                    |
-| the correction needs judgment and no check can hold it                       | the rule stays prose in `CLAUDE.md`, with an example of the failure; its row says prose |
-| the target repo has no `CLAUDE.md`                                           | `correct` creates it with the table                                                     |
-| the base was merged into the branch after the review verdict                 | patch-id unchanged; the verdict holds and the orchestrator may merge                    |
-| a CI fix landed after the review verdict                                     | patch-id changed; the orchestrator asks for a review of the delta before merging        |
-| `/ss:ship` finds a verdict older than the patch                              | the PR says the verdict predates the last change                                        |
-| the branch has no recorded verdict                                           | ship and landing behave as today                                                        |
-| `Repro-test-commit` names a sha no longer on the branch                      | ship finds the commit with the same patch-id; with none, the proof is missing           |
+| WHEN                                                                           | THEN                                                                                    |
+| ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| a skill under `skills/` is marked situational and has no row in the table      | CI fails, naming the skill                                                              |
+| a row of the table names a skill that does not exist                           | CI fails, naming the row                                                                |
+| the person types `/ss:` in the menu                                            | `correct` shows; the other situational skills do not                                    |
+| a task agent's environment has no `Skill` tool                                 | it reads the skill's `SKILL.md` by the path the table gives                             |
+| a measured effect is smaller than the run-to-run spread                        | the verdict is `inconclusive`; nothing is reported as faster                            |
+| a performance fix gives `slower`                                               | the fix is wrong; diagnose goes back to the cause                                       |
+| a performance proof in CI ends `inconclusive` or `no measurable difference`    | the person gets that verdict with the runs; the report does not call the bug fixed      |
+| a task agent's second fix fails the same gate as the first                     | it loads `attack-the-premise`, writes the premise and tests it before a third attempt   |
+| a `correctness` candidate has a trigger and `runnable` is true, reproduced     | CONFIRMED, with the command and its output                                              |
+| a `correctness` candidate has a trigger and `runnable` is true, not reproduced | REFUTED                                                                                 |
+| a `correctness` candidate has a trigger and `runnable` is false                | PLAUSIBLE, marked "not executed"; the loop decides it as it decides any PLAUSIBLE       |
+| a candidate has no concrete trigger                                            | the verifier gives today's reading verdict                                              |
+| a correction class is seen for the first time                                  | one fact with one source; nothing else happens                                          |
+| a correction class gets its second source                                      | the build report proposes `/ss:correct`; in orchestrate, the person is asked            |
+| the check `correct` wrote passes on the past occurrence                        | it is not landed; the report says the check does not catch the error                    |
+| the new check fails on existing code of the same class                         | `correct` fixes those occurrences in the same branch                                    |
+| the correction needs judgment and no check can hold it                         | the rule stays prose in `CLAUDE.md`, with an example of the failure; its row says prose |
+| the target repo has no `CLAUDE.md`                                             | `correct` creates it with the table                                                     |
+| the base was merged into the branch after the review verdict                   | patch-id unchanged; the verdict holds and the orchestrator may merge                    |
+| a CI fix landed after the review verdict                                       | patch-id changed; the orchestrator asks for a review of the delta before merging        |
+| `/ss:ship` finds a verdict older than the patch                                | the PR says the verdict predates the last change                                        |
+| the branch has no recorded verdict                                             | ship and landing behave as today                                                        |
+| `Repro-test-commit` names a sha no longer on the branch                        | ship finds the commit with the same patch-id; with none, the proof is missing           |
 
 ## Attention points
 
@@ -225,39 +225,39 @@ Happy path, a correction that repeats:
 ### Phase 1: the table
 
 - [ ] **1. Trigger table and its check**: `references/triggers.md` with the three-test rule
-  and an empty table, and a CI check that every situational skill has a row and every row a
-  skill. · verify: CI
+      and an empty table, and a CI check that every situational skill has a row and every row a
+      skill. · verify: CI
 
 ### Phase 2: the skills and the mechanisms
 
 - [ ] **2. explain-the-number**: the skill, out of the menu, with its row in the table. ·
-  verify: reading
+      verify: reading
 - [ ] **3. attack-the-premise**: the skill, out of the menu, with its row in the table. ·
-  verify: reading
+      verify: reading
 - [ ] **4. prove-the-fix**: the skill with the repro proof's rules and the
-  test-behavior rule, out of the menu, with its row. · verify: reading
+      test-behavior rule, out of the menu, with its row. · verify: reading
 - [ ] **5. /ss:correct and the correction facts**: the skill and command; the correction
-  fact and the third writer in `wiki-state.md` and `validate_wiki.py`; the build's second
-  pass after the review loop and the report line that proposes `correct`. · verify: CI
+      fact and the third writer in `wiki-state.md` and `validate_wiki.py`; the build's second
+      pass after the review loop and the report line that proposes `correct`. · verify: CI
 - [ ] **6. Execution-proven findings**: the lane in `review/references/verify.md` and the
-  verifier's rubric, gated on `runnable`. · verify: reading
+      verifier's rubric, gated on `runnable`. · verify: reading
 - [ ] **7. Patch-id**: a script that prints the branch's patch-id; the review loop records
-  it with the verdict; `/ss:ship` compares it and resolves a missing `Repro-test-commit`;
-  the orchestrator's landing compares it before a merge. · verify: CI
+      it with the verdict; `/ss:ship` compares it and resolves a missing `Repro-test-commit`;
+      the orchestrator's landing compares it before a merge. · verify: CI
 
 ### Phase 3: the wiring
 
 - [ ] **8. Kickoff in the build and the briefs**: the first line of `taskPrompt` and of
-  every brief reads `triggers.md`; the repro branch of `taskPrompt` points to
-  `prove-the-fix`; the orchestrator relays a proposed `correct` as a question. · verify: CI
+      every brief reads `triggers.md`; the repro branch of `taskPrompt` points to
+      `prove-the-fix`; the orchestrator relays a proposed `correct` as a question. · verify: CI
 - [ ] **9. Kickoff and the performance path in diagnose and ship**: `diagnose` and `ship`
-  open by reading `triggers.md`; `diagnose` points to `prove-the-fix` and proves a
-  performance bug with `explain-the-number`. · verify: reading
+      open by reading `triggers.md`; `diagnose` points to `prove-the-fix` and proves a
+      performance bug with `explain-the-number`. · verify: reading
 
 ### Phase 4: the record
 
 - [ ] **10. Docs and versions**: the repo's `CLAUDE.md` structure, the README and each
-  touched skill's version name the new skills and the table. · verify: reading
+      touched skill's version name the new skills and the table. · verify: reading
 
 ## Out of scope
 
