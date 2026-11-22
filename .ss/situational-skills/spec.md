@@ -1,5 +1,5 @@
 ---
-status: in-progress
+status: done
 created: 2026-11-21
 slug: situational-skills
 ---
