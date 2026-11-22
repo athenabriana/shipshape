@@ -9,6 +9,7 @@ Reached from ship's Step 1 when the destination is a pull request. Step 2 is don
 3. Draft from the commits + diff (and a matching spec if present, since it's the intended scope):
    - **Title**: conventional commit style `<type>(<scope>): <description>` (≤70 chars).
    - **Body**: follow `.github/pull_request_template.md` if it exists (fill every section; mark N/A where not applicable). Otherwise: Context (why) → Changes (grouped by purpose, not file) → Breaking Changes (only if any).
+   - **The review verdict**, when a review loop's verdict line was handed over: the body carries that line as written, with its patch-id, and under it the `Review verdict predates the last change` line when ship's Step 2c found the patch-id changed.
 4. Present title + body, get approval/edits, then create:
    ```
    gh pr create --title "<title>" --body "$(cat <<'EOF'
@@ -54,6 +55,8 @@ Reached from ship's Step 1 when the destination is a pull request. Step 2 is don
 6. Report what was handled as a table: `# | file:line | comment summary | verdict | action taken`.
 
 Pushing fixes to the PR branch is reversible, so ship does it without pausing; merge, approve, and force-push stay yours. Ship never runs them.
+
+After every push, here and in the CI fix cycle below, run ship's Step 2c again: a fix changes the patch-id the review verdict recorded, and the description says so with its `Review verdict predates the last change` line.
 
 ## Watch CI until green
 

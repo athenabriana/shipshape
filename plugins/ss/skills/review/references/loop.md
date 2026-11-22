@@ -29,11 +29,12 @@ four differences, all because the ship comes next:
 - **After the last round nothing goes out**: no push, no thread replies, no CI read. The
   commits stay on the branch for the ship.
 - **No gate**: the report goes back to build, which ships next.
-- **The verdict note goes to the PR description.** It opens with
-  `Review loop: <N> rounds, verdict <verdict>.`, a round 1 with nothing verified included
-  (`1 round, verdict clean`). `open` and `disputed` add each open Bloqueante and each
-  disputed refusal (number, `file:line`, claim), and `open` says the PR is not ready to
-  merge until they are settled. The outward rule of the record holds.
+- **The verdict note goes to the PR description.** It opens with the verdict line,
+  `Review loop: <N> rounds, verdict <verdict>, patch-id <patch-id>.` (below), a round 1
+  with nothing verified included (`1 round, verdict clean, patch-id <patch-id>`). `open`
+  and `disputed` add each open Bloqueante and each disputed refusal (number, `file:line`,
+  claim), and `open` says the PR is not ready to merge until they are settled. The outward
+  rule of the record holds.
 
 The probe and the intent read (`SKILL.md`, step 0) still run first, and the depth is
 standard. Build's tree is committed when it calls, so the uncommitted route above does not
@@ -103,6 +104,10 @@ A run `/ss:build` started skips this section (above).
    (`references/front-threads.md`).
 3. **CI is read once** after the push (`references/front-ci.md`). Still red goes to the
    report with the evidence and opens no round.
+4. **Record the verdict on the PR**, when an open PR exists: the verdict line (below)
+   replaces the one in its description, or goes at its end when it has none, with
+   `gh pr edit <n> --body-file -`. With no PR, the line goes into the report, and
+   `/ss:ship` puts it in the description it drafts.
 
 ## The record
 
@@ -111,7 +116,7 @@ The record has two audiences, and only one of them sees the reviewer's name.
 **In the session report**, a `Loop` block before the items:
 
 ```
-Loop: 2 of 3 rounds, reviewer: <reviewer name>, verdict: clean
+Loop: 2 of 3 rounds, reviewer: <reviewer name>, verdict: clean, patch-id: <patch-id>
 | round | reviewer | in | fixed | refused | new Bloqueantes |
 | ----- | -------- | -- | ----- | ------- | --------------- |
 | 1     | ...      | 9  | 6     | 2       | 4               |
@@ -121,10 +126,29 @@ Loop: 2 of 3 rounds, reviewer: <reviewer name>, verdict: clean
 Then the refusals, one line each with the ground, and the disputed ones marked. A round
 that fell back to `ss-review-verifier` names it in its row and says why in one line.
 
-**Outward**, in commit bodies and anything posted to the PR, only the round and the verdict
-appear: `Review round 2.` in a fix commit body, `Review loop: 2 rounds, verdict clean.` in a
-comment the user picks at the gate. A reviewer, model or harness name stays out of
-everything outward, which is how the repo's rule against AI attribution holds.
+**Outward**, in commit bodies and anything posted to the PR, only the round, the verdict and
+its patch-id appear: `Review round 2.` in a fix commit body, the verdict line in the PR
+description, `Review loop: 2 rounds, verdict clean.` in a comment the user picks at the
+gate. A reviewer, model or harness name stays out of everything outward, which is how the
+repo's rule against AI attribution holds.
+
+### The verdict line
+
+A verdict covers the change the loop read, so it carries that change's patch-id. Once the
+last round ends and its commits are in, run `python3 <plugin-root>/scripts/patch_id.py` and
+take its `patch_id`: the patch-id of the diff from the merge-base to the head. Merging the
+base into the branch later leaves it as it is, and any commit that changes the branch's own
+diff changes it. The line reads:
+
+```
+Review loop: 2 rounds, verdict clean, patch-id <patch-id>.
+```
+
+`/ss:ship` and the orchestrator's landing
+(`<plugin-root>/skills/orchestrate/references/landing.md`) compare it with the branch's
+current patch-id, and they read it from the PR alone, so it lives in the PR description,
+one line per description. A later loop replaces it, and
+removes the `Review verdict predates the last change` line `/ss:ship` adds under it.
 
 ## Without an Agent tool
 
