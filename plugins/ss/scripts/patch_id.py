@@ -11,7 +11,9 @@ merged into the branch, the merge-base moves up to the merged commit, so the dif
 only the branch's own change. A stale `origin/<base>` would put the base's changes in the
 diff and change the patch-id on every merge of the base. Line numbers do not count, but
 the three lines of context do: a base change right next to a branch hunk changes the id,
-and the verdict then asks for a review of the delta.
+and the verdict then asks for a review of the delta. `.ss/` is left out of the diff, as
+review leaves it out: a spec's status flip or a wiki commit after the last round keeps
+the verdict.
 
 Every diff here is produced with its options pinned (`DIFF_FLAGS`): the verdict's
 patch-id is computed in one session and compared in another, often on another checkout,
@@ -65,6 +67,13 @@ DIFF_FLAGS = [
 # such a change would keep an old verdict.
 PATCH_ID_FLAGS = ["--verbatim"]
 
+# `.ss/` is the run's own bookkeeping (the spec's status, its ticks, the wiki), committed
+# after the review ends; review reads the code, so those commits must not move the id.
+CODE_PATHSPEC = [":(top)", ":(top,exclude).ss"]
+
+# A commit trailer is data: only a hex sha long enough to be unambiguous is looked up.
+SHA = re.compile(r"^[0-9a-fA-F]{7,64}$")
+
 VERDICT_LINE = re.compile(
     r"Review loop: (\d+) rounds?, verdict (\w+), patch-id ([0-9a-f]{40,64})"
 )
@@ -99,7 +108,7 @@ def patch_ids(stream: bytes, cwd: str) -> list[tuple[str, str]]:
 
 
 def range_patch_id(base: str, head: str, cwd: str) -> str | None:
-    code, diff, err = run(["git", "diff", *DIFF_FLAGS, base, head], cwd)
+    code, diff, err = run(["git", "diff", *DIFF_FLAGS, base, head, "--", *CODE_PATHSPEC], cwd)
     if code != 0:
         fail(f"git diff {base} {head} failed: {err}")
     pairs = patch_ids(diff, cwd)
@@ -163,12 +172,12 @@ def resolve_commit(
 ) -> dict:
     """Place a commit on the branch: by its sha, or by its patch-id once the sha is gone."""
     entry = {"sha": sha, "on_branch": False, "available": False, "patch_id": None, "match": None}
-    on_branch = [commit for commit in commits if commit.startswith(sha.lower())] if sha else []
+    if not sha or not SHA.match(sha):
+        return entry
+    on_branch = [commit for commit in commits if commit.startswith(sha.lower())]
     if on_branch:
         entry.update(on_branch=True, available=True, match=on_branch[0])
         entry["patch_id"] = next((pid for pid, c in branch if c == on_branch[0]), None)
-        return entry
-    if not sha:
         return entry
 
     full = run_ok(["git", "rev-parse", "--verify", "--quiet", f"{sha}^{{commit}}"], cwd)

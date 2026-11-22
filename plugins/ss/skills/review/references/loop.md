@@ -104,8 +104,9 @@ A run `/ss:build` started skips this section (above).
    (`references/front-threads.md`).
 3. **CI is read once** after the push (`references/front-ci.md`). Still red goes to the
    report with the evidence and opens no round.
-4. **Record the verdict on the PR**, when an open PR exists: the verdict line (below)
-   replaces the one in its description, or goes at its end when it has none, with
+4. **Record the verdict on the PR**, when an open PR exists: read the description with
+   `gh pr view <n> --json body`, put the verdict line (below) in place of the one it holds,
+   or at its end when it has none, and write the whole description back with
    `gh pr edit <n> --body-file -`. With no PR, the line goes into the report, and
    `/ss:ship` puts it in the description it drafts.
 
@@ -136,9 +137,10 @@ repo's rule against AI attribution holds.
 
 A verdict covers the change the loop read, so it carries that change's patch-id. Once the
 last round ends and its commits are in, run `python3 <plugin-root>/scripts/patch_id.py` and
-take its `patch_id`: the patch-id of the diff from the merge-base to the head. Merging the
-base into the branch later leaves it as it is, and any commit that changes the branch's own
-diff changes it. The line reads:
+take its `patch_id`: the patch-id of the diff from the merge-base to the head, with `.ss/`
+left out as review leaves it out. Merging the base into the branch later leaves it as it
+is, and so do the spec's status flip and a wiki commit; any commit that changes the
+branch's own code changes it. The line reads:
 
 ```
 Review loop: 2 rounds, verdict clean, patch-id <patch-id>.
