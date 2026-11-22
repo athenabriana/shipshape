@@ -7,8 +7,9 @@ keeps the report worth reading.
 
 Runs for the fan-out depths. At the tiny-diff depth there are no finder agents, so
 the "verify" step is a self-check in the main context: re-read each candidate
-against the file before keeping it. Verifiers dispatch on Sonnet like the finders,
-and go to Opus on the same condition they do, a deep run (`fronts.md`, "Model").
+against the file before keeping it, and run the execution lane below for a
+`correctness` candidate it covers, under the same rules a verifier follows.
+Verifiers dispatch on Sonnet like the finders, and go to Opus on the same condition they do, a deep run (`fronts.md`, "Model").
 
 ## 1. Pool and group
 
@@ -60,14 +61,16 @@ that prompt, so both callers of this engine judge the same way without a second 
 to keep in sync, and without the fan-out having to re-send it.
 
 What this pass hands it: the scope block, the candidates in its file (or files)
-labeled `[0]`, `[1]`, … with the `file:line` each index sits at, and the addendum
-below when the front calls for one. Back comes one verdict per index, each judged
+labeled `[0]`, `[1]`, … with the `file:line` each index sits at, the addendum
+below when the front calls for one, and the three lines of the execution lane when
+its files hold a `correctness` candidate. Back comes one verdict per index, each judged
 independently on its own claim, with evidence.
 
 **In the review loop the seat can change hands.** When `references/loop-reviewer.md`
 resolved an outside reviewer, it judges every file's candidates in one call instead of
 these agents, under the same rubric and the same addenda, and a call that fails falls back
-to the dispatch above for that round. Everything after the verdicts, §3 and §4, runs the
+to the dispatch above for that round. The execution lane is the one part that stays with
+`ss-review-verifier` (below). Everything after the verdicts, §3 and §4, runs the
 same whoever judged.
 
 A candidate the verifier rendered no verdict on (agent died, index omitted) is
@@ -100,6 +103,50 @@ token file and line, the component's path, or the states it documents, and check
 finding claims and that the diff line actually deviates from it. A
 citation that does not hold up is REFUTED, the same discipline that kills
 hallucinated rules.
+
+## The execution lane: correctness proven by a run
+
+A `correctness` candidate whose failure scenario names a concrete trigger (a command, an
+input to a named entry point, a test) is decided by running that trigger. Reading it can
+make the case, and only the run proves it: such a candidate reaches CONFIRMED on a run
+that shows the failure, and on nothing else.
+
+**`runnable` gates the lane.** Resolve it once per review with
+`python3 <plugin-root>/scripts/resolve_checks.py`, the same answer `act-apply-fixes.md`
+reads, and give every verifier whose files hold a `correctness` candidate three lines in
+its prompt:
+
+- `runnable: true` or `runnable: false`;
+- `head:` the sha the run reviews, the head of the diff range in the scope block;
+- `uncommitted_changes:` the probe's value, so a run sees the edits the review read.
+
+The external PR mode gives `runnable: false`: the PR's head is not checked out on this
+machine.
+
+The verifier's rubric (`ss-review-verifier.md`, "The execution lane") says how a trigger
+counts as concrete and how a run happens without touching the reviewed tree. This table
+is what the verdicts come to:
+
+| the candidate       | `runnable` | the run                                       | verdict                                      |
+| ------------------- | ---------- | --------------------------------------------- | -------------------------------------------- |
+| a concrete trigger  | true       | shows the failure the candidate claims        | CONFIRMED, with the command and its output   |
+| a concrete trigger  | true       | runs as written and does not show the failure | REFUTED, with the command and its output     |
+| a concrete trigger  | true       | cannot start, or does not end in time         | PLAUSIBLE, marked `not executed`, the reason |
+| a concrete trigger  | false      | none                                          | PLAUSIBLE, marked `not executed`             |
+| no concrete trigger | either     | none                                          | the reading verdict of §2                    |
+
+With `runnable: false` the mark is the whole answer. No branch is pushed for CI to prove
+a finding, and the review loop decides the candidate as it decides any PLAUSIBLE. The mark
+rides with the verdict into the report, as `PLAUSIBLE (not executed)`, so a reader tells
+a finding nobody ran from one whose trigger stayed uncertain.
+
+**The lane stays with `ss-review-verifier`.** The loop's outside reviewer runs in a
+read-only sandbox (`loop-reviewer.md`), so it cannot run a trigger, and its prompt carries
+no `runnable` line, which the rubric reads as false. When it holds the seat and `runnable`
+is true, send the files holding a `correctness` candidate to `ss:ss-review-verifier` in
+the same round, under the cap of §1, and the rest to the outside reviewer. A `correctness`
+finding it returns later marked `not executed` goes to an `ss-review-verifier` for its
+run before its verdict stands.
 
 ## 3. Sweep (deep runs only)
 
