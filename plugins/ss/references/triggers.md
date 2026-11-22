@@ -32,7 +32,7 @@ and when a row names a skill that does not carry it.
 
 | skill                | trigger                                                     | path                                               | read by                                                         |
 | -------------------- | ----------------------------------------------------------- | -------------------------------------------------- | --------------------------------------------------------------- |
-| `explain-the-number` | Before you measure a number, or trust, report or act on one | `<plugin-root>/skills/explain-the-number/SKILL.md` | `/ss:diagnose`, `/ss:build` task agents, `/ss:review`           |
+| `explain-the-number` | Before you measure a number, or trust, report or act on one | `<plugin-root>/skills/explain-the-number/SKILL.md` | `/ss:diagnose`, `/ss:build` task agents                         |
 | `attack-the-premise` | Your second fix failed the same gate as the first           | `<plugin-root>/skills/attack-the-premise/SKILL.md` | `/ss:build` task agents, `/ss:diagnose`, the `/ss:ship` CI loop |
 | `prove-the-fix`      | Your task fixes a bug                                       | `<plugin-root>/skills/prove-the-fix/SKILL.md`      | `/ss:diagnose`, `/ss:build` repro tasks                         |
-| `correct`            | A correction fact in `.ss/wiki/` gets its second source     | `<plugin-root>/skills/correct/SKILL.md`            | `/ss:build`, the `/ss:review` loop, the person as `/ss:correct` |
+| `correct`            | A correction fact in `.ss/wiki/` gets its second source     | `<plugin-root>/skills/correct/SKILL.md`            | `/ss:build`, the person as `/ss:correct`                        |
