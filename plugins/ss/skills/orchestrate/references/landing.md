@@ -49,7 +49,10 @@ merge-base to that head, reads the verdict line, and prints
 
 - **`recorded: null`**: the PR has no recorded verdict. Land it as before.
 - **`unchanged: true`**: the verdict holds, even when the front merged the base in since.
-  Merge with `head` pinned, after checking CI is green on that same sha.
+  Read `recorded.verdict`. `open` means Bloqueantes the loop left unsettled: do not merge,
+  bring them to the person from the description, and send them to the front. `clean` and
+  `disputed` merge with `head` pinned, after checking CI is green on that same sha, and a
+  `disputed` one names its disputed refusals to the person first.
 - **`unchanged: false`**: the review read code that has changed since, such as a CI fix, a
   conflict resolution or a thread fix. Do not merge. Ask the front to review the delta with
   `/ss:review`, whose loop records a new verdict line, tell the person in one line why the
