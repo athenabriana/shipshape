@@ -18,7 +18,7 @@ A _correction_ and its _class_ are what the plugin-level `references/wiki-state.
 
 ## When the trigger fires in another run
 
-The row of `correct` in `triggers.md` fires inside runs that are not this one: `/ss:build`'s second wiki pass, the review loop. In such a run, the encoding waits for its own run. Name the class and the correction fact, and propose `/ss:correct <slug>`:
+The row of `correct` in `triggers.md` fires inside runs that are not this one: `/ss:build`'s second wiki pass, after the review loop. In such a run, the encoding waits for its own run, and that run starts once the PR carrying the correction fact has landed on the base: until then the fact exists only on the run's branch, and Step 2 branches from the base. Name the class and the correction fact, and propose `/ss:correct <slug>` for after that landing:
 
 - **A standalone build**: the report carries the line `/ss:build`'s step 14 states, one per repeated class.
 - **A front**: the same line goes in the report to the orchestrator, which asks the person whether to open a `correct` front.
@@ -38,7 +38,7 @@ Read every occurrence: `git show <sha>` for a `commit:` source, the thread for a
 
 ## Step 2: Open a branch of its own
 
-Fetch, then branch `correct/<slug>` from the tip of `base_branch`, never from the branch of the run that surfaced the correction. With no fact, `<slug>` is three or four words naming the class.
+Fetch, then branch `correct/<slug>` from the tip of `base_branch`, never from the branch of the run that surfaced the correction. A named fact missing from that tip means the run that recorded it has not landed: report it, and stop until its PR lands. With no fact, `<slug>` is three or four words naming the class.
 
 ## Step 3: Pick the highest layer that holds it
 
@@ -103,6 +103,7 @@ A check that was not landed is named in the report as one that does not catch th
 | --------------------------------------------------------- | ------------------------------------------------------------------------------- |
 | the trigger fires inside a build or the review loop       | name the class and propose `/ss:correct <slug>`; the encoding waits for its run |
 | `/ss:correct <slug>` names no current correction fact     | report the fact's status and stop                                               |
+| the named fact is missing from the base's tip             | the run that recorded it has not landed; report it and stop                     |
 | bare, several repeated corrections                        | one question, the most repeated class recommended                               |
 | bare, no repeated correction and no wiki                  | ask for the class and its occurrences; Step 8 writes nothing                    |
 | the check passes on the past occurrence                   | not landed; the report says it does not catch the error; one layer down         |

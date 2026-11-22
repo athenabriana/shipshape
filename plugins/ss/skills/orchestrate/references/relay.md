@@ -35,7 +35,10 @@ recommended pick written in the message (see `<plugin-root>/references/front-con
   per class, all in one call. The recommended pick opens a front that runs
   `/ss:correct <slug>` on its own branch, briefed as `references/briefs.md` says. The
   other option leaves it: the fact stays in `.ss/wiki/facts/<slug>.md`, and
-  `/ss:correct <slug>` can encode it later. A front never opens on the line alone.
+  `/ss:correct <slug>` can encode it later. A front never opens on the line alone. The
+  correction fact lives on the reporting front's branch until its PR lands, and a
+  `correct` front branches from the base, so an accepted one opens once that PR has
+  landed: until then, keep it as a pending item of the run and say so to the person.
 
 ## Artifacts
 
