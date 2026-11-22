@@ -4,7 +4,7 @@ description: Takes a bug from a short report to a proven fix, with no spec. Inve
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.1.0
+  version: 1.2.0
 ---
 
 # Diagnose

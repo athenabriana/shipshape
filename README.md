@@ -50,6 +50,14 @@ shape and build keep `.ss/wiki/` up to date by themselves: a per-project knowled
 | `/ss:write-readme`          | generate a minimal centered-header README from repo facts                        |
 | `/ss:orchestrate`           | split a large piece of work into side sessions and relay between them            |
 
+### situational
+
+| skill         | description                                                                                             |
+| ------------- | ------------------------------------------------------------------------------------------------------- |
+| `/ss:correct` | encode a correction that landed twice as a check, proven on a past occurrence, on its own branch and PR |
+
+`explain-the-number`, `attack-the-premise` and `prove-the-fix` stay out of the menu: an agent loads one by itself, mid-task, when its trigger in `plugins/ss/references/triggers.md` fires. every build task, orchestrate brief, `/ss:diagnose`, `/ss:ship` and `/ss:correct` reads that table first.
+
 develop locally:
 
 ```bash

@@ -254,7 +254,7 @@ Happy path, a correction that repeats:
 
 ### Phase 4: the record
 
-- [ ] **10. Docs and versions**: the repo's `CLAUDE.md` structure, the README and each
+- [x] **10. Docs and versions**: the repo's `CLAUDE.md` structure, the README and each
       touched skill's version name the new skills and the table. Version bumps happen here
       only, so the tasks before it leave `metadata.version` as it is. · verify: reading
 
