@@ -30,6 +30,12 @@ recommended pick written in the message (see `<plugin-root>/references/front-con
   with a recommendation when it leaves a decision.
 - **A report is that session's claim, not proof.** Check the PR, the diff or the file
   before telling the person a front is done.
+- **A report that carries `Correction repeated:` lines proposes a `correct` front.**
+  Bring each class to the person as a question through `AskUserQuestion`, one question
+  per class, all in one call. The recommended pick opens a front that runs
+  `/ss:correct <slug>` on its own branch, briefed as `references/briefs.md` says. The
+  other option leaves it: the fact stays in `.ss/wiki/facts/<slug>.md`, and
+  `/ss:correct <slug>` can encode it later. A front never opens on the line alone.
 
 ## Artifacts
 
