@@ -15,5 +15,6 @@ the run branch.
 - [A repro task lands as two commits, the test first](/facts/repro-task-lands-test-first.md) (current)
 - [Task facts are matched once, before the workflow is invoked](/facts/task-facts-matched-before-invoke.md) (current)
 - [Task worktrees never write the wiki](/facts/worktrees-never-write-the-wiki.md) (current)
+- [Agents find situational skills through the trigger table, read first](/facts/agents-find-skills-through-trigger-table.md) (proposed)
 
 <!-- backlinks:end -->

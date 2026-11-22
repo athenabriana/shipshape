@@ -13,3 +13,4 @@
 2026-10-29 build orchestrate-session-naming: promoted 5 facts, recorded 1 fact
 2026-10-29 shape build-review-loop: proposed 1 fact
 2026-10-29 build build-review-loop: promoted 1 fact
+2026-11-21 shape situational-skills: proposed 9 facts
