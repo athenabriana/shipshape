@@ -245,10 +245,10 @@ Happy path, a correction that repeats:
 
 ### Phase 3: the wiring
 
-- [ ] **8. Kickoff in the build and the briefs**: the first line of `taskPrompt` and of
+- [x] **8. Kickoff in the build and the briefs**: the first line of `taskPrompt` and of
       every brief reads `triggers.md`; the repro branch of `taskPrompt` points to
       `prove-the-fix`; the orchestrator relays a proposed `correct` as a question. · verify: CI
-- [ ] **9. Kickoff and the performance path in diagnose and ship**: `diagnose` and `ship`
+- [x] **9. Kickoff and the performance path in diagnose and ship**: `diagnose` and `ship`
       open by reading `triggers.md`; `diagnose` points to `prove-the-fix` and proves a
       performance bug with `explain-the-number`. · verify: reading
 
