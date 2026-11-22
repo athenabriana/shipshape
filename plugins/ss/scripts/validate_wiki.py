@@ -119,7 +119,10 @@ def repeated_corrections(docs: dict) -> list[dict]:
         if not is_correction(meta) or meta.get("status") != "current":
             continue
         sources = meta.get("sources") if isinstance(meta.get("sources"), list) else []
-        if len(sources) >= REPEATED_AT:
+        # Distinct occurrences only: a duplicate or a stray `spec:` source is a validation
+        # error, and must not fire `/ss:correct` on its own.
+        occurrences = {s for s in sources if isinstance(s, str) and s.startswith(OCCURRENCE_PREFIXES)}
+        if len(occurrences) >= REPEATED_AT:
             out.append({"file": doc["key"], "correction": meta["correction"], "sources": sources})
     return out
 
