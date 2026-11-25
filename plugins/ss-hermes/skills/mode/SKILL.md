@@ -74,7 +74,9 @@ commit" skips this gate; say so in the close.
 - **Subagents.** Builder, reviewer and scout are ephemeral `delegate_task` children with no
   memory. Give each a standalone brief: goal, repo, worktree, branch, acceptance criteria,
   limits. Route by model with the task's `option`: `sonnet` for the reviewer and scouts, the
-  default `opus` for the builder. Children cannot ask the person anything: they return their
+  default `opus` for the builder. Set `option` only when `hermes delegation config --show`
+  lists that route and this session's `delegate_task` offers it; otherwise leave it out and
+  say the child runs on the default model. Children cannot ask the person anything: they return their
   questions and you ask with `clarify`.
 - **A separate front.** Work that should outlive this turn, or needs its own worktree and
   branch, runs as its own session on this Bot: write the brief to `$TMPDIR/<front>.md`, then

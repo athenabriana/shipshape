@@ -91,6 +91,12 @@ chat, so its `context` carries the report, the hypothesis, the files to read, an
 limits: read only, edit nothing, run no test suite or build, and return the evidence for and
 against.
 
+**Check the route before any task sets `option`.** Run `hermes delegation config --show`
+once per run. Hermes refuses a whole `delegate_task` call whose `option` the session does not
+offer, so set `"option": "sonnet"` only when delegation is in model routes mode with a
+`sonnet` route and this session's `delegate_task` description lists that option. Otherwise
+leave `option` out, the child runs on the default model, and say so in one line.
+
 **Stop investigating as soon as the cause is confirmed.** A confirmed cause is one the
 reproduction of Step 4 shows. When it points at a small and obvious fix, say the cause and
 the fix in two lines and go on. Stopping early shortens the search, never the proof.
@@ -154,7 +160,7 @@ the reason in the chat. The person can override it: "keep it light" sets `lightw
 changes, and does the fix keep it correct. A caller the fix would break widens the fix:
 when that pushes it past a small change, Step 9 applies. Delegate the check with
 `delegate_task` when the callers span several modules: one read-only scout child per module,
-with `"option": "sonnet"`, each brief carrying the changed code and the behavior it changes.
+with `"option": "sonnet"` (after the route check in Step 3), each brief carrying the changed code and the behavior it changes.
 
 ## Step 7: Write the focused test
 

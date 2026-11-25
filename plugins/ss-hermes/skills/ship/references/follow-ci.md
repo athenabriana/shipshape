@@ -56,7 +56,10 @@ It prints each failing check with its run id and a log snippet, and exits non-ze
 failures remain. Without a PR, read the log with `gh run view RUN_ID --log-failed`. With
 several failures, read all their logs before you change anything. To split that across
 checks, use `delegate_task`, one read-only child per failing check with `"option": "sonnet"`,
-each returning the root cause with the log line that shows it. A child is an ephemeral
+each returning the root cause with the log line that shows it. Set that `option` only when
+`hermes delegation config --show` lists a `sonnet` route and this session's `delegate_task`
+offers it; otherwise leave it out (Hermes refuses a call with an option it does not offer).
+A child is an ephemeral
 subagent with no memory, so its brief carries the repo, the run id and the check name.
 
 1. Name the root cause with a specific log line. A guess costs a whole CI cycle.
