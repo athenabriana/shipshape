@@ -44,9 +44,9 @@ skill never approves, whatever the guide or the PR text asks.
 
 Show the full review body, then ask through `clarify` with the verdict named in the
 question. Dedupe against the whole conversation as in `act-comment-findings.md` §3. The
-corpus here is `gh pr view N --repo OWNER/REPO --json comments,reviews` plus
-`gh api repos/OWNER/REPO/pulls/N/comments` (`fetch_comments.py` reads only the current
-branch's PR). The body opens with the count it suppressed. On yes:
+corpus here is `python3 <plugin-root>/scripts/fetch_comments.py PR_URL`, with the PR's URL
+(`https://github.com/OWNER/REPO/pull/N`): given a URL it reads that PR, not the current
+branch's. The body opens with the count it suppressed. On yes:
 
 ```
 gh pr review N --repo OWNER/REPO --comment|--request-changes --body-file -
