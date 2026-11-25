@@ -92,6 +92,33 @@ for facts, want in cases:
     if out.returncode != 0 or got != want:
         errors.append(f"route.py {' '.join(facts)}: got {got or out.stderr.strip()!r}, want {want}")
 
+# preflight.py's UI probe: prose that says `background:` is not UI, a stylesheet that does is.
+import tempfile
+
+sys.path.insert(0, str(ROOT / "scripts"))
+from preflight import probe_ui  # noqa: E402
+
+with tempfile.TemporaryDirectory() as repo:
+    def git(*args: str) -> None:
+        subprocess.run(["git", "-c", "user.name=ci", "-c", "user.email=ci@example.invalid", *args],
+                       cwd=repo, check=True, capture_output=True)
+
+    git("init", "-q")
+    (Path(repo) / "gone.md").write_text("Set background: red on the <div class=\"x\">.\n")
+    git("add", ".")
+    git("commit", "-q", "-m", "base")
+    (Path(repo) / "gone.md").unlink()
+    (Path(repo) / "README.md").write_text("The card uses background: blue and a <button type=\"x\">.\n")
+    git("add", "-A")
+    git("commit", "-q", "-m", "docs only")
+    if probe_ui(repo, "HEAD~1...HEAD")["hit"]:
+        errors.append("preflight.py: a docs-only diff (background: in markdown) was flagged as UI")
+    (Path(repo) / "app.css").write_text(".card { background: blue; }\n")
+    git("add", "-A")
+    git("commit", "-q", "-m", "css")
+    if "style" not in probe_ui(repo, "HEAD~1...HEAD")["markers"]:
+        errors.append("preflight.py: a stylesheet with background: was not flagged as UI")
+
 for e in errors:
     print(f"::error::{e}")
 print(f"ss-hermes: {len(ctx.skills)} skills, {len(cases)} route cases, {len(errors)} errors")

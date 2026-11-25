@@ -33,6 +33,11 @@ from inspect_pr_checks import parse_available_fields  # noqa: E402
 
 MAX_UI_EXAMPLES = 8
 
+# Docs and prose never count as UI: a markdown file that writes `background:` or quotes a
+# tag would otherwise flag a docs-only PR as a UI change. `.mdx` stays in, because it
+# renders components.
+DOC_SUFFIXES = (".md", ".markdown", ".rst", ".txt", ".adoc")
+
 # The elements an accessibility review is actually about. Used to tell a tag from a
 # prose placeholder: `<merge_base>` and `<div>` are the same shape, and a repo of
 # documentation is full of the first kind, so a bare name only counts when it is one
@@ -180,6 +185,11 @@ def probe_checks(cwd: str, number: int) -> dict:
     }
 
 
+def is_doc(path: str) -> bool:
+    """Prose files: their text can say `background:` or `<div>` without being a UI change."""
+    return path.lower().endswith(DOC_SUFFIXES)
+
+
 def probe_ui(cwd: str, diff_range: str) -> dict:
     # `.ss/` holds bookkeeping an earlier ss version left in the repo, prose and never UI.
     # Left in, a spec that quotes markup offers the a11y front over a diff that has none.
@@ -188,11 +198,20 @@ def probe_ui(cwd: str, diff_range: str) -> dict:
     )
     hits: dict[str, list[str]] = {}
     current = "?"
+    skip = False
     for line in diff.splitlines():
-        if line.startswith("+++ "):
-            current = line[6:] if line.startswith("+++ b/") else line[4:]
+        if line.startswith("diff --git "):
+            # Read the path here rather than from `+++`, which is `/dev/null` for a deleted
+            # file: a removed README would otherwise be scanned as if it were markup.
+            current = line.rsplit(" b/", 1)[-1]
+            skip = is_doc(current)
             continue
-        if line.startswith(("+++", "---", "@@", "diff ", "index ")):
+        if line.startswith("+++ "):
+            if line.startswith("+++ b/"):
+                current = line[6:]
+                skip = is_doc(current)
+            continue
+        if skip or line.startswith(("+++", "---", "@@", "diff ", "index ")):
             continue
         if not line.startswith(("+", "-")):
             continue
