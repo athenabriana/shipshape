@@ -55,13 +55,11 @@ Walk each one. Keep only those the behavior can reach, and say in one line which
    Map the outcome, not only that the case exists.
 3. **Mark the load-bearing rows.** A row is load-bearing when the wrong outcome would betray
    the reason the behavior exists. Put those first.
-4. **Ask what nobody decided.** A row with no known outcome is a product question:
-   - Only Athena decides (her repo, her setup, her taste): ask with `clarify`, at most 4
-     questions per call, the recommended outcome first, each question naming the case and
-     what each choice does. On a timeout, ask again at once.
-   - The team decides (a rule users see): load `skill_view('abrir-discussao')` and open the
-     discussion in `#bot-product-discussion` with the case and the options. The row stays
-     marked `open` until it is settled.
+4. **Ask what nobody decided.** A row with no known outcome is a product question for the
+   person. Ask with `clarify`, at most 4 questions per call, the recommended outcome first,
+   each question naming the case and what each choice does. On a timeout, ask again at once.
+   Inside a Bot or a card the question reaches the person through the coordinator
+   (`kanban_block`, then its `clarify`). The row stays marked `open` until it is settled.
 5. **Return the table.** Markdown, ready to paste into a Kanban card body or a PR body as
    acceptance criteria:
 
@@ -69,9 +67,9 @@ Walk each one. Keep only those the behavior can reach, and say in one line which
    | # | category | WHEN | THEN | load-bearing |
    ```
 
-   Then list the `open` rows with where each question went. When a row taught something
-   about the project the code does not show (a constraint, a trap), offer to add it to
-   `AGENTS.md` with `clarify`, and write it only on a yes.
+   Then list the `open` rows with the question each one is waiting on. When a row taught
+   something about the project the code does not show (a constraint, a trap), offer to add
+   it to `AGENTS.md` with `clarify`, and write it only on a yes.
 
 ## Diff mode
 
