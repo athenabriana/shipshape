@@ -128,23 +128,25 @@ def gh_pr_view_json(fields: str, pr: str | None = None) -> dict[str, Any]:
     return _run_json(cmd)
 
 
-def get_current_pr_ref(pr_arg: str | None = None) -> tuple[str, str, int]:
+def get_current_pr_ref(pr_arg: str | None = None) -> tuple[str, str, int, str | None]:
     """
     Resolve the PR given as a URL or number, else the PR for the current branch
     (whatever gh considers associated). Pass the URL to read a PR whose branch is not
     checked out here, such as one a babysit watcher follows.
 
-    Owner and repo come from the PR URL (`https://HOST/OWNER/REPO/pull/N`), which
-    always names the base repository the number belongs to. For a PR from a fork,
+    Host, owner and repo come from the PR URL (`https://HOST/OWNER/REPO/pull/N`), which
+    always names the base repository the number belongs to, on its own host (a GitHub
+    Enterprise URL must not be queried on github.com). For a PR from a fork,
     `headRepository` is the fork, where that number is some other PR or none.
     """
     pr = gh_pr_view_json("number,url", pr_arg)
     number = int(pr["number"])
-    parts = urlparse(pr["url"]).path.strip("/").split("/")
+    parsed = urlparse(pr["url"])
+    parts = parsed.path.strip("/").split("/")
     if len(parts) < 4 or parts[2] != "pull":
         raise RuntimeError(f"Unexpected PR URL shape: {pr['url']}")
     owner, repo = parts[0], parts[1]
-    return owner, repo, number
+    return owner, repo, number, parsed.hostname
 
 
 def gh_api_graphql(
@@ -154,6 +156,7 @@ def gh_api_graphql(
     comments_cursor: str | None = None,
     reviews_cursor: str | None = None,
     threads_cursor: str | None = None,
+    host: str | None = None,
 ) -> dict[str, Any]:
     """
     Call `gh api graphql` with one variable per flag, avoiding JSON blobs with nulls.
@@ -167,6 +170,10 @@ def gh_api_graphql(
         "gh",
         "api",
         "graphql",
+    ]
+    if host:
+        cmd += ["--hostname", host]
+    cmd += [
         "-F",
         "query=@-",
         "-f",
@@ -186,7 +193,7 @@ def gh_api_graphql(
     return _run_json(cmd, stdin=QUERY)
 
 
-def fetch_all(owner: str, repo: str, number: int) -> dict[str, Any]:
+def fetch_all(owner: str, repo: str, number: int, host: str | None = None) -> dict[str, Any]:
     conversation_comments: list[dict[str, Any]] = []
     reviews: list[dict[str, Any]] = []
     review_threads: list[dict[str, Any]] = []
@@ -205,6 +212,7 @@ def fetch_all(owner: str, repo: str, number: int) -> dict[str, Any]:
             comments_cursor=comments_cursor,
             reviews_cursor=reviews_cursor,
             threads_cursor=threads_cursor,
+            host=host,
         )
 
         if "errors" in payload and payload["errors"]:
@@ -247,8 +255,8 @@ def fetch_all(owner: str, repo: str, number: int) -> dict[str, Any]:
 
 def main() -> None:
     _ensure_gh_authenticated()
-    owner, repo, number = get_current_pr_ref(sys.argv[1] if len(sys.argv) > 1 else None)
-    result = fetch_all(owner, repo, number)
+    owner, repo, number, host = get_current_pr_ref(sys.argv[1] if len(sys.argv) > 1 else None)
+    result = fetch_all(owner, repo, number, host)
     print(json.dumps(result, indent=2))
 
 
