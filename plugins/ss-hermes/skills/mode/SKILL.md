@@ -51,7 +51,7 @@ python3 <plugin-root>/scripts/route.py --blast-radius <low|medium|high> --revers
 
 | Route       | Gates                                                                                                 |
 | ----------- | ----------------------------------------------------------------------------------------------------- |
-| lightweight | preservation check, mechanical gate, the review loop with only the correctness front, push            |
+| lightweight | preservation check, mechanical gate, the review loop with only the correctness front, then `ss:ship`  |
 | standard    | mechanical gate, `ss:review` in its default loop, then `ss:ship`                                      |
 | intensive   | a blast-radius pass over callers first, `ss:edge-cases` on the diff, `ss:review deep`, then `ss:ship` |
 
@@ -59,10 +59,12 @@ python3 <plugin-root>/scripts/route.py --blast-radius <low|medium|high> --revers
 are on and why, in one line.
 
 **Mechanical gate:** the cheap, objective checks come before any review. Let the repo's
-pre-commit hooks run on commit. Run no test suite, lint, type check or build locally: push to
-the branch, follow the run with `terminal(background=true, notify=true)` and `gh run watch
-<id> --exit-status`, and fix what it surfaces before a reviewer looks. An endpoint of "local
-commit" skips this gate; say so in the close.
+pre-commit hooks run on commit. Run no test suite, lint, type check or build locally: CI is
+the rest of the gate, and it runs when the branch is pushed. Push only when the stated
+endpoint or the playbook's scope authorizes it (a playbook's own route table wins: bug-fix
+pushes through `ss:ship`, after its review loop), then follow the run with
+`terminal(background=true, notify=true)` and `gh run watch <id> --exit-status` and fix what
+it surfaces. An endpoint of "local commit" skips the CI half; say so in the close.
 
 ## 3. Run it
 
