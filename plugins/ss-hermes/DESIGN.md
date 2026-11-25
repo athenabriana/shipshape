@@ -13,7 +13,7 @@ of `plugins/ss`. Version 0.1.0 built the first stage of section 6; 0.2.0 reworke
 | How much process     | shape → spec → build, always                              | a **route sized to risk**: lightweight, standard or intensive (pstack's five risk facts)                                |
 | Parallel work        | `Workflow` + `build-tasks.js`                             | Kanban cards with dependency links, workers in worktrees, `--goal` for open-ended cards                                 |
 | Second opinion       | Codex CLI as judge                                        | a judge subagent on another model route (`sonnet`)                                                                      |
-| Fronts (orchestrate) | `/ss:orchestrate` + Desktop side sessions                 | no playbook: sessions on the Bot do the fronts; coordination rules live in the frame (§4)                               |
+| Fronts (orchestrate) | `/ss:orchestrate` + Desktop side sessions                 | no playbook: one Bot per front, sessions on that Bot do the code; coordination rules live in the frame (§4)             |
 | Recurring work       | `/loop`, Desktop scheduled tasks                          | `cronjob` (caretake digest, PR babysit)                                                                                 |
 | Session frame        | `SessionStart` hook                                       | `ctx.register_system_prompt_section`                                                                                    |
 | Pages for you        | Artifact, Design canvas                                   | an HTML file shown with `::preview`, or attached to the card                                                            |
@@ -61,20 +61,27 @@ or auth involved, test coverage nearby, and number of files. A small script
   - the operating frame through `register_system_prompt_section`. It reaches new sessions only.
   - role prompts in `roles/` (finder, verifier, judge). These are passed as `context` to `delegate_task`.
   - no hooks yet. The frame is part of the system prompt, so it survives compaction.
-- **Bot, sessions, subagents** (changed in 0.2.0; 0.1.0 created three extra profiles):
-  - **The Bot** is the person's own profile (`default`, Opus 5.5). It alone has memory, and
-    it coordinates from the chat the person talks to.
-  - **Sessions:** a front (a PR, a worktree) runs as its own session on that Bot,
-    started in the background with `hermes chat --query-file <brief> --oneshot --in <worktree>`.
+- **Bots, sessions, subagents** (0.1.0 created three extra profiles; 0.2.0 replaced them with
+  routed subagents; 0.3.0 made it one Bot per front and moved all code into sessions):
+  - **A Bot** is a Hermes profile (Opus 5.5) with its own memory. It coordinates from the chat
+    the person talks to. A **front** (a full-stack feature, usually several PRs across several
+    repos) runs as one Bot.
+  - **Bots never write code.** A Bot plans, briefs, tracks and reports; reading code, `gh` and
+    `git log` is fine. Only the sessions it starts edit, commit and push.
+  - **Sessions** run on the Bot's own profile. Preferred: a Kanban card assigned to that
+    profile, which wakes the Bot when it finishes or blocks. One-off: a background
+    `hermes -p <bot> chat --query-file <brief> --oneshot -Q --source cli --in <worktree>`.
+    `--source cli` is required on every one-off session, or the session is hidden in the app.
   - **Subagents:** builder, reviewer and scout are ephemeral `delegate_task` children with
     no memory, each carrying a role prompt from `roles/`. The official advanced-delegation plugin,
     in `model_map` mode, picks each child's model: a task sets `"option": "sonnet"` for the
-    reviewer (the judge) and scouts, and leaves the default `opus` for the builder. The judge
-    is a different model from the builder, but from the same vendor.
+    reviewer (the judge) and scouts, and leaves the default `opus` for the builder. A task
+    sets `option` only after checking the route exists, because a missing route fails the
+    whole call. The judge is a different model from the builder, but from the same vendor.
   - `/ss:setup` checks the plugin and the routes. It creates no profiles.
-- **Kanban** is optional: a coordinator may track fronts as cards. `completion_contract` is
-  set at creation to `OWNER/REPO` or the exact PR URL, and only when the base branch has
-  required checks (otherwise `local-only`); a worker completes only its own card.
+- **Kanban** is how a Bot hands work to a session. `completion_contract` is set at creation to
+  `OWNER/REPO` or the exact PR URL, and only when the base branch has required checks
+  (otherwise `local-only`); a worker completes only its own card.
 - **Routines (cron under the hood):** the PR watcher, and later the caretake digest, run as
   cron jobs on the Bot.
 - **Questions:** `clarify`, at most 4 per call, each with a recommended choice first. If a
@@ -84,10 +91,10 @@ or auth involved, test coverage nearby, and number of files. A small script
 
 ### Coordination (replaces `/ss:orchestrate`)
 
-There is **one coordinator: the chat you talk to.** Sessions working on fronts may split
-their own task with `delegate_task`, but they report to the coordinator and never to a second
-coordinator. These rules go in the operating frame, so any session that hands work off
-follows them:
+There is **one coordinator per front: the Bot chat you talk to.** Sessions working on a
+front may split their own task with `delegate_task`, but they report to their Bot and never
+to a second coordinator. These rules go in the operating frame, so any Bot or session that
+hands work off follows them:
 
 1. **Standalone brief.** A session's or subagent's brief has everything it needs: goal, repo,
    worktree, branch, acceptance criteria and limits. The worker sees nothing of the chat.
@@ -135,7 +142,8 @@ Each version is a PR to `athenabriana/shipshape`. Checks run in CI. You merge.
 - No orchestrate playbook. One coordinator, with its rules in the frame (§4).
 - Hermes only: `plugins/ss-hermes/` is its own tree, and `plugins/ss/` stays as it is for Claude Code.
 - No spec file. The worklist or a Kanban card holds the state, and project facts go in `AGENTS.md` instead of `.ss/wiki/`.
-- Models: the Bot and the builder run Opus 5.5; the reviewer and scout subagents run Sonnet 5.5 through the `sonnet` route. No extra profiles.
+- Models: Bots and the builder run Opus 5.5; the reviewer and scout subagents run Sonnet 5.5 through the `sonnet` route. No extra profiles for roles: a profile is a front's Bot.
+- Bots never write code; the sessions they start (Kanban card workers, `--source cli` sessions) do.
 - All the pstack ideas stay: routes, the mechanical gate before review, pause/resume, the
   preservation check before commits, and catch-ups.
 - Every question to Athena goes through `clarify`, never as plain text.

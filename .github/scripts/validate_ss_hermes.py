@@ -65,6 +65,10 @@ for md in list(ROOT.rglob("*.md")):
     # The entry skill was renamed from `mode` to `go` in 0.3.0; only DESIGN keeps the history.
     if re.search(r"ss:mode\b|skills/mode\b", md.read_text(encoding="utf-8")) and md.name != "DESIGN.md":
         errors.append(f"{md.relative_to(ROOT)}: names ss:mode, which is ss:go since 0.3.0")
+    # A one-off session started without `--source cli` is hidden in the Hermes app.
+    for n, line in enumerate(md.read_text(encoding="utf-8").splitlines(), 1):
+        if re.search(r"\bhermes\b[^`]*\bchat\b|--oneshot", line) and "--source cli" not in line:
+            errors.append(f"{md.relative_to(ROOT)}:{n}: a one-off hermes session without --source cli")
 
 if not (ROOT / "skills" / "go" / "SKILL.md").exists() or (ROOT / "skills" / "mode").exists():
     errors.append("the entry skill must live at skills/go (renamed from skills/mode in 0.3.0)")
