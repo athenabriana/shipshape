@@ -62,6 +62,12 @@ for md in list(ROOT.rglob("*.md")):
             errors.append(f"{md.relative_to(ROOT)}: <plugin-root>/{rel} does not exist")
     if "plugins/ss/" in md.read_text(encoding="utf-8") and md.name != "DESIGN.md":
         errors.append(f"{md.relative_to(ROOT)}: points into plugins/ss, which is not installed with this plugin")
+    # The entry skill was renamed from `mode` to `go` in 0.3.0; only DESIGN keeps the history.
+    if re.search(r"ss:mode\b|skills/mode\b", md.read_text(encoding="utf-8")) and md.name != "DESIGN.md":
+        errors.append(f"{md.relative_to(ROOT)}: names ss:mode, which is ss:go since 0.3.0")
+
+if not (ROOT / "skills" / "go" / "SKILL.md").exists() or (ROOT / "skills" / "mode").exists():
+    errors.append("the entry skill must live at skills/go (renamed from skills/mode in 0.3.0)")
 
 cases = [
     (["low", "yes", "no", "good", "1"], "lightweight"),

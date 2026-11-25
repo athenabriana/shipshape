@@ -1,13 +1,13 @@
 ---
-name: mode
-description: Ship Shape's rigor mode for Hermes. Reads the request, matches it to one playbook (investigate, bug-fix, review, ship, edge-cases), sizes the process to the risk with a lightweight, standard or intensive route, tracks the steps on a worklist and runs each step's skill. Sticky once entered, it stays on across turns until the person opts out. Use when the user types /ss:mode, says "use ss", "be rigorous", "do this properly", or starts any non-trivial engineering task. Don't use it for a tiny mechanical change (just do it) or for a question about Hermes itself.
+name: go
+description: Ship Shape's rigor mode for Hermes. Reads the request, matches it to one playbook (investigate, bug-fix, review, ship, edge-cases), sizes the process to the risk with a lightweight, standard or intensive route, tracks the steps on a worklist and runs each step's skill. Sticky once entered, it stays on across turns until the person opts out. Use when the user types /ss:go (for example /ss:go work on a b c), says "use ss", "be rigorous", "do this properly", or starts any non-trivial engineering task. Don't use it for a tiny mechanical change (just do it) or for a question about Hermes itself.
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
   version: 0.2.0
 ---
 
-# ss mode
+# ss go
 
 One entry point. Match the request to a playbook, size the route, run the steps.
 

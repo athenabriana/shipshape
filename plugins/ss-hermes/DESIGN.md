@@ -2,13 +2,13 @@
 
 The design for `plugins/ss-hermes`, approved by Athena on 2026-11-25. Shipshape for
 Hermes is designed for Hermes, based on poteto's pstack, rather than a word-for-word port
-of `plugins/ss`. Version 0.1.0 built the first stage of section 6; 0.2.0 reworked it after review.
+of `plugins/ss`. Version 0.1.0 built the first stage of section 6; 0.2.0 reworked it after review; 0.3.0 renamed the entry skill from `ss:mode` to `ss:go` and split the main Bot from the front Bots.
 
 ## 1. What changes and why
 
 |                      | ss 4.2 (Claude Code)                                      | ss on Hermes (this design)                                                                                              |
 | -------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Entry point          | one skill per verb: `/ss:shape`, `/ss:build`, `/ss:ship`… | one sticky mode, `/ss:mode`, that matches the request to a **playbook**; the verbs stay available as shortcuts          |
+| Entry point          | one skill per verb: `/ss:shape`, `/ss:build`, `/ss:ship`… | one sticky mode, `/ss:go`, that matches the request to a **playbook**; the verbs stay available as shortcuts            |
 | Where state lives    | `.ss/<slug>/spec.md` with `status:`                       | a **Kanban card**: the body holds the acceptance criteria, comments hold progress, `--completion-contract` holds the PR |
 | How much process     | shape → spec → build, always                              | a **route sized to risk**: lightweight, standard or intensive (pstack's five risk facts)                                |
 | Parallel work        | `Workflow` + `build-tasks.js`                             | Kanban cards with dependency links, workers in worktrees, `--goal` for open-ended cards                                 |
@@ -22,7 +22,7 @@ There is no spec file. When work is unclear, the **shape** playbook settles the 
 questions and writes the outcome to card bodies as acceptance criteria. Facts about the
 project that the code doesn't show (a choice, a trap, a constraint) go into the repo's `AGENTS.md`.
 
-## 2. Playbooks (`/ss:mode <request>` picks one)
+## 2. Playbooks (`/ss:go <request>` picks one)
 
 | Playbook       | Comes from                             | Short version                                                                                                           |
 | -------------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
@@ -57,7 +57,7 @@ or auth involved, test coverage nearby, and number of files. A small script
 
 - **Plugin** at `plugins/ss-hermes/` in the shipshape repo, built for Hermes only and with no shared wording for Claude Code, installed with
   `hermes plugins install` and enabled with `hermes plugins enable ss`. It registers:
-  - skills through `register_skill` → `ss:mode`, `ss:review`, … (slash commands `/ss:*`)
+  - skills through `register_skill` → `ss:go`, `ss:review`, … (slash commands `/ss:*`)
   - the operating frame through `register_system_prompt_section`. It reaches new sessions only.
   - role prompts in `roles/` (finder, verifier, judge). These are passed as `context` to `delegate_task`.
   - no hooks yet. The frame is part of the system prompt, so it survives compaction.

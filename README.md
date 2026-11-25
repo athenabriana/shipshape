@@ -60,7 +60,7 @@ shape and build keep `.ss/wiki/` up to date by themselves: a per-project knowled
 
 ## on hermes
 
-`plugins/ss-hermes` is a separate plugin built for [Hermes Agent](https://hermes-agent.nousresearch.com/). It does not share files with `plugins/ss` at runtime. Instead of one skill per verb it has one rigor mode, `/ss:mode`, that matches a request to a playbook and sizes the process to the risk. The design is in [`plugins/ss-hermes/DESIGN.md`](plugins/ss-hermes/DESIGN.md).
+`plugins/ss-hermes` is a separate plugin built for [Hermes Agent](https://hermes-agent.nousresearch.com/). It does not share files with `plugins/ss` at runtime. Instead of one skill per verb it has one rigor mode, `/ss:go` (for example `/ss:go work on a b c`), that matches a request to a playbook and sizes the process to the risk. The design is in [`plugins/ss-hermes/DESIGN.md`](plugins/ss-hermes/DESIGN.md).
 
 ```bash
 hermes plugins install athenabriana/shipshape#plugins/ss-hermes --enable
@@ -68,7 +68,7 @@ hermes plugins install athenabriana/shipshape#plugins/ss-hermes --enable
 
 | skill             | description                                                                  |
 | ----------------- | ---------------------------------------------------------------------------- |
-| `/ss:mode`        | the entry point: pick a playbook, size the route, run the steps              |
+| `/ss:go`          | the entry point: pick a playbook, size the route, run the steps              |
 | `/ss:investigate` | answer a read-only question about code, a branch or earlier sessions         |
 | `/ss:bug-fix`     | reproduce, find the cause, make the smallest fix and prove it                |
 | `/ss:review`      | review the branch or a PR, with a judge on a second model                    |

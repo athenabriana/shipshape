@@ -1,6 +1,6 @@
 ---
 name: edge-cases
-description: Maps the edge cases of a behavior, in two modes picked from the request. Plan mode, before coding, turns a planned behavior, a card or acceptance criteria into WHEN/THEN rows with the expected outcome of each, ready for a Kanban card or a PR body, and asks the person every outcome nobody decided. Diff mode hunts the edge cases a branch, a diff, a PR or a function does not handle, with parallel scouts per category, proves each one with file and line evidence or one cheap throwaway check, and reports only what holds, then offers focused tests or a hand-off to ss:bug-fix. Use when the person says "edge cases", "what could break", "corner cases", "what am I missing", "test the edges", "casos de borda", "o que pode quebrar", or when ss:mode, ss:bug-fix or ss:review deep call it as a step. Not for fixing a known bug (use ss:bug-fix) or a full review of a diff (use ss:review).
+description: Maps the edge cases of a behavior, in two modes picked from the request. Plan mode, before coding, turns a planned behavior, a card or acceptance criteria into WHEN/THEN rows with the expected outcome of each, ready for a Kanban card or a PR body, and asks the person every outcome nobody decided. Diff mode hunts the edge cases a branch, a diff, a PR or a function does not handle, with parallel scouts per category, proves each one with file and line evidence or one cheap throwaway check, and reports only what holds, then offers focused tests or a hand-off to ss:bug-fix. Use when the person says "edge cases", "what could break", "corner cases", "what am I missing", "test the edges", "casos de borda", "o que pode quebrar", or when ss:go, ss:bug-fix or ss:review deep call it as a step. Not for fixing a known bug (use ss:bug-fix) or a full review of a diff (use ss:review).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
@@ -23,7 +23,7 @@ Run no test suite, lint, type check or build locally: checks run in CI.
 
 When both fit (a card with a half-built branch), ask once with `clarify`, diff mode first.
 
-**As a playbook step.** When `ss:mode`, `ss:bug-fix` or `ss:review deep` calls this skill,
+**As a playbook step.** When `ss:go`, `ss:bug-fix` or `ss:review deep` calls this skill,
 skip the closing question and return the table to the caller.
 
 ## The categories

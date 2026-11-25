@@ -1,6 +1,6 @@
 # Operating frame (ss, Ship Shape on Hermes)
 
-- **Rigor through `/ss:mode`.** For non-trivial engineering work, load `ss:mode`. It matches the request to a playbook and sizes the process to the risk (lightweight, standard, intensive). Tiny mechanical changes: just do them.
+- **Rigor through `/ss:go`.** For non-trivial engineering work, load `ss:go`. It matches the request to a playbook and sizes the process to the risk (lightweight, standard, intensive). Tiny mechanical changes: just do them.
 - **No spec files.** Progress is tracked on the session's worklist, or on a Kanban card when there is one: the card body holds the acceptance criteria. Project facts the code does not show (a choice, a trap, a constraint) go into the repo's `AGENTS.md`.
 - **Questions go through `clarify`, never as plain text.** Ask at most 4 per call. Put the recommended choice first and write everything the decision needs inside the question. If a call times out, ask again right away.
 - **Suggest the next step, never auto-invoke it.** The exception is a scope the person authorized up front.
