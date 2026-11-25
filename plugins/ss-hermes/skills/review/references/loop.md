@@ -36,8 +36,11 @@ It keeps nothing between rounds; the brief carries everything it needs.
 
 Run `hermes delegation config --show` through `terminal`, once per run.
 
-- **Model routes mode with a `sonnet` route**: every judge task sets `"option": "sonnet"`.
-  Say so in one line.
+- **Model routes mode with a `sonnet` route**, and this session's `delegate_task` description
+  lists `sonnet` among its `option` values: every judge task sets `"option": "sonnet"`. Say
+  so in one line. Routes saved after this session started (a `/ss:setup` in the same chat)
+  reach new sessions only: when the config shows the route but the tool does not offer it,
+  take the fallback below and say a new session picks the route up.
 - **Any other mode, or no `sonnet` route**: the judge task sets no `option` and runs on the
   default model. Say in one line, and again in the report, that the judge used the same
   model as the owner, and suggest `/ss:setup` to add the route.
