@@ -149,8 +149,11 @@ you do not repeat what it already said.
 2. **Sync the checkout:** `git fetch REMOTE BRANCH`, then
    `git checkout -B ss-babysit/N REMOTE/BRANCH`. The worktree belongs to the watcher, so
    nothing of the person's is lost. When `git status --porcelain` is not empty first (a tick
-   that ended halfway), run `git stash push --include-untracked -m ss-babysit-leftover` before
-   the checkout and name the stash in the report. Never use `git reset --hard`: a cron run
+   that ended halfway), keep the leftovers on a branch of their own before the checkout:
+   `git add -A`, `git commit -m "ss-babysit leftover"`, then
+   `git branch ss-babysit-leftover/N-TIMESTAMP`, and name that branch in the report. Never
+   `git stash`: the stash is shared by every worktree of the repo, so the leftovers would land
+   on the person's stash stack. Never use `git reset --hard`: a cron run
    cannot get an approval for it, so the tick would block.
 3. **Read the comments:** `python3 <plugin-root>/scripts/fetch_comments.py PR_URL`, with the
    PR URL from the prompt, so it works whatever branch the checkout maps to.
