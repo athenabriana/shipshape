@@ -48,13 +48,16 @@ Only the missing parts:
 
 ```
 hermes plugins install advanced-delegation --enable
-hermes config set delegation.backends.model_map '{"options":[{"name":"opus","description":"Claude Opus 5.5: code changes, hard debugging, design and judgment.","provider":"anthropic","model":"claude-opus-5-5"},{"name":"sonnet","description":"Claude Sonnet 5.5: second-opinion review judge, investigation, research, digests.","provider":"anthropic","model":"claude-sonnet-5-5"}],"default":"opus"}'
+hermes config set delegation.backends.model_map.options '[{"name":"opus","description":"Claude Opus 5.5: code changes, hard debugging, design and judgment.","provider":"anthropic","model":"claude-opus-5-5"},{"name":"sonnet","description":"Claude Sonnet 5.5: second-opinion review judge, investigation, research, digests.","provider":"anthropic","model":"claude-sonnet-5-5"}]'
+hermes config set delegation.backends.model_map.default opus
 hermes config set delegation.backend model_map
 hermes delegation config --show
 ```
 
-If the person already has other routes, add the two above and keep theirs: read the current
-value, merge, then write it back. Never drop a route they made.
+Set `options` and `default` one key at a time, never the whole `model_map` object: it also
+holds the person's saved presets (`model_map.presets`, `active_preset`), which a write of the
+whole object would delete. If the person already has other routes, add the two above and keep
+theirs: read the current `options`, merge, then write it back. Never drop a route they made.
 
 ## 4. Close
 
