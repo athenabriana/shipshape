@@ -85,8 +85,8 @@ A regression usually sits in a recent change. Form one hypothesis for the cause 
 it in one line before you test it.
 
 When two or three hypotheses compete and each needs different code read, test them in
-parallel with `delegate_task`, one scout child per hypothesis, with `"option": "opus"` (the
-default route). A child is an ephemeral subagent with no memory and sees nothing of this
+parallel with `delegate_task`, one scout child per hypothesis, with `"option": "sonnet"` (the
+scout route). A child is an ephemeral subagent with no memory and sees nothing of this
 chat, so its `context` carries the report, the hypothesis, the files to read, and the
 limits: read only, edit nothing, run no test suite or build, and return the evidence for and
 against.
