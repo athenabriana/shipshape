@@ -29,6 +29,10 @@ the PR: the watcher acts on it the same way, answering threads, fixing CI and pu
 https://github.com/HEAD_OWNER/HEAD_REPO.git` (skip when it exists) and use `pr-N-fork`.
      When `maintainerCanModify` is false, nothing can be pushed there: say so once, and the
      watcher answers threads and reports red CI without pushing fixes.
+   - A protected head is never pushed: when `headRefName` is `main`, `master` or starts with
+     `release`, or `gh api repos/HEAD_OWNER/HEAD_REPO/branches/BRANCH --jq .protected` prints
+     `true` (common on a fork PR opened from the contributor's `main`), set `can push: no`
+     and say so once, the same way.
 4. Run "Offer it" step 1: when a watcher named `ss-babysit OWNER/REPO#N` already exists, name
    it in the report and stop. Otherwise continue at "Give it a worktree", then "Create the
    job". On someone else's PR the watcher
@@ -166,8 +170,8 @@ you do not repeat what it already said.
    for the new run. A `pending` check needs nothing. Count fix cycles per check across ticks
    with a `CI fix cycles: CHECK=COUNT` line in every report. After three on one check, stop
    fixing it, report the diagnosis once, and keep watching the rest.
-7. **Push safely.** When the prompt says `can push: no`, commit nothing: put the diagnosis in
-   the report instead. Otherwise push with `git push REMOTE HEAD:BRANCH`. When the push is
+7. **Push safely.** When the prompt says `can push: no`, or `BRANCH` is `main`, `master` or
+   `release*`, commit nothing: put the diagnosis in the report instead. Otherwise push with `git push REMOTE HEAD:BRANCH`. When the push is
    rejected because the branch moved, run `git fetch REMOTE BRANCH` and
    `git rebase REMOTE/BRANCH`, then push again. On a rebase conflict, run `git rebase --abort`, discard the tick's work, and report.
    Never `--force`.
