@@ -68,8 +68,12 @@ works in. Create it next to the repo, on a local branch that tracks the PR branc
 
 ```bash
 git -C GIT_ROOT fetch REMOTE BRANCH
-git -C GIT_ROOT worktree add --track -b ss-babysit/N WORKTREE REMOTE/BRANCH
+git -C GIT_ROOT worktree add --track -B ss-babysit/N WORKTREE REMOTE/BRANCH
 ```
+
+`-B` reuses a stale `ss-babysit/N` left by an earlier watcher whose stop could not delete it
+(see "Stop the watcher"), resetting it to the PR head. When `WORKTREE` itself still exists,
+remove it first with `git -C GIT_ROOT worktree remove --force WORKTREE`.
 
 `WORKTREE` is `PARENT_OF_GIT_ROOT/REPO_NAME-ss-babysit-N`. Every `gh` call in a tick names the
 PR by number and repo or by URL, so the worktree's branch name does not need to map to the PR.
