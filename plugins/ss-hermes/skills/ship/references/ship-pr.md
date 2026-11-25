@@ -60,7 +60,8 @@ Skip this section when no proof lines were handed over.
 
 This runs without asking for approval. Pushing fixes to the PR branch is reversible.
 
-1. **Fetch the comments:** `python3 <plugin-root>/scripts/fetch_comments.py` prints
+1. **Fetch the comments:** `python3 <plugin-root>/scripts/fetch_comments.py` (pass the PR
+   URL as its argument whenever you have it; a babysit tick always does) prints
    `conversation_comments`, `reviews` and `review_threads` (each thread with `id`,
    `isResolved`, `path`, `line` and its `comments`).
 2. **Read each unresolved thread for its intent** before you triage it. Write down in one

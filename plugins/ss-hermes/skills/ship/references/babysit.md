@@ -75,8 +75,10 @@ git -C GIT_ROOT worktree add --track -B ss-babysit/N WORKTREE REMOTE/BRANCH
 (see "Stop the watcher"), resetting it to the PR head. When `WORKTREE` itself still exists,
 remove it first with `git -C GIT_ROOT worktree remove --force WORKTREE`.
 
-`WORKTREE` is `PARENT_OF_GIT_ROOT/REPO_NAME-ss-babysit-N`. Every `gh` call in a tick names the
-PR by number and repo or by URL, so the worktree's branch name does not need to map to the PR.
+`WORKTREE` is `PARENT_OF_GIT_ROOT/REPO_NAME-ss-babysit-N`. The worktree's branch name does
+not map to the PR, so every `gh` call and script in a tick names the PR by number with
+`--repo OWNER/REPO`, or by its URL (`fetch_comments.py PR_URL`), including the steps it
+borrows from `references/ship-pr.md` and `references/follow-ci.md`.
 
 ## Create the job
 
@@ -167,7 +169,7 @@ you do not repeat what it already said.
 
    Triage and handle them as "Answer the review threads" in `references/ship-pr.md` says,
    with every reply ending in `<!-- ss:ship -->`. Answer top-level review bodies and
-   conversation comments with one PR comment (`gh pr comment N --body-file -`, the body
+   conversation comments with one PR comment (`gh pr comment N --repo OWNER/REPO --body-file -`, the body
    ending in the marker). An unclear thread gets no reply: list it in the report with its
    question and its two readings. List each one once; the person answers in the chat, and an
    interactive `ss:ship` run acts on the answer.

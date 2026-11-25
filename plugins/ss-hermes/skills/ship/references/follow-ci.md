@@ -52,7 +52,8 @@ Read the failure before touching any file:
 python3 <plugin-root>/scripts/inspect_pr_checks.py --repo . --pr PR_NUMBER
 ```
 
-It prints each failing check with its run id and a log snippet, and exits non-zero while
+`--pr` also takes the PR URL; a babysit tick passes the URL, since its branch does not map to
+the PR. It prints each failing check with its run id and a log snippet, and exits non-zero while
 failures remain. Without a PR, read the log with `gh run view RUN_ID --log-failed`. With
 several failures, read all their logs before you change anything. To split that across
 checks, use `delegate_task`, one read-only child per failing check with `"option": "sonnet"`,
