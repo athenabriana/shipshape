@@ -29,7 +29,9 @@ the PR: the watcher acts on it the same way, answering threads, fixing CI and pu
 https://github.com/HEAD_OWNER/HEAD_REPO.git` (skip when it exists) and use `pr-N-fork`.
      When `maintainerCanModify` is false, nothing can be pushed there: say so once, and the
      watcher answers threads and reports red CI without pushing fixes.
-4. Continue at "Give it a worktree", then "Create the job". On someone else's PR the watcher
+4. Run "Offer it" step 1: when a watcher named `ss-babysit OWNER/REPO#N` already exists, name
+   it in the report and stop. Otherwise continue at "Give it a worktree", then "Create the
+   job". On someone else's PR the watcher
    adds its own commits on top and never rewrites theirs, so the author keeps the credit.
 
 ## Offer it
