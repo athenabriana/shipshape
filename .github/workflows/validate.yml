@@ -36,6 +36,9 @@ jobs:
       - name: Validate the trigger table
         run: bun .github/scripts/validate-triggers.ts
 
+      - name: Validate the Hermes plugin
+        run: python3 .github/scripts/validate_ss_hermes.py
+
       # Lint the specs the PR touches, plus the whole corpus whenever the linter
       # itself changed: that corpus run is the only executable coverage the script
       # has. The diff lands in an assignment so a failed resolve fails the step
