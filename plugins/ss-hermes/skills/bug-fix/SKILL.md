@@ -262,13 +262,9 @@ gives.
 
 A bug can turn out not to be a bug. When the fix depends on a business rule nobody decided,
 or two rules in the code contradict each other, the right behavior is a decision. Stop the
-run and edit nothing more. Then pick who decides:
-
-- **The team decides** (a product rule, a behavior users see): load
-  `skill_view('abrir-discussao')` and open the discussion in `#bot-product-discussion` with
-  the cause, the missing or contradictory rule, and the reproduction.
-- **Only Athena decides** (her repo, her setup, her preference): ask her with `clarify`,
-  with the cause and the options the code allows.
+run and edit nothing more. Ask the person with `clarify`: the cause, the missing or
+contradictory rule, the reproduction, and the options the code allows, recommended choice
+first. Product rules go to the person too; never post to Slack or any other channel.
 
 Once the rule is decided, the shape playbook turns it into acceptance criteria.
 
@@ -286,7 +282,7 @@ Once the rule is decided, the shape playbook turns it into acceptance criteria.
 | the project has no test framework                      | the reproduction is the proof; the report says no focused test exists |
 | CI runs only on `pull_request` and no PR exists        | the report says the test-fails-first half was not shown               |
 | CI stays red on the focused test after the fix         | back to Step 3 with the CI output, inside the three-hypothesis limit  |
-| the fix needs a business rule decided                  | stop; `abrir-discussao` for the team, `clarify` for Athena            |
+| the fix needs a business rule decided                  | stop; ask the person with `clarify`                                   |
 | the fix grows past a small change                      | stop and propose the shape playbook                                   |
 | on a protected branch                                  | create `fix/SLUG` before the first edit                               |
 | the preservation check finds an unrelated change       | restore it before the commit                                          |

@@ -35,7 +35,7 @@ project that the code doesn't show (a choice, a trap, a constraint) go into the 
 | review         | review                                 | fronts in parallel (`delegate_task`, finder/verifier roles) + a judge subagent on `sonnet`; up to 3 rounds              |
 | ship / babysit | ship                                   | green the checks in CI, open or finish the PR, follow it with a cron watcher; **never merges**                          |
 | takeover       | takeover + session pickup              | adopt or modernize someone else's PR, **or** continue a Claude Code / earlier Hermes session from its transcript        |
-| caretake       | caretake                               | cron digest of open PRs, Dependabot and outdated dependencies → Slack or a sticky comment                               |
+| caretake       | caretake                               | cron digest of open PRs, Dependabot and outdated dependencies → the Bot chat or a sticky comment                        |
 | pause / resume | new (pstack)                           | park in-flight work on its card so any session can pick it up                                                           |
 | edge-cases     | new                                    | plan mode: WHEN/THEN acceptance criteria before coding; diff mode: hunt, prove and report missed cases (added in 0.2.0) |
 
@@ -114,7 +114,7 @@ are not designed now.
 - Never push a protected branch, force-push or deploy.
 - Checks run in CI, not locally: push, then follow CI to green.
 - Recommend a next step at the gate instead of running it, unless the scope was authorized up front.
-- Product questions go to `#bot-product-discussion` through `abrir-discussao`. Questions only you can answer, I ask you directly.
+- Product questions and questions only you can answer go to you through `clarify`. Nothing is posted to Slack or any other channel without your request.
 
 ## 5. Migration
 
@@ -122,7 +122,7 @@ are not designed now.
   `implement`, `review`, `review-setup`, `ship`, `gather-branch-context`,
   `maintain-repo`, `write-readme`.
 - Keep: `brisar`, `challenge`, `discover`, `legal-lens`, `profile`, `think`,
-  `code-deep-research`, `wave`, `abrir-discussao`.
+  `code-deep-research`, `wave`.
 - `.ss/wiki/` is dropped. Project facts go into `AGENTS.md`, which Hermes loads automatically.
   Note: Hermes reads only the first of `.hermes.md` > `AGENTS.md` > `CLAUDE.md`, so a repo
   must not have a `.hermes.md` that hides its `AGENTS.md`.
