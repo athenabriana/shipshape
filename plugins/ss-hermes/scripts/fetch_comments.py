@@ -5,12 +5,17 @@ for the PR associated with the current git branch, by shelling out to:
 
   gh api graphql
 
+The PR number belongs to the base repository (the one the PR was opened against),
+so owner and name are read from the PR's URL, never from the head repository: for
+a PR from a fork the head repo has no such PR.
+
 Requires:
   - `gh auth login` already set up
-  - current branch has an associated (open) PR
+  - a PR URL or number as the first argument, or a current branch with an associated PR
 
 Usage:
-  python fetch_comments.py > pr_comments.json
+  python fetch_comments.py > pr_comments.json            # PR of the current branch
+  python fetch_comments.py PR_URL > pr_comments.json     # any PR, by URL or number
 """
 
 from __future__ import annotations
@@ -19,6 +24,7 @@ import json
 import subprocess
 import sys
 from typing import Any
+from urllib.parse import urlparse
 
 QUERY = """\
 query(
@@ -115,21 +121,32 @@ def _ensure_gh_authenticated() -> None:
         raise RuntimeError("gh auth status failed; run `gh auth login` to authenticate the GitHub CLI") from None
 
 
-def gh_pr_view_json(fields: str) -> dict[str, Any]:
-    # fields is a comma-separated list like: "number,headRepositoryOwner,headRepository"
-    return _run_json(["gh", "pr", "view", "--json", fields])
+def gh_pr_view_json(fields: str, pr: str | None = None) -> dict[str, Any]:
+    # fields is a comma-separated list like: "number,url"; pr is a number or URL, or
+    # None for the PR of the current branch.
+    cmd = ["gh", "pr", "view"] + ([pr] if pr else []) + ["--json", fields]
+    return _run_json(cmd)
 
 
-def get_current_pr_ref() -> tuple[str, str, int]:
+def get_current_pr_ref(pr_arg: str | None = None) -> tuple[str, str, int, str | None]:
     """
-    Resolve the PR for the current branch (whatever gh considers associated).
-    Works for cross-repo PRs too, by reading head repository owner/name.
+    Resolve the PR given as a URL or number, else the PR for the current branch
+    (whatever gh considers associated). Pass the URL to read a PR whose branch is not
+    checked out here, such as one a babysit watcher follows.
+
+    Host, owner and repo come from the PR URL (`https://HOST/OWNER/REPO/pull/N`), which
+    always names the base repository the number belongs to, on its own host (a GitHub
+    Enterprise URL must not be queried on github.com). For a PR from a fork,
+    `headRepository` is the fork, where that number is some other PR or none.
     """
-    pr = gh_pr_view_json("number,headRepositoryOwner,headRepository")
-    owner = pr["headRepositoryOwner"]["login"]
-    repo = pr["headRepository"]["name"]
+    pr = gh_pr_view_json("number,url", pr_arg)
     number = int(pr["number"])
-    return owner, repo, number
+    parsed = urlparse(pr["url"])
+    parts = parsed.path.strip("/").split("/")
+    if len(parts) < 4 or parts[2] != "pull":
+        raise RuntimeError(f"Unexpected PR URL shape: {pr['url']}")
+    owner, repo = parts[0], parts[1]
+    return owner, repo, number, parsed.hostname
 
 
 def gh_api_graphql(
@@ -139,35 +156,44 @@ def gh_api_graphql(
     comments_cursor: str | None = None,
     reviews_cursor: str | None = None,
     threads_cursor: str | None = None,
+    host: str | None = None,
 ) -> dict[str, Any]:
     """
-    Call `gh api graphql` using -F variables, avoiding JSON blobs with nulls.
+    Call `gh api graphql` with one variable per flag, avoiding JSON blobs with nulls.
     Query is passed via stdin using query=@- to avoid shell newline/quoting issues.
+
+    Strings go through `-f` (raw): `-F` reads an `@`-prefixed value from a file and
+    converts `true`, `false`, `null` and digits. Only `query=@-` and the integer
+    `number` use `-F`.
     """
     cmd = [
         "gh",
         "api",
         "graphql",
+    ]
+    if host:
+        cmd += ["--hostname", host]
+    cmd += [
         "-F",
         "query=@-",
-        "-F",
+        "-f",
         f"owner={owner}",
-        "-F",
+        "-f",
         f"repo={repo}",
         "-F",
-        f"number={number}",
+        f"number={int(number)}",
     ]
     if comments_cursor:
-        cmd += ["-F", f"commentsCursor={comments_cursor}"]
+        cmd += ["-f", f"commentsCursor={comments_cursor}"]
     if reviews_cursor:
-        cmd += ["-F", f"reviewsCursor={reviews_cursor}"]
+        cmd += ["-f", f"reviewsCursor={reviews_cursor}"]
     if threads_cursor:
-        cmd += ["-F", f"threadsCursor={threads_cursor}"]
+        cmd += ["-f", f"threadsCursor={threads_cursor}"]
 
     return _run_json(cmd, stdin=QUERY)
 
 
-def fetch_all(owner: str, repo: str, number: int) -> dict[str, Any]:
+def fetch_all(owner: str, repo: str, number: int, host: str | None = None) -> dict[str, Any]:
     conversation_comments: list[dict[str, Any]] = []
     reviews: list[dict[str, Any]] = []
     review_threads: list[dict[str, Any]] = []
@@ -186,6 +212,7 @@ def fetch_all(owner: str, repo: str, number: int) -> dict[str, Any]:
             comments_cursor=comments_cursor,
             reviews_cursor=reviews_cursor,
             threads_cursor=threads_cursor,
+            host=host,
         )
 
         if "errors" in payload and payload["errors"]:
@@ -228,8 +255,8 @@ def fetch_all(owner: str, repo: str, number: int) -> dict[str, Any]:
 
 def main() -> None:
     _ensure_gh_authenticated()
-    owner, repo, number = get_current_pr_ref()
-    result = fetch_all(owner, repo, number)
+    owner, repo, number, host = get_current_pr_ref(sys.argv[1] if len(sys.argv) > 1 else None)
+    result = fetch_all(owner, repo, number, host)
     print(json.dumps(result, indent=2))
 
 

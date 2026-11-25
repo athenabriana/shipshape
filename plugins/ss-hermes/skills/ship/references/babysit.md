@@ -5,9 +5,43 @@ review threads, fixes red CI, and stops itself when the PR is merged or closed, 
 and green. Read the sections in order when you create one. A watcher's tick reads only
 "Run one tick" and "Stop the watcher".
 
+## Babysit by PR number
+
+Reached straight from `ss:ship` when the request is "babysit PR N", "watch PR N", "fica de
+olho no PR N" (optionally with `OWNER/REPO`). Skip every ship step and the offer question:
+the request is the yes. The person's branch does not matter, and neither does who opened
+the PR: the watcher acts on it the same way, answering threads, fixing CI and pushing.
+
+1. Read the PR:
+
+   ```bash
+   gh pr view N --repo OWNER/REPO --json url,state,headRefName,baseRefName,isCrossRepository,headRepositoryOwner,headRepository,maintainerCanModify,author
+   ```
+
+   Stop and report when `state` is not `OPEN`.
+
+2. Find `GIT_ROOT`: the current repo when its `origin` is `OWNER/REPO`, else a clone of it
+   under the person's workspace (`find ~/Workspaces -maxdepth 3 -name .git`). If there is
+   none, ask with `clarify`: clone it next to the others (recommended), or stop.
+3. Pick the push remote, `REMOTE`:
+   - same-repo PR: `origin`;
+   - PR from a fork: add `git -C GIT_ROOT remote add pr-N-fork
+https://github.com/HEAD_OWNER/HEAD_REPO.git` (skip when it exists) and use `pr-N-fork`.
+     When `maintainerCanModify` is false, nothing can be pushed there: say so once, and the
+     watcher answers threads and reports red CI without pushing fixes.
+   - A protected head is never pushed: when `headRefName` is `main`, `master` or starts with
+     `release`, or `gh api repos/HEAD_OWNER/HEAD_REPO/branches/BRANCH --jq .protected` prints
+     `true` (common on a fork PR opened from the contributor's `main`), set `can push: no`
+     and say so once, the same way.
+4. Run "Offer it" step 1: when a watcher named `ss-babysit OWNER/REPO#N` already exists, name
+   it in the report and stop. Otherwise continue at "Give it a worktree", then "Create the
+   job". On someone else's PR the watcher
+   adds its own commits on top and never rewrites theirs, so the author keeps the credit.
+
 ## Offer it
 
-Reached from `references/ship-pr.md` when the PR is left waiting for review.
+Reached from `references/ship-pr.md` when the PR is left waiting for review. Here `REMOTE`
+is `origin`.
 
 1. Check that no watcher exists for this PR: `cronjob(action='list')`, and look for the name
    `ss-babysit OWNER/REPO#N`. When one exists, name it in the report and skip the offer.
@@ -19,8 +53,13 @@ Reached from `references/ship-pr.md` when the PR is left waiting for review.
    - **Watch every 2 hours**
    - **No watcher:** the report ends with how to ask for one later ("babysit PR #N").
 
+The watcher runs in the person's default profile, the Bot that holds their memory. There is
+no separate watcher profile: create the job from a session of that profile.
+
 When the `cronjob` tool is not available in this session, give the person the
-`hermes cron create` command with the same name, schedule, skill, workdir and prompt, and stop.
+`hermes cron create` command with the same name, schedule, skill, workdir, delivery and
+prompt, and stop. Fill the prompt's `Job:` line with `unknown` there: the tick looks up its
+own ID by name when it stops.
 
 ## Give it a worktree
 
@@ -28,14 +67,18 @@ The watcher edits code, so it gets its own checkout and never touches the one th
 works in. Create it next to the repo, on a local branch that tracks the PR branch:
 
 ```bash
-git -C GIT_ROOT fetch origin BRANCH
-git -C GIT_ROOT worktree add --track -b ss-babysit/N WORKTREE origin/BRANCH
+git -C GIT_ROOT fetch REMOTE BRANCH
+git -C GIT_ROOT worktree add --track -B ss-babysit/N WORKTREE REMOTE/BRANCH
 ```
 
-`WORKTREE` is `PARENT_OF_GIT_ROOT/REPO_NAME-ss-babysit-N`. Confirm that `gh` maps it to the PR:
-`gh pr view --json number` run in `WORKTREE` must print `N`. When it does not, remove the
-worktree and use `GIT_ROOT` as the job's workdir instead. The tick then edits only when that
-checkout sits on `BRANCH` with a clean tree.
+`-B` reuses a stale `ss-babysit/N` left by an earlier watcher whose stop could not delete it
+(see "Stop the watcher"), resetting it to the PR head. When `WORKTREE` itself still exists,
+remove it first with `git -C GIT_ROOT worktree remove --force WORKTREE`.
+
+`WORKTREE` is `PARENT_OF_GIT_ROOT/REPO_NAME-ss-babysit-N`. The worktree's branch name does
+not map to the PR, so every `gh` call and script in a tick names the PR by number with
+`--repo OWNER/REPO`, or by its URL (`fetch_comments.py PR_URL`), including the steps it
+borrows from `references/ship-pr.md` and `references/follow-ci.md`.
 
 ## Create the job
 
@@ -54,8 +97,19 @@ Call `cronjob` with:
 
 The job ID is known only after the create. Call `cronjob(action='update', job_id=JOB_ID,
 prompt=...)` with the same prompt and `JOB_ID` filled in, so the watcher can remove itself.
-Then report the watcher's name, schedule and job ID, and that `hermes cron remove JOB_ID`
-stops it early.
+
+Then check where the reports go. A session started from the CLI, the TUI or the Desktop app
+has no live delivery channel, so `deliver: origin` saves each report without sending it.
+When the create result carries a delivery notice, relay it to the person word for word.
+When it says the job is local only, ask one `clarify` question:
+
+- **Send reports to a gateway target** (recommended): the person names it (`telegram`,
+  `discord`, `platform:chat_id`, or `bot-chat`), and you call `cronjob(action='update',
+job_id=JOB_ID, deliver=TARGET)`.
+- **Keep them local:** the person reads the reports with `hermes cron list`.
+
+Then report the watcher's name, schedule, job ID, where its reports go, and that
+`hermes cron remove JOB_ID` stops it early.
 
 ### The job prompt
 
@@ -65,11 +119,10 @@ The job runs in a fresh session with no chat context, so the prompt carries ever
 Babysit mode for ss:ship. Run one tick on this pull request, then end.
 
 PR: https://github.com/OWNER/REPO/pull/N
-Repo: OWNER/REPO. PR branch: BRANCH. Base: BASE_BRANCH.
+Repo: OWNER/REPO. PR branch: BRANCH. Base: BASE_BRANCH. Push remote: REMOTE (can push: yes | no).
 Workdir: WORKTREE (the watcher's own worktree of GIT_ROOT, local branch ss-babysit/N)
-Mode: own worktree | shared checkout
 Watching since: ISO_TIMESTAMP
-Job: JOB_ID, named "ss-babysit OWNER/REPO#N"
+Job: JOB_ID (or unknown), named "ss-babysit OWNER/REPO#N"
 Kanban card: CARD_ID or none
 Plugin root: PLUGIN_ROOT (read <plugin-root> in ss:ship as this path)
 Report in: LANGUAGE
@@ -95,14 +148,19 @@ you do not repeat what it already said.
 
    When `state` is `MERGED` or `CLOSED`, go to "Stop the watcher".
 
-2. **Sync the checkout.**
-   - **Own worktree:** `git fetch origin BRANCH`, then `git reset --hard origin/BRANCH`. The
-     worktree belongs to the watcher, so nothing of the person's is lost.
-   - **Shared checkout:** go on only when it is on `BRANCH` and `git status --porcelain` is
-     empty, then run `git pull --ff-only`. Otherwise report once that the checkout is busy
-     and the watcher cannot act, and end the tick.
-3. **Read the comments:** `python3 <plugin-root>/scripts/fetch_comments.py`. It reads the PR
-   of the checked-out branch.
+2. **Sync the checkout:** `git fetch REMOTE BRANCH`, then
+   `git checkout -B ss-babysit/N REMOTE/BRANCH`. The worktree belongs to the watcher, so
+   nothing of the person's is lost. When `git status --porcelain` is not empty first (a tick
+   that ended halfway), keep the leftovers on a branch of their own before the checkout:
+   `git add -A`, `git commit --no-verify -m "ss-babysit leftover"` (a local snapshot that is
+   never pushed, so the repo's hooks have nothing to check and cannot block the tick), then
+   `git branch ss-babysit-leftover/N-$(date -u +%Y%m%d%H%M%S)`, and name that branch in the
+   report. When either command fails, skip the checkout and this tick's work, and report it. Never
+   `git stash`: the stash is shared by every worktree of the repo, so the leftovers would land
+   on the person's stash stack. Never use `git reset --hard`: a cron run
+   cannot get an approval for it, so the tick would block.
+3. **Read the comments:** `python3 <plugin-root>/scripts/fetch_comments.py PR_URL`, with the
+   PR URL from the prompt, so it works whatever branch the checkout maps to.
 4. **Stop when the PR is approved and green:** `reviewDecision` is `APPROVED`, every check's
    `bucket` is `pass` or `skipping`, and no review thread is unresolved. Go to "Stop the
    watcher".
@@ -113,7 +171,7 @@ you do not repeat what it already said.
 
    Triage and handle them as "Answer the review threads" in `references/ship-pr.md` says,
    with every reply ending in `<!-- ss:ship -->`. Answer top-level review bodies and
-   conversation comments with one PR comment (`gh pr comment N --body-file -`, the body
+   conversation comments with one PR comment (`gh pr comment N --repo OWNER/REPO --body-file -`, the body
    ending in the marker). An unclear thread gets no reply: list it in the report with its
    question and its two readings. List each one once; the person answers in the chat, and an
    interactive `ss:ship` run acts on the answer.
@@ -123,9 +181,10 @@ you do not repeat what it already said.
    for the new run. A `pending` check needs nothing. Count fix cycles per check across ticks
    with a `CI fix cycles: CHECK=COUNT` line in every report. After three on one check, stop
    fixing it, report the diagnosis once, and keep watching the rest.
-7. **Push safely.** Push with `git push origin HEAD:BRANCH`. When the push is rejected because
-   the branch moved, run `git fetch origin BRANCH` and `git rebase origin/BRANCH`, then push
-   again. On a rebase conflict, run `git rebase --abort`, discard the tick's work, and report.
+7. **Push safely.** When the prompt says `can push: no`, or `BRANCH` is `main`, `master` or
+   `release*`, commit nothing: put the diagnosis in the report instead. Otherwise push with `git push REMOTE HEAD:BRANCH`. When the push is
+   rejected because the branch moved, run `git fetch REMOTE BRANCH` and
+   `git rebase REMOTE/BRANCH`, then push again. On a rebase conflict, run `git rebase --abort`, discard the tick's work, and report.
    Never `--force`.
 8. **Report merge conflicts, do not fix them.** When `mergeable` is `CONFLICTING`, report it
    once. Resolving a conflict with the base is the person's call.
@@ -136,13 +195,19 @@ you do not repeat what it already said.
 
 ## Stop the watcher
 
-1. Remove the job: `hermes cron remove JOB_ID` in `terminal`.
-2. In own-worktree mode, remove the worktree and its local branch:
+1. Remove the job: `hermes cron remove JOB_ID` in `terminal`. When the prompt's `Job:` line
+   says `unknown`, run `hermes cron list` first and take the ID of the job named
+   `ss-babysit OWNER/REPO#N`.
+2. Remove the worktree and its local branch:
 
    ```bash
    git -C GIT_ROOT worktree remove --force WORKTREE
-   git -C GIT_ROOT branch -D ss-babysit/N
+   git -C GIT_ROOT branch -d ss-babysit/N
    ```
+
+   `-d` refuses a branch that is not merged into its upstream. Never run `-D` from the tick:
+   a cron run cannot get an approval for it. When `-d` refuses, put
+   `git -C GIT_ROOT branch -D ss-babysit/N` in the report for the person to run.
 
 3. Answer with one report: why the watcher stopped (merged, closed, or approved and green),
    the PR URL, and "the merge is yours" when it is approved and green. When the PR has a

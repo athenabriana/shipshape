@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
 Resolve the project's checks through the authority chain, without running any of
-them: the repo's agent docs (`.hermes.md`, `AGENTS.md`, `CLAUDE.md`) and contributing
-guides, then CI workflow files, then package.json / justfile / Makefile /
-pyproject.toml. Consumed by ss:ship (its Step 2).
+them: the repo's agent docs (`.hermes.md`, `HERMES.md`, `AGENTS.md`, `CLAUDE.md`)
+and contributing guides, then CI workflow files, then package.json / justfile /
+Makefile / pyproject.toml. Consumed by ss:ship (its Step 2).
 
 This docstring is where the chain is stated, and this script is the resolution; the
 callers cite it and run what it returns, so a change to the chain lands once.
@@ -259,6 +259,7 @@ def policy_sources(root: Path) -> list[tuple[Path, str]]:
     hermes_home = Path(os.environ.get("HERMES_HOME") or Path.home() / ".hermes").expanduser()
     return [
         (root / ".hermes.md", "repo"),
+        (root / "HERMES.md", "repo"),
         (root / "AGENTS.md", "repo"),
         (root / "CLAUDE.md", "repo"),
         (root / ".claude" / "CLAUDE.md", "repo"),

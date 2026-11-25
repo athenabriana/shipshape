@@ -4,9 +4,10 @@ Between the finders and the report there is one gate: every candidate is judged 
 that did not produce it. A finder passes through everything with a nameable failure scenario;
 this pass keeps the report worth reading.
 
-At the tiny-diff depth there are no finder children, so "verify" is a self-check by the
-coordinator: re-read each candidate against the file before keeping it, under the same rubric
-(`<plugin-root>/roles/verifier.md`).
+At the tiny depth there are no finder children. In the loop the judge still judges every
+candidate, as below. In the manual flow "verify" is a self-check by the coordinator: re-read
+each candidate against the file before keeping it, under the same rubric
+(`<plugin-root>/roles/verifier.md`), and the report says there was no independent reader.
 
 In the loop, round 1's verdicts come from the judge (`loop.md`, "The judge") instead of the
 verifier children below, under the same rubric and addenda. §3 and §4 run the same whoever
@@ -20,16 +21,29 @@ After the barrier, write every candidate to a JSON file under `$TMPDIR` and run:
 python3 <plugin-root>/skills/review/scripts/group_candidates.py < "$TMPDIR/ss-candidates.json"
 ```
 
-Input is `{"scope_files": [...], "candidates": [...]}`. Output is the groups, the paths that
-matched nothing in scope, and the counts for the stats line. A finder may return a path as
-absolute, repo-relative, or with backslashes; the script rewrites each to the scope form, so
-one location never splits into several groups.
+Input is `{"scope_files": [...], "candidates": [...]}`. A candidate is an object with `file`
+and `line`, an object whose `file` or `location` holds `file:line`, or the finder's own
+`file:line | summary | failure_scenario` string. Output is one group per file, every
+candidate numbered within its file (`local_index`, the `[0]`, `[1]`, … a reader sees), and
+the counts for the stats line. A finder may return a path as absolute, repo-relative, or with
+backslashes; the script rewrites each to the scope form, so one file never splits into
+several groups.
+
+Three lists need a look before dispatch:
+
+- `unmatched`: paths that matched nothing in scope, or matched more than one scope file.
+- `ambiguous`: those of them a bare name made ambiguous (`index.ts` with two in scope), with
+  the files it could be. The script never picks one. Read the finder's text for the real
+  path and fix the candidate, or report it as `no verdict` with the reason.
+- `rejected`: entries that were not a candidate at all (no path, not an object or a string).
+  Each is `no verdict` in the report, and counts in the report stats line's `candidates`,
+  which is the script's `received` (its own `candidates` leaves rejected entries out).
 
 `scope_files` is the changed-file list in diff scope, and the enumerated file set in surface
 scope.
 
 Grouping is not dedup. Every candidate keeps its own verdict: two candidates on one line are
-often two issues. Candidates with no line group by `file`.
+often two issues. A candidate with no line sits in its file's group with `line: null`.
 
 **The dispatch unit is the file, and at most 4 verifiers go out** (6 on a deep run). One
 verifier opens a file once and judges every candidate in it, each still labeled and judged on
@@ -38,11 +52,16 @@ candidate first, then `rules` and `contract`, then the rest.
 
 ## 2. The verifier children
 
-One `delegate_task` call with a `tasks` list, one task per file bundle, all with the same
-`group` (`review-verifiers`). Each task's `context` is the text of
+One `delegate_task` call with a `tasks` list, one task per file bundle, under the barrier
+rule of `fronts.md` ("Fan-out shape", 3): one call, one result message, end the turn after
+dispatch, and the same `group` (`review-verifiers`) only when the tool shows that field. Each
+task's `goal` names the files, and its `context` is the text of
 `<plugin-root>/roles/verifier.md`, then the scope block, then the bundle's candidates labeled
-`[0]`, `[1]`, … with their `file:line`, then the addendum below when the front calls for one,
-then the execution-lane lines when the bundle holds a `correctness` candidate.
+with their `local_index` and `file:line` (a bundle of several files labels them `[0]`, `[1]`,
+… across the bundle and keeps the map), then the addendum below when the front calls for
+one, then the execution-lane lines when the bundle holds a `correctness` candidate. Verifiers
+run on the default route unless a deep run routes them (`fronts.md`, 5) or they sit in the
+loop's execution lane (below).
 
 A candidate with no verdict (child failed, index omitted) is **dropped**, never promoted to
 PLAUSIBLE on the finder's word. It still gets its own line in the report (§4).
@@ -67,13 +86,16 @@ replaces the crash question and keeps the three verdicts and the evidence rule.
 ## The execution lane
 
 A `correctness` candidate with a concrete trigger (a command, an input to a named entry point,
-one focused test) is decided by running it. Give every verifier whose bundle holds one three
+one focused test) is decided by running it. Give every verifier whose bundle holds one four
 lines:
 
 - `runnable: true` or `false`. It is true unless `AGENTS.md` or the person forbids local runs,
   and false in the external PR mode (the PR head is not checked out).
 - `head:` the sha at the head of the diff range.
-- `uncommitted_changes:` the probe's value.
+- `dirty:` the probe's `dirty` value (true when anything outside `.ss/` is uncommitted).
+- `worktree:` a literal absolute path, unique to the bundle:
+  `TMPDIR_VALUE/ss-verify-HEAD12-INDEX`, from the expanded `$TMPDIR`, the first 12
+  characters of `head`, and the global `index` of the bundle's first candidate.
 
 The rubric in `roles/verifier.md` says how the run happens (one trigger, in a disposable
 worktree, never a suite). The outcomes:
@@ -87,9 +109,12 @@ worktree, never a suite). The outcomes:
 | no concrete trigger | either     | none                          | the reading verdict                          |
 
 The judge runs nothing. In the loop, when `runnable` is true, send the files holding a
-`correctness` candidate to verifier children in the same round and the rest to the judge. A
-`correctness` finding the judge returns `not executed` goes to a verifier child for its run
-before its verdict stands.
+`correctness` candidate to verifier children and the rest to the judge, all in one
+`delegate_task` call so one result message closes the round. Those verifier children take
+the judge's seat for their files, so they run on the judge's route: `"option": "sonnet"` when
+the judge has it (`loop.md`, "Seat it once"), and no `option` under its fallback. A
+`correctness` finding the judge returns `not executed` goes to a verifier child on the same
+route for its run before its verdict stands.
 
 ## 3. Sweep (deep runs only)
 

@@ -4,7 +4,7 @@ description: Answers a read-only question about code, a branch or its history wi
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 0.1.0
+  version: 0.2.0
 ---
 
 # Investigate
@@ -43,7 +43,7 @@ and `git diff --stat` against it. Report:
 
 ## Session catch-up
 
-- **Earlier Hermes sessions:** `chat_history_lookup` (search, then read the tail).
+- **Earlier Hermes sessions:** `session_search` (search, then read the tail).
 - **Claude Code:** transcripts at `~/.claude/projects/<cwd with / as ->/<id>.jsonl`. List the
   most recent with `find ~/.claude/projects -name '*.jsonl' -printf '%T@ %p\n' | sort -rn | head`.
   Read only the `text` blocks of `user` and `assistant` lines, from the tail.

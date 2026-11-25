@@ -1,4 +1,4 @@
 name: ss
-version: "0.1.0"
-description: "Ship Shape for Hermes: one rigor mode (/ss:mode) that matches a request to a playbook (investigate, bug-fix, review, ship) and sizes the process to the risk. State lives on Kanban cards, project facts in AGENTS.md, and builder/reviewer/scout Bots do the work. Never merges."
+version: "0.2.0"
+description: "Ship Shape for Hermes: one rigor mode (/ss:mode) that matches a request to a playbook (investigate, bug-fix, review, ship, edge-cases) and sizes the process to the risk. Project facts live in AGENTS.md; builder, reviewer and scout are ephemeral subagents routed by model. Never merges."
 author: "Athena Briana"

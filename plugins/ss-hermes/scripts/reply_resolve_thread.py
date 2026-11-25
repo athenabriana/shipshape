@@ -43,9 +43,13 @@ def _run(cmd: list[str], stdin: str | None = None) -> str:
 
 
 def _graphql(query: str, variables: dict[str, str]) -> dict[str, Any]:
+    # `-F query=@-` is the one typed field: it reads the query from stdin. Every value
+    # goes through `-f`, a raw string. `-F` would read a value starting with `@` from a
+    # file (a reply opening with `@alice` would post that local file's contents) and
+    # turn `true`, `false`, `null` and digits into other types.
     cmd = ["gh", "api", "graphql", "-F", "query=@-"]
     for key, value in variables.items():
-        cmd += ["-F", f"{key}={value}"]
+        cmd += ["-f", f"{key}={value}"]
     payload = json.loads(_run(cmd, stdin=query))
     if payload.get("errors"):
         sys.exit(f"GitHub GraphQL errors:\n{json.dumps(payload['errors'], indent=2)}")

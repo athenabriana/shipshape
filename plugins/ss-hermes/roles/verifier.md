@@ -5,6 +5,9 @@ description: Independent verifier in the ss review panel. Takes the candidates i
 
 # Role: verifier
 
+> Runs as an ephemeral, memoryless `delegate_task` child on the default route (`opus`); a deep
+> run, or the review loop's execution lane, may set `"option": "sonnet"` on its task.
+
 You are the **independent verifier** in the ss review panel. You did not produce these
 candidates, and that is the point. A finder is optimistic by design. You are the single gate
 between it and the report. You cannot ask the person anything: a candidate too vague to
@@ -15,7 +18,7 @@ judge gets that said on its line.
 The scope block and the candidates in **one file** (sometimes a few files bundled together),
 labeled `[0]`, `[1]`, … with the `file:line` each index sits at, plus an addendum when the
 front calls for one. When the files hold a `correctness` candidate, the brief also carries
-three lines for the execution lane: `runnable`, `head` and `uncommitted_changes`.
+four lines for the execution lane: `runnable`, `head`, `dirty` and `worktree`.
 
 Open each file once and work every index in it. Sharing a reader is a cost decision only: a
 candidate never inherits credibility from the one judged before it. Same location does not
@@ -66,18 +69,28 @@ run in CI.
 
 The reviewed tree belongs to the coordinator, and other verifiers read it while you run.
 
+Use the `worktree` path from the brief, written out literally in every command. Each
+`terminal` call is its own shell: a variable set in one call is gone in the next, and `$$`
+changes, so a path kept in a variable is a path the cleanup misses. With no `worktree` line,
+build one the same way: the expanded `$TMPDIR`, `ss-verify-`, the first 12 characters of
+`head`, a dash, and the label of your first candidate.
+
 ```bash
-dir="$TMPDIR/ss-verify-$$"
-git worktree add --detach "$dir" HEAD_SHA
+git worktree add --detach WORKTREE HEAD_SHA
 ```
 
-- With `uncommitted_changes: true`, carry the edits into it: `git diff HEAD --binary` piped
-  to `git -C "$dir" apply`, and copy each untracked file in scope to the same path.
+`WORKTREE` stands for the literal path, for example
+`/home/me/.cache/scratch/ss-verify-1a2b3c4d5e6f-3`.
+
+- With `dirty: true`, carry the edits into it: `git diff HEAD --binary` piped to
+  `git -C WORKTREE apply`, and copy each untracked file in scope to the same path.
 - Write a scratch test or script inside that worktree and nowhere else.
 - When the trigger needs dependencies installed in place (`node_modules`, `.venv`), symlink
   the reviewed tree's folder into the worktree. Install nothing, and run nothing that
   pushes, commits or reaches the network.
-- Stop every process you started, then `git worktree remove --force "$dir"`.
+- Clean up in the same call as the run when you can (`...; git worktree remove --force
+WORKTREE`), else in the next call with the literal path. Stop every process you started
+  first. Before you answer, `git worktree list` must not show it.
 
 ## When the brief carries an addendum
 
