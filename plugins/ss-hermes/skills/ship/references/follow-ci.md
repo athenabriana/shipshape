@@ -55,8 +55,9 @@ python3 <plugin-root>/scripts/inspect_pr_checks.py --repo . --pr PR_NUMBER
 It prints each failing check with its run id and a log snippet, and exits non-zero while
 failures remain. Without a PR, read the log with `gh run view RUN_ID --log-failed`. With
 several failures, read all their logs before you change anything. To split that across
-checks, use `delegate_task`, one child per failing check, each returning the root cause
-with the log line that shows it.
+checks, use `delegate_task`, one read-only child per failing check with `"option": "sonnet"`,
+each returning the root cause with the log line that shows it. A child is an ephemeral
+subagent with no memory, so its brief carries the repo, the run id and the check name.
 
 1. Name the root cause with a specific log line. A guess costs a whole CI cycle.
 2. Fix it with the smallest change. Where the failing code has no test covering it, keep

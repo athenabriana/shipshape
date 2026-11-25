@@ -1,8 +1,8 @@
 # Ship through a pull request
 
 Reached from ship's Step 6 when the destination is a PR. The work is committed. Read the
-sections in order: create the PR if none exists, answer the review threads, follow CI to
-green, then offer the watcher.
+sections in order: create the PR if none exists (or update its proof when it does), answer
+the review threads, follow CI to green, then offer the watcher.
 
 ## Create the PR (only when none exists)
 
@@ -40,6 +40,21 @@ green, then offer the watcher.
 
    Add `--draft`, `--label`, `--reviewer` or `--assignee` as the person asked. Print the PR
    URL. When the work is tracked on a Kanban card, post the URL there with `kanban_comment`.
+
+## Update the proof (when the PR exists)
+
+When `ss:bug-fix` handed over proof lines and the PR already exists, write them into its
+description. Read the body, add a `Proof` section with the lines as they were given, or
+replace the section's content when one is already there, and leave every other line as it
+was:
+
+```bash
+gh pr view N --json body --jq .body > "$TMPDIR/pr-body.md"
+# edit "$TMPDIR/pr-body.md": add or replace the Proof section
+gh pr edit N --body-file - < "$TMPDIR/pr-body.md"
+```
+
+Skip this section when no proof lines were handed over.
 
 ## Answer the review threads
 

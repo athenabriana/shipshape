@@ -3,7 +3,7 @@
 Gather branch context relative to its base: branch/upstream, base + merge-base,
 commit log, diff stat, changed files, full diff, uncommitted changes, the open PR's
 body, and (for PR creation) the repo's PR template. Superset consumed by /ss:ship
-(PR creation), /ss:review, and /ss:gather-branch-context (branch summary).
+(PR creation), /ss:review, and ss:investigate (branch summary) (branch summary).
 
 Requires:
   - inside a git repository

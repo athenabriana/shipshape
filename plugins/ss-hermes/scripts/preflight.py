@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 One call for the probes a run does before it decides anything: the branch and its
-diff range, whether `gh` is authenticated, the PR for this branch and its check
+diff range, whether the tree is dirty outside `.ss/`, whether `gh` is authenticated, the PR for this branch and its check
 buckets, whether the repo has a `CODE_REVIEW_GUIDE.md` and an `AGENTS.md`, and
 whether the diff's hunks contain UI.
 
@@ -249,6 +249,16 @@ def main() -> None:
 
     branch = run_ok(["git", "branch", "--show-current"], cwd=cwd)
 
+    # `.ss/` is bookkeeping an earlier ss version left behind, never the person's work,
+    # so it does not make the tree dirty. `uncommitted_changes` stays the raw text for
+    # the readers that list files; `dirty` is the one to branch on.
+    dirty_status = run_ok(
+        ["git", "status", "--porcelain", "--", ".", ":(exclude).ss/"], cwd=cwd
+    )
+    hermes_md_file = next(
+        (name for name in (".hermes.md", "HERMES.md") if (root / name).is_file()), None
+    )
+
     result = {
         "git_root": cwd,
         "branch": branch,
@@ -263,14 +273,17 @@ def main() -> None:
             run_ok(["git", "diff", diff_range, "--name-status"], cwd=cwd) if diff_range else ""
         ),
         "uncommitted_changes": run_ok(["git", "status", "--short"], cwd=cwd) or "",
+        "dirty": bool(dirty_status),
         "gh_authenticated": gh_ok,
         "pr": pr,
         "checks": probe_checks(cwd, pr["number"]) if pr and pr.get("number") else None,
         "code_review_guide": (root / "CODE_REVIEW_GUIDE.md").is_file(),
-        # Hermes loads only the first of `.hermes.md`, `AGENTS.md`, `CLAUDE.md`, so a
-        # `.hermes.md` hides the project facts `AGENTS.md` holds from every session.
+        # Hermes loads only the first of `.hermes.md` / `HERMES.md`, `AGENTS.md`,
+        # `CLAUDE.md`, so either Hermes file hides the project facts `AGENTS.md` holds
+        # from every session. `hermes_md_file` names the one found.
         "agents_md": (root / "AGENTS.md").is_file(),
-        "hermes_md": (root / ".hermes.md").is_file(),
+        "hermes_md": hermes_md_file is not None,
+        "hermes_md_file": hermes_md_file,
         "ui": probe_ui(cwd, diff_range) if diff_range else {"hit": False, "markers": [], "examples": {}},
     }
 

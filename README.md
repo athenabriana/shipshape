@@ -73,7 +73,8 @@ hermes plugins install athenabriana/shipshape#plugins/ss-hermes --enable
 | `/ss:bug-fix`     | reproduce, find the cause, make the smallest fix and prove it                |
 | `/ss:review`      | review the branch or a PR, with a judge on a second model                    |
 | `/ss:ship`        | green CI, open or finish the PR, and watch it with a cron job (never merges) |
-| `/ss:setup`       | create the `ss-builder`, `ss-reviewer` and `ss-scout` Bots                   |
+| `/ss:edge-cases`  | map edge cases before coding, or hunt and prove the ones a diff misses       |
+| `/ss:setup`       | check the plugin and the model routes for the reviewer and scout subagents   |
 
 develop locally:
 

@@ -85,9 +85,10 @@ A regression usually sits in a recent change. Form one hypothesis for the cause 
 it in one line before you test it.
 
 When two or three hypotheses compete and each needs different code read, test them in
-parallel with `delegate_task`, one child per hypothesis. A child sees nothing of this chat,
-so its `context` carries the report, the hypothesis, the files to read, and the limits:
-read only, edit nothing, run no test suite or build, and return the evidence for and
+parallel with `delegate_task`, one scout child per hypothesis, with `"option": "opus"` (the
+default route). A child is an ephemeral subagent with no memory and sees nothing of this
+chat, so its `context` carries the report, the hypothesis, the files to read, and the
+limits: read only, edit nothing, run no test suite or build, and return the evidence for and
 against.
 
 **Stop investigating as soon as the cause is confirmed.** A confirmed cause is one the
@@ -142,17 +143,18 @@ It prints `lightweight`, `standard` or `intensive` with a one-line reason. Say t
 the reason in the chat. The person can override it: "keep it light" sets `lightweight`, and
 "be thorough" sets `intensive`. An override in the request counts as given.
 
-| route         | before the fix               | after the proof                                      |
-| ------------- | ---------------------------- | ---------------------------------------------------- |
-| `lightweight` | nothing more                 | one review front on the fix, then ship               |
-| `standard`    | nothing more                 | `ss:review`, then `ss:ship`                          |
-| `intensive`   | the blast-radius check below | the full review panel of `ss:review`, then `ss:ship` |
+| route         | before the fix               | after the proof                                                                       |
+| ------------- | ---------------------------- | ------------------------------------------------------------------------------------- |
+| `lightweight` | nothing more                 | the review loop, correctness front only, then ship                                    |
+| `standard`    | nothing more                 | `ss:review`, then `ss:ship`                                                           |
+| `intensive`   | the blast-radius check below | `ss:edge-cases` on the fix (as a step, no question), `ss:review deep`, then `ss:ship` |
 
 **The blast-radius check.** List every caller of the code the fix changes (`search_files`,
 `git grep`). For each caller, write one line: does it depend on the behavior the fix
 changes, and does the fix keep it correct. A caller the fix would break widens the fix:
 when that pushes it past a small change, Step 9 applies. Delegate the check with
-`delegate_task` when the callers span several modules.
+`delegate_task` when the callers span several modules: one read-only scout child per module,
+with `"option": "sonnet"`, each brief carrying the changed code and the behavior it changes.
 
 ## Step 7: Write the focused test
 
@@ -171,21 +173,24 @@ way goes in the report as a follow-up, never into this fix.
 Show both halves of the proof the way `references/proof.md` gives them. The order of the
 runs and the pushes depends on whether the focused test is cheap to run locally:
 
-- **Cheap to run locally:** run the focused test with the fix reverted (`git stash`), watch
-  it fail on its assertion, restore the fix (`git stash pop`), watch it pass. Run the
-  reproduction again: it passes. Run nothing else locally. The rest of the checks run in CI
-  when `ss:ship` pushes.
-- **Not cheap:** CI is the proof. Commit the focused test alone and push it. Find the run
-  and follow it in the background:
+- **Cheap to run locally:** revert only the fix, never the test: stash the fix's files by
+  path (`git stash push -- FIX_FILES`), so the uncommitted test stays in the tree. Run the
+  focused test and watch it fail on its assertion. Restore the fix (`git stash pop`) and
+  watch it pass. When the test and the fix share a file, commit the test first instead and
+  stash the rest. Run the reproduction again: it passes. Run nothing else locally. The rest
+  of the checks run in CI when `ss:ship` pushes.
+- **Not cheap:** CI is the proof. Commit the focused test alone and push it. Find every run
+  for that commit and follow each one, as "Find the run" and "Follow it" in
+  `skill_view('ss:ship', file_path='references/follow-ci.md')` say:
 
   ```bash
-  gh run list --branch BRANCH --commit SHA --json databaseId,status --limit 1
+  gh run list --branch BRANCH --commit SHA --json databaseId,workflowName,status,url
   ```
 
-  Then call `terminal(background=true, notify=true)` with `gh run watch RUN_ID
---exit-status`, and read the result when the notification arrives. The red half shows
-  only when the failure names the focused test. Then commit the fix, push it, and follow
-  the new run the same way until it is green.
+  Start one `terminal(background=true, notify=true)` per run with `gh run watch RUN_ID
+--exit-status`, and read each result when its notification arrives. The red half shows
+  only when a failure names the focused test. Then commit the fix, push it, and follow
+  every new run the same way until all are green.
 
 At the **Fix only** scope, a push needs a yes: ask once with `clarify` before the first
 push, and name the branch it goes to. When CI runs only on `pull_request` and no PR exists
@@ -225,9 +230,13 @@ URL and sha), and the follow-ups Step 8 set aside.
 Then follow the scope:
 
 - **Fix and ship:** run the review the route asks for, then load `skill_view('ss:ship')`
-  and run it. For `lightweight`, load `skill_view('ss:review')` and run only the front that
-  checks the fix's correctness. For `standard`, run `ss:review` as it is. For `intensive`,
-  run its full review panel. Hand `ss:ship` the proof lines so the PR body carries them.
+  and run it. The scope already authorizes the review, so each one runs as a playbook run
+  (`ss:review`'s `references/loop.md`, "When a playbook runs the loop"): no curate, no gate,
+  and the `Review loop: ...` verdict line comes back to this run. For `lightweight`, load
+  `skill_view('ss:review')` and run that loop with only the `correctness` front. For
+  `standard`, run the loop as `ss:review` sets it. For `intensive`, run it as
+  `ss:review deep`. Hand `ss:ship` the proof lines and the verdict line so the PR body
+  carries them.
   This skill adds no destination logic: `ss:ship` settles it, and the CI run Step 8 already
   followed is the first one it watches.
 - **Fix only:** end with one `clarify` gate. Lead with the next step of the route (**Review
