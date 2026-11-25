@@ -59,7 +59,8 @@ task's `goal` names the files, and its `context` is the text of
 with their `local_index` and `file:line` (a bundle of several files labels them `[0]`, `[1]`,
 … across the bundle and keeps the map), then the addendum below when the front calls for
 one, then the execution-lane lines when the bundle holds a `correctness` candidate. Verifiers
-run on the default route unless a deep run routes them (`fronts.md`, 5).
+run on the default route unless a deep run routes them (`fronts.md`, 5) or they sit in the
+loop's execution lane (below).
 
 A candidate with no verdict (child failed, index omitted) is **dropped**, never promoted to
 PLAUSIBLE on the finder's word. It still gets its own line in the report (§4).
@@ -108,9 +109,11 @@ worktree, never a suite). The outcomes:
 
 The judge runs nothing. In the loop, when `runnable` is true, send the files holding a
 `correctness` candidate to verifier children and the rest to the judge, all in one
-`delegate_task` call so one result message closes the round. A
-`correctness` finding the judge returns `not executed` goes to a verifier child for its run
-before its verdict stands.
+`delegate_task` call so one result message closes the round. Those verifier children take
+the judge's seat for their files, so they run on the judge's route: `"option": "sonnet"` when
+the judge has it (`loop.md`, "Seat it once"), and no `option` under its fallback. A
+`correctness` finding the judge returns `not executed` goes to a verifier child on the same
+route for its run before its verdict stands.
 
 ## 3. Sweep (deep runs only)
 

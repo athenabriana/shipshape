@@ -98,7 +98,9 @@ judged is `no verdict`.
    standard unless `deep` was asked.
 2. **The finders fan out** as `fronts.md` describes.
 3. **The judge judges the candidates** in the verifier's seat (`verify.md`), and §4 there
-   ranks and caps what comes back.
+   ranks and caps what comes back. Files holding a runnable `correctness` candidate go to
+   verifier children on the judge's route instead (`verify.md`, the execution lane), so every
+   round 1 verdict still comes from the other model.
 4. **The owner decides each verified item** (below).
 5. **Set the budget**: 3 rounds, or 5 when a round 1 Bloqueante concerns security,
    permissions or data loss. Say the budget and its reason in one line.

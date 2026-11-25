@@ -106,7 +106,8 @@ independent verification.
 5. **Model routes per task.** Every child is ephemeral and memoryless. A task with no
    `option` runs on the default route (`opus`); a task may set `"option": "sonnet"` when
    delegation is in model routes mode with that route (the check in `loop.md`, "Seat it
-   once"). Standard runs leave finders and verifiers on the default. A deep run may route
+   once"). Standard runs leave finders and verifiers on the default, except the loop's execution-lane
+   verifiers, which take the judge's route (`verify.md`). A deep run may route
    per angle: the sharpest correctness angles on `opus`, the broad sweep-like lenses
    (quality, design, rules) on `sonnet` for a second model's eye. Say the split in the depth
    line. The judge is the one that always differs (`loop.md`).
