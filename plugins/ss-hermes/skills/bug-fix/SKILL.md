@@ -180,7 +180,8 @@ Show both halves of the proof the way `references/proof.md` gives them. The orde
 runs and the pushes depends on whether the focused test is cheap to run locally:
 
 - **Cheap to run locally:** revert only the fix, never the test: stash the fix's files by
-  path (`git stash push -- FIX_FILES`), so the uncommitted test stays in the tree. Run the
+  path (`git stash push --include-untracked -- FIX_FILES`, so a new fix file goes too), and
+  the uncommitted test stays in the tree. Run the
   focused test and watch it fail on its assertion. Restore the fix (`git stash pop`) and
   watch it pass. When the test and the fix share a file, commit the test first instead and
   stash the rest. Run the reproduction again: it passes. Run nothing else locally. The rest
