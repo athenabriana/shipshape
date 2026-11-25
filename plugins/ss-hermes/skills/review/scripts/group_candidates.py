@@ -15,7 +15,8 @@ A candidate is one of:
   - an object with "file" and "line": {"file": "src/a.ts", "line": 42, ...}
   - an object whose "file" (or "location") holds "file:line":
     {"file": "src/a.ts:42", ...} or {"location": "src/a.ts:42-48", ...}
-  - a string in the finder shape "file:line | summary | failure_scenario"
+  - a string in the finder shape "file:line | summary | failure_scenario",
+    optionally led by a `#` column or a markdown pipe ("1 | file:line | ...")
 
 Anything else on an object candidate is carried through untouched. An entry
 that is none of these (a number, a list, an object with no path) is rejected:
@@ -114,12 +115,23 @@ def parse_line(value):
 def coerce(raw):
     """One raw entry -> (candidate dict, None) or (None, rejection reason)."""
     if isinstance(raw, str):
-        head, _, rest = raw.partition("|")
-        path, line = split_location(head)
+        # A finder row may lead with a `#` column or a markdown pipe
+        # (`1 | src/a.ts:42 | ...`, `| 1 | src/a.ts:42 | ... |`): take the
+        # first cell that reads as `file:line`, else the first cell that is
+        # not a bare row number, as a path with no line.
+        cells = [c.strip().strip("`").strip() for c in raw.split("|")]
+        cells = [c for c in cells if c]
+        path, line = None, None
+        for cell in cells:
+            if LOCATION.match(cell):
+                path, line = split_location(cell)
+                break
+        if path is None:
+            path = next((c for c in cells if not c.isdigit()), None)
         if not path:
             return None, "string with no file:line"
         item = {"file": path, "line": line}
-        if rest.strip():
+        if len(cells) > 1:
             item["text"] = raw.strip()
         return item, None
     if not isinstance(raw, dict):
