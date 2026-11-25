@@ -56,8 +56,6 @@ earlier ss version used.
 
 ## Depth: standard by default, deep only when asked
 
-| diff                           | correctness angles                        | quality | rules  | contract | a11y   | design | verify                                   | sweep | report cap |
-| ------------------------------ | ----------------------------------------- | ------- | ------ | -------- | ------ | ------ | ---------------------------------------- | ----- | ---------- |
 | depth                          | correctness angles                        | quality | rules  | contract | a11y   | design | verify                                   | sweep | report cap |
 | ------------------------------ | ----------------------------------------- | ------- | ------ | -------- | ------ | ------ | ---------------------------------------- | ----- | ---------- |
 | **tiny**: ≲2 files, ≲100 lines | the first 2 of the angle set, no fan-out  | inline  | inline | inline   | inline | inline | the judge in the loop, else a self-check | none  | 6          |
