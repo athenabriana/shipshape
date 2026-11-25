@@ -58,6 +58,23 @@ shape and build keep `.ss/wiki/` up to date by themselves: a per-project knowled
 
 `explain-the-number`, `attack-the-premise` and `prove-the-fix` stay out of the menu: an agent loads one by itself, mid-task, when its trigger in `plugins/ss/references/triggers.md` fires. every build task, orchestrate brief, `/ss:diagnose`, `/ss:ship` and `/ss:correct` reads that table first.
 
+## on hermes
+
+`plugins/ss-hermes` is a separate plugin built for [Hermes Agent](https://hermes-agent.nousresearch.com/). It does not share files with `plugins/ss` at runtime. Instead of one skill per verb it has one rigor mode, `/ss:mode`, that matches a request to a playbook and sizes the process to the risk. The design is in [`plugins/ss-hermes/DESIGN.md`](plugins/ss-hermes/DESIGN.md).
+
+```bash
+hermes plugins install athenabriana/shipshape#plugins/ss-hermes --enable
+```
+
+| skill             | description                                                                  |
+| ----------------- | ---------------------------------------------------------------------------- |
+| `/ss:mode`        | the entry point: pick a playbook, size the route, run the steps              |
+| `/ss:investigate` | answer a read-only question about code, a branch or earlier sessions         |
+| `/ss:bug-fix`     | reproduce, find the cause, make the smallest fix and prove it                |
+| `/ss:review`      | review the branch or a PR, with a judge on a second model                    |
+| `/ss:ship`        | green CI, open or finish the PR, and watch it with a cron job (never merges) |
+| `/ss:setup`       | create the `ss-builder`, `ss-reviewer` and `ss-scout` Bots                   |
+
 develop locally:
 
 ```bash
