@@ -183,8 +183,11 @@ runs and the pushes depends on whether the focused test is cheap to run locally:
   path (`git stash push --include-untracked -- FIX_FILES`, so a new fix file goes too), and
   the uncommitted test stays in the tree. Run the
   focused test and watch it fail on its assertion. Restore the fix (`git stash pop`) and
-  watch it pass. When the test and the fix share a file, commit the test first instead and
-  stash the rest. Run the reproduction again: it passes. Run nothing else locally. The rest
+  watch it pass. When the test and the fix share a file, a stash by path cannot split them:
+  write the fix's hunks alone to a patch (`git add -N` any new fix file, then
+  `git diff -- FIX_FILES > "$TMPDIR/fix.patch"`, then
+  delete the test's hunks from it), revert with `git apply -R "$TMPDIR/fix.patch"`, run the
+  test, and restore with `git apply "$TMPDIR/fix.patch"`. Run the reproduction again: it passes. Run nothing else locally. The rest
   of the checks run in CI when `ss:ship` pushes.
 - **Not cheap:** CI is the proof. Commit the focused test alone and push it. Find every run
   for that commit and follow each one, as "Find the run" and "Follow it" in
