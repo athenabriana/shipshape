@@ -45,7 +45,8 @@ The diff fronts need no `gh`. A surface-scope a11y audit needs neither a repo no
 - **External PR** (a repo or PR number that is not this branch's): follow
   `mode-external-pr.md`, then stop.
 - **Direct front ask** ("CI broke", "answer the comments", "check the rules"): that front is
-  the scope. Skip step 2's question, never the probe.
+  the scope. Skip step 2's question, never the probe. A playbook run that restricts the
+  fronts is not one: it runs the loop (`loop.md`, "When a playbook runs the loop").
 - **Surface audit** (a folder, files, a URL or a running page): accessibility asks run
   `front-a11y.md` in surface scope, design asks run `front-design.md` in surface scope. Each
   stops at its own gate.

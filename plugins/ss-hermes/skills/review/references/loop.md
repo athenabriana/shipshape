@@ -26,6 +26,10 @@ ships, with four differences, because the ship comes next:
 - **No gate**: the report goes back to the playbook.
 - **The verdict line goes back with it**, for the PR description the ship writes (below).
 
+A playbook may also restrict the fronts (bug-fix's `lightweight` route runs `correctness`
+only). That run is still this loop with these differences, never a direct front ask: no
+fronts question, no curate, no gate.
+
 ## The judge
 
 The judge is the reviewer role: a memoryless `delegate_task` child, a fresh one every round,
