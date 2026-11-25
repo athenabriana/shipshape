@@ -67,10 +67,10 @@ deep (`fronts.md`, the depth table):
   self-check, and the report says the review had no independent verification.
 - **standard**, the default for any larger diff: three correctness angles, one finder per
   other front, no sweep.
-- **deep**, only when asked (`/ss:review deep`, "deep review", or the deep choice at step 2).
-  Deep also runs `ss:edge-cases` in diff mode as a step (no closing question) and feeds its
-  confirmed rows to the verify pass as candidates:
-  the full angle set, the sweep, the larger cap, and up to 6 verifiers.
+- **deep**, only when asked (`/ss:review deep`, "deep review", or the deep choice at step 2):
+  the full angle set, the sweep, the larger cap, and up to 6 verifiers. Deep also runs
+  `ss:edge-cases` in diff mode as a step (no closing question) and feeds its confirmed rows
+  to the verify pass as candidates.
 
 Carry the depth into the scope block. The report names which one ran.
 
