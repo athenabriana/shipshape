@@ -115,10 +115,11 @@ candidates that hit the same line for the same reason.
 ### 4. Report
 
 ```
-| # | case | input | what happens now (evidence) | expected | level |
+| # | case | file:line | input | what happens now (evidence) | expected | level |
 ```
 
-`level` is **Bloqueante** or **Sugestão**, as `<plugin-root>/references/finding-levels.md`
+`file:line` is where the wrong outcome happens, so `ss:review deep` can pool the row as a
+candidate. `level` is **Bloqueante** or **Sugestão**, as `<plugin-root>/references/finding-levels.md`
 defines them: Bloqueante when the change ships a broken outcome for a reachable input,
 Sugestão for everything else worth saying. Bloqueantes first. Below the table: the
 `unconfirmed` rows, the categories dropped and why, and one stats line (scouts, candidates,
