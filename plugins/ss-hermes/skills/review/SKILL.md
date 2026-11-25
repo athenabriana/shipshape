@@ -111,8 +111,9 @@ runs, then dedupe, rank and cap.
 Round 1 is steps 3 and 4's work. Then `loop.md` runs: the owner decides every verified item,
 fix or refuse with a ground, with no curation question; rounds 2 and on send the judge the
 delta, the open findings and the refusals; the loop stops on a round with no Bloqueante or
-when the budget is spent; then one push, the thread replies, step 6 (resolve the threads the
-code already satisfies) and one CI read (`loop.md`, "After the last round"). The report
+when the budget is spent; then the push, the thread replies, step 6 (resolve the threads the
+code already satisfies), CI followed to the end with its fixes, and the verdict line on the
+PR (`loop.md`, "After the last round"). A playbook run ends the same way. The report
 opens with the `Loop` block, and the gate follows.
 
 ## Step 4: Report

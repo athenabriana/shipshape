@@ -18,13 +18,15 @@ It is the default for the current branch. The manual flow runs instead when:
 ## When a playbook runs the loop
 
 A playbook whose authorized scope includes review (feature, bug-fix) runs this loop before it
-ships, with four differences, because the ship comes next:
+ships, with three differences:
 
-- **Round 1 leaves out `threads` and `ci`**: the ship answers threads and follows CI.
-- **Nothing goes out after the last round**: no push, no thread replies, no CI read. The
-  commits stay on the branch.
+- **Round 1 leaves out `threads` and `ci`**: the ship answers threads.
 - **No gate**: the report goes back to the playbook.
 - **The verdict line goes back with it**, for the PR description the ship writes (below).
+
+The run ends like any loop ("After the last round"): it always pushes the fixes, follows CI
+to the end, fixes what CI surfaces, and writes the verdict line on the PR. Thread replies are
+left to the ship.
 
 A playbook may also restrict the fronts (bug-fix's `lightweight` route runs `correctness`
 only). That run is still this loop with these differences, never a direct front ask: no
@@ -142,15 +144,21 @@ PLAUSIBLE items are decided like CONFIRMED ones. Sugestões are decided too, in 
 
 ## After the last round
 
-1. **Push once** to the PR branch when an open PR exists. Never a protected branch, never
-   `--force`. With no PR the commits stay local and the gate recommends `/ss:ship`.
+Every loop ends this way, a playbook run included.
+
+1. **Push** the fixes to the PR branch when an open PR exists. Never a protected branch,
+   never `--force`. With no PR the commits stay local and the gate (or the playbook's ship)
+   takes them out.
 2. **Thread replies** from round 1's `threads` items go out after the push, with the sha
-   (`front-threads.md`).
+   (`front-threads.md`). A playbook run has none: the ship answers threads.
 3. **Resolve the threads the code already satisfies** (`SKILL.md`, step 6): every
-   `satisfied` row gets its reply and resolve, and one line says what was resolved.
-4. **Read CI once** after the push (`front-ci.md`): `gh run watch RUN_ID --exit-status` in
-   `terminal(background=true, notify=true)`, then read the result when it notifies. Still red
-   goes to the report with the evidence and opens no round.
+   `satisfied` row gets its reply and resolve, and one line says what was resolved. Skipped
+   in a playbook run.
+4. **Follow CI to the end** after the push (`front-ci.md`): `gh run watch RUN_ID --exit-status`
+   in `terminal(background=true, notify=true)`, then read the result when it notifies. Fix
+   what it surfaces, push again (never `--force`) and follow the new run, up to 3
+   diagnose-fix cycles. Still red after that goes to the report with the evidence and opens
+   no round.
 5. **Record the verdict on the PR** when one is open: `gh pr view N --json body`, replace the
    `Review loop:` line it holds (or append one), and write it back with
    `gh pr edit N --body-file -`. With no PR, the line goes into the report for `/ss:ship`.
