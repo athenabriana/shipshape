@@ -152,8 +152,10 @@ you do not repeat what it already said.
    `git checkout -B ss-babysit/N REMOTE/BRANCH`. The worktree belongs to the watcher, so
    nothing of the person's is lost. When `git status --porcelain` is not empty first (a tick
    that ended halfway), keep the leftovers on a branch of their own before the checkout:
-   `git add -A`, `git commit -m "ss-babysit leftover"`, then
-   `git branch ss-babysit-leftover/N-TIMESTAMP`, and name that branch in the report. Never
+   `git add -A`, `git commit --no-verify -m "ss-babysit leftover"` (a local snapshot that is
+   never pushed, so the repo's hooks have nothing to check and cannot block the tick), then
+   `git branch ss-babysit-leftover/N-$(date -u +%Y%m%d%H%M%S)`, and name that branch in the
+   report. When either command fails, skip the checkout and this tick's work, and report it. Never
    `git stash`: the stash is shared by every worktree of the repo, so the leftovers would land
    on the person's stash stack. Never use `git reset --hard`: a cron run
    cannot get an approval for it, so the tick would block.
