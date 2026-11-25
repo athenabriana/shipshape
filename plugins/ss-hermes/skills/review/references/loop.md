@@ -73,7 +73,10 @@ One task in a `delegate_task` call:
 }
 ```
 
-`goal` is required; leave `option` out under the fallback. When the round also sends verifier
+`goal` is required; leave `option` out under the fallback. When the tool description shows a
+`group` field (`delegation.independent_completions` on), Hermes requires it on every task: set
+`"group": "review-judge"`, or the round's shared group when verifier children ride in the same
+call. When the round also sends verifier
 children (`verify.md`, the execution lane), put the judge task in the same call so one
 result message closes the round. When the call runs in the background, end the turn after
 dispatch and pick the round up from the result message.
