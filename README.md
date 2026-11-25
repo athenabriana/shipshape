@@ -75,6 +75,7 @@ hermes plugins install athenabriana/shipshape#plugins/ss-hermes --enable
 | `/ss:ship`        | green CI, open or finish the PR, and watch it with a cron job (never merges) |
 | `/ss:edge-cases`  | map edge cases before coding, or hunt and prove the ones a diff misses       |
 | `/ss:setup`       | check the plugin and the model routes for the reviewer and scout subagents   |
+| `/ss:fronts`      | on the main Bot: create, manage and retire one Bot per front                 |
 
 develop locally:
 

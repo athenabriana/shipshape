@@ -38,6 +38,7 @@ project that the code doesn't show (a choice, a trap, a constraint) go into the 
 | caretake       | caretake                               | cron digest of open PRs, Dependabot and outdated dependencies → the Bot chat or a sticky comment                        |
 | pause / resume | new (pstack)                           | park in-flight work on its card so any session can pick it up                                                           |
 | edge-cases     | new                                    | plan mode: WHEN/THEN acceptance criteria before coding; diff mode: hunt, prove and report missed cases (added in 0.2.0) |
+| fronts         | orchestrate                            | the main Bot's skill: create, manage and retire front Bots, one per front (added in 0.3.0)                              |
 
 Standalone skills that stay as they are: `review-setup`, `write-readme`, `correct`.
 
@@ -66,6 +67,12 @@ or auth involved, test coverage nearby, and number of files. A small script
   - **A Bot** is a Hermes profile (Opus 5.5) with its own memory. It coordinates from the chat
     the person talks to. A **front** (a full-stack feature, usually several PRs across several
     repos) runs as one Bot.
+  - **Main Bot and front Bots.** The main Bot is the person's `default` profile. With
+    `ss:fronts` it creates a front Bot (a cloned profile, a `FRONT.md` brief, a persona
+    section, a description), lists and re-briefs them, asks one a cross-front question with
+    `message_agent`, hands one work, and retires one after a closing summary (confirmed first;
+    `default` is never deleted). It never does a front's work. The person talks to each front
+    Bot directly, and each front Bot coordinates its own sessions.
   - **Bots never write code.** A Bot plans, briefs, tracks and reports; reading code, `gh` and
     `git log` is fine. Only the sessions it starts edit, commit and push.
   - **Sessions** run on the Bot's own profile. Preferred: a Kanban card assigned to that
@@ -131,7 +138,7 @@ are not designed now.
 
 ## 6. Build order
 
-1. **v0:** plugin skeleton, frame, `/ss` router with investigate / bug-fix / review / ship, roles, and setup. 0.2.0 fixes the first review's findings and replaces the extra profiles with routed subagents.
+1. **v0:** plugin skeleton, frame, `/ss` router with investigate / bug-fix / review / ship, roles, and setup. 0.2.0 fixes the first review's findings and replaces the extra profiles with routed subagents. 0.3.0 renames the router to `/ss:go`, runs one Bot per front with `ss:fronts`, and moves all code into sessions.
 2. **v1:** feature on Kanban, shape without a spec, routes script, takeover and session pickup, coordination rules in the frame.
 3. **v2:** caretake as a routine on the Bot, pause/resume.
 

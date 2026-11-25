@@ -4,7 +4,7 @@ description: Ship Shape's rigor mode for Hermes. Reads the request, matches it t
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 0.2.0
+  version: 0.3.0
 ---
 
 # ss go
@@ -23,6 +23,9 @@ One entry point. Match the request to a playbook, size the route, run the steps.
 
 Before coding anything non-trivial, `ss:edge-cases` in plan mode turns the request into
 WHEN/THEN acceptance criteria. Offer it when the expected behavior is not already written down.
+
+Creating, listing, briefing, asking or retiring a front Bot is not a playbook: on the main
+Bot, load `ss:fronts`.
 
 If none fits, say which one is closest and why it falls short, then do the work by hand under
 the rules in section 3. Coming next, not yet in this version: feature, refactor, shape,
