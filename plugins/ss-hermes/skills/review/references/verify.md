@@ -36,7 +36,8 @@ Three lists need a look before dispatch:
   the files it could be. The script never picks one. Read the finder's text for the real
   path and fix the candidate, or report it as `no verdict` with the reason.
 - `rejected`: entries that were not a candidate at all (no path, not an object or a string).
-  Each is `no verdict` in the report, and counts in the stats line's `candidates`.
+  Each is `no verdict` in the report, and counts in the report stats line's `candidates`,
+  which is the script's `received` (its own `candidates` leaves rejected entries out).
 
 `scope_files` is the changed-file list in diff scope, and the enumerated file set in surface
 scope.
