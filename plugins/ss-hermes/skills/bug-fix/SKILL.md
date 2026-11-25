@@ -149,11 +149,11 @@ It prints `lightweight`, `standard` or `intensive` with a one-line reason. Say t
 the reason in the chat. The person can override it: "keep it light" sets `lightweight`, and
 "be thorough" sets `intensive`. An override in the request counts as given.
 
-| route         | before the fix               | after the proof                                                                       |
-| ------------- | ---------------------------- | ------------------------------------------------------------------------------------- |
-| `lightweight` | nothing more                 | the review loop, correctness front only, then ship                                    |
-| `standard`    | nothing more                 | `ss:review`, then `ss:ship`                                                           |
-| `intensive`   | the blast-radius check below | `ss:edge-cases` on the fix (as a step, no question), `ss:review deep`, then `ss:ship` |
+| route         | before the fix               | after the proof                                                                                      |
+| ------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------- |
+| `lightweight` | nothing more                 | the review loop, correctness front only, then ship                                                   |
+| `standard`    | nothing more                 | `ss:review`, then `ss:ship`                                                                          |
+| `intensive`   | the blast-radius check below | `ss:edge-cases` on the fix (as a step, no question), `ss:review deep` with its table, then `ss:ship` |
 
 **The blast-radius check.** List every caller of the code the fix changes (`search_files`,
 `git grep`). For each caller, write one line: does it depend on the behavior the fix
@@ -241,7 +241,7 @@ Then follow the scope:
   and the `Review loop: ...` verdict line comes back to this run. For `lightweight`, load
   `skill_view('ss:review')` and run that loop with only the `correctness` front. For
   `standard`, run the loop as `ss:review` sets it. For `intensive`, run it as
-  `ss:review deep`. Hand `ss:ship` the proof lines and the verdict line so the PR body
+  `ss:review deep` and hand it the `ss:edge-cases` table, so it does not run edge-cases again. Hand `ss:ship` the proof lines and the verdict line so the PR body
   carries them.
   This skill adds no destination logic: `ss:ship` settles it, and the CI run Step 8 already
   followed is the first one it watches.

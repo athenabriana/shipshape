@@ -70,7 +70,9 @@ deep (`fronts.md`, the depth table):
 - **deep**, only when asked (`/ss:review deep`, "deep review", or the deep choice at step 2):
   the full angle set, the sweep, the larger cap, and up to 6 verifiers. Deep also runs
   `ss:edge-cases` in diff mode as a step (no closing question) and feeds its confirmed rows
-  to the verify pass as candidates.
+  to the verify pass as candidates. When the caller already ran `ss:edge-cases` on this range
+  (the intensive route of `ss:mode` and `ss:bug-fix`) and hands its table over, deep takes
+  those rows as the candidates and does not run it again.
 
 Carry the depth into the scope block. The report names which one ran.
 

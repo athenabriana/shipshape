@@ -49,11 +49,11 @@ python3 <plugin-root>/scripts/route.py --blast-radius <low|medium|high> --revers
   --data-or-auth <yes|no> --coverage <good|some|none> --files <n>
 ```
 
-| Route       | Gates                                                                                                 |
-| ----------- | ----------------------------------------------------------------------------------------------------- |
-| lightweight | preservation check, mechanical gate, the review loop with only the correctness front, then `ss:ship`  |
-| standard    | mechanical gate, `ss:review` in its default loop, then `ss:ship`                                      |
-| intensive   | a blast-radius pass over callers first, `ss:edge-cases` on the diff, `ss:review deep`, then `ss:ship` |
+| Route       | Gates                                                                                                                |
+| ----------- | -------------------------------------------------------------------------------------------------------------------- |
+| lightweight | preservation check, mechanical gate, the review loop with only the correctness front, then `ss:ship`                 |
+| standard    | mechanical gate, `ss:review` in its default loop, then `ss:ship`                                                     |
+| intensive   | a blast-radius pass over callers first, `ss:edge-cases` on the diff, `ss:review deep` with its table, then `ss:ship` |
 
 "Keep it light" or "be thorough" from the person overrides the script. Say which route you
 are on and why, in one line.
