@@ -19,6 +19,7 @@ plugins/ss/
 ├── scripts/                           # plugin-level scripts shared across skills (preflight, check_project_facts, ...)
 └── skills/
     ├── go                                 # the /ss:go router; playbooks/ holds one recipe per playbook
+    ├── bug-fix, learn                     # entry points that open the go playbook of the same name
     ├── shape, ship, babysit, record-fact
     ├── investigate, edge-cases
     ├── review, review-setup

@@ -109,7 +109,8 @@ Pass `notify_when_idle: true` to hear when the orchestrator has read it.
 
 ## Relay a question
 
-An orchestrator may send the manager a question meant for Athena. Put it to her through
+An orchestrator may send the manager a question meant for Athena. When it asks for a
+review or an approval, open its visual for her first, by `<plugin-root>/references/show-for-review.md`. Put it to her through
 `AskUserQuestion` word for word: the question, every option with what it does and what it
 costs, and the orchestrator's pick first. Translate only into her language when she speaks
 another. Send her answer back to the orchestrator quoted, through `SendMessage`.

@@ -17,8 +17,8 @@ A _correction_ is a fix someone asked for on code an agent wrote. Its _class_ na
 
 Three ways, and each one is a person's choice:
 
-- **The router offers it.** While `/ss:go` is on, it watches the session's corrections, and when the same class lands a second time it asks the person through the question tool whether to run `/ss:correct` (`skills/go/SKILL.md`, "Watch for a repeated correction"). A yes starts this run once the current task reaches its endpoint; the encoding never rides on the branch of the task that surfaced it.
-- **A work session reports it.** A `Correction repeated:` line naming the class and its occurrences goes in the report to the orchestrator, which asks the person whether to run `/ss:correct`.
+- **The learn playbook picks it.** While `/ss:go` is on, it watches the session's corrections, and when the same class lands a second time it offers the `learn` playbook (`skills/go/playbooks/learn.md`), which sends the lesson here when a check can hold it. A yes starts this run once the current task reaches its endpoint; the encoding never rides on the branch of the task that surfaced it.
+- **A work session reports it.** A `Correction repeated:` line naming the class and its occurrences goes in the report to the orchestrator, which asks the person whether to run the `learn` playbook on it.
 - **The person types `/ss:correct`**, with or without the class.
 
 Nothing starts this skill unasked. The rest of this page is the run.

@@ -70,7 +70,10 @@ Walk each one. Keep only those the behavior can reach, and say in one line which
    | # | category | WHEN | THEN | load-bearing |
    ```
 
-   Then list the `open` rows with the question each one is waiting on. When a row taught
+   Then list the `open` rows with the question each one is waiting on. Before a question
+   asks the person to settle or approve rows, show the table as a visual, by
+   `<plugin-root>/references/show-for-review.md`: a private Claude Docs doc opened for them, or the page the
+   caller's path names, opened for them. When a row taught
    something about the project the code does not show (a constraint, a trap), offer
    `/ss:record-fact` for it, and record it only on a yes.
 
@@ -129,7 +132,8 @@ goes through step 4 of plan mode, never a guess.
 
 ### 5. Close
 
-Skip this when running as a playbook step. Otherwise one `AskUserQuestion`, recommended
+Skip this when running as a playbook step. Otherwise show the table first, as plan mode
+does by `<plugin-root>/references/show-for-review.md`, then one `AskUserQuestion`, recommended
 first:
 
 1. **Add focused tests for the confirmed cases (Recommended):** one test per case, committed

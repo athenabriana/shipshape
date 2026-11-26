@@ -21,7 +21,9 @@ their `## Project facts` section belongs to `/ss:record-fact`
 (`<plugin-root>/references/project-facts.md`). Discovery may read them as evidence. A
 finding that is a project fact rather than a review rule (a choice, a trap, a
 constraint the code cannot show) is named in the closing report with an offer of
-`/ss:record-fact`, never written by this skill.
+`/ss:record-fact`, never written by this skill. When a lesson arrives with its layer
+not picked yet, the `learn` playbook of `/ss:go` (`skills/go/playbooks/learn.md`) picks
+between this skill, `/ss:correct` and `/ss:record-fact`.
 
 This SKILL.md is the router: it picks the mode, and each phase's method lives in
 its own reference, loaded only when that phase runs.

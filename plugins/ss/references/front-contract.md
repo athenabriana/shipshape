@@ -41,6 +41,8 @@ questions and the handoff gate of `references/handoff-gate.md`. The message carr
 the dialog would have carried, since Athena reads it through the orchestrator's dialog:
 
 - **The question**: what is being decided and why it is open.
+- **The visual**, when the question asks for a review or an approval: the link to the
+  page, the doc or the file that shows it.
 - **Every option**: its label, what that pick does next, and what it costs.
 - **The recommended pick**, named as such, first in the list.
 
@@ -71,7 +73,11 @@ When the task ends, at done or at a blocker, send the orchestrator one message w
 
 ## Pages and files
 
-Athena sees what the work session produces through the orchestrator:
+Athena sees what the work session produces through the orchestrator. A question that asks
+her to review or approve something carries a visual of it, built before the question, in
+the form `<plugin-root>/references/show-for-review.md` picks. A work session has no chat
+with her, so the visual travels as a file in the notes folder or a link, and the
+orchestrator shows it inline.
 
 - **A page** (a board, a report): publish it as an Artifact and send its URL to the
   orchestrator, which opens it for her. A design goes on a canvas, as the next section says.
@@ -85,18 +91,9 @@ and send the URL again.
 
 ## Designs go on a canvas
 
-An interface change shows its design before any code, on a Design canvas: the Artifact
-type for visual designs, which Athena comments on artboard by artboard.
-
-1. Create it with the `Artifact` tool's `quickstart` action, `intent: "design"`, and
-   publish from the type it names.
-2. Put one variation per artboard, two wherever there is a choice, labeled A and B. The
-   recommended one is A, on the first artboard, and its label says it is the pick.
-3. Send the URL to the orchestrator, in one message with what each artboard shows and why
-   A is the pick, then wait.
-4. Each change Athena asks for comes back quoted, from her comments on the artboards. Apply
-   it on the same canvas, republish to the same URL, and send the URL again.
-5. Write the code only after she approves a variation, and build that one.
-
-Outside a work session the steps are the same, with the person reading the canvas and
-commenting directly.
+An interface change shows its design on a Design canvas before any code, by "Designs go on
+a canvas" in `<plugin-root>/references/show-for-review.md`. In a work session, send the
+canvas URL to the orchestrator with what each artboard shows and why A is the pick, then
+wait. Each change comes back with Athena's comment quoted: apply it on the same canvas,
+republish to the same URL, and send the URL again. Write the code only after she approves
+a variation.

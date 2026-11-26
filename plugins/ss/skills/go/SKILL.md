@@ -1,10 +1,10 @@
 ---
 name: go
-description: Ship Shape's router. Reads the request, matches it to one playbook (investigate, bug-fix, review, ship, edge-cases, babysit, review-setup, correct), sizes the process to the risk with a lightweight, standard or intensive route picked by scripts/route.py from five risk facts, copies the playbook's steps into the session's todo list and runs each step's skill. Stays on across later turns until you turn it off, and offers /ss:correct when the same correction lands twice in a session. Use when the user types /ss:go (for example "/ss:go fix the login redirect"), says "use ss", "be rigorous", "do this properly", "fix this bug", "debug this", "why does this fail", "esse bug", "corrige esse bug", "fix and babysit", pastes an error or a stack trace and asks for a fix, says "babysit PR 42", "set up code review", "make this mistake impossible", or starts any non trivial engineering task. Don't use it for a tiny mechanical change (just do it) or for a question about Claude Code itself.
+description: Ship Shape's router. Matches the request to one playbook (investigate, bug-fix, review, ship, edge-cases, babysit, review-setup, correct, learn), sizes the route (lightweight, standard or intensive) with scripts/route.py from five risk facts, copies the playbook's steps into the todo list and runs each step's skill. Stays on until you turn it off, offers the learn playbook when the same correction lands twice, and shows a visual with every review ask. Use when the user types /ss:go, says "use ss", "be rigorous", "do this properly", "fix and babysit", "fix it and ship it", says "babysit PR 42", "set up code review", "make this mistake impossible", or starts any non trivial engineering task. Don't use it for a tiny mechanical change (just do it) or for a question about Claude Code itself.
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.1.0
+  version: 1.2.0
 ---
 
 # Go
@@ -15,7 +15,9 @@ A **playbook** is a recipe file under `playbooks/`, with three parts: the **step
 naming the skill it calls), the **route** (what lightweight, standard and intensive add or
 drop) and the **endpoint** (local commit, pushed branch or open PR). The skills keep their
 own entry points (`/ss:review`, `/ss:ship`, `/ss:babysit`, ...); a playbook named after a
-skill is the thin recipe around it.
+skill is the thin recipe around it. Every playbook has a skill of its own, so its trigger
+phrases reach the agent: `/ss:bug-fix` and `/ss:learn` open their playbook here, which
+stays the only source of the steps.
 
 ## 1. Match a playbook
 
@@ -29,6 +31,7 @@ skill is the thin recipe around it.
 | `babysit`      | "babysit PR 42", "watch PR 42", "fica de olho no PR 42": a watcher on any PR, by number              | `playbooks/babysit.md`      |
 | `review-setup` | write or update the repo's `CODE_REVIEW_GUIDE.md`: "set up code review", "the review guide is stale" | `playbooks/review-setup.md` |
 | `correct`      | a correction that landed twice: "make this mistake impossible", "turn this into a check"             | `playbooks/correct.md`      |
+| `learn`        | a lesson to keep, layer not named: "remember this", "don't let this happen again", "add this rule"   | `playbooks/learn.md`        |
 
 Read the matched playbook whole before the first step.
 
@@ -95,6 +98,9 @@ endpoint of "local commit" skips the CI half; say so in the close.
 - **In a work session** (a session whose brief says an orchestrator started it), the
   question tool is the orchestrator: `SendMessage` the question with its options and your
   pick, then end the turn. A work session never starts sessions.
+- **Show it before asking for a review.** Every review or approval ask comes with a visual
+  built before the question, in the form `<plugin-root>/references/show-for-review.md`
+  picks: an inline visual in the chat by default, else a Design canvas, a private Claude Docs doc or an Artifact page.
 - **After a compaction**, reread the todo list, and the brief if there is one, and pick up at
   the first unticked step.
 
@@ -106,13 +112,15 @@ occurrence reads as the same one. While the router is on, keep the classes of th
 session's corrections in mind.
 
 When the same class lands a second time in one session, ask through the question tool
-whether to run `/ss:correct` on it. The question names the class and both occurrences;
-"Encode it with /ss:correct" is the recommended pick, and "Not now" the other option. Ask
-once per class, after the current step finishes, and go on with the task either way.
+whether to run the `learn` playbook on it, which picks the layer that holds it: a check
+(`/ss:correct`), a review rule (`/ss:review-setup`) or a project fact (`/ss:record-fact`).
+The question names the class and both occurrences; "Learn it" is the recommended pick,
+and "Not now" the other option. Ask once per class, after the current step finishes, and
+go on with the task either way.
 
-- **On a yes**, run the `correct` playbook on its own branch from the base, once the
-  current task reaches its endpoint or the person says to switch. The encoding never
-  rides on the branch of the task that surfaced it.
+- **On a yes**, run the `learn` playbook once the current task reaches its endpoint or the
+  person says to switch. A check it picks lands on its own branch from the base, never on
+  the branch of the task that surfaced it.
 - **On a no**, drop the class for the rest of the session.
 - **In a work session**, the question goes to the orchestrator like any other, as a
   `Correction repeated:` line naming the class and its occurrences.
@@ -123,7 +131,8 @@ Nothing about a correction runs unasked: the router offers, the person decides.
 
 Say what changed, what is verified and by what evidence, and what is left. When the run
 learned a project fact that passes the filter in `<plugin-root>/references/project-facts.md`,
-offer `/ss:record-fact` with the exact line. End at the handoff gate
+offer `/ss:record-fact` with the exact line, or the `learn` playbook when the layer is not
+clear. End at the handoff gate
 (`<plugin-root>/references/handoff-gate.md`): the next step as a question, "stop here" always
 among the options, unless the scope was authorized up front.
 
