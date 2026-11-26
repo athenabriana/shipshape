@@ -22,7 +22,7 @@ depending on something you know and did not write down, the call is incomplete.
 Explaining the fork in prose and then asking "A or B" makes the person scroll
 back to answer, which is the same stall as printing the question as text.
 
-**In a front** (a session opened by `/ss:orchestrate`), the question does not open a dialog: it goes to the orchestrator as `<plugin-root>/references/front-contract.md` describes, with the same question, options and pick.
+**In a work session** (a session `/ss:orchestrate` started), the question does not open a dialog: it goes to the orchestrator as `<plugin-root>/references/front-contract.md` describes, with the same question, options and pick.
 
 ## The rule
 
@@ -36,8 +36,8 @@ back to answer, which is the same stall as printing the question as text.
   business (gray areas, confirmations); the handoff gate is the last interaction.
 - **Skills without a natural next step have no gate**: they just report and stop:
   `legal-lens`, `caretake`, `takeover`, `review-setup`, `write-readme`,
-  `research`, `investigate`, `babysit`, `correct`, and `orchestrate`, which stays
-  resident until the person ends it.
+  `research`, `investigate`, `babysit`, `correct`, and `orchestrate` and `manager`,
+  which stay resident until the person ends them.
 
 ## The format
 

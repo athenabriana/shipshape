@@ -72,7 +72,7 @@ Pick the case your result matches:
   and name what it changes that the first two did not.
 - **The premise could not be tested.** Stop fixing. Report the premise and the observation
   that would settle it, in the report of the bug-fix playbook, or to the person in `/ss:ship` and
-  any other session. In a front of `/ss:orchestrate`, send it to
+  any other session. In a work session of `/ss:orchestrate`, send it to
   the orchestrator, which brings it to the person.
 
 ## Report what you tested

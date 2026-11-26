@@ -40,6 +40,9 @@ jobs:
       - name: Unit tests
         run: python3 -m unittest discover -s plugins/ss/scripts -p 'test_*.py' -v
 
+      - name: Hook unit tests
+        run: python3 -m unittest discover -s plugins/ss/hooks -p 'test_*.py' -v
+
       - name: Check formatting
         id: fmt
         run: bun run fmt:check

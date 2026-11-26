@@ -18,7 +18,7 @@ out, verify, synthesize, repeated within a fixed cap.
 ## How it runs
 
 The research is often called by an agent with nobody watching: `/ss:shape` runs it before
-a draft, and `/ss:orchestrate` side sessions run shape. Four rules follow from that.
+a draft, and a work session of `/ss:orchestrate` runs it from its brief. Four rules follow from that.
 
 - **No questions.** Every choice below has a default. Make it, write it in the report, and
   keep going.

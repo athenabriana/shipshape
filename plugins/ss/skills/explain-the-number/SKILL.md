@@ -18,7 +18,7 @@ noise. This page turns the number into one of four verdicts, `faster`, `slower`,
 `no measurable difference`, or `inconclusive`, and keeps with it what the verdict rests on.
 
 The same steps hold for a number someone else measured, in a PR body, a review finding or a
-report. Ask for what a step needs; in a front, that question goes through
+report. Ask for what a step needs; in a work session, that question goes through
 `<plugin-root>/references/front-contract.md`. A step nobody can answer makes the verdict
 `inconclusive`.
 

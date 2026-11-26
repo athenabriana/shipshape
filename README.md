@@ -57,14 +57,15 @@ project facts replace the old per-project knowledge base: one short line per fac
 
 ### helpers
 
-| skill              | description                                                                        |
-| ------------------ | ---------------------------------------------------------------------------------- |
-| `/ss:investigate`  | answer a read only question about the code, a branch or its history, with evidence |
-| `/ss:caretake`     | look after the repo: triage open PRs and deps, suggest a takeover (never merges)   |
-| `/ss:takeover`     | adopt or modernize someone else's PR, keeping the author's credit (never merges)   |
-| `/ss:research`     | research code, content and visual references, verifying every claim                |
-| `/ss:write-readme` | generate a minimal centered-header README from repo facts                          |
-| `/ss:orchestrate`  | split a large piece of work into side sessions and relay between them              |
+| skill              | description                                                                                 |
+| ------------------ | ------------------------------------------------------------------------------------------- |
+| `/ss:investigate`  | answer a read only question about the code, a branch or its history, with evidence          |
+| `/ss:caretake`     | look after the repo: triage open PRs and deps, suggest a takeover (never merges)            |
+| `/ss:takeover`     | adopt or modernize someone else's PR, keeping the author's credit (never merges)            |
+| `/ss:research`     | research code, content and visual references, verifying every claim                         |
+| `/ss:write-readme` | generate a minimal centered-header README from repo facts                                   |
+| `/ss:orchestrate`  | run one front from Desktop: a private front doc, work sessions, merges you authorize        |
+| `/ss:manager`      | sit above the orchestrators: read every front, hand work off, relay, merge on authorization |
 
 ### situational
 
@@ -72,7 +73,7 @@ project facts replace the old per-project knowledge base: one short line per fac
 | ------------- | ------------------------------------------------------------------------------------------------------- |
 | `/ss:correct` | encode a correction that landed twice as a check, proven on a past occurrence, on its own branch and PR |
 
-`explain-the-number`, `attack-the-premise` and `prove-the-fix` stay out of the menu: an agent loads one by itself, mid-task, when its trigger in `plugins/ss/references/triggers.md` fires. every orchestrate brief, the bug-fix playbook, `/ss:ship` and `/ss:correct` reads that table first.
+`explain-the-number`, `attack-the-premise` and `prove-the-fix` stay out of the menu: an agent loads one by itself, mid-task, when its trigger in `plugins/ss/references/triggers.md` fires. every work-session brief, the bug-fix playbook, `/ss:ship` and `/ss:correct` reads that table first.
 
 ## on hermes
 
