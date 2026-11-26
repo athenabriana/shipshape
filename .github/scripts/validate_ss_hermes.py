@@ -95,10 +95,20 @@ if not (ROOT / "skills" / "babysit" / "references" / "babysit.md").exists():
 OLD_WATCHER = "/".join(("ship", "references", "babysit"))
 if (ROOT / f"skills/{OLD_WATCHER}.md").exists():
     errors.append(f"skills/{OLD_WATCHER}.md is back; the watcher is ss:babysit's since 0.4.0")
-for path in [*ROOT.rglob("*"), *(ROOT.parents[1] / ".github").rglob("*")]:
+# A watcher prompt or job that still loads the reference through ss:ship.
+OLD_LOADS = re.compile(
+    re.escape(OLD_WATCHER)
+    + r"|ss:ship['\"]?\s*,\s*file_path\s*=\s*['\"]references/babysit"
+    + r"|Babysit mode for ss:ship"
+)
+REPO = ROOT.parents[1]
+for path in [*ROOT.rglob("*"), *(REPO / ".github").rglob("*")]:
     if path.is_file() and path.suffix in {".md", ".py", ".yaml", ".yml", ".ts"}:
-        if OLD_WATCHER in path.read_text(encoding="utf-8"):
-            errors.append(f"{path}: points at {OLD_WATCHER}.md, which is ss:babysit's since 0.4.0")
+        lines = path.read_text(encoding="utf-8").splitlines()
+        hits = [n for n, line in enumerate(lines, 1) if OLD_LOADS.search(line)]
+        if hits and path.name != "validate_ss_hermes.py":
+            errors.append(f"{path.relative_to(REPO)}:{','.join(map(str, hits))}: loads the watcher "
+                          "through ss:ship; it is ss:babysit's since 0.4.0")
 
 cases = [
     (["low", "yes", "no", "good", "1"], "lightweight"),

@@ -23,9 +23,16 @@ Report in the person's language. Files and commit messages follow the repo's lan
 ## Babysitting lives in ss:babysit
 
 A request to babysit or watch a PR by number ("babysit PR 42", "watch PR 42", "fica de olho
-no PR 42") is not a ship: load `skill_view('ss:babysit')` and skip every step below. A prompt
-that says `Babysit mode` (a watcher created before 0.4.0 still loads this skill) goes there
-too. At the end of the PR path, `references/ship-pr.md` offers a watcher by loading
+no PR 42") is not a ship: load `skill_view('ss:babysit')` and skip every step below.
+
+A `Babysit mode` prompt that loaded this skill comes from a watcher created before 0.4.0. The
+babysit reference its prompt names moved out of this skill: skip every step below, load
+`skill_view('ss:babysit', file_path='references/babysit.md')`, follow its "Run one tick", and
+read the prompt's `Plugin root` as `<plugin-root>`. Add one line to the tick's report: the
+watcher predates 0.4.0, and recreating it (`hermes cron remove JOB_ID`, then "babysit PR N")
+points it at `ss:babysit`.
+
+At the end of the PR path, `references/ship-pr.md` offers a watcher by loading
 `ss:babysit`.
 
 ## Ask the person
