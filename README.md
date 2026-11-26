@@ -66,16 +66,17 @@ shape and build keep `.ss/wiki/` up to date by themselves: a per-project knowled
 hermes plugins install athenabriana/shipshape#plugins/ss-hermes --enable
 ```
 
-| skill             | description                                                                  |
-| ----------------- | ---------------------------------------------------------------------------- |
-| `/ss:go`          | the entry point: pick a playbook, size the route, run the steps              |
-| `/ss:investigate` | answer a read-only question about code, a branch or earlier sessions         |
-| `/ss:bug-fix`     | reproduce, find the cause, make the smallest fix and prove it                |
-| `/ss:review`      | review the branch or a PR, with a judge on a second model                    |
-| `/ss:ship`        | green CI, open or finish the PR, and watch it with a cron job (never merges) |
-| `/ss:edge-cases`  | map edge cases before coding, or hunt and prove the ones a diff misses       |
-| `/ss:setup`       | check the plugin and the model routes for the reviewer and scout subagents   |
-| `/ss:fronts`      | on the main Bot: create, manage and retire one Bot per front                 |
+| skill             | description                                                                |
+| ----------------- | -------------------------------------------------------------------------- |
+| `/ss:go`          | the entry point: pick a playbook, size the route, run the steps            |
+| `/ss:investigate` | answer a read-only question about code, a branch or earlier sessions       |
+| `/ss:bug-fix`     | reproduce, find the cause, make the smallest fix and prove it              |
+| `/ss:review`      | review the branch or a PR, with a judge on a second model                  |
+| `/ss:ship`        | green CI, open or finish the PR, then offer a watcher (never merges)       |
+| `/ss:babysit`     | watch any PR by number with a cron job: threads, red CI, stops itself      |
+| `/ss:edge-cases`  | map edge cases before coding, or hunt and prove the ones a diff misses     |
+| `/ss:setup`       | check the plugin and the model routes for the reviewer and scout subagents |
+| `/ss:fronts`      | on the main Bot: create, manage and retire one Bot per front               |
 
 develop locally:
 

@@ -88,6 +88,18 @@ if readme.exists() and RETIRED[0][0].search(readme.read_text(encoding="utf-8")):
 if not (ROOT / "skills" / "go" / "SKILL.md").exists() or (ROOT / "skills" / "mode").exists():
     errors.append("the entry skill must live at skills/go (renamed from skills/mode in 0.3.0)")
 
+# 0.4.0 moved the PR watcher out of ss:ship into ss:babysit: nothing points at the old place.
+if not (ROOT / "skills" / "babysit" / "references" / "babysit.md").exists():
+    errors.append("the watcher must live at skills/babysit/references/babysit.md (moved from ss:ship in 0.4.0)")
+# Built from parts, so this file does not name the old path itself.
+OLD_WATCHER = "/".join(("ship", "references", "babysit"))
+if (ROOT / f"skills/{OLD_WATCHER}.md").exists():
+    errors.append(f"skills/{OLD_WATCHER}.md is back; the watcher is ss:babysit's since 0.4.0")
+for path in [*ROOT.rglob("*"), *(ROOT.parents[1] / ".github").rglob("*")]:
+    if path.is_file() and path.suffix in {".md", ".py", ".yaml", ".yml", ".ts"}:
+        if OLD_WATCHER in path.read_text(encoding="utf-8"):
+            errors.append(f"{path}: points at {OLD_WATCHER}.md, which is ss:babysit's since 0.4.0")
+
 cases = [
     (["low", "yes", "no", "good", "1"], "lightweight"),
     (["low", "yes", "no", "some", "2"], "lightweight"),

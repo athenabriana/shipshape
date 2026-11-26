@@ -115,7 +115,7 @@ closing summary, then delete" (recommended), "keep it", and "delete without a su
    create it if needed), and carry every leftover item into the main Bot's answer to the
    person.
 3. Check nothing still runs for it: its cron jobs (`hermes -p <name> cron list --all`; PR
-   watchers are named `ss-babysit OWNER/REPO#N`), its live sessions (ask it with
+   watchers, created by `ss:babysit`, are named `ss-babysit OWNER/REPO#N`), its live sessions (ask it with
    `message_agent` which background sessions are still running, and check
    `pgrep -af "hermes -p <name> "`), and worktrees it owns (`git worktree list` in its
    repos). Report what is still open instead of deleting over it.

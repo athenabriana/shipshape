@@ -2,7 +2,7 @@
 
 Reached from ship's Step 6 when the destination is a PR. The work is committed. Read the
 sections in order: create the PR if none exists (or update its proof when it does), answer
-the review threads, follow CI to green, then offer the watcher.
+the review threads, follow CI to green, then offer a watcher through `ss:babysit`.
 
 ## Create the PR (only when none exists)
 
@@ -112,8 +112,9 @@ session").
 ## Offer the watcher
 
 Review usually lands after the PR opens, and this session will not see it. When the PR is
-left waiting for review, offer a watcher that tends it on a schedule:
-`skill_view('ss:ship', file_path='references/babysit.md')`.
+left waiting for review, offer a watcher that tends it on a schedule: load
+`skill_view('ss:babysit')` and follow its "Offer it" entry. The watcher itself (its cron
+job, its ticks, how it stops) is that skill's.
 
 Skip the offer when the PR is already approved and green (report "ready, the merge is
 yours"), or when a watcher for this PR already exists.

@@ -1,4 +1,4 @@
 name: ss
-version: "0.3.0"
-description: "Ship Shape for Hermes: one rigor mode (/ss:go) that matches a request to a playbook (investigate, bug-fix, review, ship, edge-cases) and sizes the process to the risk. One Bot per front, created and retired with ss:fronts; Bots never write code, the sessions they start do. Project facts live in AGENTS.md; builder, reviewer and scout are ephemeral subagents routed by model. Never merges."
+version: "0.4.0"
+description: "Ship Shape for Hermes: one rigor mode (/ss:go) that matches a request to a playbook (investigate, bug-fix, review, ship, babysit, edge-cases) and sizes the process to the risk. One Bot per front, created and retired with ss:fronts; Bots never write code, the sessions they start do. Project facts live in AGENTS.md; builder, reviewer and scout are ephemeral subagents routed by model. Never merges."
 author: "Athena Briana"

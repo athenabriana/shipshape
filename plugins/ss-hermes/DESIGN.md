@@ -2,7 +2,7 @@
 
 The design for `plugins/ss-hermes`, approved by Athena on 2026-11-25. Shipshape for
 Hermes is designed for Hermes, based on poteto's pstack, rather than a word-for-word port
-of `plugins/ss`. Version 0.1.0 built the first stage of section 6; 0.2.0 reworked it after review; 0.3.0 renamed the entry skill from `ss:mode` to `ss:go` and split the main Bot from the front Bots.
+of `plugins/ss`. Version 0.1.0 built the first stage of section 6; 0.2.0 reworked it after review; 0.3.0 renamed the entry skill from `ss:mode` to `ss:go` and split the main Bot from the front Bots; 0.4.0 split the PR watcher out of `ss:ship` into `ss:babysit`.
 
 ## 1. What changes and why
 
@@ -33,7 +33,8 @@ project that the code doesn't show (a choice, a trap, a constraint) go into the 
 | bug-fix        | diagnose                               | reproduce → root cause → smallest fix → prove it fails before and passes after                                          |
 | refactor       | new (pstack)                           | behavior-preserving; proof is the same tests before and after                                                           |
 | review         | review                                 | fronts in parallel (`delegate_task`, finder/verifier roles) + a judge subagent on `sonnet`; up to 3 rounds              |
-| ship / babysit | ship                                   | green the checks in CI, open or finish the PR, follow it with a cron watcher; **never merges**                          |
+| ship           | ship                                   | green the checks in CI, open or finish the PR, then offer `ss:babysit`; **never merges**                                |
+| babysit        | ship (babysit mode)                    | a cron watcher on any PR by number: answers threads, fixes red CI, stops itself (split out of ship in 0.4.0)            |
 | takeover       | takeover + session pickup              | adopt or modernize someone else's PR, **or** continue a Claude Code / earlier Hermes session from its transcript        |
 | caretake       | caretake                               | cron digest of open PRs, Dependabot and outdated dependencies → the Bot chat or a sticky comment                        |
 | pause / resume | new (pstack)                           | park in-flight work in its brief and worklist so any session can pick it up                                             |
@@ -94,8 +95,8 @@ or auth involved, test coverage nearby, and number of files. A small script
     whole call. The judge is a different model from the builder, but from the same vendor.
   - `/ss:setup` checks the plugin and the routes. It creates no profiles.
 - **No Kanban.** 0.3.0 dropped Kanban cards because Kanban worker sessions are hidden from the app's Sessions list.
-- **Routines (cron under the hood):** the PR watcher, and later the caretake digest, run as
-  cron jobs on the Bot.
+- **Routines (cron under the hood):** the PR watcher (`ss:babysit`), and later the caretake
+  digest, run as cron jobs on the Bot.
 - **Questions:** `clarify`, at most 4 per call, each with a recommended choice first. If a
   call times out, ask again immediately rather than stopping (this happened today).
 
@@ -143,7 +144,7 @@ are not designed now.
 
 ## 6. Build order
 
-1. **v0:** plugin skeleton, frame, `/ss` router with investigate / bug-fix / review / ship, roles, and setup. 0.2.0 fixes the first review's findings and replaces the extra profiles with routed subagents. 0.3.0 renames the router to `/ss:go`, runs one Bot per front with `ss:fronts`, and moves all code into sessions.
+1. **v0:** plugin skeleton, frame, `/ss` router with investigate / bug-fix / review / ship, roles, and setup. 0.2.0 fixes the first review's findings and replaces the extra profiles with routed subagents. 0.3.0 renames the router to `/ss:go`, runs one Bot per front with `ss:fronts`, and moves all code into sessions. 0.4.0 moves the PR watcher from `ss:ship` into its own skill, `ss:babysit`.
 2. **v1:** feature as sessions, shape without a spec, routes script, takeover and session pickup, coordination rules in the frame.
 3. **v2:** caretake as a routine on the Bot, pause/resume.
 
