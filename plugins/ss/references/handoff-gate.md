@@ -27,9 +27,9 @@ back to answer, which is the same stall as printing the question as text.
 ## The rule
 
 - **Suggest, never auto-invoke.** A gate offers; the user picks. The one exception
-  is a chain the user authorized up front: `/ss:build` settles at its step 2 how
-  far the run goes, and a scope that includes the review or the ship runs them without
-  asking again, because that answer is the ask.
+  is a chain the user authorized up front: a scope given at the start ("build it and
+  ship it") runs each step it names without asking again, because that answer is the
+  ask.
 - **"Stop here" is always an option.** Picking it ends the turn; nothing is
   invoked, no follow-up question. The user is never trapped in the flow.
 - **One gate per skill, at the end.** Mid-skill questions are the skill's own
@@ -41,8 +41,7 @@ back to answer, which is the same stall as printing the question as text.
 
 ## The format
 
-Ask one question, or two in one call when the pick needs a setting to go with it, the way
-the spec's exit gate asks what comes after the build:
+Ask one question, or two in one call when the pick needs a setting to go with it:
 
 - `question`: one sentence naming what just finished and asking how to follow.
 - `options`: 2–4, each a next skill (or action) with a one-line description of
@@ -54,25 +53,17 @@ the spec's exit gate asks what comes after the build:
   with no "Stop here" of its own. It counts only with the pick it sets, and the
   first question's description says so.
 
-Example (spec's exit gate, two questions in one call):
+Example (shape's exit gate):
 
 ```
-question 1, single choice: "Spec validated and saved at .ss/<slug>/spec.md. What now?"
+question, single choice: "Acceptance criteria signed off and written to the brief. What now?"
 options:
-  - "Build (Recommended)". I invoke /ss:build <slug> now, at the scope the second question sets.
-  - "Review the spec". One ss-spec-reviewer pass over the spec, then this gate opens again.
-  - "Stop here". The spec stays saved; pick it back up with /ss:build <slug>.
-
-question 2, multiSelect, counted only when the first answer is "Build": "After the build?"
-options:
-  - "Review the branch". /ss:review runs over the branch before anything ships.
-  - "Ship". /ss:ship settles the destination and ships it.
-  Both left unticked is a build only.
+  - "Build it now (Recommended)". This session builds against the criteria, with Agent subagents where steps run side by side, then offers /ss:ship.
+  - "Stop here". The criteria stay in the brief; a later session builds from them and lands the branch with /ss:ship.
 ```
 
 ## Journey map (what gates typically offer)
 
-- `shape` → build, at the scope the gate's second question set / review the spec / stop
-- `build` → ship / stop, only when the scope didn't already include it
+- `shape` → build it now in this session, then offer ship / stop
 - `ship` → no gate; it reports what shipped and stops
 - `review` → apply more items / run the fronts that were skipped / audit the running UI / review-setup / ship (when there is no PR) · three at most, by priority, plus stop

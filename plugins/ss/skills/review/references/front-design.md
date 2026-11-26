@@ -22,9 +22,8 @@ resolves (they supplement each other):
 1. **A token source the project itself reads**: a `tokens.json`, a stylesheet of CSS
    custom properties, or a Tailwind theme config. The file the build consumes is the
    authority on what a token is; a brand package that nothing imports is not one.
-2. **The branch's visual direction**: `.ss/<slug>/design.md`, or `design/<surface>.md`
-   plus its index, when the branch's spec folder carries one. It supplements the token
-   source with the intended hierarchy, components, and states for the surfaces this
+2. **The branch's visual direction**: `design/<surface>.md` plus its index, or a path
+   the brief names. It supplements the token source with the intended hierarchy, components, and states for the surfaces this
    branch builds.
 
 Nothing resolving makes the front **unavailable**, the same way no
@@ -56,7 +55,7 @@ anything.
 ```
 
 `source cited` is the citation the discipline demands: the token file and line, the
-component's path, where the states are documented, or the design.md section. The
+component's path, where the states are documented, or the visual direction's section. The
 priorities are the checklist's: **High**, **Medium**, **Low**. Cap 8 in diff scope; no
 cap in surface scope.
 
@@ -79,7 +78,7 @@ no other fronts, no curation question. The scope is whatever the user pointed at
 
 1. **Resolve the design source first.** Standalone changes nothing about §1: no source,
    no review, and say so with what would create one (a token file the build reads, or
-   a visual direction in `.ss/<slug>/design.md`).
+   a visual direction in `design/<surface>.md`).
 2. **Establish the scope.** A folder or file set → enumerate the UI files under it
    (Glob) and read them. A URL or a dev server → open it with the preview/browser tools
    and read the rendered page. Both → both; the rendered page is the authority where

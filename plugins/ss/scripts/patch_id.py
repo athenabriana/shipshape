@@ -11,9 +11,7 @@ merged into the branch, the merge-base moves up to the merged commit, so the dif
 only the branch's own change. A stale `origin/<base>` would put the base's changes in the
 diff and change the patch-id on every merge of the base. Line numbers do not count, but
 the three lines of context do: a base change right next to a branch hunk changes the id,
-and the verdict then asks for a review of the delta. `.ss/` is left out of the diff, as
-review leaves it out: a spec's status flip or a wiki commit after the last round keeps
-the verdict.
+and the verdict then asks for a review of the delta.
 
 Every diff here is produced with its options pinned (`DIFF_FLAGS`): the verdict's
 patch-id is computed in one session and compared in another, often on another checkout,
@@ -67,9 +65,8 @@ DIFF_FLAGS = [
 # such a change would keep an old verdict.
 PATCH_ID_FLAGS = ["--verbatim"]
 
-# `.ss/` is the run's own bookkeeping (the spec's status, its ticks, the wiki), committed
-# after the review ends; review reads the code, so those commits must not move the id.
-CODE_PATHSPEC = [":(top)", ":(top,exclude).ss"]
+# The whole tree from the repo root, whatever directory the script runs from.
+CODE_PATHSPEC = [":(top)"]
 
 # A commit trailer is data: only a hex sha long enough to be unambiguous is looked up.
 SHA = re.compile(r"^[0-9a-fA-F]{7,64}$")

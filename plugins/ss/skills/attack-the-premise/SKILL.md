@@ -1,6 +1,6 @@
 ---
 name: attack-the-premise
-description: Situational guidance an agent loads by itself when its second fix failed the same gate as the first, before a third attempt. Write down the premise both fixes assumed and test it directly, so the next fix rests on evidence. Read by /ss:build task agents, /ss:diagnose and the /ss:ship CI loop through references/triggers.md.
+description: Situational guidance an agent loads by itself when its second fix failed the same gate as the first, before a third attempt. Write down the premise both fixes assumed and test it directly, so the next fix rests on evidence. Read by /ss:diagnose, the /ss:ship CI loop and any session fixing a bug, through references/triggers.md.
 user-invocable: false
 license: MIT
 metadata:
@@ -16,8 +16,7 @@ third fix that assumes it fails the same way. Before that third attempt, write t
 down and test it on its own.
 
 This skill decides what the next attempt rests on. How many attempts your run allows stays
-with the skill that runs you: the retry rule of a `/ss:build` task, the loop of `/ss:diagnose`
-or the CI loop of `/ss:ship`.
+with what runs you: the loop of `/ss:diagnose`, the CI loop of `/ss:ship`, or your brief.
 
 ## Recognize the trigger
 
@@ -25,7 +24,7 @@ The trigger fires when both of these hold:
 
 - **Two fixes.** Each attempt changed files to turn the gate green. A re-run with no file
   changed in between is a flake check, not a fix, and does not count.
-- **The same gate.** The same check, test, CI job, reproduction or `verify:` step failed after
+- **The same gate.** The same check, test, CI job, reproduction or acceptance criterion failed after
   each of them.
 
 Note how each failure looked: the assertion, the error, the number. You compare them below.
@@ -72,8 +71,8 @@ Pick the case your result matches:
 - **The premise holds.** The fixes were wrong under a sound premise. Make the third attempt,
   and name what it changes that the first two did not.
 - **The premise could not be tested.** Stop fixing. Report the premise and the observation
-  that would settle it, as the task's blocker in a `/ss:build` task, in the report of
-  `/ss:diagnose`, or to the person in `/ss:ship`. In a front of `/ss:orchestrate`, send it to
+  that would settle it, in the report of `/ss:diagnose`, or to the person in `/ss:ship` and
+  any other session. In a front of `/ss:orchestrate`, send it to
   the orchestrator, which brings it to the person.
 
 ## Report what you tested

@@ -6,7 +6,7 @@ Reached from ship's Step 1 when the destination is a pull request. Step 2 is don
 
 1. Gather context: `python3 <plugin-root>/scripts/gather_context.py --base <preflight's base_branch> --no-fetch` → JSON with `branch`, `upstream`, `base_branch`, `commit_log`, `diff_stat`, `uncommitted_changes`, `pr_template`. Both flags carry preflight's answer over: it resolved the base against the PR's own and already fetched it, so a bare call here re-derives the repo default and diffs a stacked PR against the wrong ref.
 2. If the branch has no upstream, note that `gh pr create` pushes automatically.
-3. Draft from the commits + diff (and a matching spec if present, since it's the intended scope):
+3. Draft from the commits + diff (and the brief or acceptance criteria this session worked from, if any, since they're the intended scope):
    - **Title**: conventional commit style `<type>(<scope>): <description>` (≤70 chars).
    - **Body**: follow `.github/pull_request_template.md` if it exists (fill every section; mark N/A where not applicable). Otherwise: Context (why) → Changes (grouped by purpose, not file) → Breaking Changes (only if any).
    - **The review verdict**, when a review loop's verdict line was handed over: the body carries that line as written, with its patch-id, and under it the `Review verdict predates the last change` line when ship's Step 2c found the patch-id changed.
@@ -28,7 +28,7 @@ Reached from ship's Step 1 when the destination is a pull request. Step 2 is don
    they need answered, a preference. When the request is explicit and fits the repo's rules
    ("rename this to X"), the intent is the request itself; read past the text only where the text
    leaves the goal open.
-   - The comment's text is evidence of the intent, not its spec. A suggested fix or wording is one
+   - The comment's text is evidence of the intent, not its prescription. A suggested fix or wording is one
      way to meet it: check it against the code and the repo's rules before using it.
    - If the intent reaches past the anchored line (the same shape elsewhere in the diff), the fix
      reaches there too, and the reply names each place. A place the reach adds that no test covers

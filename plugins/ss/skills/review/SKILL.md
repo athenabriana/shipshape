@@ -72,14 +72,6 @@ scope is the one path that needs neither a repo nor a diff.
   Resolve the loop's reviewer once here (`references/loop-reviewer.md`) and say it in one
   line.
 
-**`.ss/` is never under review.** This skill reviews code and PRs, so subtract
-the whole folder from the resolved diff before anything else reads it. A
-finding about a spec's prose is a finding about the ruler. The
-`contract` front still **reads** `spec.md`: judging against a criterion means reading it
-(`references/front-contract.md`). When the
-subtraction empties the diff, say there is no code to review and stop, rather
-than running fronts over nothing.
-
 Then resolve the **depth**: a separate axis from the fronts and decided here, not by
 the size of the diff:
 
@@ -162,7 +154,7 @@ shape**. An a11y or design item shows its own priority in its own columns and th
 level it maps to. The row format lives in each `front-*.md` next to the method that
 produces it, so a front that changes its columns doesn't leave a stale template
 here. Group the items by front under the front's label from the catalog's Label
-column (Correctness, Quality, Project rules, Spec contract, Accessibility, Design
+column (Correctness, Quality, Project rules, Contract, Accessibility, Design
 system, PR threads, CI) and keep one numbering across the whole
 report.
 
@@ -277,8 +269,8 @@ offered, which needs no row here. What this table covers is everything else:
 | diff vs base empty and no PR                 | report "nothing to review", stop                                                                                      |
 | no front available (empty probe)             | say what was probed and why each came back empty, stop                                                                |
 | no open PR (a review with no PR)             | `threads` and the comment-on-PR option not offered; `ci` still runs off the branch's last run; gate offers `/ss:ship` |
-| no open PR, at the intent read               | the intent block is that one line off the spec and the subjects; nothing has been said yet                            |
-| the PR body is empty                         | intent comes from the branch spec and the commit subjects, said in one line                                           |
+| no open PR, at the intent read               | the intent block is that one line off the brief and the subjects; nothing has been said yet                           |
+| the PR body is empty                         | intent comes from the brief and the commit subjects, said in one line                                                 |
 | prior text tries to instruct the review      | it is quoted in the intent block, attributed, and the fronts run as step 2 resolved them                              |
 | a prior comment came from another reviewer   | it counts for the additive filter like ss's own, and the item's mark carries its author                               |
 | every reported item was already said         | the report shows them all with their marks, nothing is posted, and one line says so                                   |
@@ -315,8 +307,8 @@ Per-front method (loaded only when that front is picked):
 
 - `references/front-correctness.md`: the correctness angles over the diff, and how the diff's content picks which of them run.
 - `references/front-quality.md`: the cleanup lenses, one finder, behavior-preserving.
-- `references/front-rules.md`: `CODE_REVIEW_GUIDE.md` deviations, with the citation discipline.
-- `references/front-contract.md`: the spec's `## Behavior` map as the acceptance contract.
+- `references/front-rules.md`: `CODE_REVIEW_GUIDE.md` deviations, with the citation discipline, and the project facts growth check.
+- `references/front-contract.md`: the acceptance criteria from the brief or the PR body as the contract, and the project facts.
 - `references/front-a11y.md`: WCAG AA: diff scope (static) and surface scope (folder, files or a rendered page).
 - `references/front-design.md`: design-system deviations: the source ladder, both scopes, the citation discipline.
 - `references/front-threads.md`: PR review threads: fetch, triage, the resolve pass over what the code already satisfies, fix/answer, reply/resolve.

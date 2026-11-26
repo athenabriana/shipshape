@@ -1,7 +1,8 @@
 #!/usr/bin/env bun
 /**
  * Validates the workflow scripts the plugin ships (any .js directly under a
- * `workflows/` directory) against what the Workflow platform demands of them.
+ * `workflows/` directory) against what the Workflow platform demands of them. A tree
+ * with no such script passes: there is nothing to validate.
  *
  * Usage:
  *   bun validate-workflow-script.ts                   # scan current directory
@@ -24,7 +25,7 @@ import {
 /**
  * These break `resumeFromRunId`: a resumed run replays the script and would take a
  * different path on the second pass. The platform throws on them at runtime, which is
- * mid-build; here it is a failed commit.
+ * mid-run; here it is a failed commit.
  */
 const FORBIDDEN_CALLS = [
   { label: "Date.now()", regex: /\bDate\s*\.\s*now\s*\(/ },
@@ -36,10 +37,6 @@ const FORBIDDEN_CALLS = [
 const SUBSCRIPTED_GLOBAL_REGEX = /\b(Date|Math)\s*\[/;
 
 const META_REGEX = /export\s+const\s+meta\s*=\s*\{/;
-const PARALLEL_REGEX = /\bparallel\s*\(/g;
-const LOOP_REGEX = /\b(?:for|while|do)\b/;
-const ISOLATION_KEY_REGEX = /\bisolation\s*:\s*/;
-const AGENT_CALL_REGEX = /\bagent\s*\(/g;
 
 /** A `/` here opens a regex literal rather than dividing; anything else is division. */
 const KEYWORDS_BEFORE_REGEX = new Set([
@@ -83,7 +80,7 @@ function regexCanStart(out: string[], at: number): boolean {
   const ch = out[j];
   // `if (ok) /re/.test(x)` opens a statement with a regex, so a `)` means division only when it
   // closed a value. Read as division, the regex body stays in the code stream, where a
-  // `parallel(` or a `Date.now(` inside it counts as the call it spells.
+  // `Date.now(` inside it counts as the call it spells.
   if (ch === ")") {
     let depth = 0;
     let k = j;
@@ -108,7 +105,7 @@ type Frame = { kind: "code"; braces: number } | { kind: "template" };
 /**
  * Replaces every character that isn't code — comment bodies, string bodies, template text,
  * regex bodies — with a space, so the scanners below read only code while every index still
- * lands on the same line. Without it a `parallel(` inside a comment counted as a call and a
+ * lands on the same line. Without it a `Date.now(` inside a comment counted as a call and a
  * literal `${` inside a plain string read as interpolation. Template `${` and `}` survive as
  * themselves: that pair is what makes a `meta` block non-literal, and what sits between them
  * is real code.
@@ -224,72 +221,6 @@ function blankNonCode(source: string): string {
   }
 
   return out.join("");
-}
-
-/** The text from the `(` at `open` to its matching `)`, or to the end when it never closes. */
-function callSpan(code: string, open: number): { start: number; text: string } {
-  let depth = 0;
-  for (let i = open; i < code.length; i++) {
-    if (code[i] === "(") depth++;
-    else if (code[i] === ")" && --depth === 0)
-      return { start: open, text: code.slice(open, i + 1) };
-  }
-  return { start: open, text: code.slice(open) };
-}
-
-/**
- * The first `parallel()` is stage zero: read only, so it runs on the shared tree, and it proves the
- * ground, so no loop comes before it. Every later one fans out tasks that write files, so each
- * agent in it runs in a worktree of its own: the key is read per `agent()` call, since one
- * isolated thunk says nothing about the one beside it. The key is found in the blanked code, so a
- * comment naming it does not count, and its value is read off the source, where strings survive.
- */
-function parallelIssues(source: string, code: string): ValidationIssue[] {
-  const parallels = [...code.matchAll(PARALLEL_REGEX)];
-  if (!parallels.length) {
-    return [
-      {
-        level: "error",
-        message:
-          "Found no parallel() call: stage zero proves the ground in one fan-out before the first task runs",
-      },
-    ];
-  }
-
-  const issues: ValidationIssue[] = [];
-  const loop = code.match(LOOP_REGEX);
-  const fanOut = parallels[0].index ?? 0;
-  if (loop && loop.index !== undefined && loop.index < fanOut) {
-    issues.push({
-      level: "error",
-      message: `The first parallel() call, on line ${lineOf(code, fanOut)}, comes after the loop on line ${lineOf(code, loop.index)}: stage zero proves the ground before the first task runs, so its fan-out precedes the task loop`,
-    });
-  }
-
-  for (const later of parallels.slice(1)) {
-    const at = later.index ?? 0;
-    const span = callSpan(code, at + later[0].length - 1);
-    const agents = [...span.text.matchAll(AGENT_CALL_REGEX)];
-    const bare = agents
-      .map((call) => span.start + (call.index ?? 0))
-      .filter((callAt) => {
-        const agentSpan = callSpan(code, code.indexOf("(", callAt));
-        const key = agentSpan.text.match(ISOLATION_KEY_REGEX);
-        const valueAt = key?.index !== undefined ? agentSpan.start + key.index + key[0].length : -1;
-        return !(valueAt !== -1 && /^(['"])worktree\1/.test(source.slice(valueAt)));
-      });
-    if (!agents.length || bare.length) {
-      const where = bare.length
-        ? `its agent() call(s) on line(s) ${bare.map((callAt) => lineOf(code, callAt)).join(", ")} dispatch`
-        : "it dispatches no agent() call and so";
-      issues.push({
-        level: "error",
-        message: `The parallel() call on line ${lineOf(code, at)}: ${where} without isolation: "worktree": only stage zero reads without writing, so every later fan-out gives each of its agents a worktree of its own`,
-      });
-    }
-  }
-
-  return issues;
 }
 
 type MetaBlock = { start: number; end: number };
@@ -485,8 +416,6 @@ function validateSource(source: string): ValidationIssue[] {
     issues.push(...phaseIssues(source, code, meta));
   }
 
-  issues.push(...parallelIssues(source, code));
-
   for (const { label, regex } of FORBIDDEN_CALLS) {
     const hit = code.match(regex);
     if (hit && hit.index !== undefined) {
@@ -515,7 +444,10 @@ function isWorkflowScript(filePath: string): boolean {
 async function main() {
   const { baseDir, files, notes } = await resolveTargets(process.argv.slice(2), isWorkflowScript);
 
-  console.log(`Validating ${files.length} workflow scripts...\n`);
+  // The plugin ships no workflow script today, so an empty tree is a clean run. A path argv
+  // named that does not exist still comes back as an error note and fails below.
+  if (files.length === 0) console.log("No workflow scripts found: nothing to validate.\n");
+  else console.log(`Validating ${files.length} workflow scripts...\n`);
 
   const reports: FileIssues[] = [];
 

@@ -2,7 +2,7 @@
 /**
  * Validates that every agent dispatch the plugin writes names an agent the platform can
  * resolve. The platform publishes a plugin's agents under the plugin's own name, so
- * `plugins/ss/agents/ss-reuse-check.md` answers to `ss:ss-reuse-check` and to nothing else,
+ * `plugins/ss/agents/ss-review-finder.md` answers to `ss:ss-review-finder` and to nothing else,
  * and a name written bare throws at dispatch time, which is mid-run.
  *
  * The valid set is derived, never written down: each agent's frontmatter `name`, prefixed
@@ -37,9 +37,9 @@ import {
 } from "./lib/validate-common";
 
 /**
- * The rule spans the workflow script and the skills' prose, so the scope is both, and only
- * inside the plugin: `.ss/` and `CHANGELOG.md` quote a broken spelling in order to describe
- * it, and reading them would turn a record of the bug into the bug.
+ * The rule spans the workflow scripts and the skills' prose, so the scope is both, and only
+ * inside the plugin: a file outside it, like `CHANGELOG.md`, may quote a broken spelling in
+ * order to describe it, and reading it would turn a record of the bug into the bug.
  */
 const PLUGIN_DIR = resolve(import.meta.dir, "..", "..", "plugins", "ss");
 const AGENTS_DIR = join(PLUGIN_DIR, "agents");

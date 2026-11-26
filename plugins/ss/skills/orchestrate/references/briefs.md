@@ -28,7 +28,7 @@ requires, 80 characters or more. A brief carries eleven things, in this order:
 6. **The ss skill to run**, picked by the route below.
 7. **The files and areas** the front touches, as far as the orchestrator knows them.
 8. **The decisions already made**, so the side session does not ask them again. When the
-   repo has `.ss/wiki/entities/index.md`, name the decisions it records for that code.
+   repo has `## Project facts`, name the ones that cover that code.
 9. **What not to do**: the areas another front owns, and anything the person ruled out.
 10. **How to validate**: the commands, the app run, the behaviors to walk.
 11. **How to report**, as the last section of this page says, and the standing rules
@@ -52,14 +52,14 @@ pattern and one `name` rule. This section holds both, and when a title changes.
 
 **The title** is an English imperative, a verb and the outcome, in sentence case and under
 60 characters: "Fix session naming in orchestrate", "Add diagnose skill", "Migrate sites
-to Cloudflare". It says what the front delivers. The stage (shape, build, PR), the repo
+to Cloudflare". It says what the front delivers. The stage (shape, code, PR), the repo
 and the ss skill the front runs stay out of it, because the sidebar already shows the PR
 and its state. A skill appears only when it is the thing being built. When the title would
 pass 60 characters, write a shorter one.
 
-**The `name`** is the front's slug: the `.ss/<slug>/` folder its spec lives in and the
-branch it works on. Pick the slug when you open the front, then make the `name` with the
-script, passing the `name`s of the run's live sessions:
+**The `name`** is the front's slug: the branch it works on. Pick the slug when you open
+the front, then make the `name` with the script, passing the `name`s of the run's live
+sessions:
 
 ```
 python3 scripts/front_name.py <slug> --live <name> <name> ...
@@ -67,25 +67,20 @@ python3 scripts/front_name.py <slug> --live <name> <name> ...
 
 It prints `{slug, name, cut, collision}`. Pass `name` as `start_session`'s `name`, and the
 full `slug` as `branch_name`; the app wraps the branch in the person's branch prefix and a
-suffix, so the slug is the part of the branch name that matches the spec folder. Always
+suffix, so the slug is the middle part of the branch name. Always
 pass `name`: when it is omitted, `start_session` derives one from the title and cuts it
-mid-word. A slug over 24 characters keeps its full form in the branch and the spec folder,
+mid-word. A slug over 24 characters keeps its full form in the branch,
 and the `name` is cut at the last hyphen that fits (`orchestrate-session-naming` becomes
 `orchestrate-session`). `start_session` does not enforce a unique `name`, but linked
 sessions and `SendMessage` reach a front by it, so two live fronts with one `name` are
 ambiguous. When `collision` is true, pick another slug and run the script again before the
 start. Pass `--live` only the `name`s of sessions that are not archived: an archived
-front has left the run, so its `name` is free again. The build front of a shaped spec takes
-the shape front's slug once the shape front is archived (`references/cleanup.md`, "When a
-front ends").
+front has left the run, so its `name` is free again.
 
-A front with no spec (a bug for `/ss:diagnose`, a PR for `/ss:takeover`) gets the slug of
-its branch, made from its title: pass the title to the script and use the `slug` it
-prints.
+To make the slug from the front's title, pass the title to the script and use the `slug`
+it prints.
 
-**The slug in the brief.** Write the slug into the brief as the one the front's
-`/ss:shape` uses for `.ss/<slug>/` and the branch it works on. When `/ss:shape` finds that
-folder taken by another spec, it suffixes the slug and reports it; the `name` stays.
+**The slug in the brief.** Write the slug into the brief as the branch the front works on.
 
 **Renaming.** The `name` never changes after the start. The title changes only when the
 front's work changes: you reuse the front for another task, or the scope grows or shrinks
@@ -98,28 +93,27 @@ title stays, and you do not ask again.
 
 ## The scope
 
-A code front runs at the full scope unless the person asked for less: build, review and
-ship, up to a PR with green CI, with no merge. Write the scope in the brief in those
-words, so `/ss:build` reads it and asks nothing, and the exit gate of `/ss:shape` takes it
-as the answer to what runs after the build.
+A code front runs at the full scope unless the person asked for less: the work, review
+and ship, up to a PR with green CI, with no merge. Write the scope in the brief in those
+words, so the front asks nothing about what runs after the work.
 
-When the person asks for less in the request, the brief sets that scope instead. A build
-only stops at a green, committed branch. A merge stays with the orchestrator, and only for a PR the person authorized (see
+When the person asks for less in the request, the brief sets that scope instead. A
+work-only scope stops at a green, committed branch. A merge stays with the orchestrator, and only for a PR the person authorized (see
 `references/landing.md`).
 
 ## The skill route
 
 Pick the skill from what the person asked for, and name it in the brief:
 
-| the request                                    | the skill the front runs         |
-| ---------------------------------------------- | -------------------------------- |
-| a feature or a change of behavior              | `/ss:shape`, then `/ss:build`    |
-| an idea that needs research first              | `/ss:research`, then `/ss:shape` |
-| a bug                                          | `/ss:diagnose`                   |
-| someone else's PR to adopt or bring up to date | `/ss:takeover`                   |
-| a branch to read for bugs                      | the loop of `/ss:review`         |
-| a built branch to land                         | `/ss:ship`                       |
-| a repeated correction the person chose to fix  | `/ss:correct <slug>`             |
+| the request                                    | the skill the front runs                                      |
+| ---------------------------------------------- | ------------------------------------------------------------- |
+| a feature or a change of behavior              | `/ss:shape`, the work with `Agent` subagents, then `/ss:ship` |
+| an idea that needs research first              | `/ss:research`, then `/ss:shape`                              |
+| a bug                                          | `/ss:diagnose`                                                |
+| someone else's PR to adopt or bring up to date | `/ss:takeover`                                                |
+| a branch to read for bugs                      | the loop of `/ss:review`                                      |
+| a built branch to land                         | `/ss:ship`                                                    |
+| a repeated correction the person chose to fix  | `/ss:correct`                                                 |
 
 `/ss:caretake` only reads the repo, so the orchestrator runs it in place, with no front.
 When the route names a skill the installed plugin lacks, name the closest skill that
@@ -155,8 +149,8 @@ Write this section into every brief:
 - **A local file** (a screenshot, a video) goes to the notes folder, and its path goes to
   the orchestrator.
 - **The final report**, at done or at a blocker, carries the result, the PR url with the
-  state of its CI, and the blockers. Every `Correction repeated:` line the front's skill
-  printed goes in it verbatim, so the orchestrator can ask the person about it.
+  state of its CI, and the blockers. Every `Correction repeated:` line the front
+  wrote goes in it verbatim, so the orchestrator can ask the person about it.
 
 ## The notes folder
 

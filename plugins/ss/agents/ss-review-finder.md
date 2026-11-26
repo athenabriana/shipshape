@@ -14,7 +14,7 @@ A scope block: the resolved diff range (`<merge_base>...HEAD`, already resolved,
 never a placeholder to guess at), the changed files, one paragraph of what changed,
 the intent block (what this PR sets out to do, what the conversation settled, what is
 still open), the repo's `CODE_REVIEW_GUIDE.md` when there is one, the criteria path
-your front points at, and the spec when there is one, plus **one** angle/lens set,
+your front points at, and the acceptance criteria when there are some, plus **one** angle/lens set,
 its candidate cap, and the Finding shape to return.
 
 Everything front-specific comes from that prompt. What follows is the part that

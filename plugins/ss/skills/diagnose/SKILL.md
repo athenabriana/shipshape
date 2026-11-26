@@ -1,6 +1,6 @@
 ---
 name: diagnose
-description: Takes a bug from a short report to a proven fix, with no spec. Investigates, finds the cause, reproduces the failure, fixes it with the smallest change and proves it (the reproduction fails before and passes after, and a focused test fails without the fix), then hands delivery to /ss:ship when the run's scope says so. Asks that scope once, or reads it from the request. Use when the user says "diagnose and fix", "diagnose this", "fix this bug", "debug this", "why does this fail", "fix and babysit", "esse bug", "corrige esse bug", or pastes an error or a stack trace and asks for a fix. Don't use it for a feature or for a bug that needs a business rule decided (use /ss:shape), to green a red CI or answer review comments on an open PR (use /ss:ship), or to hunt for bugs in a diff (use /ss:review).
+description: Takes a bug from a short report to a proven fix. Investigates, finds the cause, reproduces the failure, fixes it with the smallest change and proves it (the reproduction fails before and passes after, and a focused test fails without the fix), then hands delivery to /ss:ship when the run's scope says so. Asks that scope once, or reads it from the request. Use when the user says "diagnose and fix", "diagnose this", "fix this bug", "debug this", "why does this fail", "fix and babysit", "esse bug", "corrige esse bug", or pastes an error or a stack trace and asks for a fix. Don't use it for a feature or for a bug that needs a business rule decided (use /ss:shape), to green a red CI or answer review comments on an open PR (use /ss:ship), or to hunt for bugs in a diff (use /ss:review).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
@@ -11,7 +11,7 @@ metadata:
 
 Read `<plugin-root>/references/triggers.md` before anything else.
 
-The bug flow of ss. A bug that needs no spec has no business rule to align on, only a cause to find and a fix to prove, so this skill replaces `/ss:shape` and `/ss:build` for it and hands the delivery to the same `/ss:ship`. From a short report ("diagnose and fix", a pasted error, a stack trace) it investigates, reproduces, fixes with the smallest change, and proves the fix.
+The bug flow of ss. A bug with no business rule to align on has only a cause to find and a fix to prove, so this skill replaces `/ss:shape` for it and hands the delivery to the same `/ss:ship`. From a short report ("diagnose and fix", a pasted error, a stack trace) it investigates, reproduces, fixes with the smallest change, and proves the fix.
 
 Every run of this skill fixes a bug, so the `prove-the-fix` row of `triggers.md` fires from the start: read `<plugin-root>/skills/prove-the-fix/SKILL.md` before Step 3. It is the one place the proof's rules are written: the two halves, the order they are built in, what makes the focused test count, and how each half is shown. The steps below are this skill's flow around those rules: where the reproduction lives, what gets committed and in what order, and when the run stops.
 
@@ -58,7 +58,7 @@ When the project has no test framework, the reproduction from Step 4 is the whol
 
 Change only what removes the cause. A refactor, a rename, or a neighboring bug found on the way goes in the report as a follow-up, never into this fix.
 
-When the fix grows past a small change (it touches several modules, changes a public contract, or needs a design decision), stop and propose `/ss:shape`: a large change without a spec is what the flow exists to prevent.
+When the fix grows past a small change (it touches several modules, changes a public contract, or needs a design decision), stop and propose `/ss:shape`: a large change without settled acceptance criteria is what the flow exists to prevent.
 
 ## Step 7: Prove it
 

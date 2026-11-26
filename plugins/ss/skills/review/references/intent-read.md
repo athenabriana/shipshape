@@ -64,6 +64,6 @@ attributed, for the user to answer. The fronts run as step 2 resolved them.
 
 | WHEN                         | THEN                                                                                                                               |
 | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| no PR on this branch         | the block is one line off the probe's `branch_spec` and `commit_log`: what the branch is for, with nothing said yet                |
+| no PR on this branch         | the block is one line off the session's brief and the `commit_log`: what the branch is for, with nothing said yet                  |
 | the PR body comes back empty | the same line, where the commit subjects are the only claim there is                                                               |
 | `gh` unauthenticated         | say in one line that the conversation read was skipped and `gh auth login` restores it, then review the diff fronts on the commits |

@@ -47,8 +47,9 @@ or a comma.
   instruction and its outcome, and how fast or how simple it is comes across from the step
   itself.
 - Name each thing by what it does, and write the literal sentence. A figure of speech holds
-  only where it names a mechanism the code has, like the safety valve `/ss:build` fires,
-  and a reader who does not know the figure still has to know what to do.
+  only where it names a mechanism the code has, like the safety valve that sends a build
+  back to `/ss:shape`, and a reader who does not know the figure still has to know what
+  to do.
 - Call each thing by the name it already has in the code or in the repo: the file, the
   function, the branch, the PR, the `x` field. Quote that name exactly as written, because
   half of what a name is worth is that a search finds it.
@@ -59,7 +60,7 @@ or a comma.
 
 - Sentence case: the first word goes up, and proper nouns and identifiers keep the case they
   already have. `# Ship Shape (ss)` is a name. `### Naming conventions` is a phrase.
-- A task heading opens with a bare infinitive: "Resolve the target spec".
+- A task heading opens with a bare infinitive: "Resolve the review scope".
 - A conceptual heading is a noun phrase: "The exit gate".
 - One h1 per document, and each level follows the one above it.
 - Write headings in plain words: a heading is what a search matches and what a table of
@@ -93,9 +94,9 @@ or a comma.
 
 ## Links
 
-- Link text describes its destination: "the spec format", not the bare URL and not "here".
+- Link text describes its destination: "the handoff gate", not the bare URL and not "here".
 - Point at a file the reader will open locally with a code span:
-  `plugins/ss/references/spec-state.md`.
+  `plugins/ss/references/handoff-gate.md`.
 
 ## Numbers, dates, and units
 

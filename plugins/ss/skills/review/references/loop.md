@@ -18,33 +18,10 @@ instead when:
 - the working tree has uncommitted changes. A fix commit would sweep in the user's own
   work, so say in one line why the manual flow runs.
 
-## When `/ss:build` runs the loop
-
-`/ss:build` with review in its scope runs this loop on the branch before its ship (its step
-11). The scope it settled at its step 2 is the authorization, so the run is the loop below with
-four differences, all because the ship comes next:
-
-- **Round 1 leaves out `threads` and `ci`**, even when a PR already exists for the branch:
-  the ship answers the threads and follows CI.
-- **After the last round nothing goes out**: no push, no thread replies, no CI read. The
-  commits stay on the branch for the ship.
-- **No gate**: the report goes back to build, which ships next.
-- **The verdict note goes to the PR description.** It opens with the verdict line,
-  `Review loop: <N> rounds, verdict <verdict>, patch-id <patch-id>.` (below), a round 1
-  with nothing verified included (`1 round, verdict clean, patch-id <patch-id>`). `open`
-  and `disputed` add each open Bloqueante and each disputed refusal (number, `file:line`,
-  claim), and `open` says the PR is not ready to merge until they are settled. The outward
-  rule of the record holds.
-
-The probe and the intent read (`SKILL.md`, step 0) still run first, and the depth is
-standard. Build's tree is committed when it calls, so the uncommitted route above does not
-apply.
-
 ## Round 1: the complete pass
 
 1. **Every available front runs.** The step 2 question is not asked: the probe's available
-   fronts are the scope, `threads` and `ci` included when the probe finds them (a run
-   `/ss:build` started leaves them out, above). Depth is
+   fronts are the scope, `threads` and `ci` included when the probe finds them. Depth is
    standard unless `deep` was asked (`SKILL.md`, step 1).
 2. **The finders fan out** as `references/fronts.md` describes.
 3. **The loop's reviewer judges the candidates.** It takes the verifier's seat in
@@ -96,8 +73,6 @@ round.
 
 ## After the last round
 
-A run `/ss:build` started skips this section (above).
-
 1. **Push once**, when an open PR exists, to the PR branch. With no PR the commits stay
    local and the gate offers `/ss:ship`.
 2. **Thread replies** from round 1's `threads` items go out after the push, with the sha
@@ -137,10 +112,9 @@ repo's rule against AI attribution holds.
 
 A verdict covers the change the loop read, so it carries that change's patch-id. Once the
 last round ends and its commits are in, run `python3 <plugin-root>/scripts/patch_id.py` and
-take its `patch_id`: the patch-id of the diff from the merge-base to the head, with `.ss/`
-left out as review leaves it out. Merging the base into the branch later leaves it as it
-is, and so do the spec's status flip and a wiki commit; any commit that changes the
-branch's own code changes it. The line reads:
+take its `patch_id`: the patch-id of the diff from the merge-base to the head. Merging the
+base into the branch later leaves it as it is; any new commit of the branch's own changes
+it. The line reads:
 
 ```
 Review loop: 2 rounds, verdict clean, patch-id <patch-id>.
