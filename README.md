@@ -60,23 +60,7 @@ shape and build keep `.ss/wiki/` up to date by themselves: a per-project knowled
 
 ## on hermes
 
-`plugins/ss-hermes` is a separate plugin built for [Hermes Agent](https://hermes-agent.nousresearch.com/). It does not share files with `plugins/ss` at runtime. Instead of one skill per verb it has one rigor mode, `/ss:go` (for example `/ss:go work on a b c`), that matches a request to a playbook and sizes the process to the risk. The design is in [`plugins/ss-hermes/DESIGN.md`](plugins/ss-hermes/DESIGN.md).
-
-```bash
-hermes plugins install athenabriana/shipshape#plugins/ss-hermes --enable
-```
-
-| skill             | description                                                                |
-| ----------------- | -------------------------------------------------------------------------- |
-| `/ss:go`          | the entry point: pick a playbook, size the route, run the steps            |
-| `/ss:investigate` | answer a read-only question about code, a branch or earlier sessions       |
-| `/ss:bug-fix`     | reproduce, find the cause, make the smallest fix and prove it              |
-| `/ss:review`      | review the branch or a PR, with a judge on a second model                  |
-| `/ss:ship`        | green CI, open or finish the PR, then offer a watcher (never merges)       |
-| `/ss:babysit`     | watch any PR by number with a cron job: threads, red CI, stops itself      |
-| `/ss:edge-cases`  | map edge cases before coding, or hunt and prove the ones a diff misses     |
-| `/ss:setup`       | check the plugin and the model routes for the reviewer and scout subagents |
-| `/ss:fronts`      | on the main Bot: create, manage and retire one Bot per front               |
+the Hermes port is not on main: it lives on the [`hermes-test`](https://github.com/athenabriana/shipshape/tree/hermes-test) branch.
 
 develop locally:
 
