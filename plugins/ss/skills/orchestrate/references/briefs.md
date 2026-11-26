@@ -131,14 +131,17 @@ Every brief repeats these, whatever the task:
 - **No secret, token or credential** in a message, a report or a file outside the repo's
   own secret handling.
 - **On an interface task, design comes before code, on a Design canvas**, by "Designs go on
-  a canvas" in `<plugin-root>/references/front-contract.md`.
+  a canvas" in `<plugin-root>/references/show-for-review.md`.
+- **Every review or approval ask carries a visual**, a page, a doc or a rendered file built
+  before the question, by `<plugin-root>/references/show-for-review.md`.
 
 ## How to report
 
 Write this section into every brief:
 
-- **A question for Athena** goes to the orchestrator through `SendMessage`, with its options
-  and the recommended pick, as the front contract says. Then the work session ends its turn
+- **A question for Athena** goes to the orchestrator through `SendMessage`, with its options,
+  the recommended pick and, when it asks for a review, the link to its visual, as the front
+  contract says. Then the work session ends its turn
   and waits.
 - **A proposed project fact** goes to the orchestrator the same way, as the exact line.
 - **A page** (a board, a report) is published as an Artifact, and its URL goes to the

@@ -196,7 +196,10 @@ Clean everywhere → say so and jump to the gate (step 8).
 
 ## Step 5: Curate (the user picks)
 
-One `AskUserQuestion` (`multiSelect`): which numbered items to handle now,
+Show the report before this question, by `<plugin-root>/references/show-for-review.md`: the
+findings as an inline visual grouped by front and level (an Artifact page when they are too many to show inline), and each
+proposed fix as its code before and after. Then one `AskUserQuestion` (`multiSelect`):
+which numbered items to handle now,
 and **how**. Fixing is one outcome, leaving the finding on the PR is another.
 Options group naturally ("Todo Bloqueante", "Every correctness item",
 "Only the threads", specific numbers via "Other"). "Comment the items on the PR
@@ -244,7 +247,8 @@ Re-report as a table: `# | item | action taken | commit/status`: `fixed`,
 When this session is a work session `/ss:orchestrate` opened, every question of this skill (the fronts question, the items question and this gate) goes through `<plugin-root>/references/front-contract.md` instead of a local dialog.
 
 Per the plugin-root `references/handoff-gate.md`, one question with **2–4
-options**. Five states can qualify, so take the first three that apply in this
+options**, after a visual of where the review ended (what was fixed, what is open), by
+`<plugin-root>/references/show-for-review.md`. Five states can qualify, so take the first three that apply in this
 priority order. Unfinished work on this report outranks the next skill:
 
 1. items still open (after a loop: open or disputed ones) → **"Apply more"** (loops to

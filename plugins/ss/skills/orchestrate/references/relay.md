@@ -10,6 +10,11 @@ plan travels.
 A work session sends each question its skill would have asked, with the options and the
 recommended pick written in the message (`<plugin-root>/references/front-contract.md`).
 
+- **Show its visual first.** When the question asks for a review or an approval, show the
+  file it sends inline with `mcp__visualize__show_widget`, or open the page, the doc or the
+  canvas it links, for Athena before the dialog, by
+  `<plugin-root>/references/show-for-review.md`. A review ask that arrives with no visual goes back to
+  the work session for one.
 - **Relay it word for word through `AskUserQuestion`**, in the same turn it arrives: the
   question, every option the work session sent with what it does and what it costs, and its
   pick first, marked as the recommendation. Translate it into Athena's language when she
@@ -37,8 +42,9 @@ recommended pick written in the message (`<plugin-root>/references/front-contrac
 - **A proposed project fact** goes to Athena as the exact line, through `AskUserQuestion`.
   Send her answer back quoted; the work session writes the line only after her yes, in its
   own branch.
-- **A report that carries `Correction repeated:` lines** proposes a `/ss:correct` work
-  session. Bring each class to Athena as a question through `AskUserQuestion`, one question
+- **A report that carries `Correction repeated:` lines** proposes a work session that
+  runs the `learn` playbook on each class (`skills/go/playbooks/learn.md`), which picks a
+  check, a review rule or a project fact. Bring each class to Athena as a question through `AskUserQuestion`, one question
   per class, all in one call. A work session never starts on the line alone.
 
 ## Artifacts
@@ -48,7 +54,7 @@ recommended pick written in the message (`<plugin-root>/references/front-contrac
 - **When Athena asks to change an artifact**, read it with the `Artifact` tool's `read`
   action, apply the edit, and publish again to the same URL. An edit that needs code or the
   work session's context goes to the work session with her words quoted.
-- **A design canvas** (`<plugin-root>/references/front-contract.md`, "Designs go on a
+- **A design canvas** (`<plugin-root>/references/show-for-review.md`, "Designs go on a
   canvas"): open it, and watch it with `ArtifactComments`. Send every design change to the
   work session, the comment quoted with its artboard. When Athena approves a variation,
   send its label quoted; that approval lets the work session write code.

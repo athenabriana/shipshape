@@ -10,7 +10,7 @@ Reached from ship's Step 1 when the destination is a pull request. Step 2 is don
    - **Title**: conventional commit style `<type>(<scope>): <description>` (≤70 chars).
    - **Body**: follow `.github/pull_request_template.md` if it exists (fill every section; mark N/A where not applicable). Otherwise: Context (why) → Changes (grouped by purpose, not file) → Breaking Changes (only if any).
    - **The review verdict**, when a review loop's verdict line was handed over: the body carries that line as written, with its patch-id, and under it the `Review verdict predates the last change` line when ship's Step 2c found the patch-id changed.
-4. Present title + body, get approval/edits, then create:
+4. Present title + body as an inline visual (the body rendered, not a raw block), by `<plugin-root>/references/show-for-review.md`, get approval/edits, then create:
    ```
    gh pr create --title "<title>" --body "$(cat <<'EOF'
    <body>

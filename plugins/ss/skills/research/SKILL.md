@@ -256,6 +256,11 @@ Return three to five lines: the recommendation in one sentence, how many claims 
 stayed open, and the path the report went to. With no path, the report in chat is the
 reply, and these lines close it. Commit nothing, and stop.
 
+When a person, not a calling agent, will read the report, show it to them by
+`<plugin-root>/references/show-for-review.md`: the report in a private Claude Docs doc opened for
+them, and a visual front's images as a board on an Artifact page. The file at the path
+stays the source; the doc and the page are how the person reads it.
+
 ## Guidelines
 
 - **Plan the questions first**: the verify step is only as good as the claims it checks.
