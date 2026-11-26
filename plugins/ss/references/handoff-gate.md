@@ -22,6 +22,10 @@ depending on something you know and did not write down, the call is incomplete.
 Explaining the fork in prose and then asking "A or B" makes the person scroll
 back to answer, which is the same stall as printing the question as text.
 
+**A review or an approval shows its subject first.** When the answer rests on something
+the person has to see (a design, a plan, a diff, a line to write), build the visual before
+the call and put its link in the `question`, by `<plugin-root>/references/show-for-review.md`.
+
 **In a work session** (a session `/ss:orchestrate` started), the question does not open a dialog: it goes to the orchestrator as `<plugin-root>/references/front-contract.md` describes, with the same question, options and pick.
 
 ## The rule

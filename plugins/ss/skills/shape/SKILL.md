@@ -96,7 +96,7 @@ Shape creates no other file and commits nothing.
 
 ## The exit gate
 
-Don't gate blind: first **show what the user is signing off on**, in the order a person reads to understand what gets built:
+Don't gate blind: first **show what the user is signing off on**, as a visual built before the question, by `<plugin-root>/references/show-for-review.md`: the block as a private Claude Docs doc opened for them (or the brief or front doc it was written to, opened for them), and an interface on a Design canvas. A change to criteria already signed off shows the old lines next to the new ones. Show it in the order a person reads to understand what gets built:
 
 - **What it does and why**: two or three lines.
 - **The load-bearing criteria**: only the `WHEN … THEN …` lines whose wrong outcome would contradict the `why` (the litmus in "Map the behavior"), then where the rest were written.

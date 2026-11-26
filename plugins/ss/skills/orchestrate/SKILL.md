@@ -28,6 +28,8 @@ never has to open a work session.
 - **Keep product decisions with Athena.** Bring each one through `AskUserQuestion`, at most
   four per call, the recommended pick first, everything the decision needs inside the
   question.
+- **Show it before asking for a review.** A review or an approval comes with a visual,
+  built or opened before the question, in the form `<plugin-root>/references/show-for-review.md` picks.
 - **Talk short, in product words.** Say what changed for Athena, not which file changed.
 
 ## Start or resume

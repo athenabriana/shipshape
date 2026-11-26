@@ -11,7 +11,10 @@ metadata:
 
 Propose one project fact as an exact line, get the person's approval, and merge it into
 the facts file. The contract is `<plugin-root>/references/project-facts.md`: which file,
-the filter, the form, and who writes. Read it once before the first step.
+the filter, the form, and who writes. Read it once before the first step. When a lesson
+arrives with its layer not picked yet, the `learn` playbook of `/ss:go`
+(`skills/go/playbooks/learn.md`) picks between this skill, `/ss:correct` and
+`/ss:review-setup`.
 
 ## Steps
 
@@ -42,8 +45,10 @@ The steps run in order. Steps 1 to 5 only read, and the file changes only in ste
    consolidation: the lines that merge or go, and the shorter section that results. Ask
    that question first, and the new fact after it.
 
-6. **Ask, then write.** Ask one `AskUserQuestion` with the exact line quoted in the
-   question, and these options:
+6. **Show where it lands, then ask.** First render the `## Project facts` section as a
+   before and after, with the new or merged line marked, as an inline visual
+   by `<plugin-root>/references/show-for-review.md`. Then ask one `AskUserQuestion` with
+   the exact line quoted in the question, and these options:
 
    | option  | what it does                                        |
    | ------- | --------------------------------------------------- |
@@ -57,7 +62,8 @@ The steps run in order. Steps 1 to 5 only read, and the file changes only in ste
 ## In a work session
 
 In a work session of `/ss:orchestrate`, the question in step 6 goes to the orchestrator through
-`SendMessage`, as `<plugin-root>/references/front-contract.md` describes: the exact line,
+`SendMessage`, as `<plugin-root>/references/front-contract.md` describes: the before and
+after as a rendered file in the notes folder, the exact line,
 the line it merges with or replaces, and the three options with Approve first. Then end the
 turn. Write the line only after the person's yes comes back, on the front's own branch.
 
