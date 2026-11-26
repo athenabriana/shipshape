@@ -79,7 +79,7 @@ it surfaces. An endpoint of "local commit" skips the CI half; say so in the clos
 - **Bot or session.** First know which one you are. The **Bot** is the chat the person talks
   to: it plans, briefs, tracks and reports, and never edits, commits or pushes, not even a
   one-line fix. Reading code, `gh`, `git log/status/diff` is fine. A **session** is what a
-  Bot starts (a Kanban card worker, or a `--source cli` session): it edits, commits and pushes
+  Bot starts (a background `--source cli` session): it edits, commits and pushes
   inside the worktree its brief names. As the Bot, every playbook step that changes code
   becomes a session with a standalone brief.
 - **One Bot per front.** A front is a full-stack feature, usually several PRs across several
@@ -89,18 +89,21 @@ it surfaces. An endpoint of "local commit" skips the CI half; say so in the clos
 - **Start a session.** Write a standalone brief: goal, repo, worktree, branch (and PR head
   sha), acceptance criteria that can be checked, limits (never merge, approve or force-push;
   no local test suites; checks run in CI), and what to report (commits, CI run URL).
-  - **Preferred: a Kanban card** with `kanban_create`: `assignee` is this Bot's own profile,
-    `workspace_kind: dir` with the worktree path (or `worktree`), the brief as the body. Set
-    `completion_contract` to `OWNER/REPO` or the exact PR URL only when the base branch has
-    required checks; otherwise `local-only`. The card wakes the Bot when it finishes or
-    blocks: relay its question to the person with `clarify`, then comment the answer and
-    unblock the card.
-  - **One-off:** write the brief to `$TMPDIR/<front>.md`, then
+  The brief holds the acceptance criteria; the session tracks progress on its own worklist.
+  - **Start:** write the brief to `$TMPDIR/<task>.md`, then
     `terminal(background=true, notify=true)` with
-    `hermes -p <profile> chat --query-file $TMPDIR/<front>.md --oneshot -Q --source cli --in <worktree>`.
-    Always pass `--source cli`: without it the session is hidden in the app.
-  - When it returns, verify before reporting: `git log` on the branch, the acceptance checks
+    `hermes -p <profile> chat --query-file $TMPDIR/<task>.md --oneshot -Q --source cli --in <worktree> > $TMPDIR/<task>.log 2>&1`.
+    Always pass `--source cli`: without it the session is hidden in the app. Tell the person
+    it started, with its title.
+  - **When notified** that it exited, read the tail of its log (the final report and the
+    session id). Verify before reporting: `git log` on the branch, the acceptance checks
     re-run, `gh pr view` checks on the new head.
+  - **Its questions** come in the report, since a session cannot ask. Ask the person with
+    `clarify`, write the answer to a file, and continue the same session:
+    `hermes -p <profile> chat --resume <session_id> --query-file <answer> --oneshot -Q --source cli`.
+  - **Archive** it once it is done and reported:
+    `hermes -p <profile> sessions archive --title "<title>" --dry-run`, then the same with
+    `--yes`. Never archive the Bot's own chat.
 - **Subagents.** Builder, reviewer and scout are ephemeral `delegate_task` children with no
   memory. Give each a standalone brief: goal, repo, worktree, branch, acceptance criteria,
   limits. Route by model with the task's `option`: `"option": "sonnet"` for the reviewer and
@@ -109,7 +112,7 @@ it surfaces. An endpoint of "local commit" skips the CI half; say so in the clos
   `hermes delegation config --show` lists that route and this session's `delegate_task`
   offers it; otherwise leave it out and say the child runs on the default model. Children
   cannot ask the person anything: they return their questions and you ask with `clarify`.
-- **Recover after compaction.** Re-read the worklist, and the card if there is one. Pick up
+- **Recover after compaction.** Re-read the worklist, and the brief if there is one. Pick up
   at the first unticked step.
 
 ## 4. Close

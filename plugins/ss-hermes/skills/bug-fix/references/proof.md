@@ -1,7 +1,7 @@
 # The proof a fix owes
 
-Read this when your task fixes a bug: a `bug-fix` run, or a card whose acceptance criteria
-name a bug to reproduce. Your caller keeps its own steps (where the reproduction lives, how
+Read this when your task fixes a bug: a `bug-fix` run, or a session brief whose acceptance
+criteria name a bug to reproduce. Your caller keeps its own steps (where the reproduction lives, how
 the commits are named, who reads the result). This page says what makes the fix proven.
 
 The sections below run in order: the two halves of the proof, the order they are built in,

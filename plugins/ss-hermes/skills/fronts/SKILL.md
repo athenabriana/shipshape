@@ -15,9 +15,9 @@ creates, manages and retires front Bots, answers cross-front questions, and neve
 front's work itself.
 
 **No Bot writes code, the main Bot included.** Bots plan, brief, track and report. Code is
-written only by sessions a Bot starts: a Kanban card assigned to the Bot's own profile
-(preferred: it reports back when done or blocked), or a background
-`hermes -p <bot> chat --query-file <brief> --oneshot -Q --source cli --in <worktree>`.
+written only by sessions a Bot starts: a background
+`hermes -p <bot> chat --query-file <brief> --oneshot -Q --source cli --in <worktree>` run with
+`terminal(background=true, notify=true)`, which notifies the Bot when it exits.
 Reading code and running `gh` or `git log` is fine.
 
 ## Read the person's setup first
@@ -39,7 +39,7 @@ it covers. Name: lowercase, `a-z0-9-`, the front's short name (`backoffice-data`
 per front, never one per PR.
 
 1. **Profile:** `hermes profile create <name> --clone --description "placeholder"`.
-   `--clone` copies config (model routes, kanban toolset), `.env`, `SOUL.md`, skills, plugins
+   `--clone` copies config (model routes, toolsets), `.env`, `SOUL.md`, skills, plugins
    (`ss`, advanced-delegation) and memories. Logins are shared with `default` unless
    `--isolated-auth` is passed. Check the Bot answers:
    `hermes -p <name> chat -q "Say OK" --oneshot -Q --source cli` (expect `OK`).
@@ -73,8 +73,9 @@ per front, never one per PR.
    - reply in the person's language.
 
    Then a `## You never write code` section: the Bot plans, briefs, tracks and reports; code
-   is written only by sessions it starts (a Kanban card assigned to itself with a standalone
-   brief and the right `completion_contract`, or a `--source cli` one-off session).
+   is written only by sessions it starts: a background `--source cli` session on its own
+   profile with a standalone brief, continued with `--resume <session_id>` when the person
+   answers its questions, and archived once reported.
 
 5. **Description:** `hermes profile describe <name> --overwrite --text "Owns the <front> front: ..."`.
 6. **Memory:** the cloned `memories/USER.md` comes from the main Bot. Make sure it says the
@@ -94,8 +95,8 @@ per front, never one per PR.
   asynchronous: end the turn and relay the reply when it arrives. For several Bots, pass
   comma-separated targets in one call. A plain status question (a PR's state) is answered
   with `gh` directly.
-- **Hand work to a front Bot:** the same `message_agent`, or a Kanban card assigned to that
-  Bot with a standalone brief.
+- **Hand work to a front Bot:** the same `message_agent`, with a standalone brief. The front
+  Bot starts the session itself.
 - **Connect an MCP or connector for one Bot** only on the person's explicit OK. No MCP with
   personal data (mail, calendar, chat, files) is connected without their explicit approval
   of that scope.
@@ -110,9 +111,9 @@ closing summary, then delete" (recommended), "keep it", and "delete without a su
 2. Save it to `<archive>/<name>-<YYYY-MM-DD>.md` (the archive folder from the setup above;
    create it if needed), and carry every leftover item into the main Bot's answer to the
    person.
-3. Check nothing still runs for it: `hermes cron list` (jobs named `[bot:<name>]`), Kanban
-   cards assigned to it (`hermes kanban list`), and worktrees it owns (`git worktree list` in
-   its repos). Report what is still open instead of deleting over it.
+3. Check nothing still runs for it: `hermes cron list` (jobs named `[bot:<name>]`),
+   sessions still running on it (`hermes -p <name> sessions list`), and worktrees it owns
+   (`git worktree list` in its repos). Report what is still open instead of deleting over it.
 4. `hermes profile delete -y <name>`. **Never delete `default`.**
 
 ## Pitfalls
@@ -120,6 +121,6 @@ closing summary, then delete" (recommended), "keep it", and "delete without a su
 - Bots are profiles, not skills: a role without memory (builder, reviewer, scout) is a
   `delegate_task` subagent, not a Bot.
 - Do not create a Bot per PR; a front spans many PRs and repos.
-- One-off background sessions must pass `--source cli`, or they are hidden in the app.
+- Background sessions must pass `--source cli`, or they are hidden in the app.
 - The main Bot does not do a front's work, not even a quick fix: it hands it to the front's
   Bot.

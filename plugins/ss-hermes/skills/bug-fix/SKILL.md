@@ -42,8 +42,10 @@ Every question goes through the `clarify` tool, never as plain text:
 - Write the question and the choices in the language the person is speaking.
 - When a call times out, ask again at once. A timeout is not an answer.
 
-When you run as a Kanban card worker, the card body is your brief. Read the scope from it,
-and send any other question to the coordinator with `kanban_block` instead of `clarify`.
+When you run as a session a Bot started (a background `--source cli` run from a brief),
+nobody is on the line. The brief gives the scope. Put any other question in your final
+report, with its choices and your recommendation, and end the run; the Bot asks the person
+and resumes you.
 
 ## Step 1: Read the ground
 
@@ -288,4 +290,4 @@ Once the rule is decided, the shape playbook turns it into acceptance criteria.
 | the preservation check finds an unrelated change       | restore it before the commit                                          |
 | the report is a red CI on an open PR with no bug named | this belongs to `ss:ship`; say so and stop                            |
 | the bug is that something got slow                     | follow `references/performance.md`                                    |
-| running as a Kanban card worker                        | the card body gives the scope; questions go through `kanban_block`    |
+| running as a session a Bot started                     | the brief gives the scope; questions go in the final report           |

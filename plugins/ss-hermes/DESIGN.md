@@ -6,20 +6,20 @@ of `plugins/ss`. Version 0.1.0 built the first stage of section 6; 0.2.0 reworke
 
 ## 1. What changes and why
 
-|                      | ss 4.2 (Claude Code)                                      | ss on Hermes (this design)                                                                                              |
-| -------------------- | --------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| Entry point          | one skill per verb: `/ss:shape`, `/ss:build`, `/ss:ship`… | one sticky mode, `/ss:go`, that matches the request to a **playbook**; the verbs stay available as shortcuts            |
-| Where state lives    | `.ss/<slug>/spec.md` with `status:`                       | a **Kanban card**: the body holds the acceptance criteria, comments hold progress, `--completion-contract` holds the PR |
-| How much process     | shape → spec → build, always                              | a **route sized to risk**: lightweight, standard or intensive (pstack's five risk facts)                                |
-| Parallel work        | `Workflow` + `build-tasks.js`                             | Kanban cards with dependency links, workers in worktrees, `--goal` for open-ended cards                                 |
-| Second opinion       | Codex CLI as judge                                        | a judge subagent on another model route (`sonnet`)                                                                      |
-| Fronts (orchestrate) | `/ss:orchestrate` + Desktop side sessions                 | no playbook: one Bot per front, sessions on that Bot do the code; coordination rules live in the frame (§4)             |
-| Recurring work       | `/loop`, Desktop scheduled tasks                          | `cronjob` (caretake digest, PR babysit)                                                                                 |
-| Session frame        | `SessionStart` hook                                       | `ctx.register_system_prompt_section`                                                                                    |
-| Pages for you        | Artifact, Design canvas                                   | an HTML file shown with `::preview`, or attached to the card                                                            |
+|                      | ss 4.2 (Claude Code)                                      | ss on Hermes (this design)                                                                                          |
+| -------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Entry point          | one skill per verb: `/ss:shape`, `/ss:build`, `/ss:ship`… | one sticky mode, `/ss:go`, that matches the request to a **playbook**; the verbs stay available as shortcuts        |
+| Where state lives    | `.ss/<slug>/spec.md` with `status:`                       | the **session brief** holds the acceptance criteria, the session's worklist holds progress, the PR holds the result |
+| How much process     | shape → spec → build, always                              | a **route sized to risk**: lightweight, standard or intensive (pstack's five risk facts)                            |
+| Parallel work        | `Workflow` + `build-tasks.js`                             | background `--source cli` sessions in worktrees, one per task, each started from a standalone brief                 |
+| Second opinion       | Codex CLI as judge                                        | a judge subagent on another model route (`sonnet`)                                                                  |
+| Fronts (orchestrate) | `/ss:orchestrate` + Desktop side sessions                 | no playbook: one Bot per front, sessions on that Bot do the code; coordination rules live in the frame (§4)         |
+| Recurring work       | `/loop`, Desktop scheduled tasks                          | `cronjob` (caretake digest, PR babysit)                                                                             |
+| Session frame        | `SessionStart` hook                                       | `ctx.register_system_prompt_section`                                                                                |
+| Pages for you        | Artifact, Design canvas                                   | an HTML file shown with `::preview`, or its path in the session report                                              |
 
 There is no spec file. When work is unclear, the **shape** playbook settles the open
-questions and writes the outcome to card bodies as acceptance criteria. Facts about the
+questions and writes the outcome into session briefs as acceptance criteria. Facts about the
 project that the code doesn't show (a choice, a trap, a constraint) go into the repo's `AGENTS.md`.
 
 ## 2. Playbooks (`/ss:go <request>` picks one)
@@ -28,15 +28,15 @@ project that the code doesn't show (a choice, a trap, a constraint) go into the 
 | -------------- | -------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
 | investigate    | gather-branch-context, research (code) | read-only question about code or history; answer with evidence                                                          |
 | research       | research                               | outside evidence for a decision, with sources and gaps                                                                  |
-| shape          | shape                                  | settle unclear points through `clarify`, then write cards with acceptance criteria; ends at a gate                      |
-| feature        | build                                  | break into cards → workers in worktrees → mechanical gate → review → ship                                               |
+| shape          | shape                                  | settle unclear points through `clarify`, then write briefs with acceptance criteria; ends at a gate                     |
+| feature        | build                                  | break into briefs → sessions in worktrees → mechanical gate → review → ship                                             |
 | bug-fix        | diagnose                               | reproduce → root cause → smallest fix → prove it fails before and passes after                                          |
 | refactor       | new (pstack)                           | behavior-preserving; proof is the same tests before and after                                                           |
 | review         | review                                 | fronts in parallel (`delegate_task`, finder/verifier roles) + a judge subagent on `sonnet`; up to 3 rounds              |
 | ship / babysit | ship                                   | green the checks in CI, open or finish the PR, follow it with a cron watcher; **never merges**                          |
 | takeover       | takeover + session pickup              | adopt or modernize someone else's PR, **or** continue a Claude Code / earlier Hermes session from its transcript        |
 | caretake       | caretake                               | cron digest of open PRs, Dependabot and outdated dependencies → the Bot chat or a sticky comment                        |
-| pause / resume | new (pstack)                           | park in-flight work on its card so any session can pick it up                                                           |
+| pause / resume | new (pstack)                           | park in-flight work in its brief and worklist so any session can pick it up                                             |
 | edge-cases     | new                                    | plan mode: WHEN/THEN acceptance criteria before coding; diff mode: hunt, prove and report missed cases (added in 0.2.0) |
 | fronts         | orchestrate                            | the main Bot's skill: create, manage and retire front Bots, one per front (added in 0.3.0)                              |
 
@@ -48,8 +48,8 @@ Feature, bug-fix and refactor first record five facts: blast radius, reversibili
 or auth involved, test coverage nearby, and number of files. A small script
 (`scripts/route.py`) maps them to a route:
 
-- **lightweight:** no cards; edit, run the mechanical gate, one review front, then push.
-- **standard:** cards, review with a judge, PR.
+- **lightweight:** one session; edit, run the mechanical gate, one review front, then push.
+- **standard:** a session per task, review with a judge, PR.
 - **intensive:** shape first, the full review panel, a second judge model, and a blast-radius check.
 
 "Keep it light" and "be thorough" override the route.
@@ -75,10 +75,15 @@ or auth involved, test coverage nearby, and number of files. A small script
     Bot directly, and each front Bot coordinates its own sessions.
   - **Bots never write code.** A Bot plans, briefs, tracks and reports; reading code, `gh` and
     `git log` is fine. Only the sessions it starts edit, commit and push.
-  - **Sessions** run on the Bot's own profile. Preferred: a Kanban card assigned to that
-    profile, which wakes the Bot when it finishes or blocks. One-off: a background
-    `hermes -p <bot> chat --query-file <brief> --oneshot -Q --source cli --in <worktree>`.
-    `--source cli` is required on every one-off session, or the session is hidden in the app.
+  - **Sessions** run on the Bot's own profile. Every task is a background
+    `hermes -p <bot> chat --query-file <brief> --oneshot -Q --source cli --in <worktree>`
+    started with `terminal(background=true, notify=true)`. `--source cli` is required on every
+    session, or the session is hidden in the app. The Bot is notified when the session exits,
+    reads the tail of its log, and continues the same session with
+    `--resume <session_id> --query-file <answer> --oneshot -Q --source cli`. Once the session
+    is reported, the Bot archives it (`hermes -p <bot> sessions archive --title "<title>" --yes`,
+    after a `--dry-run`). The brief holds the acceptance criteria; the session's worklist holds
+    progress.
   - **Subagents:** builder, reviewer and scout are ephemeral `delegate_task` children with
     no memory, each carrying a role prompt from `roles/`. The official advanced-delegation plugin,
     in `model_map` mode, picks each child's model: a task sets `"option": "sonnet"` for the
@@ -86,9 +91,7 @@ or auth involved, test coverage nearby, and number of files. A small script
     sets `option` only after checking the route exists, because a missing route fails the
     whole call. The judge is a different model from the builder, but from the same vendor.
   - `/ss:setup` checks the plugin and the routes. It creates no profiles.
-- **Kanban** is how a Bot hands work to a session. `completion_contract` is set at creation to
-  `OWNER/REPO` or the exact PR URL, and only when the base branch has required checks
-  (otherwise `local-only`); a worker completes only its own card.
+- **No Kanban.** 0.3.0 dropped Kanban cards because Kanban worker sessions are hidden from the app's Sessions list.
 - **Routines (cron under the hood):** the PR watcher, and later the caretake digest, run as
   cron jobs on the Bot.
 - **Questions:** `clarify`, at most 4 per call, each with a recommended choice first. If a
@@ -109,7 +112,7 @@ hands work off follows them:
    coordinator, which asks with `clarify`. You never have to open another chat.
 3. **Merge only on explicit authorization** given in the coordinator chat, under the
    repo's rules. Authorization is never passed down.
-4. **Clean up after a front lands:** remove the worktree, archive the card if any, delete the branch if merged.
+4. **Clean up after a front lands:** remove the worktree, archive the finished sessions, delete the branch if merged.
 
 **When to add a second level:** per-project lead sessions, only if one coordinator is
 juggling more than one project and losing the thread. Adding them later is cheap, so they
@@ -139,7 +142,7 @@ are not designed now.
 ## 6. Build order
 
 1. **v0:** plugin skeleton, frame, `/ss` router with investigate / bug-fix / review / ship, roles, and setup. 0.2.0 fixes the first review's findings and replaces the extra profiles with routed subagents. 0.3.0 renames the router to `/ss:go`, runs one Bot per front with `ss:fronts`, and moves all code into sessions.
-2. **v1:** feature on Kanban, shape without a spec, routes script, takeover and session pickup, coordination rules in the frame.
+2. **v1:** feature as sessions, shape without a spec, routes script, takeover and session pickup, coordination rules in the frame.
 3. **v2:** caretake as a routine on the Bot, pause/resume.
 
 Each version is a PR to `athenabriana/shipshape`. Checks run in CI. You merge.
@@ -148,9 +151,9 @@ Each version is a PR to `athenabriana/shipshape`. Checks run in CI. You merge.
 
 - No orchestrate playbook. One coordinator, with its rules in the frame (§4).
 - Hermes only: `plugins/ss-hermes/` is its own tree, and `plugins/ss/` stays as it is for Claude Code.
-- No spec file. The worklist or a Kanban card holds the state, and project facts go in `AGENTS.md` instead of `.ss/wiki/`.
+- No spec file. The brief and the session's worklist hold the state, and project facts go in `AGENTS.md` instead of `.ss/wiki/`.
 - Models: Bots and the builder run Opus 5.5; the reviewer and scout subagents run Sonnet 5.5 through the `sonnet` route. No extra profiles for roles: a profile is a front's Bot.
-- Bots never write code; the sessions they start (Kanban card workers, `--source cli` sessions) do.
+- Bots never write code; the `--source cli` sessions they start do.
 - All the pstack ideas stay: routes, the mechanical gate before review, pause/resume, the
   preservation check before commits, and catch-ups.
 - Every question to Athena goes through `clarify`, never as plain text.

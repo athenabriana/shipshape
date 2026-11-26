@@ -123,7 +123,6 @@ Repo: OWNER/REPO. PR branch: BRANCH. Base: BASE_BRANCH. Push remote: REMOTE (can
 Workdir: WORKTREE (the watcher's own worktree of GIT_ROOT, local branch ss-babysit/N)
 Watching since: ISO_TIMESTAMP
 Job: JOB_ID (or unknown), named "ss-babysit OWNER/REPO#N"
-Kanban card: CARD_ID or none
 Plugin root: PLUGIN_ROOT (read <plugin-root> in ss:ship as this path)
 Report in: LANGUAGE
 
@@ -210,6 +209,5 @@ you do not repeat what it already said.
    `git -C GIT_ROOT branch -D ss-babysit/N` in the report for the person to run.
 
 3. Answer with one report: why the watcher stopped (merged, closed, or approved and green),
-   the PR URL, and "the merge is yours" when it is approved and green. When the PR has a
-   Kanban card, say the card can be completed with `metadata.published_pr` set to the PR URL.
+   the PR URL, and "the merge is yours" when it is approved and green.
    When a removal command failed, put the command in the report so the person can run it.

@@ -1,6 +1,6 @@
 ---
 name: edge-cases
-description: Maps the edge cases of a behavior, in two modes picked from the request. Plan mode, before coding, turns a planned behavior, a card or acceptance criteria into WHEN/THEN rows with the expected outcome of each, ready for a Kanban card or a PR body, and asks the person every outcome nobody decided. Diff mode hunts the edge cases a branch, a diff, a PR or a function does not handle, with parallel scouts per category, proves each one with file and line evidence or one cheap throwaway check, and reports only what holds, then offers focused tests or a hand-off to ss:bug-fix. Use when the person says "edge cases", "what could break", "corner cases", "what am I missing", "test the edges", "casos de borda", "o que pode quebrar", or when ss:go, ss:bug-fix or ss:review deep call it as a step. Not for fixing a known bug (use ss:bug-fix) or a full review of a diff (use ss:review).
+description: Maps the edge cases of a behavior, in two modes picked from the request. Plan mode, before coding, turns a planned behavior, a brief or acceptance criteria into WHEN/THEN rows with the expected outcome of each, ready for a session brief or a PR body, and asks the person every outcome nobody decided. Diff mode hunts the edge cases a branch, a diff, a PR or a function does not handle, with parallel scouts per category, proves each one with file and line evidence or one cheap throwaway check, and reports only what holds, then offers focused tests or a hand-off to ss:bug-fix. Use when the person says "edge cases", "what could break", "corner cases", "what am I missing", "test the edges", "casos de borda", "o que pode quebrar", or when ss:go, ss:bug-fix or ss:review deep call it as a step. Not for fixing a known bug (use ss:bug-fix) or a full review of a diff (use ss:review).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
@@ -17,11 +17,11 @@ Run no test suite, lint, type check or build locally: checks run in CI.
 
 ## Pick the mode
 
-- **Plan mode:** the input is a planned behavior, a Kanban card, a feature description or
+- **Plan mode:** the input is a planned behavior, a session brief, a feature description or
   acceptance criteria. No code to read for the behavior yet.
 - **Diff mode:** the input is a branch, a diff, a PR number or a named function.
 
-When both fit (a card with a half-built branch), ask once with `clarify`, diff mode first.
+When both fit (a brief with a half-built branch), ask once with `clarify`, diff mode first.
 
 **As a playbook step.** When `ss:go`, `ss:bug-fix` or `ss:review deep` calls this skill,
 skip the closing question and return the table to the caller.
@@ -47,7 +47,7 @@ Walk each one. Keep only those the behavior can reach, and say in one line which
 
 ## Plan mode
 
-1. **Read the ground.** Read the card or description, then the code it will touch and the
+1. **Read the ground.** Read the brief or description, then the code it will touch and the
    repo's `AGENTS.md`. Note what the code already does at each edge: a constraint the
    database enforces is an outcome you do not have to invent.
 2. **Walk the categories.** For each that applies, write rows of the form
@@ -58,9 +58,9 @@ Walk each one. Keep only those the behavior can reach, and say in one line which
 4. **Ask what nobody decided.** A row with no known outcome is a product question for the
    person. Ask with `clarify`, at most 4 questions per call, the recommended outcome first,
    each question naming the case and what each choice does. On a timeout, ask again at once.
-   Inside a Bot or a card the question reaches the person through the coordinator
-   (`kanban_block`, then its `clarify`). The row stays marked `open` until it is settled.
-5. **Return the table.** Markdown, ready to paste into a Kanban card body or a PR body as
+   Inside a session a Bot started, the question goes in the final report and reaches the
+   person through the Bot's `clarify`. The row stays marked `open` until it is settled.
+5. **Return the table.** Markdown, ready to paste into a session brief or a PR body as
    acceptance criteria:
 
    ```
@@ -147,4 +147,4 @@ Skip this when running as a playbook step. Otherwise one `clarify`, recommended 
 | the diff is empty                           | say there is nothing to check and stop                   |
 | a `clarify` call times out                  | ask again at once; never decide on the person's behalf   |
 | a candidate is a bug the diff did not touch | report it as Sugestão, flagged pre-existing              |
-| running as a Kanban card worker             | questions go to the coordinator through `kanban_block`   |
+| running as a session a Bot started          | questions go in the final report for the Bot to ask      |

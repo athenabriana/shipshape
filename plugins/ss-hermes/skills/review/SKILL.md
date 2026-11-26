@@ -35,7 +35,7 @@ The diff fronts need no `gh`. A surface-scope a11y audit needs neither a repo no
   front's only source. With none, the report carries one line pointing at the
   `review-setup` skill.
 - **Project facts**: `AGENTS.md` at the root is the `contract` front's ruler. When the caller
-  names a Kanban card, its body's acceptance criteria join it.
+  passes a brief, its acceptance criteria join it.
 - **The intent read** (`intent-read.md`): run the probe, read the PR body and the whole
   conversation, and write the **intent block** every finder carries. An external PR and a
   surface audit skip it.

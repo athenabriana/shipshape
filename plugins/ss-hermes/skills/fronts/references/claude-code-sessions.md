@@ -61,6 +61,6 @@ for f in fs[:6]:
            if t.strip(): print(f"[{d['type']}] {t[:700]}\n")
    ```
 4. **Check the live state before reporting.** `lastTurnReport` is a snapshot and goes stale: a CI run it calls "in progress" may have failed since. Run `gh pr view <n> --json statusCheckRollup`, `gh run list -b <branch>` and `gh run view <id> --log-failed`, and check `git status`/`git log -1` in the worktree. Report what is true now.
-5. **Continuing the work:** you can't send messages into a Desktop session. Work in the same worktree and branch through a session the Bot starts (a Kanban card, or a `--source cli` one-off session), never from the Bot itself.
+5. **Continuing the work:** you can't send messages into a Desktop session. Work in the same worktree and branch through a session the Bot starts (a background `--source cli` session), never from the Bot itself.
 
 Transcripts can hold personal data and secrets pasted into a chat. Copy only what the brief needs, and never copy a token, password or key into a brief, a persona or memory.

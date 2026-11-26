@@ -57,8 +57,8 @@ and attributed, for the person to answer. The fronts run as step 2 resolved them
 
 ## Edge cases
 
-| when                         | then                                                                                                                            |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| no PR on this branch         | the block is one line off `commit_log` (and the card's acceptance criteria when the caller named a card), with nothing said yet |
-| the PR body comes back empty | the same line, where the commit subjects are the only claim there is                                                            |
-| `gh` unauthenticated         | say in one line that the conversation read was skipped and `gh auth login` restores it, then review the diff fronts             |
+| when                         | then                                                                                                                           |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| no PR on this branch         | the block is one line off `commit_log` (and the brief's acceptance criteria when the caller passed one), with nothing said yet |
+| the PR body comes back empty | the same line, where the commit subjects are the only claim there is                                                           |
+| `gh` unauthenticated         | say in one line that the conversation read was skipped and `gh auth login` restores it, then review the diff fronts            |
