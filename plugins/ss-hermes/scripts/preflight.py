@@ -194,7 +194,11 @@ def probe_ui(cwd: str, diff_range: str) -> dict:
     # `.ss/` holds bookkeeping an earlier ss version left in the repo, prose and never UI.
     # Left in, a spec that quotes markup offers the a11y front over a diff that has none.
     diff = (
-        run_ok(["git", "diff", diff_range, "-U0", "--", ".", ":(exclude).ss/"], cwd=cwd) or ""
+        run_ok(
+            ["git", "-c", "core.quotePath=false", "diff", diff_range, "-U0", "--", ".", ":(exclude).ss/"],
+            cwd=cwd,
+        )
+        or ""
     )
     hits: dict[str, list[str]] = {}
     current = "?"
@@ -203,7 +207,9 @@ def probe_ui(cwd: str, diff_range: str) -> dict:
         if line.startswith("diff --git "):
             # Read the path here rather than from `+++`, which is `/dev/null` for a deleted
             # file: a removed README would otherwise be scanned as if it were markup.
-            current = line.rsplit(" b/", 1)[-1]
+            # quotePath=false keeps non-ASCII names bare; a name with a quote, tab or
+            # newline is still C-quoted, so drop the closing quote before the suffix test.
+            current = line.rsplit(" b/", 1)[-1].rstrip('"')
             skip = is_doc(current)
             continue
         if line.startswith("+++ "):
@@ -211,7 +217,7 @@ def probe_ui(cwd: str, diff_range: str) -> dict:
                 current = line[6:]
                 skip = is_doc(current)
             continue
-        if skip or line.startswith(("+++", "---", "@@", "diff ", "index ")):
+        if skip or line.startswith(("+++", "---", "@@", "index ")):
             continue
         if not line.startswith(("+", "-")):
             continue

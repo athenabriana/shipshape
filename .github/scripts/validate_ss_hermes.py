@@ -8,8 +8,10 @@ It stubs the Hermes plugin context, so it runs without Hermes installed.
 from __future__ import annotations
 
 import importlib.util
+import re
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2] / "plugins" / "ss-hermes"
@@ -51,28 +53,37 @@ if set(ctx.skills) != expected:
 if len(ctx.sections) != 1:
     errors.append(f"expected one prompt section, got {len(ctx.sections)}")
 
-# Every `<plugin-root>/...` path a skill or role names must exist in the plugin, because the
-# plugin is installed alone from this subdirectory.
-import re
+# Terms 0.3.0 retired. DESIGN keeps at most one history line for each; nothing else names them.
+RETIRED = [
+    (re.compile(r"ss:mode\b|skills/mode\b"), "names ss:mode, which is ss:go since 0.3.0"),
+    (re.compile(r"kanban", re.IGNORECASE), "names Kanban, dropped in 0.3.0 for --source cli sessions"),
+]
 
 for md in list(ROOT.rglob("*.md")):
-    for rel in re.findall(r"<plugin-root>/([\w./-]+)", md.read_text(encoding="utf-8")):
+    text = md.read_text(encoding="utf-8")
+    lines = text.splitlines()
+    is_design = md.name == "DESIGN.md"
+    # Every `<plugin-root>/...` path a skill or role names must exist in the plugin, because
+    # the plugin is installed alone from this subdirectory.
+    for rel in re.findall(r"<plugin-root>/([\w./-]+)", text):
         rel = rel.rstrip(".")
         if not (ROOT / rel).exists():
             errors.append(f"{md.relative_to(ROOT)}: <plugin-root>/{rel} does not exist")
-    if "plugins/ss/" in md.read_text(encoding="utf-8") and md.name != "DESIGN.md":
+    if "plugins/ss/" in text and not is_design:
         errors.append(f"{md.relative_to(ROOT)}: points into plugins/ss, which is not installed with this plugin")
-    # The entry skill was renamed from `mode` to `go` in 0.3.0; only DESIGN keeps the history.
-    if re.search(r"ss:mode\b|skills/mode\b", md.read_text(encoding="utf-8")) and md.name != "DESIGN.md":
-        errors.append(f"{md.relative_to(ROOT)}: names ss:mode, which is ss:go since 0.3.0")
-    # Kanban was dropped in 0.3.0 (its workers are hidden from the app's Sessions list);
-    # only DESIGN keeps the history line.
-    if re.search(r"kanban", md.read_text(encoding="utf-8"), re.IGNORECASE) and md.name != "DESIGN.md":
-        errors.append(f"{md.relative_to(ROOT)}: names Kanban, dropped in 0.3.0 for --source cli sessions")
-    # A one-off session started without `--source cli` is hidden in the Hermes app.
-    for n, line in enumerate(md.read_text(encoding="utf-8").splitlines(), 1):
+    for pattern, why in RETIRED:
+        hits = [n for n, line in enumerate(lines, 1) if pattern.search(line)]
+        if len(hits) > (1 if is_design else 0):
+            errors.append(f"{md.relative_to(ROOT)}:{','.join(map(str, hits))}: {why}")
+    # A session started without `--source cli` can inherit another source and be hidden in the app.
+    for n, line in enumerate(lines, 1):
         if re.search(r"\bhermes\b[^`]*\bchat\b|--oneshot", line) and "--source cli" not in line:
             errors.append(f"{md.relative_to(ROOT)}:{n}: a one-off hermes session without --source cli")
+
+# The repo README documents the Hermes plugin too: no leftover `/ss:mode` there either.
+readme = ROOT.parents[1] / "README.md"
+if readme.exists() and RETIRED[0][0].search(readme.read_text(encoding="utf-8")):
+    errors.append(f"README.md: {RETIRED[0][1]}")
 
 if not (ROOT / "skills" / "go" / "SKILL.md").exists() or (ROOT / "skills" / "mode").exists():
     errors.append("the entry skill must live at skills/go (renamed from skills/mode in 0.3.0)")
@@ -97,8 +108,6 @@ for facts, want in cases:
         errors.append(f"route.py {' '.join(facts)}: got {got or out.stderr.strip()!r}, want {want}")
 
 # preflight.py's UI probe: prose that says `background:` is not UI, a stylesheet that does is.
-import tempfile
-
 sys.path.insert(0, str(ROOT / "scripts"))
 from preflight import probe_ui  # noqa: E402
 
@@ -113,6 +122,8 @@ with tempfile.TemporaryDirectory() as repo:
     git("commit", "-q", "-m", "base")
     (Path(repo) / "gone.md").unlink()
     (Path(repo) / "README.md").write_text("The card uses background: blue and a <button type=\"x\">.\n")
+    # git C-quotes a non-ASCII path by default; the probe must still see a markdown file.
+    (Path(repo) / "café.md").write_text("Set background: red.\n", encoding="utf-8")
     git("add", "-A")
     git("commit", "-q", "-m", "docs only")
     if probe_ui(repo, "HEAD~1...HEAD")["hit"]:
