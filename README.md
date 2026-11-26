@@ -31,7 +31,7 @@ for most engineering work, type `/ss:go` and then your request. for example:
 
 `/ss:go` does three things:
 
-1. **picks a playbook.** a playbook is a short recipe for one kind of work: `investigate`, `bug-fix`, `review`, `ship`, `edge-cases`, `babysit`, `review-setup` or `correct`.
+1. **picks a playbook.** a playbook is a short recipe for one kind of work: `investigate`, `bug-fix`, `review`, `ship`, `edge-cases`, `babysit`, `review-setup`, `correct` or `learn`.
 2. **sizes the process to the risk.** it picks a lightweight, standard or intensive route. a small, safe change gets a light check. a change that touches data or auth, or that is hard to undo, gets a deeper review.
 3. **runs the steps.** it copies the playbook's steps into the todo list and calls the skill for each step.
 
@@ -51,18 +51,19 @@ you can call any skill directly. `/ss:go` calls most of them for you.
 
 **everyday work**
 
-| command            | use it to                                                                   |
-| ------------------ | --------------------------------------------------------------------------- |
-| `/ss:shape`        | agree on what to build before coding, ending in acceptance criteria         |
-| `/ss:investigate`  | answer a question about the code, a branch or its history, without editing  |
-| `/ss:edge-cases`   | list the edge cases of a plan, or find the ones a diff misses               |
-| `/ss:review`       | review your branch, fix what it finds and review again, up to 3 rounds      |
-| `/ss:ship`         | green the checks, commit, and push or open a PR (it never merges)           |
-| `/ss:babysit`      | watch a PR by number: answer review threads and fix red CI until it is done |
-| `/ss:caretake`     | look after the repo: open PRs, Dependabot alerts and outdated dependencies  |
-| `/ss:takeover`     | finish or rebase a PR someone else opened, keeping their credit             |
-| `/ss:research`     | research code, docs or visual references, checking every claim              |
-| `/ss:write-readme` | write a README in a minimal centered header style                           |
+| command            | use it to                                                                                             |
+| ------------------ | ----------------------------------------------------------------------------------------------------- |
+| `/ss:shape`        | agree on what to build before coding, ending in acceptance criteria                                   |
+| `/ss:bug-fix`      | take a bug from a pasted error or "fix this bug" to a proven fix, through `/ss:go`'s bug-fix playbook |
+| `/ss:investigate`  | answer a question about the code, a branch or its history, without editing                            |
+| `/ss:edge-cases`   | list the edge cases of a plan, or find the ones a diff misses                                         |
+| `/ss:review`       | review your branch, fix what it finds and review again, up to 3 rounds                                |
+| `/ss:ship`         | green the checks, commit, and push or open a PR (it never merges)                                     |
+| `/ss:babysit`      | watch a PR by number: answer review threads and fix red CI until it is done                           |
+| `/ss:caretake`     | look after the repo: open PRs, Dependabot alerts and outdated dependencies                            |
+| `/ss:takeover`     | finish or rebase a PR someone else opened, keeping their credit                                       |
+| `/ss:research`     | research code, docs or visual references, checking every claim                                        |
+| `/ss:write-readme` | write a README in a minimal centered header style                                                     |
 
 **running several sessions** (in the claude code desktop app)
 
@@ -75,11 +76,14 @@ a _front_ is one stream of work an orchestrator runs, from the first request to 
 
 **project memory**
 
-| command            | use it to                                                                         |
-| ------------------ | --------------------------------------------------------------------------------- |
-| `/ss:record-fact`  | save one project fact as a line in the repo's `CLAUDE.md` or `AGENTS.md`          |
-| `/ss:review-setup` | write or update `CODE_REVIEW_GUIDE.md`, the rules `/ss:review` checks against     |
-| `/ss:correct`      | turn a mistake that happened twice into a check, so it cannot happen a third time |
+start with `/ss:learn`. the three commands below it are what `/ss:learn` calls, and you can also call one directly when you already know the layer.
+
+| command            | use it to                                                                                                                                     |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/ss:learn`        | keep a lesson ("remember this", "don't let this happen again") at the strongest layer that holds it: a check, a review rule or a project fact |
+| `/ss:record-fact`  | save one project fact as a line in the repo's `CLAUDE.md` or `AGENTS.md`                                                                      |
+| `/ss:review-setup` | write or update `CODE_REVIEW_GUIDE.md`, the rules `/ss:review` checks against                                                                 |
+| `/ss:correct`      | turn a mistake that happened twice into a check, so it cannot happen a third time                                                             |
 
 ## skills the agent loads by itself
 
@@ -91,6 +95,7 @@ three skills are not in the menu: `prove-the-fix`, `explain-the-number` and `att
 - tests, lints, type checks and builds run in CI, not on your machine. ss pushes, follows the CI run to the end and fixes what fails.
 - ss never posts to Slack or any channel unless you ask.
 - before every commit, ss rereads the staged diff, so nothing unrelated changes.
+- every time ss needs you to review or approve something, it shows it first: an inline visual in the chat by default, a Design canvas for an interface, a private Claude Docs doc for text to keep, an Artifact page when it is too big to show inline.
 - ss suggests the next step and waits for you, unless you approved that scope up front.
 
 ## learn more
