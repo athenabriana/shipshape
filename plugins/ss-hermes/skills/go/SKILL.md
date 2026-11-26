@@ -1,10 +1,10 @@
 ---
 name: go
-description: Ship Shape's rigor mode for Hermes. Reads the request, matches it to one playbook (investigate, bug-fix, review, ship, edge-cases), sizes the process to the risk with a lightweight, standard or intensive route, tracks the steps on a worklist and runs each step's skill. Sticky once entered, it stays on across turns until the person opts out. Use when the user types /ss:go (for example /ss:go work on a b c), says "use ss", "be rigorous", "do this properly", or starts any non-trivial engineering task. A tiny mechanical change needs no playbook (a Bot still hands it to a session). Not for a question about Hermes itself.
+description: Ship Shape's rigor mode for Hermes. Reads the request, matches it to one playbook (investigate, bug-fix, review, ship, babysit, edge-cases), sizes the process to the risk with a lightweight, standard or intensive route, tracks the steps on a worklist and runs each step's skill. Sticky once entered, it stays on across turns until the person opts out. Use when the user types /ss:go (for example /ss:go work on a b c), says "use ss", "be rigorous", "do this properly", "babysit PR 42", or starts any non-trivial engineering task. A tiny mechanical change needs no playbook (a Bot still hands it to a session). Not for a question about Hermes itself.
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 0.3.0
+  version: 0.4.0
 ---
 
 # ss go
@@ -18,8 +18,12 @@ One entry point. Match the request to a playbook, size the route, run the steps.
 | investigate | a read-only question about the code, a branch or its history: how, why, what changed | `ss:investigate` |
 | bug-fix     | a defect, an error, a stack trace, "this fails"                                      | `ss:bug-fix`     |
 | review      | judge a diff: the current branch, or a PR by number                                  | `ss:review`      |
-| ship        | land a branch: push, open or finish a PR, green CI, watch it                         | `ss:ship`        |
+| ship        | land a branch: push, open or finish a PR, green CI                                   | `ss:ship`        |
+| babysit     | "babysit PR N", "watch PR N", "fica de olho no PR N": a cron watcher on any PR       | `ss:babysit`     |
 | edge-cases  | "what could break", "edge cases": before coding (plan) or on a diff                  | `ss:edge-cases`  |
+
+A babysit request takes no route and no endpoint question: load `ss:babysit` and follow its
+"Pick the entry". Creating the watcher is setup, not code, so a Bot does it from its own chat.
 
 Before coding anything non-trivial, `ss:edge-cases` in plan mode turns the request into
 WHEN/THEN acceptance criteria. Offer it when the expected behavior is not already written down.
