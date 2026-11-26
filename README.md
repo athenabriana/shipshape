@@ -8,86 +8,107 @@ _a claude code plugin of technical skills: shape → build → ship._
 
 </div>
 
-add the marketplace, then install the one plugin:
+ship shape (`ss`) is a plugin for claude code. it gives the agent a set of skills for building software: plan the change, build it, review it, and land it as a branch or a pull request. you call each skill as `/ss:<name>`.
+
+## install
+
+add the marketplace, then install the plugin:
 
 ```bash
 claude plugin marketplace add athenabriana/shipshape
 claude plugin install ss@shipshape-skills
 ```
 
-it ships a `SessionStart` operating-context hook, auto-active on install. skills are invoked as `/ss:<skill>`, e.g. `/ss:go`, `/ss:shape`, `/ss:ship`, `/ss:review`.
+the plugin turns on a `SessionStart` hook by itself. at the start of every session, the hook gives the agent a short note on how ss works and the hard rules below. you do not run anything for it.
 
-## what's inside
+## start here: `/ss:go`
 
-one plugin, `ss`; the skills are organized by use.
+for most engineering work, type `/ss:go` and then your request. for example:
 
-### the router
+- `/ss:go fix the login redirect`
+- `/ss:go how does the billing sync work?`
+- `/ss:go babysit PR 42`
 
-`/ss:go` reads the request, matches it to a **playbook** (a short recipe under `plugins/ss/skills/go/playbooks/`) and sizes the process to the risk: `scripts/route.py` picks a lightweight, standard or intensive route from five facts (blast radius, reversibility, data or auth, test coverage, files touched). the playbook's steps go into the todo list, each calling a skill.
+`/ss:go` does three things:
 
-| playbook       | what it runs                                                                                                       |
-| -------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `investigate`  | `/ss:investigate`, read only                                                                                       |
-| `bug-fix`      | find the cause, reproduce it, size the route, the smallest fix and its proof, the mechanical gate, review and ship |
-| `review`       | `/ss:review`, deep on the intensive route                                                                          |
-| `ship`         | `/ss:ship`, then offers `/ss:babysit`                                                                              |
-| `edge-cases`   | `/ss:edge-cases` in plan or diff mode                                                                              |
-| `babysit`      | `/ss:babysit` on any PR by number                                                                                  |
-| `review-setup` | `/ss:review-setup`, the guide's rules approved one by one                                                          |
-| `correct`      | `/ss:correct` on its own branch and PR; the router offers it when the same correction lands twice                  |
+1. **picks a playbook.** a playbook is a short recipe for one kind of work: `investigate`, `bug-fix`, `review`, `ship`, `edge-cases`, `babysit`, `review-setup` or `correct`.
+2. **sizes the process to the risk.** it picks a lightweight, standard or intensive route. a small, safe change gets a light check. a change that touches data or auth, or that is hard to undo, gets a deeper review.
+3. **runs the steps.** it copies the playbook's steps into the todo list and calls the skill for each step.
 
-### shape → build → ship
+it stays on for the rest of the session until you turn it off. for a tiny mechanical change, skip it and just ask.
 
-shape settles the acceptance criteria, the build is the work itself (split across subagents where it pays), and ship lands the branch.
+## the flow for a new feature
 
-| skill             | description                                                                                                                     |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| `/ss:shape`       | align on the idea before building: draft, loop on the gray areas through questions, map behavior, write the acceptance criteria |
-| `/ss:edge-cases`  | plan mode writes WHEN/THEN acceptance criteria before coding; diff mode finds and proves the cases a change misses              |
-| `/ss:ship`        | land the branch your way: green the checks, then push to a branch, prep a push to main, or open a PR and green it               |
-| `/ss:babysit`     | watch any PR by number until it is merged, closed, or approved with CI green: answer threads, fix red CI (never merges)         |
-| `/ss:record-fact` | propose one project fact as an exact line, and write it to the repo's `CLAUDE.md` or `AGENTS.md` once you approve it            |
+a feature with no playbook goes through three stages:
 
-project facts replace the old per-project knowledge base: one short line per fact the code cannot show (a choice, a trap, a constraint), kept under `## Project facts` in the repo's `CLAUDE.md`, or `AGENTS.md` when there is no `CLAUDE.md`. only `/ss:record-fact` writes them, each line approved by you, and `/ss:review` flags the file when it grows past about 60 lines. the contract is `plugins/ss/references/project-facts.md`.
+1. **shape:** `/ss:shape` settles what to build and writes the acceptance criteria.
+2. **build:** the agent does the work, split across subagents where that helps.
+3. **ship:** `/ss:ship` lands the branch.
 
-### review
+## other commands
 
-| skill              | description                                                                                                                                                    |
-| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/ss:review`       | loop over the branch: every front in parallel, a judge on Sonnet (`ss-review-judge`), fixes and re-reviews, up to 3 rounds (`manual` to pick fronts and items) |
-| `/ss:review-setup` | generate or update the repo's `CODE_REVIEW_GUIDE.md`, the rule source `/ss:review` reads; review rules never go into `CLAUDE.md` or `AGENTS.md`                |
+you can call any skill directly. `/ss:go` calls most of them for you.
 
-### helpers
+**everyday work**
 
-| skill              | description                                                                                 |
-| ------------------ | ------------------------------------------------------------------------------------------- |
-| `/ss:investigate`  | answer a read only question about the code, a branch or its history, with evidence          |
-| `/ss:caretake`     | look after the repo: triage open PRs and deps, suggest a takeover (never merges)            |
-| `/ss:takeover`     | adopt or modernize someone else's PR, keeping the author's credit (never merges)            |
-| `/ss:research`     | research code, content and visual references, verifying every claim                         |
-| `/ss:write-readme` | generate a minimal centered-header README from repo facts                                   |
-| `/ss:orchestrate`  | run one front from Desktop: a private front doc, work sessions, merges you authorize        |
-| `/ss:manager`      | sit above the orchestrators: read every front, hand work off, relay, merge on authorization |
+| command            | use it to                                                                   |
+| ------------------ | --------------------------------------------------------------------------- |
+| `/ss:shape`        | agree on what to build before coding, ending in acceptance criteria         |
+| `/ss:investigate`  | answer a question about the code, a branch or its history, without editing  |
+| `/ss:edge-cases`   | list the edge cases of a plan, or find the ones a diff misses               |
+| `/ss:review`       | review your branch, fix what it finds and review again, up to 3 rounds      |
+| `/ss:ship`         | green the checks, commit, and push or open a PR (it never merges)           |
+| `/ss:babysit`      | watch a PR by number: answer review threads and fix red CI until it is done |
+| `/ss:caretake`     | look after the repo: open PRs, Dependabot alerts and outdated dependencies  |
+| `/ss:takeover`     | finish or rebase a PR someone else opened, keeping their credit             |
+| `/ss:research`     | research code, docs or visual references, checking every claim              |
+| `/ss:write-readme` | write a README in a minimal centered header style                           |
 
-### corrections
+**running several sessions** (in the claude code desktop app)
 
-| skill         | description                                                                                                                                |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `/ss:correct` | encode a correction that landed twice as a check, proven on a past occurrence, on its own branch and PR; `/ss:go` offers it, never runs it |
+| command           | use it to                                                                                      |
+| ----------------- | ---------------------------------------------------------------------------------------------- |
+| `/ss:orchestrate` | make this session the orchestrator of one front: it plans and starts one work session per task |
+| `/ss:manager`     | sit above the orchestrators: see what every front is doing and pass work along                 |
 
-### situational
+a _front_ is one stream of work an orchestrator runs, from the first request to the last merged PR. the orchestrator and the manager write no code.
 
-`explain-the-number`, `attack-the-premise` and `prove-the-fix` stay out of the menu: an agent loads one by itself, mid-task, when its trigger in `plugins/ss/references/triggers.md` fires. every work-session brief, the bug-fix playbook and `/ss:ship` read that table first.
+**project memory**
 
-## on hermes
+| command            | use it to                                                                         |
+| ------------------ | --------------------------------------------------------------------------------- |
+| `/ss:record-fact`  | save one project fact as a line in the repo's `CLAUDE.md` or `AGENTS.md`          |
+| `/ss:review-setup` | write or update `CODE_REVIEW_GUIDE.md`, the rules `/ss:review` checks against     |
+| `/ss:correct`      | turn a mistake that happened twice into a check, so it cannot happen a third time |
 
-the Hermes port is not on main: it lives on the [`hermes-test`](https://github.com/athenabriana/shipshape/tree/hermes-test) branch.
+## skills the agent loads by itself
 
-develop locally:
+three skills are not in the menu: `prove-the-fix`, `explain-the-number` and `attack-the-premise`. an agent reads one when its trigger fires mid-task. `prove-the-fix` fires when the task fixes a bug, `explain-the-number` when the agent measures or trusts a number, and `attack-the-premise` when a second fix fails the same check as the first. the triggers are listed in `plugins/ss/references/triggers.md`.
+
+## hard rules
+
+- ss never merges, approves, force-pushes, pushes a protected branch or deploys. the one exception: `/ss:orchestrate` and `/ss:manager` merge a PR when you authorize it in that session's own chat, under the repo's rules.
+- tests, lints, type checks and builds run in CI, not on your machine. ss pushes, follows the CI run to the end and fixes what fails.
+- ss never posts to Slack or any channel unless you ask.
+- before every commit, ss rereads the staged diff, so nothing unrelated changes.
+- ss suggests the next step and waits for you, unless you approved that scope up front.
+
+## learn more
+
+- **playbooks:** one file per playbook in `plugins/ss/skills/go/playbooks/`. each has `## Steps`, `## Route` and `## Endpoint`.
+- **risk routes:** `plugins/ss/skills/go/SKILL.md`, section `2. Size the route`. `scripts/route.py` picks the route from five facts: blast radius, reversibility, data or auth, test coverage, and files touched.
+- **project facts:** `plugins/ss/references/project-facts.md`. a project fact is one short line the code cannot show, kept under `## Project facts` in `CLAUDE.md`. only `/ss:record-fact` writes them, after you approve each line.
+- **fronts:** `plugins/ss/references/front-doc.md` for the front's memory (a private Claude Docs doc, or a folder under `~/.ss/fronts`), and `plugins/ss/references/front-contract.md` for how a work session runs.
+- **review agents:** `/ss:review` uses three read only agents in `plugins/ss/agents/`: `ss-review-finder`, `ss-review-verifier` and `ss-review-judge`. you do not call them directly.
+- **writing style:** `plugins/ss/references/doc-style.md`.
+
+## develop locally
 
 ```bash
 git clone https://github.com/athenabriana/shipshape.git
 claude --plugin-dir ./shipshape/plugins/ss    # load the plugin from disk to test
 ```
+
+the Hermes port is not on main: it lives on the [`hermes-test`](https://github.com/athenabriana/shipshape/tree/hermes-test) branch.
 
 <sub>parts of `/ss:review` are adapted from Claude Code's `/simplify` and `/code-review` (Anthropic, Apache-2.0). individual components retain their original licenses.</sub>
