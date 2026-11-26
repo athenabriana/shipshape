@@ -60,3 +60,10 @@ Each skill is a folder with a `SKILL.md` containing YAML frontmatter (`name`, `d
 - No AI attribution in commits, PRs, or code comments
 - Conventional commit style: `<type>(<scope>): <description>`
 - Scope is the skill name (`shape`, `caretake`, …), `hooks` for the hook layer, or `repo` for repo-wide changes
+
+## Project facts
+
+- A situational skill never sets `disable-model-invocation: true`, because that stops agents from loading it. Hide it with `user-invocable: false` instead.
+- Read a PR body with `gh pr view --json body` before `gh pr edit --body-file`. A blind edit replaces the whole description.
+- A value read from a commit trailer, a PR body or a comment is checked against its expected pattern (a sha, a number) before it reaches `git` or `gh`.
+- `start_session` ignores `use_worktree: true` when the session folder is not a git repo. A code session there creates its own worktree first.
