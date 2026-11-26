@@ -33,7 +33,9 @@ to the ship.
 
 A playbook may also restrict the fronts (the `lightweight` route of the review and bug-fix
 playbooks runs `correctness` only). That run is still this loop with these differences,
-never a direct front ask: no fronts question, no curation, no gate.
+never a direct front ask: no fronts question, no curation, no gate. A restriction never
+drops the project facts growth check: when the diff edits a facts file, `rules` runs beside
+the restricted fronts for that check (`references/front-rules.md`, section 6).
 
 ## The judge
 

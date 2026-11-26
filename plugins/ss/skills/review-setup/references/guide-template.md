@@ -139,5 +139,8 @@ Rule detail block, one per rule:
 - Every example is real (from the repo); never invent code to illustrate a
   rule; a rule without a real example gets evidence paths only.
 - Only rules the maintainer accepted in the interview enter the guide.
+- The guide is the only file written. No rule goes into `AGENTS.md`, `CLAUDE.md` or
+  `.claude/CLAUDE.md`, and a rule found there during discovery is copied into the
+  guide, never edited in place.
 - Sections with nothing discovered are omitted, not filled with boilerplate.
 ```

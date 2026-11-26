@@ -5,8 +5,8 @@
  * never loaded, and a row with no skill sends the agent to a file that is not there.
  *
  * A skill is situational when its frontmatter carries `metadata.kind: situational`. The flag
- * that hides a skill from the slash menu cannot be the marker: `correct` is situational and
- * stays in the menu as `/ss:correct`.
+ * that hides a skill from the slash menu cannot be the marker: a situational skill may stay in
+ * the menu, and a skill hidden from it is not situational for that alone.
  *
  * Usage:
  *   bun validate-triggers.ts

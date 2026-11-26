@@ -4,7 +4,7 @@ description: Generates or updates the repository's CODE_REVIEW_GUIDE.md. Runs au
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 2.4.0
+  version: 2.5.0
 ---
 
 # Review setup
@@ -14,6 +14,14 @@ Produce the repo's `CODE_REVIEW_GUIDE.md`, the single source of truth for what
 by the maintainer in an interview. `/ss:review` reads it fresh on every run;
 developers read it before opening PRs. **The guide is the only output**, no
 per-repo skill is generated; the review engine is `/ss:review` itself.
+
+**Review rules live in the guide alone.** No rule goes into `AGENTS.md`,
+`CLAUDE.md` or `.claude/CLAUDE.md`: those files steer the agent writing code, and
+their `## Project facts` section belongs to `/ss:record-fact`
+(`<plugin-root>/references/project-facts.md`). Discovery may read them as evidence. A
+finding that is a project fact rather than a review rule (a choice, a trap, a
+constraint the code cannot show) is named in the closing report with an offer of
+`/ss:record-fact`, never written by this skill.
 
 This SKILL.md is the router: it picks the mode, and each phase's method lives in
 its own reference, loaded only when that phase runs.
@@ -68,6 +76,7 @@ No handoff gate, report and stop:
   flag it as superseded by `/ss:review` and suggest the user delete it (their
   action, not yours).
 - Suggest committing the guide so CI-side and teammates' reviews see it.
+- Name any project fact the interview surfaced, with the offer of `/ss:record-fact`.
 
 ## Edge cases
 
@@ -79,6 +88,7 @@ No handoff gate, report and stop:
 | maintainer rejects every candidate               | guide ships with confirmed rules only; thin is fine, invented is not  |
 | legacy `.claude/skills/code-review/` present     | flag as superseded; never regenerate it                               |
 | not a git repo                                   | report the error, stop                                                |
+| a rule the maintainer wants in `CLAUDE.md`       | it goes in the guide; a project fact is offered to `/ss:record-fact`  |
 
 ## Bundled resources
 
