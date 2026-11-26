@@ -54,11 +54,15 @@ for f in fs[:6]:
    ```python
    import json
    for l in open(path):
-       d = json.loads(l)
+       try:
+           d = json.loads(l)
+       except ValueError:
+           continue
        if d.get('type') in ('user', 'assistant'):
-           c = d['message']['content']
-           t = c if isinstance(c, str) else ' '.join(x.get('text', '') for x in c if x.get('type') == 'text')
-           if t.strip(): print(f"[{d['type']}] {t[:700]}\n")
+           c = d.get('message', {}).get('content')
+           t = c if isinstance(c, str) else ' '.join(x.get('text', '') for x in (c or []) if isinstance(x, dict) and x.get('type') == 'text')
+           if t.strip():
+               print(f"[{d['type']}] {t[:700]}\n")
    ```
 4. **Check the live state before reporting.** `lastTurnReport` is a snapshot and goes stale: a CI run it calls "in progress" may have failed since. Run `gh pr view <n> --json statusCheckRollup`, `gh run list -b <branch>` and `gh run view <id> --log-failed`, and check `git status`/`git log -1` in the worktree. Report what is true now.
 5. **Continuing the work:** you can't send messages into a Desktop session. Work in the same worktree and branch through a session the Bot starts (a background `--source cli` session), never from the Bot itself.
