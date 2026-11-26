@@ -2,9 +2,8 @@
 """
 One call for the probes a run does before it decides anything: the branch and its
 diff range, whether `gh` is authenticated, the PR for this branch and its check
-buckets, whether the repo has a `CODE_REVIEW_GUIDE.md`, which spec this branch
-belongs to, whether the diff's hunks contain UI, and the `current` facts of
-`.ss/wiki/` whose `paths` match the diff's files (`wiki`).
+buckets, whether the repo has a `CODE_REVIEW_GUIDE.md`, and whether the diff's hunks
+contain UI.
 
 Consumed by /ss:ship (Prerequisites and Step 0) and by /ss:review (the availability
 probe in `skills/review/references/fronts.md`), which read this one payload instead
@@ -29,10 +28,8 @@ from shutil import which
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from build_wiki import match_facts  # noqa: E402
 from gather_context import resolve_merge_base  # noqa: E402
 from inspect_pr_checks import parse_available_fields  # noqa: E402
-from scan_specs import scan  # noqa: E402
 
 MAX_UI_EXAMPLES = 8
 
@@ -184,11 +181,7 @@ def probe_checks(cwd: str, number: int) -> dict:
 
 
 def probe_ui(cwd: str, diff_range: str) -> dict:
-    # `.ss/` is ss's own bookkeeping, and a spec is prose about a UI, never the UI. Left
-    # in, a spec that quotes markup offers the a11y front over a diff that has none.
-    diff = (
-        run_ok(["git", "diff", diff_range, "-U0", "--", ".", ":(exclude).ss/"], cwd=cwd) or ""
-    )
+    diff = run_ok(["git", "diff", diff_range, "-U0"], cwd=cwd) or ""
     hits: dict[str, list[str]] = {}
     current = "?"
     for line in diff.splitlines():
@@ -208,42 +201,9 @@ def probe_ui(cwd: str, diff_range: str) -> dict:
     return {"hit": bool(hits), "markers": sorted(hits), "examples": hits}
 
 
-def branch_spec(specs: list[dict], branch: str | None) -> dict | None:
-    """The spec this branch belongs to, when one of the branch's segments is its slug.
-
-    A whole segment and not a substring: `perf/deterministic-probes` contains the slug
-    `probes` without belonging to it, and the list arrives sorted by `created`, so the
-    oldest accidental match would be the one that won.
-    """
-    if not branch:
-        return None
-    segments = {branch, *branch.split("/")}
-    for spec in specs:
-        if {name for name in (spec["dir"], spec["slug"]) if name} & segments:
-            return spec
-    return None
-
-
-def probe_wiki(cwd: str, diff_range: str, ss_root: str) -> list[dict]:
-    """The `current` facts of `.ss/wiki/` whose `paths` match a file the diff touches.
-
-    `.ss/` itself is left out of the file list: the wiki's own diff is the writer's
-    record, and a fact governs code, never another fact.
-    """
-    # Unquoted, a non-ASCII path arrives octal-escaped and matches no fact.
-    names = run_ok(
-        ["git", "-c", "core.quotePath=false", "diff", diff_range, "--name-only", "--", ".", ":(exclude).ss/"],
-        cwd=cwd,
-    )
-    files = [f for f in (names or "").splitlines() if f]
-    if not files:
-        return []
-    return match_facts(Path(ss_root) / ".ss" / "wiki", files)
-
-
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Probe the ground a run stands on: branch, diff range, PR, checks, spec, UI."
+        description="Probe the ground a run stands on: branch, diff range, PR, checks, UI."
     )
     parser.add_argument("--repo", default=".", help="Path inside the target git repository.")
     parser.add_argument(
@@ -283,10 +243,6 @@ def main() -> None:
     merge_base, _ = resolve_merge_base(base, cwd)
     diff_range = f"{merge_base}...HEAD" if merge_base else None
 
-    # `scan` walks up from where it is pointed, and the contract is the nearest ancestor
-    # of the cwd, not of the git root: a monorepo package with its own `.ss/` is the one
-    # the run is standing in. Every git call above is rooted, which is a different question.
-    specs = scan(repo)
     branch = run_ok(["git", "branch", "--show-current"], cwd=cwd)
 
     result = {
@@ -307,12 +263,7 @@ def main() -> None:
         "pr": pr,
         "checks": probe_checks(cwd, pr["number"]) if pr and pr.get("number") else None,
         "code_review_guide": (root / "CODE_REVIEW_GUIDE.md").is_file(),
-        # The one thing this probe wants out of the spec scan. Selecting a spec is
-        # `/ss:build`'s, off `scan_specs.py`'s own stdout, so the rest of that
-        # payload has no reader here and is not copied into this one.
-        "branch_spec": branch_spec(specs["specs"], branch),
         "ui": probe_ui(cwd, diff_range) if diff_range else {"hit": False, "markers": [], "examples": {}},
-        "wiki": probe_wiki(cwd, diff_range, specs["ss_root"]) if diff_range else [],
     }
 
     if not merge_base:

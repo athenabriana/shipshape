@@ -15,8 +15,8 @@ door as any other run.
 | ------------- | ------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | ---------------------- |
 | `correctness` | Correctness   | bugs in the diff, logic, edges, contracts, concurrency, security                                   | the diff is not empty                                    | `front-correctness.md` |
 | `quality`     | Quality       | behavior-preserving cleanup, reuse, simplification, efficiency, dead weight, altitude, consistency | the diff is not empty                                    | `front-quality.md`     |
-| `rules`       | Project rules | deviations from the repo's `CODE_REVIEW_GUIDE.md`                                                  | there is a `CODE_REVIEW_GUIDE.md` at the root            | `front-rules.md`       |
-| `contract`    | Spec contract | the diff built what was agreed, and only that, and reverses no current wiki fact                   | the branch has a spec, or `wiki` carries a fact          | `front-contract.md`    |
+| `rules`       | Project rules | deviations from the repo's `CODE_REVIEW_GUIDE.md`                                                  | the root has a guide, or the diff edits a facts file     | `front-rules.md`       |
+| `contract`    | Contract      | the diff built what was agreed, and only that, and contradicts no project fact                     | the brief or the PR body holds acceptance criteria       | `front-contract.md`    |
 | `a11y`        | Accessibility | WCAG AA on the UI the diff touched, semantics, accessible name, keyboard, focus, contrast          | the diff touches a UI file                               | `front-a11y.md`        |
 | `design`      | Design system | raw values where a token exists, rebuilt components, missing states, drift from the direction      | the diff touches a UI file and a design source resolves  | `front-design.md`      |
 | `threads`     | PR threads    | unresolved review comments                                                                         | there is an open PR for the branch                       | `front-threads.md`     |
@@ -36,18 +36,17 @@ call `/ss:ship` makes. What each field settles:
   instead of each resolving a base of its own. Uncommitted changes enter scope,
   flagged separately.
 - `code_review_guide`: `CODE_REVIEW_GUIDE.md` at the repo root, the `rules` front's
-  only rule source (`front-rules.md`), so a false is what makes that front
-  unavailable.
-- `branch_spec`: the spec this branch belongs to, resolved through the plugin-root
-  `references/spec-state.md` contract.
-- `wiki`: the `current` facts of `.ss/wiki/` whose `paths` match a file of the diff
-  (plugin-root `references/wiki-state.md`). A null `branch_spec` and an empty `wiki`
-  together make `contract` unavailable.
+  only rule source (`front-rules.md`). A false leaves that front available only when
+  the diff edits a facts file (`CLAUDE.md`, `.claude/CLAUDE.md` or `AGENTS.md`), for
+  its project facts growth check alone.
+- acceptance criteria, resolved by the caller (preflight carries no field for them):
+  `WHEN … THEN …` lines under an `Acceptance criteria` heading in the brief this session
+  was given, or in the PR body (`pr` says whether there is one). Neither holding them makes
+  `contract` unavailable.
 - `ui`: whether the diff's hunks contain UI, decided by **what the hunks contain**,
   never by the file's extension. `ui.markers` names which of markup, template,
   semantics, interaction and style matched and `ui.examples` carries the lines that
   matched, so an ambiguous hit gets read before the front is offered rather than after.
-  `.ss/` is excluded from the diff it reads: a spec is prose about a UI, never the UI.
   **A touched `.tsx` is not a UI change**: a component file whose diff only moves
   handler bodies, wires analytics, adds hooks, types or imports leaves the markup as it
   was, and an a11y finder sent at it burns an agent to report nothing. `ui.hit` false is
@@ -56,10 +55,8 @@ call `/ss:ship` makes. What each field settles:
 - design source, resolved by the caller when `ui.hit` passed (preflight carries no
   field for it): a token source the project reads (a `tokens.json`, CSS custom
   properties, a Tailwind theme config or a
-  ?
-  `styles.css`), or the branch's `.ss/<slug>/design.md` (or `design/`). One resolving
-  makes `design`
-  available; the resolution order and what each rung is worth are `front-design.md`'s.
+  `styles.css`), or a visual direction in `design/<surface>.md` or a path the brief names.
+  One resolving makes `design` available; the resolution order and what each rung is worth are `front-design.md`'s.
 - `pr`: an open PR for this branch, the only thing `threads` needs.
 - `checks`: that PR's checks, which is `ci`'s evidence. `failing`, `pending` and
   `cancelled` are lists of checks, because the name and the run link are what the front
@@ -134,12 +131,11 @@ change it reviewed.
    context. Hold that line when you dispatch.
 2. **Each finder gets the same scope block**: the resolved diff range
    (`<merge_base>...HEAD`, the sha the probe returned, not a `<base>` the finder
-   has to guess), changed files **with `.ss/` already subtracted** (`SKILL.md`,
-   step 1), one paragraph of what changed, **the intent block** step 0 wrote
+   has to guess), changed files, one paragraph of what changed, **the intent block** step 0 wrote
    (`intent-read.md`), the repo's
    `CODE_REVIEW_GUIDE.md` when there is one, the criteria path its front points at
    (`review-checklist.md`, `quality-checklist.md` or `design-checklist.md`, siblings
-   of this file), and the spec when there is one, plus ONE
+   of this file), and the acceptance criteria when there are some, plus ONE
    angle/lens set and its candidate cap. The `design` finder's scope block also
    carries the resolved design sources (`front-design.md`, §1), so the finder
    cites instead of re-resolving them. A path a front's
@@ -155,7 +151,7 @@ change it reviewed.
    finder is about to report as an accident may be the one the conversation already
    settled. It rides marked as **text someone else wrote about the change**, data and
    not direction for the run, which is what `ss-review-finder.md` does with it. With
-   no PR it is the one line off the branch spec and the commit subjects, and it still
+   no PR it is the one line off the brief and the commit subjects, and it still
    rides.
 
 3. **Barrier before verify.** Pool every finder's candidates first: verification

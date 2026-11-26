@@ -1,19 +1,19 @@
 ---
 name: research
-description: Researches a topic across code, content and visual references, verifies every load-bearing claim against its evidence, and writes the report to the spec folder of the slug. Runs to the end without questions, so an agent can call it. Use when the user says "research this", "find repos that", "how do others implement", "code research", "dig into how [project] works", "find examples of", "clone and analyze", "look up the docs for", "compare libraries", "find design references", "how do apps do [pattern]", "show me screens of", "pesquisa isso", "pesquise como", "como os outros implementam", "acha repos que", "procura exemplos de", "compara bibliotecas", "referências visuais de", "como os apps fazem", or asks about implementation patterns, library comparisons, codebase architecture, or UI patterns. /ss:shape calls it before a draft that depends on outside facts.
+description: Researches a topic across code, content and visual references, verifies every load-bearing claim against its evidence, and writes the report to the path the caller names, or into chat. Runs to the end without questions, so an agent can call it. Use when the user says "research this", "find repos that", "how do others implement", "code research", "dig into how [project] works", "find examples of", "clone and analyze", "look up the docs for", "compare libraries", "find design references", "how do apps do [pattern]", "show me screens of", "pesquisa isso", "pesquise como", "como os outros implementam", "acha repos que", "procura exemplos de", "compara bibliotecas", "referências visuais de", "como os apps fazem", or asks about implementation patterns, library comparisons, codebase architecture, or UI patterns. /ss:shape calls it before a draft that depends on outside facts.
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 3.0.0
+  version: 4.0.0
 ---
 
 # Research
 
-Research a topic and write a verified report to `.ss/<slug>/research.md`. The research
-picks the fronts the topic needs (code, content, visual), gathers findings with evidence,
-and passes every load-bearing claim through an independent verifier that tries to refute
-it. The depth comes from the loop: plan, fan out, verify, synthesize, repeated within a
-fixed cap.
+Research a topic and write a verified report to the path the caller names, or into chat
+when no path was named. The research picks the fronts the topic needs (code, content,
+visual), gathers findings with evidence, and passes every load-bearing claim through an
+independent verifier that tries to refute it. The depth comes from the loop: plan, fan
+out, verify, synthesize, repeated within a fixed cap.
 
 ## How it runs
 
@@ -25,10 +25,10 @@ a draft, and `/ss:orchestrate` side sessions run shape. Four rules follow from t
 - **A fixed cap.** At most three repositories cloned, at most three verify rounds (the
   first pass plus two reruns), at most six images per page and 30 per run. What the cap
   leaves out goes in the report's open section.
-- **No commit.** The research writes `research.md` and leaves it uncommitted. Called by
-  shape, shape commits it with the spec. Called alone, the caller decides.
-- **No gate.** It ends by returning a short summary and the path, and stops. Called by
-  shape, shape continues into the draft.
+- **No commit.** The research never commits its report. Whoever named the path decides
+  what happens to the file.
+- **No gate.** It ends by returning a short summary, plus the path when there is one, and
+  stops. Called by shape, shape continues into the draft.
 
 ## The three fronts
 
@@ -48,20 +48,14 @@ script cannot read.
 
 ## Workflow
 
-### 1. Resolve the slug and the report path
+### 1. Resolve the report destination and the slug
 
-- **Called by shape**: use the spec's slug. The report goes to `.ss/<slug>/research.md`,
-  beside `spec.md`.
-- **Called alone**: derive a kebab slug from the topic, two to five lowercase ASCII words
-  joined by hyphens (`onboarding-paywall`, `vscode-wsl-server`). A later shape on the same
-  idea then finds the report.
-- **The derived slug is `wiki`**, or `.ss/<slug>/spec.md` exists for a different idea:
-  append `-research` to the slug, and keep appending a number until the folder is free or
-  holds this topic's earlier report.
+- **The caller named a path** (a file, or a section of a document such as the Notes tab of
+  a front doc): the report goes there. A rerun to the same path rewrites the report whole.
+- **No path**: the report goes into chat, as the reply.
 
-A rerun on the same slug rewrites `research.md` whole. The previous version lives in git.
-A folder that holds only `research.md` is fine: the spec readers list slugs by
-`.ss/*/spec.md` and pass over it.
+Derive a kebab slug from the topic, two to five lowercase ASCII words joined by hyphens
+(`onboarding-paywall`, `vscode-wsl-server`). It names the work folder in step 3.
 
 ### 2. Plan the research
 
@@ -208,7 +202,7 @@ what each round tried.
 
 ### 7. Write the report
 
-Write `.ss/<slug>/research.md`, replacing any earlier version whole:
+Write the report to the destination from step 1, replacing any earlier version there whole:
 
 ```markdown
 # Research: [topic]
@@ -259,7 +253,8 @@ when it is short: "Nothing." is a valid entry.
 ### 8. Return the summary
 
 Return three to five lines: the recommendation in one sentence, how many claims held, what
-stayed open, and the path `.ss/<slug>/research.md`. Leave the file uncommitted, and stop.
+stayed open, and the path the report went to. With no path, the report in chat is the
+reply, and these lines close it. Commit nothing, and stop.
 
 ## Guidelines
 

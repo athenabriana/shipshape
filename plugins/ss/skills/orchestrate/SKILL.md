@@ -1,6 +1,6 @@
 ---
 name: orchestrate
-description: The entry point of a project. Turns this session into an orchestrator that answers questions about the project in place, delegates every change to code to side sessions, and runs the project from one conversation. It opens one side session per front with a standalone brief, relays their questions, screenshots and reports to you, follows their PRs and CI, merges only the PRs you explicitly authorized, under the repository's rules, and cleans up after each front lands. You talk only to the orchestrator and never open a side session. Runs on the Claude Code desktop app's session tools. Use when the user says "orchestrate my sessions", "be the orchestrator", "delegate everything", "run this with sub-sessions", "split this into fronts", "orquestra minhas sessões", "seja o orquestrador", "delegue tudo", or invokes /ss:orchestrate. A single request is a run with one front. Don't use it to build one spec yourself (use /ss:build).
+description: The entry point of a project. Turns this session into an orchestrator that answers questions about the project in place, delegates every change to code to side sessions, and runs the project from one conversation. It opens one side session per front with a standalone brief, relays their questions, screenshots and reports to you, follows their PRs and CI, merges only the PRs you explicitly authorized, under the repository's rules, and cleans up after each front lands. You talk only to the orchestrator and never open a side session. Runs on the Claude Code desktop app's session tools. Use when the user says "orchestrate my sessions", "be the orchestrator", "delegate everything", "run this with sub-sessions", "split this into fronts", "orquestra minhas sessões", "seja o orquestrador", "delegue tudo", or invokes /ss:orchestrate. A single request is a run with one front. Don't use it to land a branch that is already built (use /ss:ship).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
@@ -23,7 +23,7 @@ Run the whole project from this conversation while side sessions do the work. Th
 Before the first brief, title this session and gather what the briefs need:
 
 - **This session's title.** Rename this session with `set_session_title` and `"self"` to `Orchestrate <project>`, the project being what the run covers: "Orchestrate shipshape". When the run moves to another project, rename it again. When the title already reads that way, make no call. When the person set the title themselves, the app asks them to approve the new one: say that approval is waiting, and when they decline, keep the title and ask no second time. Each front's title and `name` follow `references/briefs.md`, "Naming a front".
-- **The wiki catalog.** When the repo has `.ss/wiki/entities/index.md`, read it, so each brief names the decisions that already govern the code its front touches. When the repo has no `.ss/wiki/`, skip this step.
+- **The project facts.** When the repo's `CLAUDE.md` (or `AGENTS.md`) has a `## Project facts` section (`<plugin-root>/references/project-facts.md`), read it, so each brief names the facts that cover the code its front touches. When it has none, skip this step.
 - **The state of the project.** The orchestrator keeps no run log. Rebuild the state from `list_sessions` with `linked: true` and the open PRs: which fronts run, which wait, and which PRs are open and at what CI state. A new orchestrator on a project with fronts running does the same, and follows those fronts as its own from there: their PRs, their questions and their reports.
 
 ## What the mode needs
@@ -67,7 +67,7 @@ Most runs cycle through all four many times: new fronts open while others land.
 
 ## Beside the other skills
 
-The side sessions run the ss skills, and the brief names which one a front runs, by the route in `references/briefs.md`, "The skill route": a bug runs `/ss:diagnose`, an idea that needs research runs `/ss:research` then `/ss:shape`, a feature runs `/ss:shape` then `/ss:build`. `/ss:caretake` only reads the repo, so the orchestrator runs it in place, with no front.
+The side sessions run the ss skills, and the brief names which one a front runs, by the route in `references/briefs.md`, "The skill route": a bug runs `/ss:diagnose`, an idea that needs research runs `/ss:research` then `/ss:shape`, a feature runs `/ss:shape`, then the work in the session with `Agent` subagents, then `/ss:ship`. `/ss:caretake` only reads the repo, so the orchestrator runs it in place, with no front.
 
 In a front, each skill sends its questions to the orchestrator, by `<plugin-root>/references/front-contract.md`. Relay each one to the person through `AskUserQuestion`, and send the answer back quoted. A front publishes its pages as Artifacts: open each one for the person, and apply the person's edits to it here (`references/relay.md`, "Questions from a front" and "Artifacts"). A report that carries `Correction repeated:` lines proposes a `correct` front: bring each one to the person as a question through `AskUserQuestion`, and open the front only on their pick (`references/relay.md`, "Reports").
 

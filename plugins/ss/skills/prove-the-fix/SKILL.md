@@ -1,6 +1,6 @@
 ---
 name: prove-the-fix
-description: Situational skill for an agent whose task fixes a bug, loaded by the path its row in the plugin's references/triggers.md gives. States the proof a bug fix owes. The reproduction fails before the fix and passes after it, and the focused test goes through the real code path the fix changes, asserts what a user of that code observes, fails without the fix and passes with it. Read by /ss:diagnose and by the task agents of /ss:build repro tasks. It is not a command.
+description: Situational skill for an agent whose task fixes a bug, loaded by the path its row in the plugin's references/triggers.md gives. States the proof a bug fix owes. The reproduction fails before the fix and passes after it, and the focused test goes through the real code path the fix changes, asserts what a user of that code observes, fails without the fix and passes with it. Read by /ss:diagnose and by any session fixing a bug. It is not a command.
 user-invocable: false
 license: MIT
 metadata:
@@ -11,17 +11,17 @@ metadata:
 
 # Prove the fix
 
-Your task fixes a bug: a `/ss:diagnose` run, or a `/ss:build` task whose `verify:` is `repro:`. This page is the proof that fix owes, and it holds wherever the fix is built. Your caller keeps its own steps (where the reproduction lives, how the commits are named, who reads the result); this page says what makes the fix proven.
+Your task fixes a bug: a `/ss:diagnose` run, or any session fixing one. This page is the proof that fix owes, and it holds wherever the fix is built. Your caller keeps its own steps (where the reproduction lives, how the commits are named, who reads the result); this page says what makes the fix proven.
 
-The trailers that carry the proof to `/ss:ship` are written in one place, `PROOF_TRAILERS` in `<plugin-root>/workflows/build-tasks.js`, and a build task's prompt hands them to you. Take their form from there.
+This page is the one place the trailers that carry the proof to `/ss:ship` are written: "The commits" below gives their form.
 
-The sections below run in order: the two halves of the proof, the order they are built in, what makes a test count, and how each half is shown.
+The sections below run in order: the two halves of the proof, the order they are built in, the commits that carry it, what makes a test count, and how each half is shown.
 
 ## The two halves
 
 A fix is proven when both halves hold, and the report shows both:
 
-1. **The reproduction fails before the fix and passes after it.** It fails the way the report or the task describes. A reproduction that passes before any fix shows nothing about the bug: stop there and return it to your caller, since either the reproduction or the cause is wrong. In a build that is `underspecified`; in `/ss:diagnose` it is the failure that cannot be reproduced.
+1. **The reproduction fails before the fix and passes after it.** It fails the way the report or the task describes. A reproduction that passes before any fix shows nothing about the bug: stop there and return it to your caller, since either the reproduction or the cause is wrong. In `/ss:diagnose` it is the failure that cannot be reproduced.
 2. **The focused test fails without the fix and passes with it.** It is the half that stays in the repo, and the next section says what makes it count.
 
 When the project has no test framework, the reproduction is the whole proof. The report says that no focused test exists, and the choice of a framework stays with the person.
@@ -31,9 +31,25 @@ When the project has no test framework, the reproduction is the whole proof. The
 Build the proof in this order, because each step is evidence only when the one before it was seen:
 
 1. Reproduce the failure before you touch any code. A fix for a failure nobody saw is a guess.
-2. Write the focused test, and only the test. When any half of the proof runs in CI, commit it alone, before the fix: that commit is what lets CI show the red half without rewriting history.
+2. Write the focused test, and only the test, and commit it alone, before the fix: that commit is what lets CI show the red half without rewriting history.
 3. Build the fix, the smallest change that removes the cause.
 4. Run the reproduction and the test again: both pass.
+
+## The commits
+
+A fix lands test first, in two commits on the branch:
+
+1. **The test commit** holds the focused test alone.
+2. **The fix commit** sits on top of it, holds only the files the fix touched, and its message body ends with these trailers, filled in:
+
+   ```
+   Repro: <the reproduction>
+   Repro-test: <the focused test's file> :: <its name>
+   Repro-test-commit: <the sha of the test commit>
+   Repro-proof: local | pending
+   ```
+
+`Repro-proof` is `local` only when you saw all three runs: the reproduction failed before the fix, the test failed on the test commit, and both pass now. Otherwise it is `pending`, and `/ss:ship` takes the red half from CI on the test commit. `/ss:ship` finds the fix by these trailers, so a fix commit without them ships unproven.
 
 ## The focused test
 
@@ -52,7 +68,7 @@ Check the test against two imagined edits before you trust it:
 
 ## Show each half
 
-How each half is shown depends on `runnable`. Take it as your caller states it (a build task prompt does, by saying whether local runs are forbidden); with no caller stating it, take it from `<plugin-root>/scripts/resolve_checks.py`:
+How each half is shown depends on `runnable`. Take it as your caller states it (a brief does, by saying whether local runs are forbidden); with no caller stating it, take it from `<plugin-root>/scripts/resolve_checks.py`:
 
 - **`runnable` is true**: run all three yourself. The reproduction fails before the fix, the test fails without the fix, and both pass with it. The proof is `local` only when you saw all three.
 - **`runnable` is false**: local runs are forbidden, so run nothing. Read the code until you can point at where the failure comes from. CI shows the red half on the test commit alone and the green half on the head, and the proof is `pending` until it does.

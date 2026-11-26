@@ -15,7 +15,7 @@ claude plugin marketplace add athenabriana/shipshape
 claude plugin install ss@shipshape-skills
 ```
 
-it ships a `SessionStart` operating-context hook, auto-active on install. skills are invoked as `/ss:<skill>`, e.g. `/ss:shape`, `/ss:build`, `/ss:ship`.
+it ships a `SessionStart` operating-context hook, auto-active on install. skills are invoked as `/ss:<skill>`, e.g. `/ss:shape`, `/ss:ship`, `/ss:review`.
 
 ## what's inside
 
@@ -23,14 +23,16 @@ one plugin, `ss`; the skills are organized by use.
 
 ### shape → build → ship
 
-| skill          | description                                                                                                                       |
-| -------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `/ss:shape`    | align on the idea before building: draft, loop on the gray areas through questions, map behavior, order the tasks, write the spec |
-| `/ss:build`    | run a spec end to end: build every phase of tasks, track its `status`, chain into review and ship when the scope says so          |
-| `/ss:ship`     | land the branch your way: green the checks, then push to a branch, prep a push to main, or open a PR and tend it until you stop   |
-| `/ss:diagnose` | fix a bug with no spec: find the cause, reproduce it, make the smallest fix, prove it, hand it to ship                            |
+shape settles the acceptance criteria, the build is the work itself (split across subagents where it pays), and ship lands the branch.
 
-shape and build keep `.ss/wiki/` up to date by themselves: a per-project knowledge base of the facts the code does not show (a choice, a trap, a constraint), each tied to the paths it covers. shape reads it before the draft, build hands each task the facts covering its files, and review's contract front checks the diff against them. the contract is `plugins/ss/references/wiki-state.md`.
+| skill             | description                                                                                                                     |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `/ss:shape`       | align on the idea before building: draft, loop on the gray areas through questions, map behavior, write the acceptance criteria |
+| `/ss:ship`        | land the branch your way: green the checks, then push to a branch, prep a push to main, or open a PR and tend it until you stop |
+| `/ss:diagnose`    | fix a bug: find the cause, reproduce it, make the smallest fix, prove it, hand it to ship                                       |
+| `/ss:record-fact` | propose one project fact as an exact line, and write it to the repo's `CLAUDE.md` or `AGENTS.md` once you approve it            |
+
+project facts replace the old per-project knowledge base: one short line per fact the code cannot show (a choice, a trap, a constraint), kept under `## Project facts` in the repo's `CLAUDE.md`, or `AGENTS.md` when there is no `CLAUDE.md`. only `/ss:record-fact` writes them, each line approved by you, and `/ss:review` flags the file when it grows past about 60 lines. the contract is `plugins/ss/references/project-facts.md`.
 
 ### review
 
@@ -56,7 +58,7 @@ shape and build keep `.ss/wiki/` up to date by themselves: a per-project knowled
 | ------------- | ------------------------------------------------------------------------------------------------------- |
 | `/ss:correct` | encode a correction that landed twice as a check, proven on a past occurrence, on its own branch and PR |
 
-`explain-the-number`, `attack-the-premise` and `prove-the-fix` stay out of the menu: an agent loads one by itself, mid-task, when its trigger in `plugins/ss/references/triggers.md` fires. every build task, orchestrate brief, `/ss:diagnose`, `/ss:ship` and `/ss:correct` reads that table first.
+`explain-the-number`, `attack-the-premise` and `prove-the-fix` stay out of the menu: an agent loads one by itself, mid-task, when its trigger in `plugins/ss/references/triggers.md` fires. every orchestrate brief, `/ss:diagnose`, `/ss:ship` and `/ss:correct` reads that table first.
 
 ## on hermes
 

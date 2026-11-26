@@ -1,16 +1,17 @@
 # Draft-first: propose, then react to alignment
 
 The move: don't ask the user to fill a blank. Read the one-liner, glance at the
-codebase, and **write a draft spec with your best guesses already made.** Hand them
+codebase, and **write a draft with your best guesses already made.** Hand them
 something concrete to react to, people correct a proposal far faster, and more
 accurately, than they answer open questions cold.
 
 ## What the draft must cover
 
-The spec's form belongs to `spec-format.md`: the free top half, then the fixed sections.
-The draft's job is to arrive with those already filled from your best read of the goal
-and the codebase, so the user reacts to a proposal instead of completing a blank. Mark
-anything you're guessing so it reads as a guess rather than a fact.
+The draft arrives with what the acceptance criteria will need already filled from your
+best read of the goal and the codebase: what it is and why, the behavior you expect as
+`WHEN … THEN …` lines, and the scope edges. The user reacts to a proposal instead of
+completing a blank. Mark anything you're guessing so it reads as a guess rather than a
+fact.
 
 The draft is a plan: what gets built, the business rules, the behavior you expect and the
 order the work runs in. Two things a first draft earns the most from. First, the
@@ -20,8 +21,8 @@ version still worth shipping**, which is what turns a scope edge into a line you
 actually hold.
 
 Reading the codebase is still where the draft starts, because it shows you what the work
-touches. What you see there goes into the spec as a risk, never as a design: a technical
-risk becomes a bullet in `## Attention points`, the risk and where it lives, and the
+touches. What you see there goes into the draft as a risk, never as a design: a technical
+risk becomes a bullet in `Attention points`, the risk and where it lives, and the
 builder decides how to handle it with the code open.
 
 ## Surfacing the gray areas (the only thing you ask about)
@@ -52,27 +53,25 @@ Ask them through the **`AskUserQuestion` tool**: concrete options the user picks
   call), never a wall.
 - After each round, **fold the answers into the draft and show only what
   changed**: the diff, not the whole document again.
-- **When the gray areas run dry, order the work and open the gate.** Group the tasks in
-  `###` phases, write the attention points, run the lint, and show the gate. The review
-  is one of the gate's options: the user picks it or builds without it.
+- **When the gray areas run dry, write the criteria and open the gate.** Order the work
+  when it has more than one step, write the attention points, write the block where the
+  caller said, and show the gate.
 - **The gate blocks on open load-bearing decisions.** Never offer a clean "build"
   while one is unresolved. The user must resolve it or defer it explicitly
-  ("decide at build time", recorded in the spec). No silent "build anyway".
+  ("decide while building", recorded under `## Decisions`). No silent "build anyway".
 - **Reflect back:** "So we're building X, for Y, and NOT doing Z, right?"
 - **Alignment is active, not silent.** It's confirmed when the user restates the
-  idea in their own words or explicitly approves the written spec, never by the
+  idea in their own words or explicitly approves the written criteria, never by the
   mere absence of objections. No reaction usually means they checked out, not that
   they agree; prompt for the explicit nod.
-- **The validated spec is the checkpoint.** When the user approves (or sends last
-  edits), that `.ss/<slug>/spec.md` is the artifact. The gate then offers to
-  build, with what runs after the build ticked in the same call, and an explicit
-  build pick is the user affirmatively starting execution, not the spec silently
-  rolling into it. Never start building off the back of a re-read; only off that
-  explicit pick.
+- **The signed-off criteria are the checkpoint.** When the user approves (or sends last
+  edits), the acceptance criteria block is the artifact. The gate then offers to
+  build it now, and an explicit build pick is the user affirmatively starting
+  execution, not the criteria silently rolling into it. Never start building off the
+  back of a re-read; only off that explicit pick.
 - Keep **deferred decisions visible**: anything handed back to you ("your call")
   gets noted, so it's not silently assumed.
 - When a good idea surfaces that's **out of scope**, don't drop it and don't build
-  it; park it in the spec's out-of-scope bucket as a plain bullet (never a
-  checkbox, which the task selector would mistake for work).
+  it; park it under `## Out of scope` as a plain bullet.
 - If a question can't be settled without facts, go check (codebase → docs → web) and
   come back with the options, rather than guessing.

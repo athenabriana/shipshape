@@ -108,3 +108,22 @@ In-code rules enter the checklist by `file:line` instead of an ID.
 - A convention the diff clearly should have followed that **no source states** is
   not a deviation. It's a candidate rule: mention it once at the end of the
   section as something `/ss:review-setup` could capture.
+
+## 6. The project facts growth check
+
+When the diff touches `CLAUDE.md`, `.claude/CLAUDE.md` or `AGENTS.md`, run this check,
+with or without a `CODE_REVIEW_GUIDE.md`. With no guide, it is this front's only work:
+
+```
+python3 <plugin-root>/scripts/check_project_facts.py <repo> --diff-range <diff_range>
+```
+
+`<diff_range>` is the probe's `diff_range`. The script prints JSON: the facts file, its
+line count, the lines the diff adds, and a `flags` list. It always exits 0, so read
+`flags` and `errors`, not the exit code. Report each flag as a **Sugestão**, citing its
+`line` and the `<plugin-root>/references/project-facts.md` rule it breaks:
+
+- `over_cap`: the facts section passes 60 lines; propose a consolidation of its lines.
+- `dated`, `numbered`, `status`: an added line holds a date, a PR or issue number, or a
+  status word.
+- `too_long`: an added line runs over 160 characters; propose a shorter one.

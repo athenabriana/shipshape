@@ -2,8 +2,9 @@
 """
 Resolve the project's checks through the authority chain, without running any of
 them: CLAUDE.md and docs, then CI workflow files, then package.json / justfile /
-Makefile / pyproject.toml. Consumed by /ss:build (its step 4, and the `checks`
-it hands to workflows/build-tasks.js) and by /ss:ship (its Step 2).
+Makefile / pyproject.toml. Consumed by /ss:ship (its Step 2), /ss:review,
+/ss:correct, /ss:diagnose, and the situational skills prove-the-fix and
+explain-the-number, which read whether checks may run locally.
 
 This docstring is where the chain is stated, and this script is the resolution; the
 callers cite it and run what it returns, so a change to the chain lands once.

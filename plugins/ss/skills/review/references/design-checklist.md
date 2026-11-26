@@ -34,8 +34,9 @@ touched is one closing line of existing debt, never an item to fix here.
   reach stay with the a11y front.
 - **Consistency**: the same thing done two ways inside the diff, two spacings for the
   same gap, two greys for the same role, a heading level chosen for its size; and,
-  when the branch has a visual direction (`.ss/<slug>/design.md`), the built surface
-  drifting from the hierarchy and components that direction states.
+  when the branch has a visual direction (`design/<surface>.md` or a path the brief
+  names), the built surface drifting from the hierarchy and components that direction
+  states.
 
 ## Priorities
 

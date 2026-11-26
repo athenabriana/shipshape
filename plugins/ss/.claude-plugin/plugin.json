@@ -1,7 +1,7 @@
 {
   "name": "ss",
-  "description": "Ship Shape (ss): technical skills for building software, invoked as /ss:<skill>. The flow is shape → build → ship (/ss:shape aligns on a spec, /ss:build runs it, /ss:ship lands the branch) and a per-project wiki at .ss/wiki/ that shape, build and /ss:correct keep up to date, with /ss:review, /ss:review-setup, /ss:gather-branch-context, /ss:caretake, /ss:takeover, /ss:research, /ss:write-readme, /ss:orchestrate and /ss:correct alongside, and situational skills an agent loads when their trigger in references/triggers.md fires. It never merges, with one exception: /ss:orchestrate merges a PR only on the person's explicit authorization, given in their own conversation, and under the repository's rules.",
-  "version": "4.4.0",
+  "description": "Ship Shape (ss): technical skills for building software, invoked as /ss:<skill>. The flow is shape → build → ship (/ss:shape settles the acceptance criteria, the build is the work itself, /ss:ship lands the branch), with project facts kept as approved lines in the repo's CLAUDE.md or AGENTS.md by /ss:record-fact, and /ss:review, /ss:review-setup, /ss:diagnose, /ss:gather-branch-context, /ss:caretake, /ss:takeover, /ss:research, /ss:write-readme, /ss:orchestrate and /ss:correct alongside, and situational skills an agent loads when their trigger in references/triggers.md fires. It never merges, with one exception: /ss:orchestrate merges a PR only on the person's explicit authorization, given in their own conversation, and under the repository's rules.",
+  "version": "5.0.0",
   "author": {
     "name": "Athena Briana",
     "email": "me@athenabriana.com"

@@ -35,8 +35,8 @@ the dialog would have carried, since the person reads it through the orchestrato
 - **Every option**: its label, what that pick does next, and what it costs.
 - **The recommended pick**, named as such, first in the list.
 
-A question with a setting that goes with it, like the second question of the spec's exit
-gate, travels in the same message, with the pick it counts for.
+A question with a setting that goes with it, like the scope that goes with
+a handoff gate's pick, travels in the same message, with the pick it counts for.
 
 After sending, end the turn and wait. The orchestrator asks the person and sends the
 answer back quoted, in the person's words. Act on those words as the answer to the dialog:
