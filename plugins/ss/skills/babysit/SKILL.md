@@ -48,7 +48,7 @@ run reuses it and creates nothing. A tick reads only "Run one tick" and "Stop th
 ## Ask the person
 
 Every question goes through `AskUserQuestion`: at most 4 per call, the recommended option
-first, and everything the decision needs inside the question. In a front, the question goes
+first, and everything the decision needs inside the question. In a work session, the question goes
 to the orchestrator as `<plugin-root>/references/front-contract.md` says. A tick never asks:
 nobody is on the line, so it reports.
 
@@ -56,7 +56,7 @@ nobody is on the line, so it reports.
 
 - **The person's own session** (or the orchestrator) creates it: the worktree and the
   recurring run are setup, not code.
-- **A work session** (a front the orchestrator started) never starts sessions, and a
+- **A work session** (a session the orchestrator started) never starts sessions, and a
   scheduled watcher starts one on every run. Create nothing: put the request ("babysit PR N",
   with the interval and where it should run) in the final report, and the orchestrator
   creates it.

@@ -79,5 +79,5 @@ When `/ss:go` runs this skill as a playbook step, return the answer to it and st
 
 Otherwise end with one handoff gate (`<plugin-root>/references/handoff-gate.md`) that offers
 the natural next step: fix it (`/ss:go`), review it (`/ss:review`), ship it (`/ss:ship`), or
-stop here. Never start the next step yourself. In a front, the gate goes to the orchestrator
+stop here. Never start the next step yourself. In a work session, the gate goes to the orchestrator
 as `<plugin-root>/references/front-contract.md` says.

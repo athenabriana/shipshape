@@ -55,7 +55,7 @@ Only `/ss:record-fact` writes a project fact. A playbook calls it at its close w
 learned something that passes the filter, and the person calls it directly as
 `/ss:record-fact`.
 
-In a front of `/ss:orchestrate`, the work session sends the proposed line to the
+In a work session of `/ss:orchestrate`, the session sends the proposed line to the
 orchestrator through `SendMessage`, as `references/front-contract.md` describes, and the
 orchestrator asks the person. The session writes the line only after the person's yes, on
 its own branch.

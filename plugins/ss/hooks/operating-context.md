@@ -3,6 +3,7 @@
 Re-establish how this work runs, especially right after a context compaction, when the thread is easy to lose:
 
 - **Route engineering work through `/ss:go`.** It matches the request to a playbook (investigate, bug-fix, review, ship, edge-cases, babysit), sizes the process to the risk with a lightweight, standard or intensive route, and tracks the steps in the todo list. A real feature has no playbook yet: reach for `/ss:shape` first to converge on acceptance criteria, then build (the work itself, split across `Agent` subagents where that pays), then `/ss:ship`. Skip all of it for tiny mechanical changes; just do those.
+- **Three session roles.** `/ss:orchestrate` makes a Desktop session the orchestrator of one front, whose memory is a private Claude Docs doc (`references/front-doc.md`, plugin-level); `/ss:manager` sits above the orchestrators and reads their fronts; a work session runs one task from its brief, by `references/front-contract.md`. The orchestrator and the manager write no code, and a work session never opens the front.
 - **The prose follows one set of style rules.** The plugin-level `references/doc-style.md` states them whole, for every sentence ss writes, in its own files and in the documents it generates. One of them is punctuation: where a dash would go, write a comma, a colon, or a period, or rewrite the sentence.
 - **One name per thing.** Call each thing by the name it has in the code or in the repo. The plugin-level `references/doc-style.md` carries the rule.
 
