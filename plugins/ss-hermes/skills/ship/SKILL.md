@@ -40,10 +40,9 @@ Every question goes through the `clarify` tool, never as plain text:
   open, and what each choice does next.
 - When a `clarify` call times out, ask again right away. A timeout is not a "no".
 
-When you run as a session a Bot started (a background `--source cli` run from a brief),
-nobody is on the line. Put the question in your final report, with the same choices and your
-recommendation, and end the run. The Bot asks the person and resumes this session with the
-answer.
+When you run as a session a Bot started, nobody is on the line: see "When a Bot started this
+session" below. As the Bot itself (the chat the person talks to), ship's commits and pushes
+run in a session: hand them over as `ss:go` ("Start a session") says.
 
 ## Step 1: Read the ground
 
@@ -166,9 +165,12 @@ Load each with `skill_view('ss:ship', file_path='references/NAME.md')`.
 
 A Bot hands ship to a background `--source cli` session with a brief. The brief holds the
 acceptance criteria and this session's worklist tracks progress; nothing is posted anywhere
-else. The final report carries the PR URL, each CI fix cycle, and the green run on the exact
-head SHA, so the Bot can verify it with `gh pr view` before it reports and archives the
-session. A green PR never merges itself: the merge stays the person's.
+else. A question goes in the final report, with its choices and your recommendation, and the
+run ends there: the Bot asks the person and resumes this session with the answer. Print the
+PR URL as soon as the PR opens, so the log holds it even if the run dies. The final report
+carries the PR URL, each CI fix cycle, and the green run on the exact head SHA, so the Bot
+can verify it with `gh pr view` before it reports and archives the session. A green PR never
+merges itself: the merge stays the person's.
 
 ## Report
 

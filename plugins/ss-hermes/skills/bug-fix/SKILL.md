@@ -45,7 +45,8 @@ Every question goes through the `clarify` tool, never as plain text:
 When you run as a session a Bot started (a background `--source cli` run from a brief),
 nobody is on the line. The brief gives the scope. Put any other question in your final
 report, with its choices and your recommendation, and end the run; the Bot asks the person
-and resumes you.
+and resumes you. As the Bot itself (the chat the person talks to), the fix's edits and
+commits run in a session: hand them over as `ss:go` ("Start a session") says.
 
 ## Step 1: Read the ground
 

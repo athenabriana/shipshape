@@ -1,6 +1,6 @@
 ---
 name: go
-description: Ship Shape's rigor mode for Hermes. Reads the request, matches it to one playbook (investigate, bug-fix, review, ship, edge-cases), sizes the process to the risk with a lightweight, standard or intensive route, tracks the steps on a worklist and runs each step's skill. Sticky once entered, it stays on across turns until the person opts out. Use when the user types /ss:go (for example /ss:go work on a b c), says "use ss", "be rigorous", "do this properly", or starts any non-trivial engineering task. Don't use it for a tiny mechanical change (just do it) or for a question about Hermes itself.
+description: Ship Shape's rigor mode for Hermes. Reads the request, matches it to one playbook (investigate, bug-fix, review, ship, edge-cases), sizes the process to the risk with a lightweight, standard or intensive route, tracks the steps on a worklist and runs each step's skill. Sticky once entered, it stays on across turns until the person opts out. Use when the user types /ss:go (for example /ss:go work on a b c), says "use ss", "be rigorous", "do this properly", or starts any non-trivial engineering task. A tiny mechanical change needs no playbook (a Bot still hands it to a session). Not for a question about Hermes itself.
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
@@ -74,36 +74,50 @@ it surfaces. An endpoint of "local commit" skips the CI half; say so in the clos
 - **Worklist.** Copy the playbook's steps into a todo list, word for word, and tick them as
   you go. Never mark a step done without the evidence it asks for.
 - **Stated endpoint.** Run to the endpoint the person stated. If they left it open, ask
-  once with `clarify`: stop at a local commit, a pushed branch, or an open PR.
+  once with `clarify`: stop at a local commit, a pushed branch, or an open PR. A session
+  reads the endpoint from its brief; when the brief leaves it open, it stops at a local
+  commit and says so in the report.
 - **Preservation check** before every commit, as the operating frame says.
-- **Bot or session.** First know which one you are. The **Bot** is the chat the person talks
-  to: it plans, briefs, tracks and reports, and never edits, commits or pushes, not even a
-  one-line fix. Reading code, `gh`, `git log/status/diff` is fine. A **session** is what a
-  Bot starts (a background `--source cli` session): it edits, commits and pushes
-  inside the worktree its brief names. As the Bot, every playbook step that changes code
-  becomes a session with a standalone brief.
+- **Bot or session.** First know which one you are: a brief whose first line names you a
+  session started by a Bot makes you the session; otherwise you are the Bot. The **Bot** is
+  the chat the person talks to: it plans, briefs, tracks and reports, and never edits,
+  commits or pushes, not even a one-line fix. Reading code, `gh`, `git log/status/diff` is
+  fine. A **session** is what a Bot starts (a background `--source cli` session): it edits,
+  commits and pushes inside the worktree its brief names. As the Bot, every playbook step
+  that changes code becomes a session with a standalone brief.
+
 - **One Bot per front.** A front is a full-stack feature, usually several PRs across several
   repos, and runs as one Bot (a Hermes profile). Inside that Bot, sessions run on the Bot's
   own profile. Creating, briefing, asking or retiring a front Bot is the main Bot's job: load
   `ss:fronts` for it. Never start a Bot per PR.
-- **Start a session.** Write a standalone brief: goal, repo, worktree, branch (and PR head
-  sha), acceptance criteria that can be checked, limits (never merge, approve or force-push;
-  no local test suites; checks run in CI), and what to report (commits, CI run URL).
-  The brief holds the acceptance criteria; the session tracks progress on its own worklist.
+- **Start a session.** Write a standalone brief. Its first line names the role: "You are a
+  session started by the Bot <bot>: you edit, commit and push in <worktree>, you start no
+  sessions, and nobody answers `clarify`, so your questions go in your final report." Then
+  the goal, repo, worktree, branch (and PR head sha), the endpoint, acceptance criteria that
+  can be checked, limits (never merge, approve or force-push; no local test suites; checks
+  run in CI), and what to report (commits, the PR URL as soon as it opens, CI run URL, open
+  questions). The brief holds the acceptance criteria; the session tracks progress on its own
+  worklist.
   - **Start:** write the brief to `$TMPDIR/<task>.md`, then
     `terminal(background=true, notify=true)` with
-    `hermes -p <profile> chat --query-file $TMPDIR/<task>.md --oneshot -Q --source cli --in <worktree> > $TMPDIR/<task>.log 2>&1`.
-    Always pass `--source cli`: without it the session is hidden in the app. Tell the person
-    it started, with its title.
-  - **When notified** that it exited, read the tail of its log (the final report and the
-    session id). Verify before reporting: `git log` on the branch, the acceptance checks
-    re-run, `gh pr view` checks on the new head.
+    `hermes -p <bot> chat --query-file $TMPDIR/<task>.md --oneshot -Q --source cli --in <worktree> > $TMPDIR/<task>.log 2>&1`.
+    `--source cli` tags the session explicitly: without it the session inherits the Bot's own
+    source label and can be hidden from the app's Sessions list. Tell the person it started.
+  - **When notified** that it exited, read the tail of its log: the final report and the
+    session id. Give the session a title you can find again:
+    `hermes -p <bot> sessions rename <session_id> "ss <task> <session_id>"`. Verify before
+    reporting: `git log` on the branch, the acceptance checks re-run, `gh pr view` checks on
+    the new head. A log with no report means the session died: check
+    `gh pr list --head <branch>` for a PR it opened before you report.
   - **Its questions** come in the report, since a session cannot ask. Ask the person with
-    `clarify`, write the answer to a file, and continue the same session:
-    `hermes -p <profile> chat --resume <session_id> --query-file <answer> --oneshot -Q --source cli`.
+    `clarify`, write the answer to a file, and continue the same session in the background,
+    appending to the same log: `terminal(background=true, notify=true)` with
+    `hermes -p <bot> chat --resume <session_id> --query-file <answer> --oneshot -Q --source cli >> $TMPDIR/<task>.log 2>&1`.
+    Read only what this run appended.
   - **Archive** it once it is done and reported:
-    `hermes -p <profile> sessions archive --title "<title>" --dry-run`, then the same with
-    `--yes`. Never archive the Bot's own chat.
+    `hermes -p <bot> sessions archive --title "ss <task> <session_id>" --dry-run`, then the
+    same with `--yes` only when the dry run lists that one session. Never archive the Bot's
+    own chat.
 - **Subagents.** Builder, reviewer and scout are ephemeral `delegate_task` children with no
   memory. Give each a standalone brief: goal, repo, worktree, branch, acceptance criteria,
   limits. Route by model with the task's `option`: `"option": "sonnet"` for the reviewer and

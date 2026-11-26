@@ -17,7 +17,8 @@ front's work itself.
 **No Bot writes code, the main Bot included.** Bots plan, brief, track and report. Code is
 written only by sessions a Bot starts: a background
 `hermes -p <bot> chat --query-file <brief> --oneshot -Q --source cli --in <worktree>` run with
-`terminal(background=true, notify=true)`, which notifies the Bot when it exits.
+`terminal(background=true, notify=true)`, which notifies the Bot when it exits (`ss:go`,
+"Start a session", has the whole lifecycle).
 Reading code and running `gh` or `git log` is fine.
 
 ## Read the person's setup first
@@ -72,10 +73,12 @@ per front, never one per PR.
      person's explicit OK;
    - reply in the person's language.
 
-   Then a `## You never write code` section: the Bot plans, briefs, tracks and reports; code
-   is written only by sessions it starts: a background `--source cli` session on its own
-   profile with a standalone brief, continued with `--resume <session_id>` when the person
-   answers its questions, and archived once reported.
+   Then a `## You never write code` section, scoped to the chat the person talks to: as that
+   chat, the Bot plans, briefs, tracks and reports, and code is written only by sessions it
+   starts (`ss:go`, "Start a session"). Sessions run on this same profile and read this same
+   persona, so the section also says: a session whose brief names it a session started by
+   the Bot is the worker, and does the brief's work (edits, commits, pushes, opens the PR the
+   brief asks for); the "no posting without OK" rule covers anything beyond the brief.
 
 5. **Description:** `hermes profile describe <name> --overwrite --text "Owns the <front> front: ..."`.
 6. **Memory:** the cloned `memories/USER.md` comes from the main Bot. Make sure it says the
@@ -111,9 +114,11 @@ closing summary, then delete" (recommended), "keep it", and "delete without a su
 2. Save it to `<archive>/<name>-<YYYY-MM-DD>.md` (the archive folder from the setup above;
    create it if needed), and carry every leftover item into the main Bot's answer to the
    person.
-3. Check nothing still runs for it: `hermes cron list` (jobs named `[bot:<name>]`),
-   sessions still running on it (`hermes -p <name> sessions list`), and worktrees it owns
-   (`git worktree list` in its repos). Report what is still open instead of deleting over it.
+3. Check nothing still runs for it: its cron jobs (`hermes -p <name> cron list --all`; PR
+   watchers are named `ss-babysit OWNER/REPO#N`), its live sessions (ask it with
+   `message_agent` which background sessions are still running, and check
+   `pgrep -af "hermes -p <name> "`), and worktrees it owns (`git worktree list` in its
+   repos). Report what is still open instead of deleting over it.
 4. `hermes profile delete -y <name>`. **Never delete `default`.**
 
 ## Pitfalls
@@ -121,6 +126,7 @@ closing summary, then delete" (recommended), "keep it", and "delete without a su
 - Bots are profiles, not skills: a role without memory (builder, reviewer, scout) is a
   `delegate_task` subagent, not a Bot.
 - Do not create a Bot per PR; a front spans many PRs and repos.
-- Background sessions must pass `--source cli`, or they are hidden in the app.
+- Background sessions must pass `--source cli`, or they inherit the Bot's own source label and
+  can be hidden in the app.
 - The main Bot does not do a front's work, not even a quick fix: it hands it to the front's
   Bot.

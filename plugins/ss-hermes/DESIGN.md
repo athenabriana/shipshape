@@ -78,12 +78,14 @@ or auth involved, test coverage nearby, and number of files. A small script
   - **Sessions** run on the Bot's own profile. Every task is a background
     `hermes -p <bot> chat --query-file <brief> --oneshot -Q --source cli --in <worktree>`
     started with `terminal(background=true, notify=true)`. `--source cli` is required on every
-    session, or the session is hidden in the app. The Bot is notified when the session exits,
-    reads the tail of its log, and continues the same session with
-    `--resume <session_id> --query-file <answer> --oneshot -Q --source cli`. Once the session
-    is reported, the Bot archives it (`hermes -p <bot> sessions archive --title "<title>" --yes`,
-    after a `--dry-run`). The brief holds the acceptance criteria; the session's worklist holds
-    progress.
+    session, or it inherits the Bot's source label and can be hidden in the app. The brief
+    opens with the session's role and holds the acceptance criteria; the session's worklist
+    holds progress. The Bot is notified when the session exits, reads the tail of its log,
+    titles it after its id, resumes it with `--resume <session_id>` in the background when the
+    person answers its questions, and archives it once reported. `ss:go` ("Start a session")
+    holds the exact commands.
+  - **Inside a session** nobody answers `clarify` (questions go in the final report) and
+    nothing resumes it after its turn ends (CI is followed in the foreground).
   - **Subagents:** builder, reviewer and scout are ephemeral `delegate_task` children with
     no memory, each carrying a role prompt from `roles/`. The official advanced-delegation plugin,
     in `model_map` mode, picks each child's model: a task sets `"option": "sonnet"` for the

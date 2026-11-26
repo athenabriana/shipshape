@@ -33,6 +33,11 @@ Then end your turn with one line: what is building and where (the run or PR URL)
 notification resumes you. Review threads that arrive meanwhile can be triaged while the
 checks build.
 
+**In a session a Bot started** (a background `--source cli` run from a brief), nothing
+resumes you once the turn ends, so never end it to wait. Run the same watch in the
+foreground with a long `terminal` timeout, and run it again while the checks are still
+pending.
+
 ## Judge the result
 
 Green means every check reached a terminal state and each one passed.

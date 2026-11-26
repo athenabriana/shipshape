@@ -53,8 +53,9 @@ is `origin`.
    - **Watch every 2 hours**
    - **No watcher:** the report ends with how to ask for one later ("babysit PR #N").
 
-The watcher runs in the person's default profile, the Bot that holds their memory. There is
-no separate watcher profile: create the job from a session of that profile.
+The watcher runs on the profile of the Bot that owns the PR: a front's PR on that front's
+Bot, anything else on the person's default profile. There is no separate watcher profile.
+The ship session runs on that profile, so the job it creates lands there.
 
 When the `cronjob` tool is not available in this session, give the person the
 `hermes cron create` command with the same name, schedule, skill, workdir, delivery and
