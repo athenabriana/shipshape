@@ -1,50 +1,62 @@
-# Verify: pool, group by location, one independent vote, then rank
+# Verify: pool, group by file, one independent vote, then rank
 
 Between the finders and the report there is exactly one gate: every candidate gets
 judged by an agent that didn't produce it. A finder is optimistic by design (it
 passes through everything with a nameable failure scenario); this pass is what
 keeps the report worth reading.
 
-Runs for the fan-out depths. At the tiny-diff depth there are no finder agents, so
-the "verify" step is a self-check in the main context: re-read each candidate
-against the file before keeping it, and run the execution lane below for a
-`correctness` candidate it covers, under the same rules a verifier follows.
+Runs for the fan-out depths. At the tiny-diff depth there are no finder agents. In the
+loop the judge still judges every candidate (`loop.md`, "The judge"), so the review keeps
+its independent reader. In the manual flow the "verify" step is a self-check in the main
+context: re-read each candidate against the file before keeping it, and run the execution
+lane below for a `correctness` candidate it covers, under the same rules a verifier
+follows. The report then says the review had no independent verification.
 Verifiers dispatch on Sonnet like the finders, and go to Opus on the same condition they do, a deep run (`fronts.md`, "Model").
 
 ## 1. Pool and group
 
 Wait for **all** finders across all picked fronts (the barrier), then run
-`scripts/group_candidates.py`: it canonicalizes the paths and groups by location
-in one deterministic pass:
+`scripts/group_candidates.py`: it canonicalizes the paths and groups by file in one
+deterministic pass:
 
 ```bash
 python3 scripts/group_candidates.py < candidates.json
 ```
 
-Input is `{"scope_files": [...], "candidates": [...]}`; output is the groups, the
-paths that matched nothing in scope, and the counts for the stats line. A finder
-may return the same file as an absolute path, a repo-relative one, or with
-backslashes. The script matches by path segment suffix (longest match wins) and
-rewrites each to the scope form. Skipping this splits one location into several
+Input is `{"scope_files": [...], "candidates": [...]}`. A candidate is an object with
+`file` and `line`, an object whose `file` or `location` holds `file:line`, or the
+finder's own `file:line | summary | failure_scenario` string. Output is one group per
+file (`file`, `matched`, `candidates`), every candidate numbered within its file
+(`local_index`, the `[0]`, `[1]`, … a verifier sees) and across the run (`index`), and
+the counts for the stats line. A finder may return the same file as an absolute path,
+a repo-relative one, or with backslashes. The script matches by trailing path segments
+and rewrites each to the scope form. Skipping this splits one file into several
 groups, which is exactly what the grouping exists to prevent.
+
+Three lists need a look before dispatch:
+
+- `unmatched`: paths that matched nothing in scope, or matched more than one scope file.
+- `ambiguous`: those of them a bare name made ambiguous (`index.ts` with two in scope),
+  with the files it could be. The script never picks one. Read the finder's text for the
+  real path and fix the candidate, or report it as `no verdict` with the reason.
+- `rejected`: entries that were not a candidate at all (no path, not an object or a
+  string). Each is `no verdict` in the report, and counts in the report stats line's
+  `candidates`, which is the script's `received` (its own `candidates` leaves rejected
+  entries out).
 
 **`scope_files` is whatever enumerated the review's scope**: the changed-file list
 in diff scope, and in surface scope (a11y over a folder, a file set or a rendered
 page) the file set the audit enumerated. There is always a list to canonicalize
 against; a review with no diff is not a review with no scope.
 
-Grouping is not dedup. Every candidate keeps its own verdict; candidates at the
-same line are often distinct issues, and cross-finder collisions on one line are
-common. Candidates with no line (a whole-file or cross-file claim) group by `file`.
-
-So grouping is what keeps two candidates on one line from collapsing into one
-verdict. It is **not** what decides how many agents go out: locations are cheap to
-make and agents are not, and four finders returning 25 candidates across 20 locations
-would otherwise fund 20 agents to produce a report that keeps 10.
+Grouping is not dedup. Every candidate keeps its own verdict and its own
+`local_index`; candidates at the same line are often distinct issues, and cross-finder
+collisions on one line are common. A candidate with no line (a whole-file or cross-file
+claim) sits in its file's group with `line: null`.
 
 **The dispatch unit is the file, and at most 4 agents go out** (6 on a deep run). A
 verifier that opens `src/a.ts` once can judge every candidate in it: the file's
-locations ride along in one prompt, each still labeled, each still judged on its own
+candidates ride along in one prompt, each still labeled, each still judged on its own
 claim. When the pooled candidates touch more files than the cap allows, bundle the
 files across the calls. Every file holding a `correctness` candidate placed first,
 then `rules` and `contract`, then the rest, so the heaviest files get the most
@@ -60,16 +72,17 @@ PLAUSIBLE default and what makes a REFUTED constructible from the code all live 
 that prompt, so both callers of this engine judge the same way without a second copy
 to keep in sync, and without the fan-out having to re-send it.
 
-What this pass hands it: the scope block, the candidates in its file (or files)
-labeled `[0]`, `[1]`, … with the `file:line` each index sits at, the addendum
+What this pass hands it: the scope block, the candidates in its file labeled with their
+`local_index` and the `file:line` each sits at (a bundle of several files labels them
+`[0]`, `[1]`, … across the bundle and keeps the map back to each `index`), the addendum
 below when the front calls for one, and the three lines of the execution lane when
 its files hold a `correctness` candidate. Back comes one verdict per index, each judged
 independently on its own claim, with evidence.
 
-**In the review loop the seat can change hands.** When `references/loop-reviewer.md`
-resolved an outside reviewer, it judges every file's candidates in one call instead of
-these agents, under the same rubric and the same addenda, and a call that fails falls back
-to the dispatch above for that round. The execution lane is the one part that stays with
+**In the review loop the judge takes this seat.** The `ss-review-judge` agent
+(`loop.md`, "The judge") judges every file's candidates in one call instead of these
+agents, under the same rubric and the same addenda, and a call that fails falls back to
+the dispatch above for that round. The execution lane is the one part that stays with
 `ss-review-verifier` (below). Everything after the verdicts, §3 and §4, runs the
 same whoever judged.
 
@@ -140,13 +153,13 @@ a finding, and the review loop decides the candidate as it decides any PLAUSIBLE
 rides with the verdict into the report, as `PLAUSIBLE (not executed)`, so a reader tells
 a finding nobody ran from one whose trigger stayed uncertain.
 
-**The lane stays with `ss-review-verifier`.** The loop's outside reviewer runs in a
-read-only sandbox (`loop-reviewer.md`), so it cannot run a trigger, and its prompt carries
-no `runnable` line, which the rubric reads as false. When it holds the seat and `runnable`
-is true, send the files holding a `correctness` candidate to `ss:ss-review-verifier` in
-the same round, under the cap of §1, and the rest to the outside reviewer. A `correctness`
-finding it returns later marked `not executed` goes to an `ss-review-verifier` for its
-run before its verdict stands.
+**The lane stays with `ss-review-verifier`.** The judge runs nothing, and its prompt
+carries no `runnable` line. In the loop, when `runnable` is true, send the files holding a
+`correctness` candidate to `ss:ss-review-verifier` and the rest to the judge, all in one
+message, under the cap of §1, so one barrier closes the round. Those verifiers take the
+judge's seat for their files, so they go out on Sonnet with no `model` override, even on
+a deep run. A `correctness` finding the judge returns marked `not executed` goes to an
+`ss-review-verifier` on Sonnet for its run before its verdict stands.
 
 ## 3. Sweep (deep runs only)
 

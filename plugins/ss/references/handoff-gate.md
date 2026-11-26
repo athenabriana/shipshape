@@ -35,8 +35,8 @@ back to answer, which is the same stall as printing the question as text.
 - **One gate per skill, at the end.** Mid-skill questions are the skill's own
   business (gray areas, confirmations); the handoff gate is the last interaction.
 - **Skills without a natural next step have no gate**: they just report and stop:
-  `ship`, `legal-lens`, `caretake`, `takeover`, `review-setup`, `write-readme`,
-  `research`, `gather-branch-context`, `correct`, and `orchestrate`, which stays
+  `legal-lens`, `caretake`, `takeover`, `review-setup`, `write-readme`,
+  `research`, `investigate`, `babysit`, `correct`, and `orchestrate`, which stays
   resident until the person ends it.
 
 ## The format
@@ -65,5 +65,7 @@ options:
 ## Journey map (what gates typically offer)
 
 - `shape` → build it now in this session, then offer ship / stop
-- `ship` → no gate; it reports what shipped and stops
+- `go` → the playbook's next step when its scope stops short of it (review after a fix, ship after a review) / stop
+- `edge-cases` → plan mode: build it now against the criteria / stop; diff mode: fix the proven cases / stop
+- `ship` → on an open PR, offer `/ss:babysit` / stop; on any other destination no gate, it reports what shipped and stops
 - `review` → apply more items / run the fronts that were skipped / audit the running UI / review-setup / ship (when there is no PR) · three at most, by priority, plus stop

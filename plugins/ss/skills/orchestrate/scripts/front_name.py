@@ -14,7 +14,7 @@ Output (one JSON object on stdout):
 
 Usage:
   python3 front_name.py <slug-or-title> [--live NAME ...]
-  python3 front_name.py "Fix sessão naming" --live session-naming,add-diagnose
+  python3 front_name.py "Fix sessão naming" --live session-naming,add-edge-cases
 """
 
 import argparse

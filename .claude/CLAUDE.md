@@ -1,6 +1,6 @@
 # Ship Shape
 
-A **Claude Code plugin** (`ss`) published through a one-plugin marketplace (`shipshape-skills`). Install via `claude plugin marketplace add athenabriana/shipshape` then `claude plugin install ss@shipshape-skills`. Skills are invoked as `/ss:<skill>` (e.g. `/ss:ship`). The flow is shape → build → ship. The plugin ships a `SessionStart` operating-context hook, auto-active when the plugin is enabled.
+A **Claude Code plugin** (`ss`) published through a one-plugin marketplace (`shipshape-skills`). Install via `claude plugin marketplace add athenabriana/shipshape` then `claude plugin install ss@shipshape-skills`. Skills are invoked as `/ss:<skill>` (e.g. `/ss:ship`). `/ss:go` routes a request to a playbook sized to risk; the flow is shape → build → ship. The plugin ships a `SessionStart` operating-context hook, auto-active when the plugin is enabled.
 
 ## Structure
 
@@ -18,10 +18,11 @@ plugins/ss/
 ├── references/                        # plugin-level docs shared across skills (project-facts, handoff-gate, doc-style, triggers, ...)
 ├── scripts/                           # plugin-level scripts shared across skills (preflight, check_project_facts, ...)
 └── skills/
-    ├── shape, ship, record-fact
-    ├── diagnose
+    ├── go                                 # the /ss:go router; playbooks/ holds one recipe per playbook
+    ├── shape, ship, babysit, record-fact
+    ├── investigate, edge-cases
     ├── review, review-setup
-    ├── gather-branch-context, caretake, takeover, research, write-readme, orchestrate
+    ├── caretake, takeover, research, write-readme, orchestrate
     └── explain-the-number, attack-the-premise, prove-the-fix, correct   # situational, loaded by trigger (references/triggers.md)
 ```
 
@@ -30,7 +31,8 @@ plugins/ss/
 - Skills live in `plugins/ss/skills/<name>/SKILL.md`, invoked as `/ss:<name>`. Keep the dir name identical to the frontmatter `name`.
 - A skill's own `scripts/` and `references/*.md` are relative to the skill dir. Shared ones live at the plugin root and are written `<plugin-root>/...`; the SessionStart hook resolves that placeholder to the install path once per session.
 - Project facts live under `## Project facts` in the repo's `CLAUDE.md` (or `AGENTS.md`); `plugins/ss/references/project-facts.md` is the contract, and only `/ss:record-fact` writes them.
-- A situational skill carries `kind: situational` under `metadata` and one row in `plugins/ss/references/triggers.md`, the trigger table an agent reads first: every orchestrate brief, `/ss:diagnose`, `/ss:ship` and `/ss:correct` sends it there. `.github/scripts/validate-triggers.ts` checks that every situational skill has a row and every row a skill. `correct` stays in the menu as `/ss:correct`; the other three set `user-invocable: false`.
+- A situational skill carries `kind: situational` under `metadata` and one row in `plugins/ss/references/triggers.md`, the trigger table an agent reads first: every orchestrate brief, the bug-fix playbook, `/ss:ship` and `/ss:correct` sends it there. `.github/scripts/validate-triggers.ts` checks that every situational skill has a row and every row a skill. `correct` stays in the menu as `/ss:correct`; the other three set `user-invocable: false`.
+- A playbook is `plugins/ss/skills/go/playbooks/<name>.md` with `## Steps`, `## Route` and `## Endpoint`, and one row in the table under `## 1. Match a playbook` in `skills/go/SKILL.md`. `.github/scripts/validate-playbooks.ts` checks both ways.
 - Hook commands reference files via `${CLAUDE_PLUGIN_ROOT}/...`, which only works inside `hooks.json`.
 
 ## Skills
@@ -53,7 +55,7 @@ Each skill is a folder with a `SKILL.md` containing YAML frontmatter (`name`, `d
 - Python scripts use `gh api graphql` for GitHub data (not the REST API directly)
 - Scripts write to stdout (JSON or plain text) for the LLM to consume
 - New scripts should use Python, stdlib only (no third-party imports)
-- CI (`.github/workflows/validate.yml`) validates frontmatter, workflow scripts, agent names, the trigger table, runs the scripts' unit tests and checks formatting
+- CI (`.github/workflows/validate.yml`) validates frontmatter, workflow scripts, agent names, the trigger table, the playbooks, runs the scripts' unit tests and checks formatting
 
 ## Commits
 

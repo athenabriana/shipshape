@@ -1,11 +1,11 @@
 ---
 name: explain-the-number
-description: Situational guidance an agent reads by the path references/triggers.md gives, before it measures a number or before it trusts, reports or acts on one (a latency, a speedup, a regression, a throughput). Write the decision and the noise floor before the run, name what bounds the number from a profile or counters, rule out what else the number could be measuring, and take five alternated runs per side. The verdict is one of faster, slower, no measurable difference, or inconclusive. Stays out of the slash menu.
+description: Situational guidance an agent reads by the path references/triggers.md gives, before it measures a number or before it trusts, reports or acts on one (a latency, a speedup, a regression, a throughput). Write the decision and the noise floor before the run, name what bounds the number from a profile or counters, rule out what else the number could be measuring, and take five alternated runs per side. The verdict is one of faster, slower, no measurable difference, or inconclusive. Read by the bug-fix playbook of /ss:go and by any session measuring a number. Stays out of the slash menu.
 license: MIT
 user-invocable: false
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.0.0
+  version: 1.0.1
   kind: situational
 ---
 
@@ -113,10 +113,18 @@ reproduction, and it is committed with the fix. Only `faster` proves the fix. `s
 the fix is wrong: go back to the cause. With `no measurable difference` or `inconclusive`,
 the report gives that verdict and its runs, and never calls the bug fixed.
 
+The benchmark lives next to the code it measures (in the project's benchmark folder when one
+exists) and takes the two sides as two commits: side A is the parent of the fix commit, side
+B is the fix commit, each run from a temporary worktree. The profile run that names the
+limiter also tests the cause: a cause whose code path the profile does not show as the
+limiter is refuted.
+
 When local runs are forbidden (`runnable: false` from `resolve_checks.py`), the same
 protocol runs in CI: the noise floor runs, then the alternated runs, all on the same runner
 in the same job, so the noisy neighbors of a shared runner show up in the noise floor
-instead of in the result.
+instead of in the result. When no workflow in `.github/workflows/` runs the benchmark,
+add a job that does in its own `ci(SCOPE): ...` commit, so the person can drop it after the
+proof.
 
 ## Report the number
 

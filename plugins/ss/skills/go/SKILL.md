@@ -1,0 +1,108 @@
+---
+name: go
+description: Ship Shape's router. Reads the request, matches it to one playbook (investigate, bug-fix, review, ship, edge-cases, babysit), sizes the process to the risk with a lightweight, standard or intensive route picked by scripts/route.py from five risk facts, copies the playbook's steps into the session's todo list and runs each step's skill. Stays on across later turns until you turn it off. Use when the user types /ss:go (for example "/ss:go fix the login redirect"), says "use ss", "be rigorous", "do this properly", "fix this bug", "debug this", "why does this fail", "esse bug", "corrige esse bug", "fix and babysit", pastes an error or a stack trace and asks for a fix, says "babysit PR 42", or starts any non trivial engineering task. Don't use it for a tiny mechanical change (just do it) or for a question about Claude Code itself.
+license: MIT
+metadata:
+  author: Athena Briana - github.com/athenabriana
+  version: 1.0.0
+---
+
+# Go
+
+One entry point. Match the request to a playbook, size the route, run the steps.
+
+A **playbook** is a recipe file under `playbooks/`, with three parts: the **steps** (each
+naming the skill it calls), the **route** (what lightweight, standard and intensive add or
+drop) and the **endpoint** (local commit, pushed branch or open PR). The skills keep their
+own entry points (`/ss:review`, `/ss:ship`, `/ss:babysit`, ...); a playbook named after a
+skill is the thin recipe around it.
+
+## 1. Match a playbook
+
+| playbook      | Pick it when                                                                                | Read                       |
+| ------------- | ------------------------------------------------------------------------------------------- | -------------------------- |
+| `investigate` | a read only question about the code, a branch or its history: how, why, where, what changed | `playbooks/investigate.md` |
+| `bug-fix`     | a defect, an error, a stack trace, "this fails", "fix this bug"                             | `playbooks/bug-fix.md`     |
+| `review`      | judge a diff: the current branch, or a PR by number                                         | `playbooks/review.md`      |
+| `ship`        | land a branch: commit, push, open or finish a PR, green CI                                  | `playbooks/ship.md`        |
+| `edge-cases`  | "what could break", "edge cases": before coding (plan mode) or on a diff (diff mode)        | `playbooks/edge-cases.md`  |
+| `babysit`     | "babysit PR 42", "watch PR 42", "fica de olho no PR 42": a watcher on any PR, by number     | `playbooks/babysit.md`     |
+
+Read the matched playbook whole before the first step.
+
+- **Two fit:** ask through the question tool which one, recommended pick first.
+- **A whole flow** ("fix it and ship it") is one playbook with its scope set: run bug-fix,
+  then ship, without asking again between them.
+- **None fits:** say which playbook is closest and why it falls short, then do the work by
+  hand under the hard rules of the operating frame. A feature, a refactor or a takeover has
+  no playbook yet: a feature runs as `/ss:shape`, the work, then `/ss:ship`, or as briefs
+  from `/ss:orchestrate`.
+- **Before coding anything non trivial**, `/ss:edge-cases` in plan mode turns the request
+  into WHEN/THEN acceptance criteria. Offer it when the expected behavior is not written
+  down yet.
+
+## 2. Size the route
+
+A playbook that changes code records five facts before the first edit:
+
+- **blast radius:** low, medium or high. Who calls this, and how far does a mistake travel?
+- **reversible:** yes or no. A migration, a sent message or a deleted record is no.
+- **data or auth:** does it touch stored data, permissions or secrets?
+- **coverage:** good, some or none. Are there tests near the code that changes?
+- **files:** how many files the change will likely touch.
+
+Then run:
+
+```bash
+python3 <plugin-root>/scripts/route.py --blast-radius <low|medium|high> --reversible <yes|no> \
+  --data-or-auth <yes|no> --coverage <good|some|none> --files <n>
+```
+
+It prints one line, `<route>: <reason>`. The same facts give the same route on every run.
+
+| Route       | What runs                                                                                                    |
+| ----------- | ------------------------------------------------------------------------------------------------------------ |
+| lightweight | preservation check, mechanical gate, the review loop with only the correctness front, then `/ss:ship`        |
+| standard    | mechanical gate, `/ss:review` in its default loop, then `/ss:ship`                                           |
+| intensive   | a blast radius pass over the callers first, `/ss:edge-cases` on the diff, `/ss:review deep`, then `/ss:ship` |
+
+The playbook's own `## Route` section says how this applies to it, and wins where it differs.
+"Keep it light" or "be thorough" from the person overrides the script. Say which route you
+are on and why, in one line.
+
+**Mechanical gate.** The cheap, objective checks come before any review front. The repo's
+pre-commit hooks run on commit. No test suite, lint, type check or build runs by hand: CI is
+the rest of the gate, and it runs when the branch is pushed. Push only when the endpoint or
+the playbook's scope allows it, then follow the run to the end with `Bash`
+`run_in_background` (`gh run watch <id> --exit-status`) and fix what it surfaces. An
+endpoint of "local commit" skips the CI half; say so in the close.
+
+## 3. Run it
+
+- **Todo list.** Copy the playbook's steps into the session's todo list, word for word, and
+  tick each as it finishes. A step is done only with the evidence it asks for.
+- **Endpoint.** Run to the endpoint the person stated. When they left it open, ask once
+  through the question tool: stop at a local commit, a pushed branch, or an open PR. A work
+  session reads the endpoint from its brief; when the brief leaves it open, it stops at a
+  local commit and says so in its report.
+- **Preservation check before every commit.** Reread the staged diff: nothing unrelated
+  changed, nothing removed the task did not ask to remove.
+- **Subagents.** Split independent work with `Agent` subagents, each with a standalone brief:
+  goal, repo, worktree, branch, acceptance criteria, limits. They cannot ask anyone: they
+  return their questions, and you ask them through the question tool.
+- **In a work session** (a session whose brief says an orchestrator started it), the
+  question tool is the orchestrator: `SendMessage` the question with its options and your
+  pick, then end the turn. A work session never starts sessions.
+- **After a compaction**, reread the todo list, and the brief if there is one, and pick up at
+  the first unticked step.
+
+## 4. Close
+
+Say what changed, what is verified and by what evidence, and what is left. When the run
+learned a project fact that passes the filter in `<plugin-root>/references/project-facts.md`,
+offer `/ss:record-fact` with the exact line. End at the handoff gate
+(`<plugin-root>/references/handoff-gate.md`): the next step as a question, "stop here" always
+among the options, unless the scope was authorized up front.
+
+The router stays on for later turns. It applies when a playbook matches and keeps out of the
+way otherwise. The person turns it off by saying so.
