@@ -25,16 +25,16 @@ one plugin, `ss`; the skills are organized by use.
 
 `/ss:go` reads the request, matches it to a **playbook** (a short recipe under `plugins/ss/skills/go/playbooks/`) and sizes the process to the risk: `scripts/route.py` picks a lightweight, standard or intensive route from five facts (blast radius, reversibility, data or auth, test coverage, files touched). the playbook's steps go into the todo list, each calling a skill.
 
-| playbook      | what it runs                                                                                                       |
-| ------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `investigate` | `/ss:investigate`, read only                                                                                       |
-| `bug-fix`     | find the cause, reproduce it, size the route, the smallest fix and its proof, the mechanical gate, review and ship |
-| `review`      | `/ss:review`, deep on the intensive route                                                                          |
-| `ship`        | `/ss:ship`, then offers `/ss:babysit`                                                                              |
-| `edge-cases`  | `/ss:edge-cases` in plan or diff mode                                                                              |
-| `babysit`     | `/ss:babysit` on any PR by number                                                                                  |
-| `review-setup` | `/ss:review-setup`, the guide's rules approved one by one                                                         |
-| `correct`     | `/ss:correct` on its own branch and PR; the router offers it when the same correction lands twice                  |
+| playbook       | what it runs                                                                                                       |
+| -------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `investigate`  | `/ss:investigate`, read only                                                                                       |
+| `bug-fix`      | find the cause, reproduce it, size the route, the smallest fix and its proof, the mechanical gate, review and ship |
+| `review`       | `/ss:review`, deep on the intensive route                                                                          |
+| `ship`         | `/ss:ship`, then offers `/ss:babysit`                                                                              |
+| `edge-cases`   | `/ss:edge-cases` in plan or diff mode                                                                              |
+| `babysit`      | `/ss:babysit` on any PR by number                                                                                  |
+| `review-setup` | `/ss:review-setup`, the guide's rules approved one by one                                                          |
+| `correct`      | `/ss:correct` on its own branch and PR; the router offers it when the same correction lands twice                  |
 
 ### shape → build → ship
 
@@ -70,8 +70,8 @@ project facts replace the old per-project knowledge base: one short line per fac
 
 ### corrections
 
-| skill         | description                                                                                                                         |
-| ------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| skill         | description                                                                                                                                |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
 | `/ss:correct` | encode a correction that landed twice as a check, proven on a past occurrence, on its own branch and PR; `/ss:go` offers it, never runs it |
 
 ### situational

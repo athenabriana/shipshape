@@ -19,16 +19,16 @@ skill is the thin recipe around it.
 
 ## 1. Match a playbook
 
-| playbook      | Pick it when                                                                                | Read                       |
-| ------------- | ------------------------------------------------------------------------------------------- | -------------------------- |
-| `investigate` | a read only question about the code, a branch or its history: how, why, where, what changed | `playbooks/investigate.md` |
-| `bug-fix`     | a defect, an error, a stack trace, "this fails", "fix this bug"                             | `playbooks/bug-fix.md`     |
-| `review`      | judge a diff: the current branch, or a PR by number                                         | `playbooks/review.md`      |
-| `ship`        | land a branch: commit, push, open or finish a PR, green CI                                  | `playbooks/ship.md`        |
-| `edge-cases`  | "what could break", "edge cases": before coding (plan mode) or on a diff (diff mode)        | `playbooks/edge-cases.md`  |
-| `babysit`     | "babysit PR 42", "watch PR 42", "fica de olho no PR 42": a watcher on any PR, by number     | `playbooks/babysit.md`     |
+| playbook       | Pick it when                                                                                         | Read                        |
+| -------------- | ---------------------------------------------------------------------------------------------------- | --------------------------- |
+| `investigate`  | a read only question about the code, a branch or its history: how, why, where, what changed          | `playbooks/investigate.md`  |
+| `bug-fix`      | a defect, an error, a stack trace, "this fails", "fix this bug"                                      | `playbooks/bug-fix.md`      |
+| `review`       | judge a diff: the current branch, or a PR by number                                                  | `playbooks/review.md`       |
+| `ship`         | land a branch: commit, push, open or finish a PR, green CI                                           | `playbooks/ship.md`         |
+| `edge-cases`   | "what could break", "edge cases": before coding (plan mode) or on a diff (diff mode)                 | `playbooks/edge-cases.md`   |
+| `babysit`      | "babysit PR 42", "watch PR 42", "fica de olho no PR 42": a watcher on any PR, by number              | `playbooks/babysit.md`      |
 | `review-setup` | write or update the repo's `CODE_REVIEW_GUIDE.md`: "set up code review", "the review guide is stale" | `playbooks/review-setup.md` |
-| `correct`     | a correction that landed twice: "make this mistake impossible", "turn this into a check"     | `playbooks/correct.md`     |
+| `correct`      | a correction that landed twice: "make this mistake impossible", "turn this into a check"             | `playbooks/correct.md`      |
 
 Read the matched playbook whole before the first step.
 
