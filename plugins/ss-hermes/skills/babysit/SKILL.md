@@ -31,12 +31,21 @@ Every path below lives in `references/babysit.md`; load it with
 | The prompt says `Babysit mode` (a watcher's tick)                                | "Run one tick"         |
 | The request names a PR: "babysit PR N", "watch PR N", "fica de olho no PR N"     | "Babysit by PR number" |
 | `ss:ship` reached the end of its PR path, or "and babysit" / "watch my PR" there | "Offer it"             |
+| "watch my PR", "fica de olho no meu PR", with no number and outside a ship run   | see below              |
+
+**No number, outside a ship run:** the PR is the current branch's. Run
+`gh pr view --json number,url,state`. With an open PR, take its number and follow "Babysit by
+PR number". With no PR, or with commits or changes not yet pushed, the work is not shipped:
+say so and hand over to `ss:ship` ("open the PR, and babysit"), whose PR path offers the
+watcher at its end.
 
 "Babysit by PR number" works on any PR, whoever opened it and whatever branch the person is
 on: it reads `OWNER/REPO` from the request, or from the current repo's `origin`.
 
 After "Babysit by PR number" or "Offer it", continue with "Give it a worktree" and "Create
-the job". A tick reads only "Run one tick" and "Stop the watcher".
+the job". When a watcher for the PR already exists, both create nothing: name it, and the run
+goes on to its own report (on the ship path, ship's report). A tick reads only "Run one
+tick" and "Stop the watcher".
 
 ## Ask the person
 
@@ -57,9 +66,8 @@ it never asks, it reports.
 
 ## Report
 
-After creating a watcher: its name (`ss-babysit OWNER/REPO#N`), schedule, job ID, workdir,
-where its reports go, the push rule it runs under (`can push: yes | no`, and why), and that
-`hermes cron remove JOB_ID` stops it early. When one already existed, name it and stop.
+After creating a watcher, report what "Create the job" lists. When one already existed, name
+it; nothing was created.
 
 ## Bundled resources
 

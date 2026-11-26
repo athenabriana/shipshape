@@ -44,7 +44,9 @@ Reached when `ss:ship` loads `ss:babysit` at the end of its PR path ("Offer the 
 its `references/ship-pr.md`), with the PR left waiting for review. Here `REMOTE` is `origin`.
 
 1. Check that no watcher exists for this PR: `cronjob(action='list')`, and look for the name
-   `ss-babysit OWNER/REPO#N`. When one exists, name it in the report and skip the offer.
+   `ss-babysit OWNER/REPO#N`. Without the `cronjob` tool in this session, run
+   `hermes -p PROFILE cron list --all` in `terminal` instead (`PROFILE` from the paragraph on
+   profiles below). When one exists, name it in the report and skip the offer.
 2. When the request already asked for it ("babysit", "watch my PR", "fica de olho no PR"),
    that is the yes: skip the question. Otherwise ask one `clarify` question that names the PR,
    says the watcher pushes fixes to its branch without asking, never merges, and stops by
@@ -55,12 +57,15 @@ its `references/ship-pr.md`), with the PR left waiting for review. Here `REMOTE`
 
 The watcher runs on the profile of the Bot that owns the PR: a front's PR on that front's
 Bot, anything else on the person's default profile. There is no separate watcher profile.
-The session or Bot chat that creates the job runs on that profile, so the job lands there.
+The job lands on the profile of the session or Bot chat that creates it, so create it only
+there. When the PR belongs to a front and this is not that front's Bot (or a session on its
+profile), create nothing: on the main Bot, hand the request to the front Bot as `ss:fronts`
+says ("Hand work to a front Bot"); anywhere else, name the Bot in the report.
 
 When the `cronjob` tool is not available in this session, give the person the
 `hermes cron create` command with the same name, schedule, skill, workdir, delivery and
-prompt, and stop. Fill the prompt's `Job:` line with `unknown` there: the tick looks up its
-own ID by name when it stops.
+prompt (after "Give it a worktree"), and create nothing yourself. Fill the prompt's `Job:`
+line with `unknown` there: the tick looks up its own ID by name when it stops.
 
 ## Give it a worktree
 
@@ -109,7 +114,8 @@ When it says the job is local only, ask one `clarify` question:
 job_id=JOB_ID, deliver=TARGET)`.
 - **Keep them local:** the person reads the reports with `hermes cron list`.
 
-Then report the watcher's name, schedule, job ID, where its reports go, and that
+Then report the watcher's name (`ss-babysit OWNER/REPO#N`), schedule, job ID, workdir, where
+its reports go, the push rule it runs under (`can push: yes | no`, and why), and that
 `hermes cron remove JOB_ID` stops it early.
 
 ### The job prompt
@@ -182,9 +188,9 @@ you do not repeat what it already said.
 
 6. **Handle red CI.** For each check in the `fail` bucket on the current head, follow "Fix
    what failed" in `skill_view('ss:ship', file_path='references/follow-ci.md')`: read the
-   log and fix, then commit and push as steps 7 and 8 below say. Do not wait for the new run. A `pending` check needs nothing. Count fix cycles per check across ticks
-   with a `CI fix cycles: CHECK=COUNT` line in every report. After three on one check, stop
-   fixing it, report the diagnosis once, and keep watching the rest.
+   log and fix, then commit and push as steps 7 and 8 below say. Do not wait for the new
+   run. A `pending` check needs nothing. Count fix cycles per check across ticks with a
+   `CI fix cycles: CHECK=COUNT` line in every report. After three on one check, stop fixing it, report the diagnosis once, and keep watching the rest.
 7. **Commit as ship does.** Run the preservation check on `git diff --staged`: nothing
    unrelated changed, nothing removed that the fix did not need. Commit in logical units,
    conventional style (`type(scope): subject`), with no AI attribution and no

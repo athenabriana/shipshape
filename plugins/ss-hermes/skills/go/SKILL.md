@@ -22,6 +22,9 @@ One entry point. Match the request to a playbook, size the route, run the steps.
 | babysit     | "babysit PR N", "watch PR N", "fica de olho no PR N": a cron watcher on any PR       | `ss:babysit`     |
 | edge-cases  | "what could break", "edge cases": before coding (plan) or on a diff                  | `ss:edge-cases`  |
 
+A babysit request takes no route and no endpoint question: load `ss:babysit` and follow its
+"Pick the entry". Creating the watcher is setup, not code, so a Bot does it from its own chat.
+
 Before coding anything non-trivial, `ss:edge-cases` in plan mode turns the request into
 WHEN/THEN acceptance criteria. Offer it when the expected behavior is not already written down.
 
