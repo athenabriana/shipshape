@@ -170,30 +170,42 @@ you do not repeat what it already said.
      newest conversation comment carrying the marker, that does not carry the marker itself.
 
    Triage and handle them as "Answer the review threads" in
-   `skill_view('ss:ship', file_path='references/ship-pr.md')` says,
-   with every reply ending in `<!-- ss:ship -->` (the marker `ss:ship` uses too, so a thread
-   either one handled reads as handled). Answer top-level review bodies and
+   `skill_view('ss:ship', file_path='references/ship-pr.md')` says, with two overrides: fixes
+   are committed and pushed only as steps 7 and 8 below say, and a `Fixed in SHA` reply goes
+   out only after that push lands (with `can push: no`, a fix thread gets an answer reply that
+   carries the diagnosis instead). Every reply ends in `<!-- ss:ship -->` (the marker `ss:ship`
+   uses too, so a thread either one handled reads as handled). Answer top-level review bodies and
    conversation comments with one PR comment (`gh pr comment N --repo OWNER/REPO --body-file -`, the body
    ending in the marker). An unclear thread gets no reply: list it in the report with its
    question and its two readings. List each one once; the person answers in the chat, and an
    interactive `ss:ship` run acts on the answer.
 
 6. **Handle red CI.** For each check in the `fail` bucket on the current head, follow "Fix
-   what failed" in `skill_view('ss:ship', file_path='references/follow-ci.md')`: read the log, fix, commit, push. Do not wait
-   for the new run. A `pending` check needs nothing. Count fix cycles per check across ticks
+   what failed" in `skill_view('ss:ship', file_path='references/follow-ci.md')`: read the
+   log and fix, then commit and push as steps 7 and 8 below say. Do not wait for the new run. A `pending` check needs nothing. Count fix cycles per check across ticks
    with a `CI fix cycles: CHECK=COUNT` line in every report. After three on one check, stop
    fixing it, report the diagnosis once, and keep watching the rest.
-7. **Push safely.** When the prompt says `can push: no`, or `BRANCH` is `main`, `master` or
+7. **Commit as ship does.** Run the preservation check on `git diff --staged`: nothing
+   unrelated changed, nothing removed that the fix did not need. Commit in logical units,
+   conventional style (`type(scope): subject`), with no AI attribution and no
+   `Co-authored-by` for an agent. Never commit a file that holds a secret (`.env`, a key, a
+   token): leave it out and report it.
+8. **Push safely.** When the prompt says `can push: no`, or `BRANCH` is `main`, `master` or
    `release*`, commit nothing: put the diagnosis in the report instead. Otherwise push with `git push REMOTE HEAD:BRANCH`. When the push is
    rejected because the branch moved, run `git fetch REMOTE BRANCH` and
    `git rebase REMOTE/BRANCH`, then push again. On a rebase conflict, run `git rebase --abort`, discard the tick's work, and report.
-   Never `--force`.
-8. **Report merge conflicts, do not fix them.** When `mergeable` is `CONFLICTING`, report it
+   Never `--force`. After a push that landed, when the PR description holds a `Review loop:`
+   line, run `python3 <plugin-root>/scripts/patch_id.py --pr N` and keep the description as
+   `ss:ship`'s Step 5 says: with `unchanged: false`, the line `Review verdict predates the last
+change: given at patch-id RECORDED, the branch is now at PATCH_ID.` sits right under the
+   verdict line (replace an older one); with `unchanged: true`, remove it. Edit it with
+   `gh pr view N --repo OWNER/REPO --json body` and `gh pr edit N --repo OWNER/REPO --body-file -`.
+9. **Report merge conflicts, do not fix them.** When `mergeable` is `CONFLICTING`, report it
    once. Resolving a conflict with the base is the person's call.
-9. **Answer.** When nothing was new and nothing was done, answer exactly `[SILENT]`. Otherwise
-   write a short report in the language the prompt names: the PR URL, what was fixed (with
-   commit SHAs), the threads answered, the unclear threads, red checks and conflicts, and the
-   `CI fix cycles` line.
+10. **Answer.** When nothing was new and nothing was done, answer exactly `[SILENT]`. Otherwise
+    write a short report in the language the prompt names: the PR URL, what was fixed (with
+    commit SHAs), the threads answered, the unclear threads, red checks and conflicts, and the
+    `CI fix cycles` line.
 
 ## Stop the watcher
 
