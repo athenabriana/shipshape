@@ -23,7 +23,8 @@ plugins/ss/
     ├── investigate, edge-cases
     ├── review, review-setup
     ├── caretake, takeover, research, write-readme, orchestrate
-    └── explain-the-number, attack-the-premise, prove-the-fix, correct   # situational, loaded by trigger (references/triggers.md)
+    ├── correct                            # offered by /ss:go when the same correction lands twice
+    └── explain-the-number, attack-the-premise, prove-the-fix   # situational, loaded by trigger (references/triggers.md)
 ```
 
 ### Naming Conventions
@@ -31,7 +32,7 @@ plugins/ss/
 - Skills live in `plugins/ss/skills/<name>/SKILL.md`, invoked as `/ss:<name>`. Keep the dir name identical to the frontmatter `name`.
 - A skill's own `scripts/` and `references/*.md` are relative to the skill dir. Shared ones live at the plugin root and are written `<plugin-root>/...`; the SessionStart hook resolves that placeholder to the install path once per session.
 - Project facts live under `## Project facts` in the repo's `CLAUDE.md` (or `AGENTS.md`); `plugins/ss/references/project-facts.md` is the contract, and only `/ss:record-fact` writes them.
-- A situational skill carries `kind: situational` under `metadata` and one row in `plugins/ss/references/triggers.md`, the trigger table an agent reads first: every orchestrate brief, the bug-fix playbook, `/ss:ship` and `/ss:correct` sends it there. `.github/scripts/validate-triggers.ts` checks that every situational skill has a row and every row a skill. `correct` stays in the menu as `/ss:correct`; the other three set `user-invocable: false`.
+- A situational skill carries `kind: situational` under `metadata` and one row in `plugins/ss/references/triggers.md`, the trigger table an agent reads first: every orchestrate brief, the bug-fix playbook and `/ss:ship` send it there. `.github/scripts/validate-triggers.ts` checks that every situational skill has a row and every row a skill. All three set `user-invocable: false`.
 - A playbook is `plugins/ss/skills/go/playbooks/<name>.md` with `## Steps`, `## Route` and `## Endpoint`, and one row in the table under `## 1. Match a playbook` in `skills/go/SKILL.md`. `.github/scripts/validate-playbooks.ts` checks both ways.
 - Hook commands reference files via `${CLAUDE_PLUGIN_ROOT}/...`, which only works inside `hooks.json`.
 

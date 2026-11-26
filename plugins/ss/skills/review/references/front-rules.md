@@ -112,7 +112,10 @@ In-code rules enter the checklist by `file:line` instead of an ID.
 ## 6. The project facts growth check
 
 When the diff touches `CLAUDE.md`, `.claude/CLAUDE.md` or `AGENTS.md`, run this check,
-with or without a `CODE_REVIEW_GUIDE.md`. With no guide, it is this front's only work:
+with or without a `CODE_REVIEW_GUIDE.md`. With no guide, it is this front's only work. It
+runs on every route and in every mode: a playbook that restricts the fronts, or a manual
+pick that leaves `rules` out, still gets this front for the check alone, since it is one
+script call and no agent:
 
 ```
 python3 <plugin-root>/scripts/check_project_facts.py <repo> --diff-range <diff_range>

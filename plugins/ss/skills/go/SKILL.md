@@ -1,10 +1,10 @@
 ---
 name: go
-description: Ship Shape's router. Reads the request, matches it to one playbook (investigate, bug-fix, review, ship, edge-cases, babysit), sizes the process to the risk with a lightweight, standard or intensive route picked by scripts/route.py from five risk facts, copies the playbook's steps into the session's todo list and runs each step's skill. Stays on across later turns until you turn it off. Use when the user types /ss:go (for example "/ss:go fix the login redirect"), says "use ss", "be rigorous", "do this properly", "fix this bug", "debug this", "why does this fail", "esse bug", "corrige esse bug", "fix and babysit", pastes an error or a stack trace and asks for a fix, says "babysit PR 42", or starts any non trivial engineering task. Don't use it for a tiny mechanical change (just do it) or for a question about Claude Code itself.
+description: Ship Shape's router. Reads the request, matches it to one playbook (investigate, bug-fix, review, ship, edge-cases, babysit, review-setup, correct), sizes the process to the risk with a lightweight, standard or intensive route picked by scripts/route.py from five risk facts, copies the playbook's steps into the session's todo list and runs each step's skill. Stays on across later turns until you turn it off, and offers /ss:correct when the same correction lands twice in a session. Use when the user types /ss:go (for example "/ss:go fix the login redirect"), says "use ss", "be rigorous", "do this properly", "fix this bug", "debug this", "why does this fail", "esse bug", "corrige esse bug", "fix and babysit", pastes an error or a stack trace and asks for a fix, says "babysit PR 42", "set up code review", "make this mistake impossible", or starts any non trivial engineering task. Don't use it for a tiny mechanical change (just do it) or for a question about Claude Code itself.
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # Go
@@ -27,6 +27,8 @@ skill is the thin recipe around it.
 | `ship`        | land a branch: commit, push, open or finish a PR, green CI                                  | `playbooks/ship.md`        |
 | `edge-cases`  | "what could break", "edge cases": before coding (plan mode) or on a diff (diff mode)        | `playbooks/edge-cases.md`  |
 | `babysit`     | "babysit PR 42", "watch PR 42", "fica de olho no PR 42": a watcher on any PR, by number     | `playbooks/babysit.md`     |
+| `review-setup` | write or update the repo's `CODE_REVIEW_GUIDE.md`: "set up code review", "the review guide is stale" | `playbooks/review-setup.md` |
+| `correct`     | a correction that landed twice: "make this mistake impossible", "turn this into a check"     | `playbooks/correct.md`     |
 
 Read the matched playbook whole before the first step.
 
@@ -96,7 +98,28 @@ endpoint of "local commit" skips the CI half; say so in the close.
 - **After a compaction**, reread the todo list, and the brief if there is one, and pick up at
   the first unticked step.
 
-## 4. Close
+## 4. Watch for a repeated correction
+
+A **correction** is a fix the person asks for on work an agent did here: "no, use X",
+"that's wrong, do Y", an edit they undo. Its **class** names the mistake, so a second
+occurrence reads as the same one. While the router is on, keep the classes of this
+session's corrections in mind.
+
+When the same class lands a second time in one session, ask through the question tool
+whether to run `/ss:correct` on it. The question names the class and both occurrences;
+"Encode it with /ss:correct" is the recommended pick, and "Not now" the other option. Ask
+once per class, after the current step finishes, and go on with the task either way.
+
+- **On a yes**, run the `correct` playbook on its own branch from the base, once the
+  current task reaches its endpoint or the person says to switch. The encoding never
+  rides on the branch of the task that surfaced it.
+- **On a no**, drop the class for the rest of the session.
+- **In a work session**, the question goes to the orchestrator like any other, as a
+  `Correction repeated:` line naming the class and its occurrences.
+
+Nothing about a correction runs unasked: the router offers, the person decides.
+
+## 5. Close
 
 Say what changed, what is verified and by what evidence, and what is left. When the run
 learned a project fact that passes the filter in `<plugin-root>/references/project-facts.md`,

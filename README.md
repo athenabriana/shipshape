@@ -33,6 +33,8 @@ one plugin, `ss`; the skills are organized by use.
 | `ship`        | `/ss:ship`, then offers `/ss:babysit`                                                                              |
 | `edge-cases`  | `/ss:edge-cases` in plan or diff mode                                                                              |
 | `babysit`     | `/ss:babysit` on any PR by number                                                                                  |
+| `review-setup` | `/ss:review-setup`, the guide's rules approved one by one                                                         |
+| `correct`     | `/ss:correct` on its own branch and PR; the router offers it when the same correction lands twice                  |
 
 ### shape → build → ship
 
@@ -53,7 +55,7 @@ project facts replace the old per-project knowledge base: one short line per fac
 | skill              | description                                                                                                                                                    |
 | ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `/ss:review`       | loop over the branch: every front in parallel, a judge on Sonnet (`ss-review-judge`), fixes and re-reviews, up to 3 rounds (`manual` to pick fronts and items) |
-| `/ss:review-setup` | generate or update the repo's `CODE_REVIEW_GUIDE.md`, the rule source `/ss:review` reads                                                                       |
+| `/ss:review-setup` | generate or update the repo's `CODE_REVIEW_GUIDE.md`, the rule source `/ss:review` reads; review rules never go into `CLAUDE.md` or `AGENTS.md`                |
 
 ### helpers
 
@@ -66,13 +68,15 @@ project facts replace the old per-project knowledge base: one short line per fac
 | `/ss:write-readme` | generate a minimal centered-header README from repo facts                          |
 | `/ss:orchestrate`  | split a large piece of work into side sessions and relay between them              |
 
+### corrections
+
+| skill         | description                                                                                                                         |
+| ------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `/ss:correct` | encode a correction that landed twice as a check, proven on a past occurrence, on its own branch and PR; `/ss:go` offers it, never runs it |
+
 ### situational
 
-| skill         | description                                                                                             |
-| ------------- | ------------------------------------------------------------------------------------------------------- |
-| `/ss:correct` | encode a correction that landed twice as a check, proven on a past occurrence, on its own branch and PR |
-
-`explain-the-number`, `attack-the-premise` and `prove-the-fix` stay out of the menu: an agent loads one by itself, mid-task, when its trigger in `plugins/ss/references/triggers.md` fires. every orchestrate brief, the bug-fix playbook, `/ss:ship` and `/ss:correct` reads that table first.
+`explain-the-number`, `attack-the-premise` and `prove-the-fix` stay out of the menu: an agent loads one by itself, mid-task, when its trigger in `plugins/ss/references/triggers.md` fires. every orchestrate brief, the bug-fix playbook and `/ss:ship` read that table first.
 
 ## on hermes
 
