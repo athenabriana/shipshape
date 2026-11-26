@@ -54,9 +54,9 @@ The steps run in order. Steps 1 to 5 only read, and the file changes only in ste
    On **Approve**, write the line under `## Project facts`, creating that heading once when
    the file has none. On **Drop**, leave the file as it was.
 
-## In a front
+## In a work session
 
-In a front of `/ss:orchestrate`, the question in step 6 goes to the orchestrator through
+In a work session of `/ss:orchestrate`, the question in step 6 goes to the orchestrator through
 `SendMessage`, as `<plugin-root>/references/front-contract.md` describes: the exact line,
 the line it merges with or replaces, and the three options with Approve first. Then end the
 turn. Write the line only after the person's yes comes back, on the front's own branch.

@@ -1,101 +1,95 @@
-# While fronts run
+# While work sessions run
 
-The orchestrator is the only place the person looks. This page covers how questions,
-reports and artifacts reach the person, how many fronts run at once, what to do on the
-usage limit and when fronts collide, how a change of plan travels, and what happens to
-sessions that existed before the run.
+The orchestrator is the only place Athena looks. This page covers how questions, reports
+and artifacts reach her, what the front records as they pass, how many work sessions run
+at once, what to do on the usage limit and when work sessions collide, and how a change of
+plan travels.
 
-## Questions from a front
+## Questions from a work session
 
-A front sends each question its skill would have asked, with the options and the
-recommended pick written in the message (see `<plugin-root>/references/front-contract.md`).
+A work session sends each question its skill would have asked, with the options and the
+recommended pick written in the message (`<plugin-root>/references/front-contract.md`).
 
-- **Relay it through `AskUserQuestion`**, in the same turn it arrives: the question in
-  plain product words, every option the front sent with what it does and what it costs,
-  and the front's pick first, marked as the recommendation. The front writes in English;
-  the person reads the question and its options in the person's language.
-- **Send the answer back in the person's words**, quoted, through `SendMessage` to the
-  side session's `local_…` id or its name from `ListAgents`. A pick goes back as the
-  option's label as the front sent it; free text goes back as the person wrote it, in
-  their language. A paraphrase or a translation is a second decision the person did not
-  make. The rest of the message is English, by the rule in `references/briefs.md`.
-- **A side session that stopped on a question for the person** shows as idle in
-  `list_sessions`, with no message sent. Read its last message with `list_events`, relay
-  the question from there, and send the answer as a new message; the person never has to
-  open that session to unblock it.
+- **Relay it word for word through `AskUserQuestion`**, in the same turn it arrives: the
+  question, every option the work session sent with what it does and what it costs, and its
+  pick first, marked as the recommendation. Translate it into Athena's language when she
+  speaks another, and change nothing else.
+- **Record it** under Waiting on Athena in the front, with the date. When she answers, the
+  line moves to Log with her words quoted.
+- **Send the answer back in Athena's words**, quoted, through `SendMessage` to the work
+  session's `local_…` id. A pick goes back as the option's label as the work session sent
+  it; free text goes back as she wrote it. A paraphrase is a second decision she did not
+  make.
+- **A work session that stopped on a question** shows as idle in `list_sessions`, with no
+  message sent. Read its last message with `list_events`, relay the question from there,
+  and send the answer as a new message.
+- **A question from `/ss:manager`** reaches this session as a message. Answer it from the
+  front, and relay anything that needs Athena's decision to her here, word for word.
 
 ## Reports
 
-- **Say each report to the person** in plain product words and in the person's language,
-  with a recommendation when it leaves a decision.
+- **Say each report to Athena** in plain product words, with a recommendation when it
+  leaves a decision.
+- **Update the front** in the same turn: the work session's row (state and a one-line last
+  report), the Repos row (PR and CI), and Next. A long report goes to the Notes tab.
 - **A report is that session's claim, not proof.** Check the PR, the diff or the file
-  before telling the person a front is done.
-- **A report that carries `Correction repeated:` lines proposes a `correct` front.**
-  Bring each class to the person as a question through `AskUserQuestion`, one question
-  per class, all in one call, describing the correction and its occurrences. The
-  recommended pick opens a front that runs `/ss:correct` on its own branch, briefed as
-  `references/briefs.md` says. The other option leaves it, and `/ss:correct` can encode
-  it later. A front never opens on the line alone.
+  before telling Athena a task is done.
+- **A proposed project fact** goes to Athena as the exact line, through `AskUserQuestion`.
+  Send her answer back quoted; the work session writes the line only after her yes, in its
+  own branch.
+- **A report that carries `Correction repeated:` lines** proposes a `/ss:correct` work
+  session. Bring each class to Athena as a question through `AskUserQuestion`, one question
+  per class, all in one call. A work session never starts on the line alone.
 
 ## Artifacts
 
-Every page a front produces reaches the person here, and the person changes it here.
-
-- **When a front sends an artifact URL**, open it for the person in the same turn, with
+- **When a work session sends an artifact URL**, open it for Athena in the same turn with
   the `Artifact` tool's `open` action, and name in one line what it shows.
-- **When the person asks to change an artifact**, edit it here: read it with the
-  `Artifact` tool's `read` action, apply the edit, and publish again to the same URL, so
-  the link the person holds keeps working.
-- **When the edit needs code or the front's context**, send it to the front with the
-  person's words quoted. The front republishes to the same URL and sends it back; open it
-  again.
-- **A design canvas** from a front (see "Designs go on a canvas" in
-  `<plugin-root>/references/front-contract.md`): open it, and watch it with
-  `ArtifactComments` so the comments the person sends to Claude land here. Answer each
-  comment in its thread, and send every design change to the front, the comment quoted
-  with the artboard it sits on. When the person approves a variation, send the front its
-  label quoted; that approval is what lets the front write code.
-- **A local file** (a screenshot, a video, a long report) reaches the person through
-  `SendUserFile`, from the path the front sent or from the notes folder. Name what each
-  file shows in one line, so the person knows what to look at.
+- **When Athena asks to change an artifact**, read it with the `Artifact` tool's `read`
+  action, apply the edit, and publish again to the same URL. An edit that needs code or the
+  work session's context goes to the work session with her words quoted.
+- **A design canvas** (`<plugin-root>/references/front-contract.md`, "Designs go on a
+  canvas"): open it, and watch it with `ArtifactComments`. Send every design change to the
+  work session, the comment quoted with its artboard. When Athena approves a variation,
+  send its label quoted; that approval lets the work session write code.
+- **A local file** reaches Athena through `SendUserFile`, from the path the work session
+  sent or from the notes folder. Name what each file shows in one line.
 
-## Many fronts at once
+## Many work sessions at once
 
-There is no fixed cap on fronts at once. Above four fronts working at the same time, tell
-the person before opening the next one, in one line with the fronts already running.
+There is no fixed cap. Above four working at the same time, tell Athena before starting the
+next one, in one line with the ones already running.
 
 ## The usage limit
 
-A front that stops on the usage limit shows its reset time in its last message.
+A work session that stops on the usage limit shows its reset time in its last message.
 
-1. Tell the person the reset time once, in one line, for every front that stopped on it.
-2. Once the reset passes, send each stopped front a message to continue where it stopped.
+1. Tell Athena the reset time once, in one line, for every session that stopped on it.
+2. Once the reset passes, send each stopped session a message to continue.
 
-The session tools do not wake the orchestrator at a given time, so the message goes out
-on the first turn after the reset: the person's next message, or a front that wakes the
-orchestrator. Say so in the same line as the reset time.
+The session tools do not wake the orchestrator at a given time, so the message goes out on
+the first turn after the reset. Say so in the same line as the reset time.
 
-## Fronts that collide
+## Work sessions that collide
 
-- **Two fronts touching the same files**: tell both, name the other front and the files,
-  and ask each for the smallest change that does its job. The second PR to land merges
-  `main` first.
-- **The person spoke to a side session directly**: what they said there stands. Read the
-  end of that conversation with `list_events` before replacing the side session or
-  sending it anything that contradicts it.
+- **Two work sessions touching the same files**: tell both, name the other and the files,
+  and ask each for the smallest change that does its job. The second PR to land merges the
+  base first.
+- **Athena spoke to a work session directly**: what she said there stands. Read the end of
+  that conversation with `list_events` before replacing the session or sending it anything
+  that contradicts it.
 
 ## A change of plan
 
-- **Relay a correction at once**, in the person's words. A front that keeps building on
-  the old plan wastes the work after the correction.
-- **Change the goal of the side session** when its context helps the new goal. Open a new
-  one only when the old context would mislead it.
-- **Pausing a front** means it stops with no PR and keeps what it did, committed on its
-  branch or written to the notes folder, so it can resume.
+- **Relay a correction at once**, in Athena's words, and record it in Log. A work session
+  that keeps building on the old plan wastes the work after the correction.
+- **Change the goal in the front** only with her words quoted.
+- **Pausing a work session** means it stops with no PR and keeps what it did, committed on
+  its branch or written to the notes folder, so it can resume.
 
-## Sessions from before the run
+## Sessions from before the front
 
-A session that existed before `/ss:orchestrate` started does not become a side session.
-Ask it for a hand-over summary (what it did, what is left, its branch and PR), open a new
-side session with that summary in the brief, and once the new one has started, archive
-the old one by the steps in `references/cleanup.md`.
+A session that existed before `/ss:orchestrate` started does not become a work session. Ask
+it for a hand-over summary (what it did, what is left, its branch and PR), start a new work
+session with that summary in the brief, and once the new one has started, archive the old
+one by `references/cleanup.md`.

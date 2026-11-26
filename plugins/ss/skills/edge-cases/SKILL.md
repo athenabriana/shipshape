@@ -59,7 +59,7 @@ Walk each one. Keep only those the behavior can reach, and say in one line which
    the reason the behavior exists. Put those first.
 4. **Ask what nobody decided.** A row with no known outcome is a product question for the
    person. Ask with `AskUserQuestion`, at most 4 questions per call, the recommended outcome
-   first, each question naming the case and what each choice does. In a front, the question
+   first, each question naming the case and what each choice does. In a work session, the question
    goes to the orchestrator as `<plugin-root>/references/front-contract.md` says. The row
    stays marked `open` until it is settled.
 5. **Write the table where the caller says.** That is a path the caller gives (a session
@@ -150,4 +150,4 @@ first:
 | the diff is empty                           | say there is nothing to check and stop                   |
 | a candidate is a bug the diff did not touch | report it as Sugestão, flagged pre-existing              |
 | the caller gives no path in plan mode       | the table goes in the chat                               |
-| running in a front                          | questions go to the orchestrator, per the front contract |
+| running in a work session                   | questions go to the orchestrator, per the front contract |

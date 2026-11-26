@@ -1,185 +1,178 @@
-# Opening a front
+# Starting a work session
 
-A side session sees only its brief. It does not see this conversation, the person's
-earlier answers or the other fronts, so the brief is all the context it will ever have.
-This page covers what the brief carries, how a front is named, the scope and the skill it
-names, the rules every brief repeats, how a front reports and proves its work, and how it
-stays off the person's screen.
+A work session sees only its brief. It does not see this conversation, Athena's earlier
+answers, the other work sessions or the front, so the brief is all the context it will ever
+have. This page covers what the brief carries, how a work session is named, the scope and
+the playbook it names, the rules every brief repeats, how it reports and proves its work,
+and how it stays off Athena's screen.
 
 ## The brief
 
 Write it in `start_session`'s `prompt`. With `context: "fresh"`, also write the shared
-goal, the decisions so far and how this front fits in `background`, which the call
-requires, 80 characters or more. A brief carries eleven things, in this order:
+goal, the decisions so far and how this task fits in `background`, which the call requires,
+80 characters or more. A brief carries these, in this order:
 
 1. **The kickoff line**, as the brief's first line: "Read
    `<plugin-root>/references/triggers.md` before anything else.", with `<plugin-root>`
-   replaced by the path this session resolved. The table there lists the situational skills,
-   and the front loads one by its path when its trigger fires.
-2. **The front marker**: a line that says the session is a front of `/ss:orchestrate`,
-   names the orchestrator's session id (the `local_…` id `SendMessage` takes in `to`), and
-   points to `<plugin-root>/references/front-contract.md`. Every ss skill reads that line
-   and sends its questions to the orchestrator instead of asking a dialog.
-3. **The person's exact words**, in quotes. A paraphrase loses the detail the side
-   session needs to judge an edge case.
-4. **The goal and what done means**: the observable result, and the step it ends on (a
-   PR open with green CI, a report, a board of screenshots).
-5. **The scope**, as the next section sets it.
-6. **The ss skill to run**, picked by the route below.
-7. **The files and areas** the front touches, as far as the orchestrator knows them.
-8. **The decisions already made**, so the side session does not ask them again. When the
-   repo has `## Project facts`, name the ones that cover that code.
-9. **What not to do**: the areas another front owns, and anything the person ruled out.
-10. **How to validate**: the commands, the app run, the behaviors to walk.
-11. **How to report**, as the last section of this page says, and the standing rules
-    below, every one of them.
+   replaced by the path this session resolved. The table there lists the situational
+   skills, and the work session loads one by its path when its trigger fires.
+2. **The work-session marker**: a line that says the session is a work session of
+   `/ss:orchestrate`, names the orchestrator's session id (the `local_…` id `SendMessage`
+   takes in `to`), and points to `<plugin-root>/references/front-contract.md`. Every ss
+   skill reads that line and sends its questions to the orchestrator instead of asking a
+   dialog.
+3. **Athena's exact words**, in quotes. A paraphrase loses the detail the work session
+   needs to judge an edge case.
+4. **The playbook or skill to run**, picked by the route below.
+5. **The goal and what done means**: the observable result, and the step it ends on.
+6. **The repo, the worktree and the branch**: the repository, `use_worktree: true` for code,
+   and the slug as the branch.
+7. **The acceptance criteria**, copied as WHEN/THEN lines from the front's Now tab, so the
+   work session never reads the front.
+8. **The endpoint and the scope**, as the next sections set them.
+9. **The files and areas** it touches, as far as the orchestrator knows them.
+10. **The decisions already made**, so the work session does not ask them again. When the
+    repo has `## Project facts`, name the ones that cover that code.
+11. **The limits**: the areas another work session owns, anything Athena ruled out, and the
+    standing rules below, every one of them.
+12. **How to validate**: the behaviors to walk, and the CI the change must turn green.
+13. **How to report**, as the last sections of this page say.
 
-Give each side session a title and a `name` as "Naming a front" says.
+The brief names no front location: no doc link, no Now tab, no `~/.ss/fronts/` path. The
+front is the orchestrator's alone.
 
 Write the brief and its `background` in English. `<plugin-root>/references/doc-style.md`
-puts a string the person reads in their language; the traffic between sessions is read
-by sessions, so it is English, which costs fewer tokens across a run. That covers the
-brief, the front's questions and reports, and every message the orchestrator sends a
-front. The person's words keep the language they were said in: the brief quotes the
-request as said, and an answer goes back to the front quoted as the person gave it. What
-the person reads, the questions the orchestrator asks and the reports it gives, stays in
-their language.
+puts a string Athena reads in her language; the traffic between sessions is read by
+sessions, so it is English, which costs fewer tokens across a front. That covers the brief,
+the work session's questions and reports, and every message the orchestrator sends it.
+Athena's words keep the language they were said in: the brief quotes the request as said,
+and an answer goes back quoted as she gave it.
 
-## Naming a front
+## Naming a work session
 
-The sidebar is how the person tells the fronts apart, so every front carries one title
-pattern and one `name` rule. This section holds both, and when a title changes.
+The sidebar is how Athena tells the work sessions apart, so each carries one title pattern
+and one `name` rule.
 
 **The title** is an English imperative, a verb and the outcome, in sentence case and under
-60 characters: "Fix session naming in orchestrate", "Add edge-cases skill", "Migrate sites
-to Cloudflare". It says what the front delivers. The stage (shape, code, PR), the repo
-and the ss skill the front runs stay out of it, because the sidebar already shows the PR
-and its state. A skill appears only when it is the thing being built. When the title would
-pass 60 characters, write a shorter one.
+60 characters: "Fix session naming in orchestrate", "Add edge-cases skill". It says what the
+work session delivers. The stage, the repo and the playbook stay out of it, because the
+sidebar already shows the PR and its state.
 
-**The `name`** is the front's slug: the branch it works on. Pick the slug when you open
-the front, then make the `name` with the script, passing the `name`s of the run's live
-sessions:
+**The `name`** comes from the task's slug, which is also the branch it works on. Make it
+with the script, passing the `name`s of the live work sessions of this front:
 
-```
-python3 scripts/front_name.py <slug> --live <name> <name> ...
+```bash
+python3 <plugin-root>/scripts/front_name.py <slug> --live <name> <name> ...
 ```
 
-It prints `{slug, name, cut, collision}`. Pass `name` as `start_session`'s `name`, and the
-full `slug` as `branch_name`; the app wraps the branch in the person's branch prefix and a
-suffix, so the slug is the middle part of the branch name. Always
-pass `name`: when it is omitted, `start_session` derives one from the title and cuts it
-mid-word. A slug over 24 characters keeps its full form in the branch,
-and the `name` is cut at the last hyphen that fits (`orchestrate-session-naming` becomes
-`orchestrate-session`). `start_session` does not enforce a unique `name`, but linked
-sessions and `SendMessage` reach a front by it, so two live fronts with one `name` are
-ambiguous. When `collision` is true, pick another slug and run the script again before the
-start. Pass `--live` only the `name`s of sessions that are not archived: an archived
-front has left the run, so its `name` is free again.
-
-To make the slug from the front's title, pass the title to the script and use the `slug`
-it prints.
-
-**The slug in the brief.** Write the slug into the brief as the branch the front works on.
+It prints `{slug, base, suffixed, name, cut, collision}`. Pass `name` as `start_session`'s
+`name`, and the full `slug` as `branch_name`; the app wraps the branch in the person's
+branch prefix and a suffix. Always pass `name`: when it is omitted, `start_session` derives
+one from the title and cuts it mid-word. A slug over 24 characters keeps its full form in
+the branch, and the `name` is cut at the last hyphen that fits. When `collision` is true,
+pick another slug and run the script again before the start. Pass `--live` only the `name`s
+of sessions that are not archived.
 
 **Renaming.** The `name` never changes after the start. The title changes only when the
-front's work changes: you reuse the front for another task, or the scope grows or shrinks
-until the old title misleads. A new stage, a PR opening or a front finishing keeps the
-title; archiving is what closes a front. Rename with `set_session_title` on the front's
-session. When the person set the title themselves, the app asks them to approve the new
-one: tell them which approval is waiting. In an unattended run the call can decline
-instead, so read its result and tell the person the title stayed. When they decline, the
-title stays, and you do not ask again.
+task changes until the old title misleads. Rename with `set_session_title` on the work
+session. When Athena set the title herself, the app asks her to approve the new one: tell
+her which approval is waiting, and on a decline keep it and ask no second time.
 
 ## The scope
 
-A code front runs at the full scope unless the person asked for less: the work, review
+A code work session runs at the full scope unless Athena asked for less: the work, review
 and ship, up to a PR with green CI, with no merge. Write the scope in the brief in those
-words, so the front asks nothing about what runs after the work.
+words, so the work session asks nothing about what runs after the work. A work-only scope
+stops at a green, committed branch. The merge stays with the orchestrator, and only for a
+PR Athena authorized here (`references/landing.md`).
 
-When the person asks for less in the request, the brief sets that scope instead. A
-work-only scope stops at a green, committed branch. A merge stays with the orchestrator, and only for a PR the person authorized (see
-`references/landing.md`).
+## The endpoint
 
-## The skill route
+Name one: a local commit, a pushed branch, or an open PR. A code task defaults to an open
+PR with green CI. A read-only task (an investigation, research, a review) ends at its
+report.
 
-Pick the skill from what the person asked for, and name it in the brief:
+## The playbook route
 
-| the request                                    | the skill the front runs                                      |
-| ---------------------------------------------- | ------------------------------------------------------------- |
-| a feature or a change of behavior              | `/ss:shape`, the work with `Agent` subagents, then `/ss:ship` |
-| an idea that needs research first              | `/ss:research`, then `/ss:shape`                              |
-| a bug                                          | `/ss:go`, its bug-fix playbook                                |
-| someone else's PR to adopt or bring up to date | `/ss:takeover`                                                |
-| a branch to read for bugs                      | the loop of `/ss:review`                                      |
-| a built branch to land                         | `/ss:ship`                                                    |
-| a repeated correction the person chose to fix  | `/ss:correct`                                                 |
+Pick the playbook or skill from what Athena asked for, and name it in the brief:
 
-`/ss:caretake` only reads the repo, so the orchestrator runs it in place, with no front.
-When the route names a skill the installed plugin lacks, name the closest skill that
-exists and tell the person which one the front runs.
+| the request                                    | what the work session runs                                                    |
+| ---------------------------------------------- | ----------------------------------------------------------------------------- |
+| a question about code, a branch or its history | `/ss:go`, its investigate playbook                                            |
+| a bug                                          | `/ss:go`, its bug-fix playbook                                                |
+| a feature or a change of behavior              | the criteria from the front, the work with `Agent` subagents, then `/ss:ship` |
+| an idea that needs research first              | `/ss:research`, its report sent to the orchestrator                           |
+| missed cases in a plan or a diff               | `/ss:go`, its edge-cases playbook                                             |
+| a branch to read for bugs                      | `/ss:go`, its review playbook                                                 |
+| a built branch to land                         | `/ss:go`, its ship playbook                                                   |
+| someone else's PR to adopt or bring up to date | `/ss:takeover`                                                                |
+| a repeated correction Athena chose to fix      | `/ss:correct`                                                                 |
+
+`/ss:caretake` only reads, so the orchestrator runs it in place, with no work session. When
+the route names a skill the installed plugin lacks, name the closest one and tell Athena.
 
 ## The standing rules
 
-Every brief repeats these, whatever the front:
+Every brief repeats these, whatever the task:
 
-- **The person's global rules, copied word for word** from their global `CLAUDE.md` and
-  the project's. A rule like "checks run only in CI, nothing locally" is a rule of the
-  brief whenever the person has it, not an example to pick from.
-- **Work in a worktree of your own.** A code front that opened with no worktree, as when
-  the session's folder is not a git repository, creates its own with `git worktree add`
-  on a new branch before it touches a file, and works only there.
+- **Athena's global rules, copied word for word** from her global `CLAUDE.md` and the
+  project's. A rule like "checks run only in CI, nothing locally" is a rule of the brief
+  whenever she has it, not an example to pick from.
+- **Never start a session.** Split the work with `Agent` subagents. A step that needs
+  another session goes to the orchestrator in the final report.
+- **Never merge, approve or deploy.** The merge is the orchestrator's, on Athena's
+  authorization.
+- **Work in a worktree of your own.** A code session that opened with no worktree, as when
+  the session's folder is not a git repository, creates its own with `git worktree add` on
+  a new branch before it touches a file, and works only there.
 - **No force push and no rebase on a shared branch.** Bring the base in with a merge.
-- **Turn Auto-fix on when the PR opens** (`set_monitor` with `auto_fix: true`). The app
-  asks the person to approve the switch, so the brief says the front asks for it.
-- **On an interface front, design comes before code, on a Design canvas.** The front
-  follows "Designs go on a canvas" in `<plugin-root>/references/front-contract.md`: one
-  variation per artboard, the recommended one first, and code only after the person
-  approves.
+- **Turn Auto-fix on when the PR opens** (`set_monitor` with `auto_fix: true`). The app asks
+  Athena to approve the switch, so the brief says the work session asks for it.
+- **No secret, token or credential** in a message, a report or a file outside the repo's
+  own secret handling.
+- **On an interface task, design comes before code, on a Design canvas**, by "Designs go on
+  a canvas" in `<plugin-root>/references/front-contract.md`.
 
 ## How to report
 
 Write this section into every brief:
 
-- **A question for the person** goes to the orchestrator through `SendMessage`, with its
-  options and the recommended pick, as the front contract says. Then the front waits.
+- **A question for Athena** goes to the orchestrator through `SendMessage`, with its options
+  and the recommended pick, as the front contract says. Then the work session ends its turn
+  and waits.
+- **A proposed project fact** goes to the orchestrator the same way, as the exact line.
 - **A page** (a board, a report) is published as an Artifact, and its URL goes to the
-  orchestrator in the same message that says what the page shows. A design goes on a
-  Design canvas, by the front contract.
-- **A local file** (a screenshot, a video) goes to the notes folder, and its path goes to
-  the orchestrator.
+  orchestrator in the same message that says what the page shows.
+- **A local file** (a screenshot, a video, a long report) goes to the notes folder, and its
+  path goes to the orchestrator.
 - **The final report**, at done or at a blocker, carries the result, the PR url with the
-  state of its CI, and the blockers. Every `Correction repeated:` line the front
-  wrote goes in it verbatim, so the orchestrator can ask the person about it.
+  state of its CI, and the blockers. Every `Correction repeated:` line goes in it verbatim.
 
 ## The notes folder
 
-The notes folder is a folder outside the repository, created by the orchestrator for the
-run, where side sessions leave what does not fit a message: screenshots, boards, long
-reports and hand-over notes. Name its path in every brief. The orchestrator reads what
-lands there and sends the files to the person with `SendUserFile`. A folder outside the
-repository keeps the run's material out of every branch.
+The notes folder is a folder outside every repository where work sessions leave what does
+not fit a message. The app gives a group of sessions a shared notes folder and names it in
+each session's prompt; when it does not, name one in the brief. It is not the front: the
+orchestrator reads what lands there, copies what matters into the front's Notes tab, and
+sends files to Athena with `SendUserFile`.
 
 ## Green CI alone is not done
 
-A front that changes what the person sees proves it in a running instance before it
+A work session that changes what Athena sees proves it in a running instance before it
 reports done:
 
-1. Run the project in an isolated instance (the next section says how for each kind of
-   project), so it never touches the instance the person is using.
+1. Run the project in an isolated instance (the next section says how), so it never touches
+   the instance Athena is using.
 2. Walk every behavior the change affects.
 3. Take a screenshot of each state.
 4. Fix what diverges from what was asked, and walk it again.
-5. Send the person a board of the screenshots, through the orchestrator.
+5. Send a board of the screenshots to the orchestrator.
 
-The board stays screenshots in the notes folder, apart from the design canvas: the canvas
-holds what was proposed, the board proves what was built. Write these steps into the
-brief of every interface front.
+Write these steps into the brief of every interface task.
 
-## The person's screen and files stay untouched
+## Athena's screen and files stay untouched
 
-A side session works on its own instance and on test data, never on the person's. What
-that takes depends on the project:
+A work session works on its own instance and on test data, never on Athena's:
 
 | kind of project | the isolated instance                                                   |
 | --------------- | ----------------------------------------------------------------------- |
@@ -187,8 +180,7 @@ that takes depends on the project:
 | web app         | its own dev-server port and an isolated browser profile; a test account |
 | CLI             | a temporary home or config folder, and test folders as input            |
 
-**When the project is a desktop app**, the front opens no native dialog on the person's
+**When the project is a desktop app**, the work session opens no native dialog on Athena's
 machine: no folder picker, no save dialog, no print dialog. In an Electron app it mocks
-`dialog` from the main process. A dialog that opens on the person's screen interrupts
-what they are doing and can act on their real files. Write this rule into every brief
-whose front runs the app.
+`dialog` from the main process. Write this rule into every brief whose session runs the
+app.
