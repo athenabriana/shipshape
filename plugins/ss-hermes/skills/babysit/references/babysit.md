@@ -191,7 +191,9 @@ you do not repeat what it already said.
    log and fix, then commit and push as steps 7 and 8 below say. Do not wait for the new
    run. A `pending` check needs nothing. Count fix cycles per check across ticks with a
    `CI fix cycles: CHECK=COUNT` line in every report. After three on one check, stop fixing it, report the diagnosis once, and keep watching the rest.
-7. **Commit as ship does.** Run the preservation check on `git diff --staged`: nothing
+7. **Commit as ship does.** First the push gate: when the prompt says `can push: no`, or
+   `BRANCH` is `main`, `master` or `release*`, commit nothing and put the diagnosis in the
+   report. Otherwise run the preservation check on `git diff --staged`: nothing
    unrelated changed, nothing removed that the fix did not need. Commit in logical units,
    conventional style (`type(scope): subject`), with no AI attribution and no
    `Co-authored-by` for an agent. Never commit a file that holds a secret (`.env`, a key, a
