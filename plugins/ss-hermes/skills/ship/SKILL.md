@@ -40,9 +40,9 @@ Every question goes through the `clarify` tool, never as plain text:
   open, and what each choice does next.
 - When a `clarify` call times out, ask again right away. A timeout is not a "no".
 
-When you run as a worker on a Kanban card, nobody is on the line. Ask with `kanban_block` on
-your own card, carrying the same question and choices, and end the run. The coordinator
-brings the question to the person.
+When you run as a session a Bot started, nobody is on the line: see "When a Bot started this
+session" below. As the Bot itself (the chat the person talks to), ship's commits and pushes
+run in a session: hand them over as `ss:go` ("Start a session") says.
 
 ## Step 1: Read the ground
 
@@ -161,49 +161,16 @@ Load the reference for the destination from Step 2 and follow it:
 
 Load each with `skill_view('ss:ship', file_path='references/NAME.md')`.
 
-## Track the PR on a Kanban card
+## When a Bot started this session
 
-Kanban is optional. Use it only when the work already sits on a card or the person asks for
-one. Who you are decides what you may do on the board:
-
-- **A coordinator** is a session without `HERMES_KANBAN_TASK` in its environment. Only a
-  coordinator creates cards, including a separate PR card.
-- **A worker** is a session the dispatcher spawned for one card (`HERMES_KANBAN_TASK` is
-  set). It can change only its own card: comment on it, block it, complete it.
-
-**The coordinator sets the contract when it creates the card.** `completion_contract` can be
-set only by `kanban_create`, never later. Pick it from the base branch's required checks:
-
-```bash
-gh api repos/OWNER/REPO/rules/branches/BASE_BRANCH
-gh api graphql -f query='query($o:String!,$r:String!,$b:String!){repository(owner:$o,name:$r){ref(qualifiedName:$b){branchProtectionRule{requiredStatusChecks{context}}}}}' \
-  -f o=OWNER -f r=REPO -f b=refs/heads/BASE_BRANCH
-```
-
-These are the two sources the board's own gate reads, and both answer without admin rights
-(the REST `branches/BASE/protection` endpoint does not).
-
-- **Required checks listed** (a `required_status_checks` rule, or `requiredStatusChecks` on
-  the branch protection rule):
-  set `completion_contract` to the exact PR URL (`https://github.com/OWNER/REPO/pull/N`), or
-  to `OWNER/REPO` when the PR does not exist yet. The board accepts only these two forms and
-  refuses to complete the card until the required checks pass on the PR's exact head.
-- **No required checks** (no such rule, and `branchProtectionRule` is null or lists none):
-  set `local-only`. A PR
-  contract on a base with no required checks can never complete. Say on the card, in its
-  body, that the base has no required checks and CI green is checked by ship, not the board.
-- **Either call fails** (auth, rate limit, network): the answer is unknown, never `local-only`.
-  Ask the person with `clarify` which contract to set, the PR form recommended.
-
-**The worker completes its own card** after CI is green:
-`kanban_complete(summary="SHIPPED: PR_URL, CI green on SHA", metadata={"published_pr": "PR_URL"})`.
-`kanban_complete` needs a `summary` or a `result`. When the board refuses, read the reason,
-go back to `references/follow-ci.md`, and try again once the checks are green.
-
-**Post progress** with `kanban_comment` on the card you hold: the PR URL when it opens, and
-each CI fix cycle.
-
-Completing a card never merges the PR. The merge stays the person's.
+A Bot hands ship to a background `--source cli` session with a brief. The brief holds the
+acceptance criteria and this session's worklist tracks progress; nothing is posted anywhere
+else. A question goes in the final report, with its choices and your recommendation, and the
+run ends there: the Bot asks the person and resumes this session with the answer. Print the
+PR URL as soon as the PR opens, so the log holds it even if the run dies. The final report
+carries the PR URL, each CI fix cycle, and the green run on the exact head SHA, so the Bot
+can verify it with `gh pr view` before it reports and archives the session. A green PR never
+merges itself: the merge stays the person's.
 
 ## Report
 

@@ -8,7 +8,7 @@ or where a choice the project made on purpose got undone.
 - **`AGENTS.md` at the repo root**: its project facts (a choice, a trap, a constraint the code
   does not show). Hermes loads it into every session, so the author was told; a diff that
   reverses one did it anyway or did not notice.
-- **Acceptance criteria**, when the caller passed them: the body of the Kanban card this
+- **Acceptance criteria**, when the caller passed them: the brief of the session this
   branch works, or a criteria list in the PR body. Without either, questions 1 and 2 below
   are skipped in one line.
 

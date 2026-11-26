@@ -4,7 +4,7 @@ description: Answers a read-only question about code, a branch or its history wi
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 0.2.0
+  version: 0.3.0
 ---
 
 # Investigate

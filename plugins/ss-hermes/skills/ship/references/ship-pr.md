@@ -39,7 +39,7 @@ the review threads, follow CI to green, then offer the watcher.
    ```
 
    Add `--draft`, `--label`, `--reviewer` or `--assignee` as the person asked. Print the PR
-   URL. When the work is tracked on a Kanban card, post the URL there with `kanban_comment`.
+   URL.
 
 ## Update the proof (when the PR exists)
 
@@ -105,8 +105,9 @@ After every push, run ship's Step 5 again when a review verdict exists.
 
 ## Follow CI to green
 
-Follow `references/follow-ci.md` with the PR's checks. When green and the work is on a
-Kanban card, complete the card as ship's "Track the PR on a Kanban card" says.
+Follow `references/follow-ci.md` with the PR's checks. When green and a Bot started this
+session, put the PR URL and the green run in the final report (ship's "When a Bot started this
+session").
 
 ## Offer the watcher
 

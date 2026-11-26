@@ -4,13 +4,15 @@ description: Checks that Ship Shape is ready on Hermes. Confirms the ss plugin i
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 0.2.0
+  version: 0.3.0
 ---
 
 # Set up ss
 
-ss runs on the person's own profile, the Bot. It creates no extra profiles. Builder, reviewer
-and scout are ephemeral subagents, and the advanced-delegation plugin picks each one's model.
+ss runs on every Bot (a Hermes profile): the main Bot and each front Bot. Setup creates no
+profiles; front Bots are created by `ss:fronts`, and a clone inherits this setup. Builder,
+reviewer and scout are ephemeral subagents, and the advanced-delegation plugin picks each
+one's model.
 
 ## 1. Read what exists
 
@@ -64,3 +66,6 @@ theirs: read the current `options`, merge, then write it back. Never drop a rout
 Report what changed and what was already in place. Say that routes apply to new sessions
 only, so the current chat keeps its old delegation mode. To undo:
 `hermes config set delegation.backend default`.
+
+On the main Bot, the next step for a new full-stack feature is a front Bot: offer
+`ss:fronts` as a choice, never run it unasked.

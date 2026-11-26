@@ -42,8 +42,11 @@ Every question goes through the `clarify` tool, never as plain text:
 - Write the question and the choices in the language the person is speaking.
 - When a call times out, ask again at once. A timeout is not an answer.
 
-When you run as a Kanban card worker, the card body is your brief. Read the scope from it,
-and send any other question to the coordinator with `kanban_block` instead of `clarify`.
+When you run as a session a Bot started (a background `--source cli` run from a brief),
+nobody is on the line. The brief gives the scope. Put any other question in your final
+report, with its choices and your recommendation, and end the run; the Bot asks the person
+and resumes you. As the Bot itself (the chat the person talks to), the fix's edits and
+commits run in a session: hand them over as `ss:go` ("Start a session") says.
 
 ## Step 1: Read the ground
 
@@ -262,13 +265,9 @@ gives.
 
 A bug can turn out not to be a bug. When the fix depends on a business rule nobody decided,
 or two rules in the code contradict each other, the right behavior is a decision. Stop the
-run and edit nothing more. Then pick who decides:
-
-- **The team decides** (a product rule, a behavior users see): load
-  `skill_view('abrir-discussao')` and open the discussion in `#bot-product-discussion` with
-  the cause, the missing or contradictory rule, and the reproduction.
-- **Only Athena decides** (her repo, her setup, her preference): ask her with `clarify`,
-  with the cause and the options the code allows.
+run and edit nothing more. Ask the person with `clarify`: the cause, the missing or
+contradictory rule, the reproduction, and the options the code allows, recommended choice
+first. Product rules go to the person too; never post to Slack or any other channel.
 
 Once the rule is decided, the shape playbook turns it into acceptance criteria.
 
@@ -286,10 +285,10 @@ Once the rule is decided, the shape playbook turns it into acceptance criteria.
 | the project has no test framework                      | the reproduction is the proof; the report says no focused test exists |
 | CI runs only on `pull_request` and no PR exists        | the report says the test-fails-first half was not shown               |
 | CI stays red on the focused test after the fix         | back to Step 3 with the CI output, inside the three-hypothesis limit  |
-| the fix needs a business rule decided                  | stop; `abrir-discussao` for the team, `clarify` for Athena            |
+| the fix needs a business rule decided                  | stop; ask the person with `clarify`                                   |
 | the fix grows past a small change                      | stop and propose the shape playbook                                   |
 | on a protected branch                                  | create `fix/SLUG` before the first edit                               |
 | the preservation check finds an unrelated change       | restore it before the commit                                          |
 | the report is a red CI on an open PR with no bug named | this belongs to `ss:ship`; say so and stop                            |
 | the bug is that something got slow                     | follow `references/performance.md`                                    |
-| running as a Kanban card worker                        | the card body gives the scope; questions go through `kanban_block`    |
+| running as a session a Bot started                     | the brief gives the scope; questions go in the final report           |

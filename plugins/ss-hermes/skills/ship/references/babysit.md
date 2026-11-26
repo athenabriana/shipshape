@@ -53,8 +53,9 @@ is `origin`.
    - **Watch every 2 hours**
    - **No watcher:** the report ends with how to ask for one later ("babysit PR #N").
 
-The watcher runs in the person's default profile, the Bot that holds their memory. There is
-no separate watcher profile: create the job from a session of that profile.
+The watcher runs on the profile of the Bot that owns the PR: a front's PR on that front's
+Bot, anything else on the person's default profile. There is no separate watcher profile.
+The ship session runs on that profile, so the job it creates lands there.
 
 When the `cronjob` tool is not available in this session, give the person the
 `hermes cron create` command with the same name, schedule, skill, workdir, delivery and
@@ -123,7 +124,6 @@ Repo: OWNER/REPO. PR branch: BRANCH. Base: BASE_BRANCH. Push remote: REMOTE (can
 Workdir: WORKTREE (the watcher's own worktree of GIT_ROOT, local branch ss-babysit/N)
 Watching since: ISO_TIMESTAMP
 Job: JOB_ID (or unknown), named "ss-babysit OWNER/REPO#N"
-Kanban card: CARD_ID or none
 Plugin root: PLUGIN_ROOT (read <plugin-root> in ss:ship as this path)
 Report in: LANGUAGE
 
@@ -210,6 +210,5 @@ you do not repeat what it already said.
    `git -C GIT_ROOT branch -D ss-babysit/N` in the report for the person to run.
 
 3. Answer with one report: why the watcher stopped (merged, closed, or approved and green),
-   the PR URL, and "the merge is yours" when it is approved and green. When the PR has a
-   Kanban card, say the card can be completed with `metadata.published_pr` set to the PR URL.
+   the PR URL, and "the merge is yours" when it is approved and green.
    When a removal command failed, put the command in the report so the person can run it.

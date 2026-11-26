@@ -35,7 +35,7 @@ The diff fronts need no `gh`. A surface-scope a11y audit needs neither a repo no
   front's only source. With none, the report carries one line pointing at the
   `review-setup` skill.
 - **Project facts**: `AGENTS.md` at the root is the `contract` front's ruler. When the caller
-  names a Kanban card, its body's acceptance criteria join it.
+  passes a brief, its acceptance criteria join it.
 - **The intent read** (`intent-read.md`): run the probe, read the PR body and the whole
   conversation, and write the **intent block** every finder carries. An external PR and a
   surface audit skip it.
@@ -71,7 +71,7 @@ deep (`fronts.md`, the depth table):
   the full angle set, the sweep, the larger cap, and up to 6 verifiers. Deep also runs
   `ss:edge-cases` in diff mode as a step (no closing question) and feeds its confirmed rows
   to the verify pass as candidates. When the caller already ran `ss:edge-cases` on this range
-  (the intensive route of `ss:mode` and `ss:bug-fix`) and hands its table over, deep takes
+  (the intensive route of `ss:go` and `ss:bug-fix`) and hands its table over, deep takes
   those rows as the candidates and does not run it again.
 
 Carry the depth into the scope block. The report names which one ran.
