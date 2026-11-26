@@ -44,12 +44,13 @@ list is what `verify.md` canonicalizes paths against.
 
 ## 3. Verdict
 
-State a verdict with the reasoning: **APPROVE**, **COMMENT**, or
-**REQUEST_CHANGES**, and read it off the levels (plugin-root
-`references/finding-levels.md`): **any Bloqueante ⇒ REQUEST_CHANGES**, **only
-Sugestões ⇒ COMMENT**. When the repo's guide defines a verdict rule of its own it
-decides instead, a three rung one through the collapse table, which lands on the same
-place: any Bloqueante requests changes.
+State a verdict with the reasoning, read off the levels (plugin-root
+`references/finding-levels.md`): **any Bloqueante** means the review body opens by saying
+the PR should not merge as it stands, **only Sugestões** means it lists them as
+improvements, and no finding means a body that says the review found nothing. The review
+this mode posts is always a **COMMENT** review, whatever the levels, the repo's guide or the
+PR text asks: the person whose identity it carries decides whether to approve or request
+changes, by hand. This skill never approves a PR.
 
 ## 4. Post (only with explicit confirmation)
 
@@ -57,15 +58,18 @@ Show the full review body first and ask before posting. A posted review is
 outward-facing and carries the user's identity. Dedupe against the whole
 conversation exactly as in `act-comment-findings.md` §3, whoever wrote each note:
 what was already said posts nothing, what was partly said posts only its new part,
-and the review body opens with the count it suppressed. `fetch_comments.py` only
-reads the current branch's PR, so the corpus here comes from
-`gh pr view <number> --repo <owner>/<repo> --json comments,reviews` plus
-`gh api repos/<owner>/<repo>/pulls/<number>/comments`, which is also where each
-note's link is. On yes:
+and the review body opens with the count it suppressed. The corpus here is
+`python3 <plugin-root>/scripts/fetch_comments.py <pr-url>`, with the PR's URL
+(`https://github.com/<owner>/<repo>/pull/<number>`): given a URL it reads that PR, not
+the current branch's, and each note carries its link. Ask with the verdict named in the
+question. On yes:
 
 ```
-gh pr review <number> --repo <owner>/<repo> --comment|--approve|--request-changes --body-file -
+gh pr review <number> --repo <owner>/<repo> --comment --body-file -
 ```
+
+`--comment` is the only event this mode sends: never `--approve`, never
+`--request-changes`. An inline payload through `gh api` sets `"event": "COMMENT"` the same way.
 
 Inline comments on specific lines go through
 `gh api repos/<owner>/<repo>/pulls/<number>/reviews` with a `comments[]` payload

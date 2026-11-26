@@ -3,7 +3,7 @@
 Resolve the project's checks through the authority chain, without running any of
 them: CLAUDE.md and docs, then CI workflow files, then package.json / justfile /
 Makefile / pyproject.toml. Consumed by /ss:ship (its Step 2), /ss:review,
-/ss:correct, /ss:diagnose, and the situational skills prove-the-fix and
+/ss:correct, the bug-fix playbook of /ss:go, and the situational skills prove-the-fix and
 explain-the-number, which read whether checks may run locally.
 
 This docstring is where the chain is stated, and this script is the resolution; the

@@ -34,6 +34,9 @@ jobs:
       - name: Validate the trigger table
         run: bun .github/scripts/validate-triggers.ts
 
+      - name: Validate the playbooks
+        run: bun .github/scripts/validate-playbooks.ts
+
       - name: Unit tests
         run: python3 -m unittest discover -s plugins/ss/scripts -p 'test_*.py' -v
 

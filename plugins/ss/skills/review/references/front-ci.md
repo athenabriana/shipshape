@@ -18,7 +18,7 @@ the payload says, so the payload is what gets read.
 
 - The availability probe already bucketed the checks (`fronts.md`: `checks.failing`,
   `checks.pending`, `checks.cancelled`). A pending check is not evidence; wait for it to
-  settle before diagnosing. A cancelled one has no log to diagnose either: report it as a
+  settle before you read a cause into it. A cancelled one has no log to read either: report it as a
   gate that never ran, which is what a re-run fixes.
 - Without a PR the branch's last run stands in: `gh run list --branch <branch>` for
   the run, then `gh run view <run-id> --log-failed` for its log.
@@ -56,11 +56,12 @@ an assertion to make CI green needs the user's explicit say-so, never a default.
 Watch the affected workflow re-run: `gh pr checks <number> --watch` (or
 `gh run watch`) as a **background** command with the Monitor tool on its output.
 `<plugin-root>/hooks/scheduling-decision.md` carries that rule whole, alert
-condition included; follow it there. Cap the loop at **3 diagnose→fix cycles per check**; after that,
-stop editing and report what's still red with the evidence. A check that
+condition included; follow it there. Cap the loop at **3 fix cycles per check**, each a
+diagnosis then a fix; after that, stop editing and report what's still red with the
+evidence. A check that
 survives three informed fixes needs a human decision, not a fourth guess.
 
-**In the review loop** CI enters round 1 only (`loop.md`): the fix comes from the logs
-the evidence step read, it rides the loop's single push, and the re-run is read once after
-that push. A check still red goes to the report with its evidence and opens no round; the
-three cycles above are the manual flow's.
+**In the review loop** CI enters round 1 (`loop.md`): the fix comes from the logs the
+evidence step read and rides the loop's push. After that push the loop follows CI to the
+end under the same three cycles (`loop.md`, "After the last round"). A check still red
+after them goes to the report with its evidence and opens no round.

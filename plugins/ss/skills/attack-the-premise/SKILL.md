@@ -1,11 +1,11 @@
 ---
 name: attack-the-premise
-description: Situational guidance an agent loads by itself when its second fix failed the same gate as the first, before a third attempt. Write down the premise both fixes assumed and test it directly, so the next fix rests on evidence. Read by /ss:diagnose, the /ss:ship CI loop and any session fixing a bug, through references/triggers.md.
+description: Situational guidance an agent loads by itself when its second fix failed the same gate as the first, before a third attempt. Write down the premise both fixes assumed and test it directly, so the next fix rests on evidence. Read by the bug-fix playbook of /ss:go, the /ss:ship CI loop and any session fixing a bug, through references/triggers.md.
 user-invocable: false
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.0.0
+  version: 1.0.1
   kind: situational
 ---
 
@@ -16,7 +16,7 @@ third fix that assumes it fails the same way. Before that third attempt, write t
 down and test it on its own.
 
 This skill decides what the next attempt rests on. How many attempts your run allows stays
-with what runs you: the loop of `/ss:diagnose`, the CI loop of `/ss:ship`, or your brief.
+with what runs you: the bug-fix playbook of `/ss:go`, the CI loop of `/ss:ship`, or your brief.
 
 ## Recognize the trigger
 
@@ -71,7 +71,7 @@ Pick the case your result matches:
 - **The premise holds.** The fixes were wrong under a sound premise. Make the third attempt,
   and name what it changes that the first two did not.
 - **The premise could not be tested.** Stop fixing. Report the premise and the observation
-  that would settle it, in the report of `/ss:diagnose`, or to the person in `/ss:ship` and
+  that would settle it, in the report of the bug-fix playbook, or to the person in `/ss:ship` and
   any other session. In a front of `/ss:orchestrate`, send it to
   the orchestrator, which brings it to the person.
 

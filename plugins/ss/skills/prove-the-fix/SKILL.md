@@ -1,17 +1,17 @@
 ---
 name: prove-the-fix
-description: Situational skill for an agent whose task fixes a bug, loaded by the path its row in the plugin's references/triggers.md gives. States the proof a bug fix owes. The reproduction fails before the fix and passes after it, and the focused test goes through the real code path the fix changes, asserts what a user of that code observes, fails without the fix and passes with it. Read by /ss:diagnose and by any session fixing a bug. It is not a command.
+description: Situational skill for an agent whose task fixes a bug, loaded by the path its row in the plugin's references/triggers.md gives. States the proof a bug fix owes. The reproduction fails before the fix and passes after it, and the focused test goes through the real code path the fix changes, asserts what a user of that code observes, fails without the fix and passes with it. Read by the bug-fix playbook of /ss:go and by any session fixing a bug. It is not a command.
 user-invocable: false
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.0.0
+  version: 1.0.1
   kind: situational
 ---
 
 # Prove the fix
 
-Your task fixes a bug: a `/ss:diagnose` run, or any session fixing one. This page is the proof that fix owes, and it holds wherever the fix is built. Your caller keeps its own steps (where the reproduction lives, how the commits are named, who reads the result); this page says what makes the fix proven.
+Your task fixes a bug: a run of the bug-fix playbook under `/ss:go`, or any session fixing one. This page is the proof that fix owes, and it holds wherever the fix is built. Your caller keeps its own steps (where the reproduction lives, how the commits are named, who reads the result); this page says what makes the fix proven.
 
 This page is the one place the trailers that carry the proof to `/ss:ship` are written: "The commits" below gives their form.
 
@@ -21,7 +21,7 @@ The sections below run in order: the two halves of the proof, the order they are
 
 A fix is proven when both halves hold, and the report shows both:
 
-1. **The reproduction fails before the fix and passes after it.** It fails the way the report or the task describes. A reproduction that passes before any fix shows nothing about the bug: stop there and return it to your caller, since either the reproduction or the cause is wrong. In `/ss:diagnose` it is the failure that cannot be reproduced.
+1. **The reproduction fails before the fix and passes after it.** It fails the way the report or the task describes. A reproduction that passes before any fix shows nothing about the bug: stop there and return it to your caller, since either the reproduction or the cause is wrong. In the bug-fix playbook it is the failure that cannot be reproduced.
 2. **The focused test fails without the fix and passes with it.** It is the half that stays in the repo, and the next section says what makes it count.
 
 When the project has no test framework, the reproduction is the whole proof. The report says that no focused test exists, and the choice of a framework stays with the person.

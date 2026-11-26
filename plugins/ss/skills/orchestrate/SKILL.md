@@ -67,7 +67,7 @@ Most runs cycle through all four many times: new fronts open while others land.
 
 ## Beside the other skills
 
-The side sessions run the ss skills, and the brief names which one a front runs, by the route in `references/briefs.md`, "The skill route": a bug runs `/ss:diagnose`, an idea that needs research runs `/ss:research` then `/ss:shape`, a feature runs `/ss:shape`, then the work in the session with `Agent` subagents, then `/ss:ship`. `/ss:caretake` only reads the repo, so the orchestrator runs it in place, with no front.
+The side sessions run the ss skills, and the brief names which one a front runs, by the route in `references/briefs.md`, "The skill route": a bug runs `/ss:go` (its bug-fix playbook), an idea that needs research runs `/ss:research` then `/ss:shape`, a feature runs `/ss:shape`, then the work in the session with `Agent` subagents, then `/ss:ship`. `/ss:caretake` only reads the repo, so the orchestrator runs it in place, with no front.
 
 In a front, each skill sends its questions to the orchestrator, by `<plugin-root>/references/front-contract.md`. Relay each one to the person through `AskUserQuestion`, and send the answer back quoted. A front publishes its pages as Artifacts: open each one for the person, and apply the person's edits to it here (`references/relay.md`, "Questions from a front" and "Artifacts"). A report that carries `Correction repeated:` lines proposes a `correct` front: bring each one to the person as a question through `AskUserQuestion`, and open the front only on their pick (`references/relay.md`, "Reports").
 

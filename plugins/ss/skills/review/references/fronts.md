@@ -80,11 +80,11 @@ direction the design reads).
 
 ## Depth: two tiers by default, a third only when asked
 
-| Diff                             | Correctness angles                                | Quality | Rules      | Contract | A11y    | Design  | Verify                         | Sweep   | Report cap |
-| -------------------------------- | ------------------------------------------------- | ------- | ---------- | -------- | ------- | ------- | ------------------------------ | ------- | ---------- |
-| ≲2 files / ≲100 lines            | the first 2 of the angle set, inline (no fan-out) | inline  | inline     | inline   | inline  | inline  | self-check in the main context | none    | 6          |
-| **any larger diff, the default** | the first 3 of the angle set (3 agents)           | 1 agent | 1 agent    | 1 agent  | 1 agent | 1 agent | 1-vote grouped by location     | none    | 10         |
-| **deep, only on request**        | the whole angle set (up to 5 agents)              | 1 agent | 1–2 agents | 1 agent  | 1 agent | 1 agent | 1-vote grouped by location     | 1 agent | 15         |
+| Diff                             | Correctness angles                                | Quality | Rules      | Contract | A11y    | Design  | Verify                                   | Sweep   | Report cap |
+| -------------------------------- | ------------------------------------------------- | ------- | ---------- | -------- | ------- | ------- | ---------------------------------------- | ------- | ---------- |
+| ≲2 files / ≲100 lines            | the first 2 of the angle set, inline (no fan-out) | inline  | inline     | inline   | inline  | inline  | the judge in the loop, else a self-check | none    | 6          |
+| **any larger diff, the default** | the first 3 of the angle set (3 agents)           | 1 agent | 1 agent    | 1 agent  | 1 agent | 1 agent | 1-vote grouped by file                   | none    | 10         |
+| **deep, only on request**        | the whole angle set (up to 5 agents)              | 1 agent | 1–2 agents | 1 agent  | 1 agent | 1 agent | 1-vote grouped by file                   | 1 agent | 15         |
 
 **Size alone never reaches the third row.** A big diff runs the middle tier: the
 same three angles a medium one gets, no sweep, because a review that silently
@@ -92,9 +92,8 @@ triples its own cost on a big branch is the review nobody can afford to run twic
 The deep tier is opt-in and the router is what sets it (`SKILL.md`, step 1: the
 `deep` argument, "review deeply", or the deep option at the fronts question).
 This engine only reads the flag it was handed. The verify pass has a ceiling of its
-own (4 verifier agents, 6 deep) and dispatches by file rather than by location, so
-a pool that lands on many locations bundles them instead of spending an agent apiece
-(`verify.md`, §1).
+own (4 verifier agents, 6 deep) and dispatches by file, so a pool that lands on many
+files bundles them instead of spending an agent apiece (`verify.md`, §1).
 
 The table sizes the fan-out. **Which** angles fill it comes from what the diff is
 made of (`front-correctness.md`). A diff of prompts or manifests swaps the
@@ -111,6 +110,11 @@ Finders and verifiers declare `model: sonnet` in their own definitions
 the call says otherwise. **Deep mode passes `model: "opus"` on every Agent call it
 sends**, finders and verifiers alike. That's the whole difference in cost between
 the tiers, alongside the angle count.
+
+The loop's judge is the one exception: `ss-review-judge` declares `model: sonnet` and goes
+out with no `model` override at every depth, deep included, so it stays a different model
+from the owner's (`loop.md`, "The judge"). The verifiers that take its seat in the
+execution lane follow it (`verify.md`).
 
 Nothing about the main context changes: it stays on the session's model, it stays
 the single writer, and it is what applies fixes. What the fan-out is for is reading
@@ -155,7 +159,7 @@ change it reviewed.
    rides.
 
 3. **Barrier before verify.** Pool every finder's candidates first: verification
-   groups them by `file:line`, which needs all of them (`verify.md`).
+   groups them by file, which needs all of them (`verify.md`).
 4. **`threads` and `ci` don't fan out**: they're script/`gh` reads followed by
    judgment in the main context.
 5. The finder's own contract (name a consequence, pass through every candidate

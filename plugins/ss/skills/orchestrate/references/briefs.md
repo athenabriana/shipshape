@@ -51,7 +51,7 @@ The sidebar is how the person tells the fronts apart, so every front carries one
 pattern and one `name` rule. This section holds both, and when a title changes.
 
 **The title** is an English imperative, a verb and the outcome, in sentence case and under
-60 characters: "Fix session naming in orchestrate", "Add diagnose skill", "Migrate sites
+60 characters: "Fix session naming in orchestrate", "Add edge-cases skill", "Migrate sites
 to Cloudflare". It says what the front delivers. The stage (shape, code, PR), the repo
 and the ss skill the front runs stay out of it, because the sidebar already shows the PR
 and its state. A skill appears only when it is the thing being built. When the title would
@@ -109,7 +109,7 @@ Pick the skill from what the person asked for, and name it in the brief:
 | ---------------------------------------------- | ------------------------------------------------------------- |
 | a feature or a change of behavior              | `/ss:shape`, the work with `Agent` subagents, then `/ss:ship` |
 | an idea that needs research first              | `/ss:research`, then `/ss:shape`                              |
-| a bug                                          | `/ss:diagnose`                                                |
+| a bug                                          | `/ss:go`, its bug-fix playbook                                |
 | someone else's PR to adopt or bring up to date | `/ss:takeover`                                                |
 | a branch to read for bugs                      | the loop of `/ss:review`                                      |
 | a built branch to land                         | `/ss:ship`                                                    |
