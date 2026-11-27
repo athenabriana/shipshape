@@ -28,6 +28,43 @@ Before round 1, gather real references for the pattern, by
 `<plugin-root>/references/ui-references.md`, once for the whole loop. The critic gets them
 in every round.
 
+## Check the goals before round 1
+
+The goals are read against their own sources once, before the first screenshot: the
+request, the brief, the decisions file, the design sources and the target itself.
+
+- **A contradiction** between two of them (a goal of a light theme only and a decisions
+  file that keeps a dark one, a settings screen that offers what a goal rules out) is
+  raised once, in the opening decision sheet, each side quoted with its file and line and
+  the recommended pick first. With no sheet left to ask in, take the brief's side and name
+  it under "decided on my own".
+- **A build-only goal** is one the target kind cannot carry: on a mockup or a canvas, "built
+  from the project's components" or "the live keyboard walk passes". Mark it build only,
+  with the ground ("a canvas cannot mount ui-sdk"). The critic records it as
+  `deferred_to_build`, it does not hold back `goals_achieved`, and the report carries it to
+  the build. What the mockup must already show for it is still judged.
+
+## The loop folder
+
+A loop runs long, and the scratchpad can be cleared mid-run. Everything the loop needs to
+go on lives in one durable folder: the notes folder the brief names, else
+`~/.ss/runs/<slug>/`, with `<slug>` from the target's name. Never the scratchpad.
+
+```
+<loop folder>/
+├── state.json        # the goals, the round number, open findings and refusals, the trend, agent ids
+├── shots/r<N>/       # each round's screenshots, contact sheets and shots.json
+├── canvas/           # a canvas target's artboard files, the copy each round edits
+└── tools/            # any script the loop writes: a generator, a measuring helper
+```
+
+`state.json` is written after each step of a round: the screenshots taken, each agent
+dispatched (its id from the `Agent` result) and each agent's return. On a restart, read it
+first. An agent that was dispatched and has no return is resumed with `SendMessage` to its
+id, asking it to finish and return its JSON; only when that fails is it dispatched fresh,
+with the same prompt. A round's screenshots that are missing from `shots/` are taken
+again before anything is judged.
+
 ## Real visuals, always
 
 The loop judges screenshots of the running thing, never code alone. Reading the source
@@ -48,8 +85,10 @@ tells you what was meant; the screenshot tells you what the user gets.
 - **Cover the tasks.** For each task a user comes to do, capture every step and the state
   after it. Add the states the tasks pass by: empty, loading, error, disabled, hover,
   focus, overflow. Capture a web UI at a desktop width and at a phone width (390 px).
+- **A Design canvas** is read into the loop folder and rendered locally, by
+  `<plugin-root>/skills/ui-critique/references/canvas-target.md`.
 - **Name the files** by task and step (`checkout-1-cart.png`, `checkout-2-pay.png`) and
-  keep them in the notes folder, or the session's scratchpad when there is none.
+  keep them in the loop folder's `shots/r<N>/`.
 
 When no tool can render the interface, say so in one line in the report and run the
 critic on the closest real visual there is (a canvas export, a mockup image). A review
@@ -60,14 +99,16 @@ from code alone is never reported as a visual check.
 One critic per round: one `Agent` call with `subagent_type: "ss:ss-design-critic"`, fresh
 and memoryless, as hard to please in the last round as in the first. The prompt carries, in this order:
 
-1. The screenshot paths, grouped by task and step, with the widths.
+1. The screenshot paths, grouped by task and step, with the widths. On a canvas with more
+   than a dozen boards, the contact sheets plus the full shots the round needs, by
+   `canvas-target.md` "Big canvases".
 2. The tasks in plain words.
 3. The design sources the project has: the token file, the component library's path, the
    visual direction (`design/<surface>.md` or a path the brief names). None is required.
 4. The round's work: round 1, everything; later rounds, the open findings with their
    numbers and the new screenshots.
-5. The goals: the brief's goals and acceptance criteria, numbered, copied as written. The
-   critic judges each one.
+5. The goals: the brief's goals and acceptance criteria, numbered, copied as written, each
+   build-only goal marked with its ground. The critic judges each one.
 6. The reference, when there is one: the screenshot of the app that a mockup rebuilds, or
    the approved canvas that a build must match.
 7. The real UI references for the pattern, gathered by
@@ -92,14 +133,24 @@ screenshots yourself against that file, and mark the round "self-judged" in the 
 - **Refuse a finding only with a ground** the next critic can check: it contradicts the
   person's request or the design source, quoted. A refused finding goes to the next round
   with its ground.
+- **End the round at a clean step**: commit the code that changed, or republish a canvas
+  to its own URL, and write `state.json`.
 - **Take new screenshots** of every task the fixes touched, then dispatch a fresh critic
   with the open findings.
+
+## Convergence
+
+After each round, count the open findings by severity, across every source the round
+pooled, and add the total to the trend in `state.json`. Each round's line in the task list
+and the report shows both: "round 3: 17 open (High 2, Medium 9, Low 6); trend 24, 28, 17".
+A round that grows is normal when fixes surface states nobody asked for yet; the trend lets
+the person see where it is heading and set a cap if they want one.
 
 ## When the loop stops
 
 - **The critic is pleased and the goals are achieved**: `pleased` and `goals_achieved` are
   both true in the same round. Done.
-- **The usage window runs low**: stop at a clean step (committed, pushed, reported), by
+- **The usage window runs low**: stop at a clean step (committed or republished, pushed, reported), by
   `<plugin-root>/references/long-run.md`, and report where the loop stands.
 - **The person set a cap in the brief** ("at most 3 design rounds") and it is reached.
 
@@ -111,6 +162,9 @@ findings and the goals not achieved as they are, and never calls the interface d
 
 - **The two verdicts** of the last round, each goal with its status, and how many rounds
   ran.
+- **The trend**: open findings per round, by severity, first to last.
+- **Carried to the build**: each build-only goal and each check the target kind could not
+  reach, with its ground.
 - **A board of the final screenshots**, by `<plugin-root>/references/show-for-review.md`,
   next to the before when the change edits an existing screen.
 - **What is still open**, one line per finding with its severity, and the refusals with

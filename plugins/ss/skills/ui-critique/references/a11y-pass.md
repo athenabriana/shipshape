@@ -10,20 +10,32 @@ whole target with no diff.
 There may be no git repository and no branch: the scope is whatever the request pointed
 at.
 
+## Who runs it
+
+The `ss-a11y-auditor` agent (`<plugin-root>/agents/ss-a11y-auditor.md`), dispatched as
+`subagent_type: "ss:ss-a11y-auditor"` beside the critic in every round, fresh and
+memoryless. It reads and computes; it holds no browser. So the rendered checks of §3 run
+first, in the main context that holds the browser, and their screenshots and tree readings
+go into the auditor's prompt. When the target is more than a handful of files, the auditor
+is one per criterion group of §2, all in one message.
+
 ## 1. Establish the scope
 
 - **A folder or a file set**: enumerate the UI files under it (`Glob`) and read them.
 - **A URL, a dev server or a running app**: open it with the browser or app tools and read
   the rendered page.
 - **Both**: do both. The rendered page is the authority where they disagree.
-- **Screenshots or a canvas alone**: only what a picture shows is checkable (contrast,
-  text size, target size, a missing visible label, focus that is or is not drawn). Say in
-  one line what the pass could not reach.
+- **Screenshots alone**: only what a picture shows is checkable (contrast, text size,
+  target size, a missing visible label, focus that is or is not drawn). Say in one line
+  what the pass could not reach.
+- **A Design canvas**: the rendered artboards and their `.dc.html` source, by
+  `canvas-target.md`. The live keyboard walk and the accessibility tree are reported as
+  "not reachable on a canvas", never as a pass, and carried to the build.
 
 ## 2. Walk every criterion across the scope
 
 Every criterion of `front-a11y.md`, across the whole scope, not only what a fix touched.
-When the scope is more than a handful of files, fan out one read only subagent per
+When the scope is more than a handful of files, fan out one `ss:ss-a11y-auditor` per
 criterion group (semantics and names, forms, keyboard and focus, live regions and state,
 contrast and motion), each with the file list and the criteria of its group, all in one
 message. There is no cap: every failure found is reported, since a cap would hide what the
@@ -33,8 +45,9 @@ After round 1, walk again what the last fixes touched and every finding still op
 
 ## 3. With the page rendered, settle what source cannot
 
-- **Contrast** computed from the colors that actually painted, with the ratio named (4.5:1
-  for text, 3:1 for large text and UI elements).
+- **Contrast** computed from the colors that actually painted, or from the tokens when the
+  target is a canvas, with the ratio named (4.5:1 for text, 3:1 for large text and UI
+  elements).
 - **Tab order and focus visibility**, by pressing `Tab` through the page and taking a
   screenshot of each stop that matters.
 - **What a screen reader announces**, from the accessibility tree (`read_page` in Claude

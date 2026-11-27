@@ -98,6 +98,11 @@ finishes: a commit, a push, a review round, a design round.
 - **Stop at a clean step** when it does not: commit, push, write the state the next run
   needs (the todo list, the notes folder, the PR description), and send the report. Never
   leave a half-applied edit or an unpushed commit for the window to cut.
+- **Keep the run's state durable.** Working files a later step needs (screenshots,
+  generated files, a helper script, the state of a loop) live in the notes folder or
+  `~/.ss/runs/<slug>/`, never the scratchpad, which a restart can clear. After a restart,
+  a subagent that was cut off is resumed with `SendMessage` to its id before it is
+  dispatched again.
 - **Say the reset time** in the report, from `get_usage`'s `plan`, so the orchestrator can
   send "continue" after it.
 - When `plan` is `not_applicable` or `unavailable`, the run is bounded by the endpoint, the
