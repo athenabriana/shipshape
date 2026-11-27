@@ -46,19 +46,24 @@ The orchestrator and any other session that makes a merge check it. Each session
   head, before its handoff (`<plugin-root>/skills/ship/references/ship-pr.md`).
 - **The orchestrator** writes no code, so it never runs the loop. It checks the verdict
   before every merge ask and sends a PR without one back to its work session.
-- **Any other session Athena asks to merge**, in her own turn in its chat, checks items
-  1–5 above first, with `patch_id.py --pr <n>` run from a checkout of the PR's repo
-  (`--repo <path>` names one). A `clean` or `disputed` verdict that covers the head, with
-  every goal achieved or deferred, merges by the repository's method once CI is green on
-  the `head` the script measured, with `--match-head-commit` on that `head`, announced
-  with that commit before it runs; several PRs merge one at a time. A `disputed` verdict
-  merges only on her word given after its refusals were named to her, so when her word
-  came first they go to her as a merge ask. An `open` verdict, a goal still open, or a
-  design loop that left verdicts open goes to her in that chat as a merge ask by "The
-  merge ask" below, and the merge waits for her answer. A missing or stale verdict, a UI
-  PR with no design loop, or a script error means no merge: a session that holds the
-  branch runs the loop itself and asks her again with the new verdict, and any other tells
-  her why and that `/ss:review` has to run on the branch.
+- **Any other session Athena asks to merge**, in her own turn in its chat and for the PRs
+  she names there, checks items 1–5 above first, with
+  `python3 <plugin-root>/scripts/patch_id.py --pr <n>` run from a checkout of the PR's
+  repo (`--repo <path>` names one). Then:
+  - A `clean` verdict that covers the head, with every goal achieved or deferred, merges
+    under the repository's own rules (its method, required reviews and branch protection,
+    never bypassed with `--admin`), once CI is green on the `head` the script measured,
+    with `--match-head-commit` on that `head` and the commit announced before it runs.
+    Several PRs merge one at a time.
+  - A `disputed` verdict merges the same way only when her word came after its refusals
+    were named to her. When her word came first, it goes to her as a merge ask.
+  - An `open` verdict, a goal still open, or a design loop that left verdicts open goes to
+    her in that chat as a merge ask by "The merge ask" below, and the merge waits for her
+    answer.
+  - A missing or stale verdict, a UI PR with no design loop, or a script error means no
+    merge. A session that holds the branch runs the loop itself and asks her again with
+    the new verdict; any other tells her why and that `/ss:review` has to run on the
+    branch.
 
 ## Pick the depth
 
@@ -99,8 +104,8 @@ Review: 2 rounds, verdict clean, goals 4 of 4 achieved, depth standard, 6 fixed,
 
 On a UI PR, the report adds a `Design:` line with the design loop's last verdicts, as in
 `Design: pleased, goals achieved, nothing open.` The PR description carries the same line
-under the verdict line, so the orchestrator can read it from the PR. A UI PR with no
-`Design:` line in its description fails item 5 of the gate.
+under the verdict line, so any session checking the gate can read it from the PR. A UI PR
+with no `Design:` line in its description fails item 5 of the gate.
 
 ## The merge ask
 
