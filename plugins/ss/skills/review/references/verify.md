@@ -45,9 +45,7 @@ Three lists need a look before dispatch:
   entries out).
 
 **`scope_files` is whatever enumerated the review's scope**: the changed-file list
-in diff scope, and in surface scope (a11y over a folder, a file set or a rendered
-page) the file set the audit enumerated. There is always a list to canonicalize
-against; a review with no diff is not a review with no scope.
+of the diff under review. There is always a list to canonicalize against.
 
 Grouping is not dedup. Every candidate keeps its own verdict and its own
 `local_index`; candidates at the same line are often distinct issues, and cross-finder
@@ -187,10 +185,7 @@ sweep is a real answer.
   3. **Sugestão**, at either verdict, with the quality findings at the bottom of the
      tier (a cleanup never outranks a bug)
 - **Cap** at the depth's report cap. Cuts come off the bottom, so quality is what
-  gets trimmed, never a correctness bug. A front that states **no cap for its own
-  scope** wins over a depth cap resolved from a diff. A surface-scope a11y audit
-  reports every verified failure (`front-a11y.md`), because a cap there would hide
-  exactly what the audit was asked for.
+  gets trimmed, never a correctness bug.
 - **Nothing vanishes silently.** Every candidate that came out of a finder ends up
   in exactly one of four places: reported, **refuted** (one line each at the end of
   the report), **no verdict** (the dropped ones, one line each with the location and

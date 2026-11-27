@@ -1,21 +1,18 @@
 # Front: design, deviations from the design system the project has
 
-Two scopes, one method:
+One finder over the UI the branch changed, static, judged against the design source the
+repo carries: what a code review can prove from the diff and the source together. A whole
+screen, a page or a folder with no diff is `/ss:ui-critique`'s, whose design system pass
+(`<plugin-root>/skills/ui-critique/references/design-system-pass.md`) applies this front's
+criteria and citation discipline to the whole target.
 
-- **Diff scope** (default inside a review): one finder over the UI the branch changed,
-  static, judged against the design source the repo carries. What a code review can
-  prove from the diff and the source together.
-- **Surface scope** (`## Reviewing a whole surface` below): the user points at a
-  folder, a set of files, or a running page and asks for a design review. Same
-  criteria, wider scope, and a rendered page unlocks the checks source can't settle.
-
-Both scopes add **the critic pass** (`## The critic pass` below): screenshots of the
+The front adds **the critic pass** (`## The critic pass` below): screenshots of the
 running UI, judged by the `ss-design-critic` agent, very hard to please, on the tasks a
 user does and the craft of every screen. A UI change is never reviewed from code alone:
 the static finder reads the source, and the critic reads what the user gets.
 
-The criteria are `design-checklist.md`, sibling of this file, shared by both scopes so
-findings read the same either way. The discipline is the `rules` front's, applied to
+The criteria are `design-checklist.md`, sibling of this file, shared with
+`/ss:ui-critique`, so findings read the same either way. The discipline is the `rules` front's, applied to
 design sources: **a finding is worth what its citation is worth**, so every finding
 names what it deviates from, and one that cannot is dropped, never reported as a guess.
 
@@ -63,12 +60,11 @@ anything.
 
 `source cited` is the citation the discipline demands: the token file and line, the
 component's path, where the states are documented, or the visual direction's section. The
-priorities are the checklist's: **High**, **Medium**, **Low**. Cap 8 in diff scope; no
-cap in surface scope.
+priorities are the checklist's: **High**, **Medium**, **Low**. Cap 8.
 
 ## The critic pass
 
-The critic pass runs whenever the diff touches UI or the surface is an interface, by
+The critic pass runs whenever the diff touches UI, by
 `<plugin-root>/references/design-loop.md`:
 
 1. **Render it and take screenshots** of every task the change touches, each step and the
@@ -98,7 +94,7 @@ within the review loop's budget.
 When nothing can render the UI, the critic pass does not run: say so in one line in the
 front's section, name what was missing, and never report the front as a visual check.
 
-## Scope discipline (diff scope)
+## Scope discipline
 
 - Only elements the diff added or changed. Pre-existing drift in a file the branch
   happens to touch is not this branch's finding: one line at the end as existing debt.
@@ -107,33 +103,3 @@ front's section, name what was missing, and never report the front as a visual c
 - When the repo's `CODE_REVIEW_GUIDE.md` itself states a design rule, a violation of it
   is a `rules` finding with the guide cited, not a duplicate here. This front judges
   against the design sources; the guide stays the `rules` front's.
-
-## Reviewing a whole surface
-
-When the ask names a **surface** instead of a branch (a folder, a file set, a URL, a
-running page: "design review of this page", "does this folder follow the design
-system"), this front runs standalone: no diff,
-no other fronts, no curation question. The scope is whatever the user pointed at.
-
-1. **Resolve the design source first.** Standalone changes nothing about §1: no source,
-   no review, and say so with what would create one (a token file the build reads, or
-   a visual direction in `design/<surface>.md`).
-2. **Establish the scope.** A folder or file set → enumerate the UI files under it
-   (Glob) and read them. A URL or a dev server → open it with the preview/browser tools
-   and read the rendered page. Both → both; the rendered page is the authority where
-   they disagree.
-3. **Walk the four criteria** across that scope, not just changed lines. Fan out one
-   agent per criterion (tokens, components, states, consistency) when the surface is
-   more than a handful of files; the barrier and the verify pass in `verify.md` still
-   apply, with the enumerated file set as `scope_files` and **no report cap**.
-4. **With the page rendered, settle what source can't**: the computed value where the
-   cascade decides (which color actually painted, which spacing actually resolved),
-   states reached by actually hovering and focusing, and consistency across breakpoints.
-   Token values still come from the source or the computed styles, never measured off a
-   screenshot. Then run the critic pass on the screenshots, the critic findings joining
-   the report with their severity.
-5. **Report grouped by priority**, High first, each finding with where, the criterion,
-   the source cited, and a concrete fix. Close with the per-priority count and the one
-   line of design-system gaps found along the way.
-6. **Gate** (per the plugin-root `references/handoff-gate.md`): "Fix the High and
-   Medium ones (Recommended)" → `act-apply-fixes.md`, then "Stop here".

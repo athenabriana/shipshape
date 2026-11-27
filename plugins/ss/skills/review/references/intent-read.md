@@ -6,11 +6,10 @@ points were already made.
 
 ## Who skips it
 
-Two asks resolve their own context and skip this whole phase, the probe included: an
-**external PR**, whose body, comments and diff come from `mode-external-pr.md`, and an
-**accessibility audit over a named surface**, which audits what it was pointed at and needs
-neither a repo nor a diff. The request itself settles both, which is what step 1 reads, so
-neither one pays a local probe or gets an intent block about the branch it isn't reviewing.
+One ask resolves its own context and skips this whole phase, the probe included: an
+**external PR**, whose body, comments and diff come from `mode-external-pr.md`. The request
+itself settles it, which is what step 1 reads, so it pays no local probe and gets no intent
+block about the branch it isn't reviewing.
 Everything else is the current branch, and takes the read below.
 
 ## 1. The probe, then the two reads

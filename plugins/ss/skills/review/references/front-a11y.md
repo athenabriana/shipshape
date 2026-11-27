@@ -1,16 +1,11 @@
 # Front: a11y, WCAG AA over the UI
 
-Two scopes, one method:
+One finder over the markup and styles the branch changed, static, no browser: what a
+code review can prove from the diff alone.
 
-- **Diff scope** (default inside a review): one finder over the markup and
-  styles the branch changed, static, no browser. What a code review can prove
-  from the diff alone.
-- **Surface scope** (`## Auditing a whole surface` below): the user points at a
-  folder, a set of files, or a running page and asks for an audit. Same criteria,
-  wider scope, and a rendered page unlocks the checks source can't settle.
-
-Criteria and the priority matrix are shared by both, so findings read the same
-either way.
+A whole screen, a page or a folder with no diff is `/ss:ui-critique`'s, whose accessibility
+pass (`<plugin-root>/skills/ui-critique/references/a11y-pass.md`) applies the criteria and
+the priority matrix below to the rendered target, so findings read the same either way.
 
 ## What's checkable from source
 
@@ -38,8 +33,8 @@ either way.
 - **Contrast**: only when both colors are literal in the source or resolvable
   through the design tokens it uses. Compute the ratio and name it (4.5:1 for
   text, 3:1 for UI elements and large text). A color that resolves only at
-  runtime is a finding only in surface scope with the page rendered; in diff scope
-  it's reported as out of static reach.
+  runtime is reported as out of static reach; `/ss:ui-critique` settles it on the
+  rendered page.
 - **Motion and media**: a new animation with no `prefers-reduced-motion`
   branch; autoplay without a control; video/audio added with no captions or
   transcript path.
@@ -57,8 +52,7 @@ A finding that can't name who loses access isn't one.
 
 Exactly one priority per finding: **Critical** (blocks access entirely),
 **Major** (significantly degrades it), **Minor** (inconvenient but workable),
-**Enhancement** (better, not required). Cap 8 in diff scope; no cap in surface
-scope.
+**Enhancement** (better, not required). Cap 8.
 
 Those four are WCAG's priorities, so they stay this front's vocabulary and this
 front's alone. At the **report boundary**, where the front's findings enter the
@@ -67,7 +61,7 @@ plugin-root `references/finding-levels.md`: Critical and Major are **Bloqueante*
 Minor and Enhancement are **Sugestão**. The priority stays in the finding row above;
 the level is what `verify.md` ranks by and what the report and the PR comments show.
 
-## Scope discipline (diff scope)
+## Scope discipline
 
 - Only elements the diff added or changed. Pre-existing a11y debt in a file the
   branch happens to touch is not this branch's finding. If it's severe, it goes
@@ -79,32 +73,3 @@ the level is what `verify.md` ranks by and what the report and the PR comments s
   markup is not.
 - When the repo's design system documents an accessibility contract, a violation of it is a `rules` finding with the doc cited, not an
   a11y guess.
-
-## Auditing a whole surface
-
-When the ask names a **surface** instead of a branch (a folder, a file set, a URL,
-a running page: "accessibility audit", "check the accessibility of this
-folder/page"), this front
-runs standalone: no diff, no other fronts, no curation question. There may be no git
-repository and no branch; the scope is whatever the user pointed at.
-
-1. **Establish the scope.** A folder or file set → enumerate the UI files under it
-   (Glob) and read them. A URL or a dev server → open it with the preview/browser
-   tools and read the rendered page. Both → do both; the rendered page is the
-   authority where they disagree. Nothing named → the UI files of the current
-   project.
-2. **Walk every criterion above** across that scope, not just the changed lines.
-   Fan out one agent per criterion group (semantics+names, forms, keyboard+focus,
-   live regions+state, contrast+motion) when the surface is more than a handful of
-   files; the barrier and the verify pass in `verify.md` still apply, with the
-   enumerated file set as `scope_files` and **no report cap**, surface scope's
-   no-cap outranks any cap a depth tier resolved.
-3. **With the page rendered, settle what source can't**: computed contrast from
-   the actual colors, real tab order and focus visibility (`Tab` through it), what
-   a screen reader would announce (the accessibility tree via `read_page`), live
-   regions firing on a state change, reflow at 320px and at 200% zoom.
-4. **Report grouped by priority**, Critical first, each finding with where
-   (file/element), the WCAG criterion that fails, who is blocked, and a concrete
-   fix. Close with `WCAG AA: pass | fail | partial` plus the count per priority.
-5. **Gate** (per the plugin-root `references/handoff-gate.md`): "Fix the
-   Critical/Major ones (Recommended)" → `act-apply-fixes.md`, then "Stop here".

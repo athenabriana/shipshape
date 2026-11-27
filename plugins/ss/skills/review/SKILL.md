@@ -1,10 +1,10 @@
 ---
 name: review
-description: Reviews the change end to end. On the current branch it loops by default, with every front in parallel and a judge subagent on Sonnet judging, then fixes or refusals and re-reviews of what changed, up to 3 rounds. `/ss:review manual` lets you pick fronts and items. Standard depth by default; `/ss:review deep` turns on every angle. It also reviews an external PR by number and posts it as a comment review on an explicit yes, never an approval. Use when the user says "review my changes", "review the PR", "are there bugs here", "answer the PR comments", "fix CI", "clean up this code", "check it followed the project rules", "accessibility audit", "WCAG", "a11y", "design review", "does this follow the design system", or "review PR 42 in repo X". The accessibility and design fronts also run alone over a surface (a folder, files, or a running page), with no diff. Don't use it to open or finish a PR (use /ss:ship) or to look after every open PR in the repo (use /ss:caretake).
+description: Reviews the change end to end. On the current branch it loops by default, with every front in parallel and a judge subagent on Sonnet judging, then fixes or refusals and re-reviews of what changed, up to 3 rounds. `/ss:review manual` lets you pick fronts and items. Standard depth by default; `/ss:review deep` turns on every angle. It also reviews an external PR by number and posts it as a comment review on an explicit yes, never an approval. Use when the user says "review my changes", "review the PR", "are there bugs here", "answer the PR comments", "fix CI", "clean up this code", "check it followed the project rules", "review the accessibility of what I changed", "does this diff follow the design system", or "review PR 42 in repo X". Its design and a11y fronts judge the diff; a whole screen, a page or a folder with no diff goes to /ss:ui-critique. Don't use it to open or finish a PR (use /ss:ship) or to look after every open PR in the repo (use /ss:caretake).
 license: Apache-2.0
 metadata:
   author: Athena Briana - github.com/athenabriana; quality-pass material adapted from Claude Code's /simplify, angle/verify architecture adapted from Claude Code's /code-review (Anthropic, Apache-2.0), a11y front absorbed from rafael's ui-accessibility skill (loja inspira-skills, MIT)
-  version: 2.12.0
+  version: 3.0.0
 ---
 
 # Review
@@ -24,8 +24,7 @@ loaded **only when that front was picked**; each action likewise.
 ## Prerequisites
 
 Inside a git repository. `gh` authenticated (`gh auth status`) for anything
-PR/CI-related; the diff fronts need no `gh`. The accessibility audit in surface
-scope is the one path that needs neither a repo nor a diff.
+PR/CI-related; the diff fronts need no `gh`.
 
 ## Step 0: Load the review context
 
@@ -44,7 +43,7 @@ scope is the one path that needs neither a repo nor a diff.
   `CODE_REVIEW_GUIDE.md` supersede it and the user can delete it.
 - **The intent read** → `references/intent-read.md`: run the probe, read the PR body and the
   whole conversation, and write the **intent block** that rides in every finder's scope block.
-  It runs before any finder, and an external PR or a surface-scope a11y audit skips it.
+  It runs before any finder, and an external PR skips it.
 
 ## Step 1: Resolve the mode
 
@@ -60,15 +59,10 @@ scope is the one path that needs neither a repo nor a diff.
   sources, and an ask whose probe comes back empty gets the remedy line, not a run. A
   playbook run that restricts the fronts is not one: it runs the loop (`references/loop.md`,
   "When a playbook runs the loop").
-- **Surface audit**: the user named a **surface** instead of the branch: a folder,
-  a set of files, a URL or a running page ("accessibility audit", "design review of
-  this page", "does this folder follow the design system"). The named target is
-  what routes here; an ask with no target is the matching front over the diff,
-  picked at step 2. Accessibility asks run `references/front-a11y.md` in surface
-  scope (no diff, no other fronts, no git repository required); design asks run
-  `references/front-design.md` in surface scope (same shape, and it needs a design
-  source to resolve). Both stop at their own gate. An ask naming both runs both,
-  one after the other, each with its own report.
+- **A screen, not a diff**: the user named a folder, files, a URL or a running page
+  instead of the branch ("accessibility audit of this page", "design review of this
+  folder"). That is `/ss:ui-critique`: say so in one line and stop. An a11y or design
+  ask with no target stays here, as that front over the diff.
 - **Otherwise**: current branch, all fronts on the table, and the **review loop** runs
   (`references/loop.md`, which lists what sends a run to the manual flow instead:
   `/ss:review manual`, "manual review", "let me pick", or uncommitted changes in the tree).
@@ -255,9 +249,8 @@ priority order. Unfinished work on this report outranks the next skill:
    step 5, the manual curation)
 2. fronts left unrun → **"Run the fronts that were left out"** (loops to step 3)
 3. a11y or design findings that need a rendered page (runtime colors, real focus
-   order, live regions, the value the cascade actually resolved) → **"Audit the
-   running UI"** (loops to `front-a11y.md` or `front-design.md`, surface scope,
-   whichever front reported the reach)
+   order, live regions, the value the cascade actually resolved) → **"Critique the
+   running UI: I run /ss:ui-critique"**
 4. guide drift or missing guide reported → **"Generate or update the guide: I run
    /ss:review-setup"**
 5. no open PR and everything clean/handled → **"Open the PR: I run /ss:ship"** (not
@@ -287,9 +280,9 @@ offered, which needs no row here. What this table covers is everything else:
 | every thread is already resolved             | the resolution pass reports zero, and nothing is sent to GitHub to announce a zero                                    |
 | a thread's point was answered but not fixed  | it stays open for whoever opened it; the code closes a thread, a reply does not                                       |
 | `gh` unauthenticated                         | `threads`/`ci` and the intent read unavailable; say so once with `gh auth login`, offer the diff fronts               |
-| a11y or design finding needs a rendered page | report it as out of static reach; the gate offers the surface-scope audit                                             |
-| accessibility audit asked outside a git repo | surface scope needs no diff and no repo, so step 0's probe and intent read are skipped                                |
-| design review asked and no design source     | the critic pass runs on screenshots; with no way to render either, say what would create a source, stop               |
+| a11y or design finding needs a rendered page | report it as out of static reach; the gate offers `/ss:ui-critique`                                                   |
+| accessibility audit asked outside a git repo | it names no diff, so it is `/ss:ui-critique`'s: say so and stop                                                       |
+| design front asked and no design source      | the critic pass runs on screenshots; with no way to render either, say what would create a source, stop               |
 | UI in the diff and no render tool            | the static finder runs alone; the report says no screenshot was taken, never calls it a visual check                  |
 | an external PR at the intent read            | skipped here; `mode-external-pr.md` reads that PR's own body, comments and diff                                       |
 | legacy `.claude/skills/code-review/` present | flag as superseded; the user deletes it                                                                               |
@@ -320,8 +313,8 @@ Per-front method (loaded only when that front is picked):
 - `references/front-quality.md`: the cleanup lenses, one finder, behavior-preserving.
 - `references/front-rules.md`: `CODE_REVIEW_GUIDE.md` deviations, with the citation discipline, and the project facts growth check.
 - `references/front-contract.md`: the acceptance criteria from the brief or the PR body as the contract, and the project facts.
-- `references/front-a11y.md`: WCAG AA: diff scope (static) and surface scope (folder, files or a rendered page).
-- `references/front-design.md`: design-system deviations and the critic pass over screenshots: the source ladder, both scopes, the citation discipline.
+- `references/front-a11y.md`: WCAG AA over the diff, static; its criteria are also `/ss:ui-critique`'s accessibility pass.
+- `references/front-design.md`: design-system deviations and the critic pass over screenshots: the source ladder, the citation discipline; its criteria are also `/ss:ui-critique`'s design system pass.
 - `references/front-threads.md`: PR review threads: fetch, triage, the resolve pass over what the code already satisfies, fix/answer, reply/resolve.
 - `references/front-ci.md`: CI failures: evidence → diagnosis → fix → verify.
 

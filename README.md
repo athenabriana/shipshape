@@ -39,7 +39,7 @@ for most engineering work, type `/ss:go` and then your request. for example:
 
 `/ss:go` does three things:
 
-1. **picks a playbook.** a playbook is a short recipe for one kind of work: `investigate`, `bug-fix`, `review`, `ship`, `edge-cases`, `babysit`, `review-setup`, `correct` or `learn`.
+1. **picks a playbook.** a playbook is a short recipe for one kind of work: `investigate`, `bug-fix`, `review`, `ui-critique`, `ship`, `edge-cases`, `babysit`, `review-setup`, `correct` or `learn`.
 2. **sizes the process to the risk.** it picks a lightweight, standard or intensive route. a small, safe change gets a light check. a change that touches data or auth, or that is hard to undo, gets a deeper review.
 3. **runs the steps.** it copies the playbook's steps into the todo list and calls the skill for each step.
 
@@ -68,6 +68,7 @@ you can call any skill directly. `/ss:go` calls most of them for you.
 | `/ss:investigate`  | answer a question about the code, a branch or its history, without editing                            |
 | `/ss:edge-cases`   | list the edge cases of a plan, or find the ones a diff misses                                         |
 | `/ss:review`       | review your branch, fix what it finds and review again, up to 3 rounds                                |
+| `/ss:ui-critique`  | judge a screen on real screenshots, design and accessibility, and fix it until it holds up            |
 | `/ss:ship`         | green the checks, commit, and push or open a PR                                                       |
 | `/ss:babysit`      | watch a PR by number: answer review threads and fix red CI until it is done                           |
 | `/ss:caretake`     | look after the repo: open PRs, Dependabot alerts and outdated dependencies                            |
