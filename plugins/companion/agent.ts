@@ -48,7 +48,7 @@ import { ChatSessions } from "./chats.ts";
 import { checkMerge, type GateResult } from "./merge.ts";
 import {
   AGENT_TOOLS,
-  decide,
+  decide as decideTool,
   DISALLOWED_TOOLS,
   staticDenyRules,
   type Paths,
@@ -106,9 +106,16 @@ export type CompanionConfig = {
   watchDailyCap?: number;
   /** Where Claude Code keeps transcripts (`CLAUDE_CONFIG_DIR`, else `~/.claude`). */
   claudeHome?: string;
-  /** Seams for the tests. */
+  /** Seams for the tests and the behavior harness (behavior/harness.ts). */
   run?: typeof query;
   now?: () => number;
+  /** The permission policy; `decide` from permissions.ts unless a harness wraps it. */
+  policy?: typeof decideTool;
+  /** In-process MCP servers beside `telegram`, and aliases that route a built-in tool to one. */
+  extraMcpServers?: Record<string, ReturnType<typeof createSdkMcpServer>>;
+  toolAliases?: Record<string, string>;
+  /** Sees every SDK message of every turn, for a transcript. */
+  onMessage?: (chatId: string, msg: SDKMessage) => void;
 };
 
 /** The final line that means "nothing to say". */
@@ -234,6 +241,15 @@ export class Companion {
     if (!state.abort) return false;
     state.abort.abort();
     return true;
+  }
+
+  /** Resolves once the chat has nothing running, scheduled or waiting. */
+  async whenIdle(chatId: string, pollMs = 50): Promise<void> {
+    for (;;) {
+      const state = this.chats.get(chatId);
+      if (!state || (!state.running && !state.scheduled && state.pending.length === 0)) return;
+      await new Promise((r) => setTimeout(r, pollMs));
+    }
   }
 
   /** Stops every running turn and takes no more work. */
@@ -390,6 +406,7 @@ export class Companion {
     typed: boolean,
   ): { hook: HookCallback; canUseTool: CanUseTool } {
     const { paths, io, gate } = this.cfg;
+    const decide = this.cfg.policy ?? decideTool;
     const hook: HookCallback = async (input) => {
       if (input.hook_event_name !== "PreToolUse") return {};
       const d = decide(input.tool_name, (input.tool_input ?? {}) as Record<string, unknown>, paths);
@@ -453,7 +470,8 @@ export class Companion {
       permissionMode: "default",
       tools: AGENT_TOOLS,
       systemPrompt: { type: "preset", preset: "claude_code", append: persona, snapshot: false },
-      mcpServers: { telegram: this.tools(chatId) },
+      mcpServers: { ...this.cfg.extraMcpServers, telegram: this.tools(chatId) },
+      ...(this.cfg.toolAliases ? { toolAliases: this.cfg.toolAliases } : {}),
       disallowedTools: [...DISALLOWED_TOOLS, ...staticDenyRules(paths)],
       hooks: { PreToolUse: [{ hooks: [hook] }] },
       canUseTool,
@@ -547,6 +565,7 @@ export class Companion {
           }),
         }) as AsyncIterable<SDKMessage>;
         for await (const msg of messages) {
+          this.cfg.onMessage?.(chatId, msg);
           if (msg.type === "system" && msg.subtype === "init") {
             started = true;
             keep(msg.session_id);
