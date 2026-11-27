@@ -44,8 +44,7 @@ list is what `verify.md` canonicalizes paths against.
 
 ## 3. Verdict
 
-State a verdict with the reasoning, read off the levels (plugin-root
-`references/finding-levels.md`): **any Bloqueante** means the review body opens by saying
+State a verdict with the reasoning, read off the levels (`<plugin-root>/references/finding-levels.md`): **any Bloqueante** means the review body opens by saying
 the PR should not merge as it stands, **only Sugestões** means it lists them as
 improvements, and no finding means a body that says the review found nothing. The review
 this mode posts is always a **COMMENT** review, whatever the levels, the repo's guide or the

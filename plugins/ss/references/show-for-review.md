@@ -62,7 +62,8 @@ already reading, so use it for any review or decision unless one of the other ro
   on a mockup canvas or straight to the real screen, by the person's pick, as the next
   section says.
 - **Goals and decisions to keep** are a plan, a spec or acceptance criteria for big work,
-  by "When the goals get a doc" in `/ss:clarify`. Clarify writes the doc, and an inline
+  by "When the goals get a doc" in
+  `<plugin-root>/skills/clarify/references/goals-doc.md`. Clarify writes the doc, and an inline
   visual can sum it up next to the question. A report or a draft from any other skill goes
   to the caller's path or the chat, shown inline or on an Artifact page.
 - **Decisions bigger than one quick pick** are asked in one decision sheet, by

@@ -97,7 +97,7 @@ or a visual direction the design reads) and which render tools were missing.
 **Size alone never reaches the third row.** A big diff runs the middle tier: the
 same three angles a medium one gets, no sweep, because a review that silently
 triples its own cost on a big branch is the review nobody can afford to run twice.
-The deep tier is opt-in and the router is what sets it (`SKILL.md`, step 1: the
+The deep tier is opt-in and the router is what sets it (`SKILL.md`, step 1, and `mode-and-depth.md`: the
 `deep` argument, "review deeply", or the deep option at the fronts question).
 This engine only reads the flag it was handed. The verify pass has a ceiling of its
 own (4 verifier agents, 6 deep) and dispatches by file, so a pool that lands on many

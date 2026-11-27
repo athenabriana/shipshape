@@ -177,8 +177,7 @@ sweep is a real answer.
   entry with the most concrete failure scenario, and note the other locations on
   it (`[same cause also in: …]`).
 - **Rank**, most severe first. The level says how bad the finding is and the verdict
-  says how sure the reviewer is, two axes (plugin-root
-  `references/finding-levels.md`); this is where they combine, into three tiers:
+  says how sure the reviewer is, two axes (`<plugin-root>/references/finding-levels.md`); this is where they combine, into three tiers:
   1. **Bloqueante CONFIRMED**: a Bloqueante as `finding-levels.md` defines one, and the
      verifier reproduced it
   2. **Bloqueante PLAUSIBLE**: the same weight, one verdict short of proven

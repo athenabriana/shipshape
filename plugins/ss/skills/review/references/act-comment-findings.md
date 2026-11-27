@@ -16,7 +16,7 @@ the summary comment may open with the loop's outward line, `Review loop: N round
 
 ## 2. Two tests decide inline or summary, in this order
 
-**First the concrete-cost gate** (plugin-root `references/finding-levels.md`), which is what
+**First the concrete-cost gate** (`<plugin-root>/references/finding-levels.md`), which is what
 earns an item its own comment:
 
 - A **Bloqueante** never passes through the gate: it earns an inline comment by being a

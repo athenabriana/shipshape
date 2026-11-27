@@ -9,9 +9,22 @@ every round after. The loop ends when every goal is achieved and the judge is pl
 full pass, or when the usage window or the person's cap stops it. There is no default round
 limit. This file is the contract; `SKILL.md` routes here.
 
+## The loop in the router: rounds in place of steps 5 and 7
+
+In the loop, round 1 is steps 3 and 4's work, and then the rest of this file runs: the main
+context decides every verified item, fix or refuse with a ground, with no curation
+question, and closes every goal the judge marked not achieved; scoped rounds send the judge
+the delta, the goals, the open findings and the refusals; a full pass follows a pleased
+scoped round; the loop stops when every goal is achieved and the judge is pleased on a full
+pass, or when the usage window or the person's cap stops it; then
+the push, the thread replies, step 6, CI followed to the end with its fixes, and the
+verdict line on the PR ("After the last round", below). A playbook run ends the same
+way. The report opens with the `Loop` block defined below, and the gate (step 8)
+follows.
+
 ## When the loop runs
 
-The loop is the default for a review of the current branch (`SKILL.md`, step 1,
+The loop is the default for a review of the current branch (`SKILL.md`, step 1, and `mode-and-depth.md`,
 "Otherwise"). The manual flow, with the fronts question and item by item curation, runs
 instead when:
 
@@ -129,7 +142,7 @@ is `no verdict`, as `verify.md` §2 handles it.
 
 1. **Every available front runs.** The step 2 question is not asked: the probe's available
    fronts are the scope, `threads` and `ci` included when the probe finds them (except when
-   a playbook runs the loop). Depth is standard unless `deep` was asked (`SKILL.md`, step 1).
+   a playbook runs the loop). Depth is standard unless `deep` was asked (`SKILL.md`, step 1, and `mode-and-depth.md`).
 2. **The finders fan out** as `references/fronts.md` describes.
 3. **The judge checks every goal and judges the candidates.** It takes the verifier's seat in
    `references/verify.md` §2, with the same three verdicts and the same evidence rule, and
@@ -223,7 +236,7 @@ Every loop ends this way, a playbook run included.
    takes them out.
 2. **Thread replies** from round 1's `threads` items go out after the push, with the sha
    (`references/front-threads.md`). A playbook run has none: the ship answers threads.
-3. **Resolve the threads the code already satisfies** (`SKILL.md`, step 6): every
+3. **Resolve the threads the code already satisfies** (`SKILL.md`, step 6, and `curate-and-apply.md`): every
    `satisfied` row gets its reply and resolve, and one line says what was resolved. Skipped
    in a playbook run.
 4. **Follow CI to the end** after the push (`references/front-ci.md`): watch the run as a

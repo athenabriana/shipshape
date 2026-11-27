@@ -19,7 +19,7 @@ against, never targets it reports findings about. Read them; don't review them.
    work (fine, mention once) or an unrelated ride-along (a finding: it belongs in its own
    branch).
 3. **Does it keep the project facts?** Read the `## Project facts` section of the facts
-   file (the plugin-root `references/project-facts.md` says which file). A hunk that
+   file (`<plugin-root>/references/project-facts.md` says which file). A hunk that
    contradicts one of its lines is a finding: cite the line. With no such section, skip
    this question in silence.
 
@@ -29,7 +29,7 @@ against, never targets it reports findings about. Read them; don't review them.
 # | criterion or fact cited | file:line (or "missing") | what is missing, extra or reversed | level
 ```
 
-Level, per the plugin-root `references/finding-levels.md`: a missing happy path is
+Level, per `<plugin-root>/references/finding-levels.md`: a missing happy path is
 **Bloqueante**, and so is a contradicted project fact; a missing edge row, a missing test
 for a built behavior and scope drift are **Sugestão**. A stylistic divergence from the
 criteria's wording is not a finding at all.
