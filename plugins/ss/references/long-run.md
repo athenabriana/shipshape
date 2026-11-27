@@ -15,14 +15,11 @@ an open shape goes to `/ss:clarify` first, and the run starts once its goals are
 ## Ask every open question once, at the start
 
 Before the first edit, list every decision the work needs that the request, the brief, the
-code and the repo's defaults leave open. Then ask them together, through `/ss:clarify`,
-which owns the opening ask and picks its form:
+code and the repo's defaults leave open. Then ask them together:
 
-1. **One ask**, every open question as one block with a default on each: the recommended
-   pick first, its subtitle saying "Recommended" and why. Clarify's form rule decides the
-   shape: the question tool for a single quick pick, one decision sheet
-   (`<plugin-root>/references/decision-sheet.md`) for more, and a private Claude Docs doc
-   first when the work is a spec or a plan to keep.
+1. **One decision sheet**, by `<plugin-root>/references/decision-sheet.md`, with every open
+   question as one block and a default on each: the recommended pick first, its subtitle
+   saying "Recommended" and why. A single open decision goes through the question tool.
 2. **Say the promise in the sheet's header line or the dialog**: after this, the session
    runs to the endpoint and asks again only on a real blocker.
 3. **Take the answers as final for this run.** A decision the person skipped keeps its

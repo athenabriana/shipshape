@@ -70,7 +70,7 @@ Read the goals against their sources once, before any build: the request, the br
 decisions file, the code. A contradiction between two sources is raised in the same sheet,
 each side quoted with its file and line and the recommended pick first.
 
-The person approves the goals once, in the opening ask `/ss:clarify` makes by `long-run.md`, beside
+The person approves the goals once, in the opening decision sheet of `long-run.md`, beside
 every other open question: one block that lists the numbered goals with their checks, the
 deferred ones with their grounds, and the default "Approve these goals" first. The person
 can edit a goal, drop one or add one in the same answer. After that the goals are fixed
@@ -202,7 +202,7 @@ data), none open.` Each goal not achieved is named with what is missing.
 | `/ss:go`          | standard and intensive routes: `/ss:clarify` first, its blocks in the opening sheet                                | the playbook's own judge; the endpoint waits for every goal achieved      |
 | `/ss:review`      | the change's goals, from the PR description, the brief, the linked spec or acceptance criteria; else proposed once | `ss-review-judge`, every goal plus the findings, no default round limit   |
 | design loop       | the brief's goals, WCAG AA always one of them                                                                      | `ss-design-critic`, `goals_achieved` and `pleased`, by `design-loop.md`   |
-| `/ss:ui-critique` | asked once through `/ss:clarify`, by `design-loop.md`                                                              | the critic and the `ss-a11y-auditor` each round                           |
+| `/ss:ui-critique` | asked once in its opening sheet, through `design-loop.md`                                                          | the critic and the `ss-a11y-auditor` each round                           |
 | `/ss:clarify`     | it defines them: the map, the WHEN/THEN goals with their checks, out of scope, approved once                       | none of its own: the caller's loop, or on its own the build that follows  |
 | `/ss:edge-cases`  | plan mode's load-bearing rows feed the goals                                                                       | none of its own: the caller's loop judges them                            |
 | bug-fix playbook  | the reproduction fails before the fix and passes after, plus the focused test                                      | the review loop on the fix, every goal checked                            |

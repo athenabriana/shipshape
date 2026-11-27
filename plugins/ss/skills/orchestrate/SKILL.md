@@ -56,11 +56,10 @@ python3 <plugin-root>/scripts/front_pointer.py get
    rules for every session title are in "Session titles" in
    `<plugin-root>/references/voice.md`. When Athena set the title herself, the app asks her
    to approve the rename: say that approval is waiting, and on a decline keep the title.
-2. **Clarify the goal with Athena.** Run `/ss:clarify` in this session with the front as
-   its path: it settles the goal in her words and the acceptance criteria as WHEN/THEN
-   lines, each with its check, asks her in the form it picks, and writes the criteria into
-   the front and nothing else. These are the front's goals, by
-   `<plugin-root>/references/goal-loop.md`, and her sign-off is their approval.
+2. **Scope the goal with Athena.** Settle the goal in her words and the acceptance criteria
+   as WHEN/THEN lines, each with its check: these are the front's goals, by
+   `<plugin-root>/references/goal-loop.md`, and her sign-off is their approval. For a real feature, run `/ss:clarify` in this session with the front
+   as its path; it writes the criteria there and nothing else.
 3. **Pick the home.** Call `ToolSearch` for the Docs tools (`read`, `batch`, `update`,
    `guide`). Present: a doc front. Missing: say so in one line, and open a file front.
 4. **Pick the slug** that no home holds, with `front_name.py`, by "Pick a slug no home

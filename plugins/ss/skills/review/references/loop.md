@@ -60,9 +60,9 @@ confirm it, added by the owner and marked as added.
 
 **When no source has goals**, run `/ss:clarify` on the change, with the intent block and the
 diff as its ground: it proposes what the change set out to do, each as a WHEN/THEN line
-with its check, and asks them by its form rule (a decision sheet when other questions are
-open), "Approve these goals" recommended, by `goal-loop.md` section 3. In a work session
-the ask goes to the orchestrator. When nobody can answer (a playbook run with its scope authorized, a
+with its check. Ask them in one question (a decision sheet when other questions are open), "Approve these goals"
+recommended, by `goal-loop.md` section 3. In a work session the question goes to the
+orchestrator. When nobody can answer (a playbook run with its scope authorized, a
 watcher's tick), the owner takes its own proposal and names it under "decided on my own".
 A playbook run that already approved goals hands them over and asks nothing.
 

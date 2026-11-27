@@ -60,11 +60,11 @@ Walk each one. Keep only those the behavior can reach, and say in one line which
    route, a brief) takes each as a goal, and each row names its check, the test or command
    that would confirm it.
 4. **Ask what nobody decided.** A row with no known outcome is a product question for the
-   person. Hand the open rows to `/ss:clarify`, each naming the case, what each outcome
-   does and the recommended one first; clarify asks them in the form it picks (the question
-   tool for one, a decision sheet for more) and returns the answers. When `/ss:clarify`
-   called this skill, the rows go back to it with the table instead. The row stays marked
-   `open` until it is settled.
+   person. Ask with `AskUserQuestion`, at most 4 questions per call, the recommended outcome
+   first, each question naming the case and what each choice does. Two or more open rows, or
+   one that needs a line of context, go in one decision sheet (`<plugin-root>/references/decision-sheet.md`). In a work session, the question
+   goes to the orchestrator as `<plugin-root>/references/front-contract.md` says. The row
+   stays marked `open` until it is settled.
 5. **Write the table where the caller says.** That is a path the caller gives (a session
    brief, a front doc, a PR body), or the chat when nobody gives one. Use this shape, ready to
    paste as acceptance criteria:

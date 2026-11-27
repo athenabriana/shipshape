@@ -83,9 +83,9 @@ the map and the goals and ends with the goal loop, by
 
 - **First**, before the first edit: run `/ss:clarify`, which maps the problem and the code and
   proposes verifiable goals (numbered WHEN/THEN lines, each with its check: a test, a
-  command, a screenshot or a cited source) and what is out of scope. It asks them in the
-  opening ask, "Approve these goals" recommended, beside the endpoint and every other open
-  question the playbook hands it. Goals that already exist skip it, by `goal-loop.md` section 1: a
+  command, a screenshot or a cited source) and what is out of scope. Its blocks join the
+  opening decision sheet, "Approve these goals" recommended, beside the endpoint and every
+  other open question. Goals that already exist skip it, by `goal-loop.md` section 1: a
   brief that carries approved goals (a work session asks nothing about them), and a
   playbook's own goals (the bug-fix playbook's reproduction and focused test), which stand
   without a question unless the request leaves an outcome open.
@@ -115,8 +115,8 @@ close.
 - **Todo list.** Copy the playbook's steps into the session's todo list, word for word, and
   tick each as it finishes. A step is done only with the evidence it asks for.
 - **Ask once, then run long.** When the goal is clear, gather every open question before
-  the first step and hand them to `/ss:clarify`, which asks them together with a default on
-  each, in the form it picks, by `<plugin-root>/references/long-run.md`. The endpoint, when the person left it open,
+  the first step and ask them together, in one decision sheet with a default on each,
+  by `<plugin-root>/references/long-run.md`. The endpoint, when the person left it open,
   is one of its blocks: a local commit, a pushed branch, or an open PR. A work session
   reads the endpoint from its brief; when the brief leaves it open, it stops at a local
   commit and says so in its report. After the answers, run every step to the endpoint

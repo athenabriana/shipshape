@@ -9,9 +9,7 @@ It ends with a complete example to copy.
 ## Pick the question tool or a sheet
 
 The split: the dialog for one quick pick, the sheet for anything bigger. When in doubt,
-the sheet. Before work starts, `/ss:clarify` owns the ask and applies this split, with a
-third form for work to keep: a private Claude Docs doc first, then the sheet for what it
-leaves open.
+the sheet.
 
 Use the question tool (`AskUserQuestion`) for:
 
