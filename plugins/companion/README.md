@@ -238,9 +238,10 @@ Three things make that work:
 1. **Permission mode `default`, not `dontAsk`.** `dontAsk` turns every prompt into a
    denial, so the merge button could never appear. In `default`, what you allow runs, what
    you deny never runs, and anything else asks you through the bot.
-2. **Arm the watch at launch.** Monitors and crons live inside the session, so pass a first
-   prompt on the command line, after the channel flag:
-   `claude --dangerously-load-development-channels plugin:companion@shipshape "Arme a vigia."`
+2. **Arm the watch at launch.** Monitors and crons live inside the session, so give it a
+   first prompt on the command line, before the flags (the channel flag reads the
+   arguments after it as channels):
+   `claude "Arme a vigia." --dangerously-load-development-channels plugin:companion@shipshape`
 3. **Let sessions in other permission modes talk to it.** Claude Code holds a message
    between two sessions in different permission modes until someone approves it, and a
    desktop session has nowhere to show that approval. `"crossSessionInbound": "accept"` in
@@ -262,7 +263,7 @@ The companion folder's `.claude/settings.json`, with `PLUGIN` the installed plug
       "SendMessage",
       "Bash(python3 /home/YOU/PLUGIN/scripts/sessions.py*)",
       "Bash(python3 /home/YOU/PLUGIN/scripts/merge_gate.py *)",
-      "Monitor(python3 /home/YOU/PLUGIN/scripts/watch.py*)",
+      "Bash(python3 /home/YOU/PLUGIN/scripts/watch.py*)",
       "Bash(gh pr view:*)",
       "Bash(gh pr checks:*)",
       "Bash(gh search:*)",
@@ -284,8 +285,9 @@ The companion folder's `.claude/settings.json`, with `PLUGIN` the installed plug
 }
 ```
 
-A `Monitor` rule scoped to the watch's command keeps that tool from running anything else,
-and `Bash` deny rules apply to it too. Writes to the session's own memory folder need no
+Claude Code checks a `Monitor` command against the `Bash` rules, so the watch's own
+`Bash(...)` rule lets it run and nothing else, and every `Bash` deny rule applies to it.
+Writes to the session's own memory folder need no
 rule. Keep the deny list from "Run the companion read only" as well.
 
 ## What reaches Telegram
