@@ -1,10 +1,10 @@
 ---
 name: go
-description: Ship Shape's router. Matches the request to one playbook (investigate, bug-fix, review, ship, edge-cases, babysit, review-setup, correct, learn), sizes the route (lightweight, standard or intensive) with scripts/route.py from five risk facts, copies the playbook's steps into the todo list and runs each step's skill. Stays on until you turn it off, offers the learn playbook when the same correction lands twice, and shows a visual with every review ask. Use when the user types /ss:go, says "use ss", "be rigorous", "do this properly", "fix and babysit", "fix it and ship it", says "babysit PR 42", "set up code review", "make this mistake impossible", or starts any non trivial engineering task. Don't use it for a tiny mechanical change (just do it) or for a question about Claude Code itself.
+description: Ship Shape's router. Matches the request to one playbook (investigate, bug-fix, review, ui-critique, ship, edge-cases, babysit, review-setup, correct, learn), sizes the route (lightweight, standard or intensive) with scripts/route.py from five risk facts, copies the playbook's steps into the todo list and runs each step's skill. Stays on until you turn it off, offers the learn playbook when the same correction lands twice, and shows a visual with every review ask. Use when the user types /ss:go, says "use ss", "be rigorous", "do this properly", "fix and babysit", "fix it and ship it", says "babysit PR 42", "critique this screen", "set up code review", "make this mistake impossible", or starts any non trivial engineering task. Don't use it for a tiny mechanical change (just do it) or for a question about Claude Code itself.
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.3.0
+  version: 1.4.0
 ---
 
 # Go
@@ -26,6 +26,7 @@ stays the only source of the steps.
 | `investigate`  | a read only question about the code, a branch or its history: how, why, where, what changed          | `playbooks/investigate.md`  |
 | `bug-fix`      | a defect, an error, a stack trace, "this fails", "fix this bug"                                      | `playbooks/bug-fix.md`      |
 | `review`       | judge a diff: the current branch, or a PR by number                                                  | `playbooks/review.md`       |
+| `ui-critique`  | judge a screen, not a diff: a page, an app, a mockup or a folder of UI; "critique this screen", a11y | `playbooks/ui-critique.md`  |
 | `ship`         | land a branch: commit, push, open or finish a PR, green CI                                           | `playbooks/ship.md`         |
 | `edge-cases`   | "what could break", "edge cases": before coding (plan mode) or on a diff (diff mode)                 | `playbooks/edge-cases.md`   |
 | `babysit`      | "babysit PR 42", "watch PR 42", "fica de olho no PR 42": a watcher on any PR, by number              | `playbooks/babysit.md`      |

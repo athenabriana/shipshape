@@ -14,7 +14,7 @@ The loop is the default for a review of the current branch (`SKILL.md`, step 1,
 instead when:
 
 - the user asked for it: `/ss:review manual`, "manual review", "let me pick";
-- the mode is an external PR, a surface audit, or a direct front ask;
+- the mode is an external PR or a direct front ask;
 - the probe's `dirty` is true (uncommitted changes in the tree). A fix commit would sweep in
   the user's own work, so say in one line why the manual flow runs.
 

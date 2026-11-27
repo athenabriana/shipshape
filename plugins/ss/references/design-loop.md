@@ -4,8 +4,8 @@ Every interface change runs through this loop before it is called done: build it
 screenshots of the running thing, have the `ss-design-critic` agent judge them, fix what
 it finds, and repeat until the critic is pleased and the goals are achieved. There is no
 default round limit. This page says when the loop runs, how to take the screenshots, how to
-dispatch the critic, and when the loop stops. A work session, a `/ss:go` run, `/ss:review`'s design front and a plain session all
-follow it.
+dispatch the critic, and when the loop stops. A work session, a `/ss:go` run, `/ss:ui-critique` (its entry point for a screen that
+already exists), `/ss:review`'s design front and a plain session all follow it.
 
 ## When it runs
 

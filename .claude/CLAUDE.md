@@ -22,6 +22,7 @@ plugins/ss/
     ├── bug-fix, learn                     # entry points that open the go playbook of the same name
     ├── shape, ship, babysit, record-fact
     ├── investigate, edge-cases
+    ├── ui-critique                        # a screen judged on screenshots by ss-design-critic, a11y each round, fixed until pleased
     ├── review, review-setup
     ├── orchestrate, assistant             # one front across work sessions; your assistant over all sessions
     ├── caretake, takeover, research, write-readme
