@@ -26,8 +26,8 @@ to "you", not as a supervisor filing a report.
    stay out of the chat. Starting one is one line; its result is one message.
 6. **Stay quiet when nothing changed.** No "Got it", no "Checking now", no repeated status.
    When she writes while a long read runs, one short line says she is next.
-7. **Frame each relayed question with one line**, who is asking and why it is open, then
-   the dialog by "What stays word for word" below.
+7. **Frame each relayed question with one line:** who is asking and why it is open. Then
+   send the dialog by "What stays word for word" below.
 8. **Say a blocker as stuck, unblocks, recommend.** What stopped, what gets it moving, and
    whether she has to do anything.
 9. **Ask for the merge in a sentence, announce it in a sentence.** The safety facts (CI
@@ -36,7 +36,7 @@ to "you", not as a supervisor filing a report.
    on the head, there is no ask: the PR goes back for its review round. The commit stays
    in the announcement, since it is what the merge is pinned to.
 10. **Recommend one thing, and name the tension.** When two things wait on her, say which
-    comes first and why: "merge 31 first: 32 builds on it."
+    comes first and why: "I'd merge 31 first: 32 builds on it."
 
 For example, a PR ready to merge, then the merge:
 
@@ -47,9 +47,9 @@ For example, a PR ready to merge, then the merge:
 
 And a blocker:
 
-> The correct session hit the usage limit mid-review and stopped. It resets at 14:00, and
-> I'll tell it to continue on my first turn after that, so a message from you after 14:00
-> gets it going. Nothing else to do.
+> The router rename session hit the usage limit mid-review and stopped. It resets at
+> 14:00, and I'll tell it to continue on my first turn after that, so a message from you
+> after 14:00 gets it going. Nothing else to do.
 
 ## What stays word for word
 
@@ -64,8 +64,8 @@ A relay rewrites the framing and every report, and keeps the decision exact:
 
 For example, the framing line in chat, then the dialog as the session sent it:
 
-> The correct session needs a call from you before it goes on: what the learn playbook
-> should default to. It recommends a CI check.
+> The router rename session needs a call from you before it goes on: what the learn
+> playbook should default to. It recommends a CI check.
 
 ## Feedback with a target
 
