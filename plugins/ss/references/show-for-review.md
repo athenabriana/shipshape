@@ -61,7 +61,7 @@ The mockup is a Design canvas: the Artifact type for visual designs, which the p
 comments on artboard by artboard. It has to be close to the app, so it starts from the
 app itself.
 
-1. **Gather real references** for the pattern, Mobbin first, by
+1. **Gather real references** for the pattern, Inspo first, by
    `<plugin-root>/references/ui-references.md`, and put them on a "References" artboard.
    Then take screenshots of the running app for an existing screen, through the browser or
    app tools, by the next section.

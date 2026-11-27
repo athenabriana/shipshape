@@ -91,7 +91,11 @@ start with `/ss:learn`. the three commands below it are what `/ss:learn` calls, 
 
 ss works without them, and uses them when they are there.
 
-- **mobbin**: real app and website screens. connect it from the claude connector directory with your own mobbin account on a paid plan (pro or above: the free plan has no connector), and ss pulls ui references from it before a mockup, in every design critique and in `/ss:research`. without it, ss falls back to live sites in the browser.
+three free sources of real ui references, with no account and no api key. ss pulls references from them before a mockup, in every design critique and in `/ss:research`, falls back to live sites in the browser without them, and offers to help set up the one that is missing.
+
+- **inspo**: real production websites with their palette and fonts. in claude's settings, connectors, add a custom connector named `Inspo` with the url `https://inspomcp.dev/api/mcp`, or in claude code run `claude mcp add --transport http --scope user inspo https://inspomcp.dev/api/mcp`.
+- **awwwards mcp**: award-winning websites, with screenshots. needs node 22.13 or newer: `claude mcp add --scope user awwwards -- npx -y awwwards-mcp`.
+- **chrome devtools mcp**: its own chrome to screenshot any public page, at a desktop or a mobile size. needs node and chrome: `claude mcp add --scope user chrome-devtools -- npx -y chrome-devtools-mcp@latest --no-usage-statistics`.
 
 ## develop locally
 
