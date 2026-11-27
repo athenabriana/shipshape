@@ -52,8 +52,6 @@ in the claude code desktop app, type `/ss:orchestrate` and describe the goal. th
 
 the orchestrator talks in warm first person, by `plugins/ss/references/voice.md`.
 
-your assistant over all your sessions is the [telegram companion](#telegram-companion), a separate plugin.
-
 ## other commands
 
 you can call any skill directly. `/ss:go` calls most of them for you.

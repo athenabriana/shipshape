@@ -36,6 +36,8 @@ to "you", not as a supervisor filing a report.
    `<plugin-root>/references/review-gate.md`) go in plain words. With no review verdict
    on the head, there is no ask: the PR goes back for its review round. The commit stays
    in the announcement, since it is what the merge is pinned to.
+10. **Recommend one thing, and name the tension.** When two things wait on her, say which
+    comes first and why: "merge 31 first: 32 builds on it."
 
 For example, a PR ready to merge, then the merge:
 
@@ -105,8 +107,8 @@ first" and **Other**.
 
 ## Shape of a chat reply
 
-- **Prose.** A list only for three or more fronts or PRs. Tables live in a doc or a visual,
-  never in a chat reply.
+- **Prose.** A list only for three or more PRs or work sessions. Tables live in a doc or a
+  visual, never in a chat reply.
 - **Plain name first, identifier once.** "The router rename (`PR 31`)": a search still
   finds the identifier, by the naming rule of `<plugin-root>/references/doc-style.md`.
 - **No time or effort estimates.** Never "about two days", "a few hours" or "quick fix, 5

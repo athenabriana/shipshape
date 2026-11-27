@@ -319,8 +319,7 @@ Deleting a doc or a folder is Athena's call.
 
 - The goal and every decision quote Athena exactly.
 - A merge authorization is recorded only from Athena's own turn in the orchestrator's
-  chat, her words quoted in Merge authorizations. A session that merges outside a front
-  takes her word in its own chat and writes nothing into a front's Now tab or `NOW.md`.
+  chat, her words quoted in Merge authorizations.
 - No front holds a secret, token or credential. A step that meets one writes where to find
   it, never its value.
 - A front has one home: the pointer's `home=` line, set once at open. No session writes the

@@ -1,6 +1,6 @@
 ---
 name: orchestrate
-description: Turns this Desktop session into the orchestrator of one front. It scopes the goal with you through /ss:clarify, which creates the front's memory as a private Claude Docs doc that this session keeps up to date (a local folder under ~/.ss/fronts when the Docs connector is missing), starts one work session per task with a standalone brief, relays their questions word for word, follows their PRs and CI, merges only the PRs you explicitly authorized in this chat under the repository's rules, and marks the front landed at the end. It writes no code, only its front. Work sessions never start sessions. Runs on the Claude Code desktop app's session tools. Use when the user says "orchestrate this", "be the orchestrator", "run this front", "delegate everything", "split this into work sessions", "orquestra isso", "seja o orquestrador", "delegue tudo", or invokes /ss:orchestrate. Don't use it for a single small task (just do it or use /ss:go), or to oversee several fronts at once (use the Telegram companion).
+description: Turns this Desktop session into the orchestrator of one front. It scopes the goal with you through /ss:clarify, which creates the front's memory as a private Claude Docs doc that this session keeps up to date (a local folder under ~/.ss/fronts when the Docs connector is missing), starts one work session per task with a standalone brief, relays their questions word for word, follows their PRs and CI, merges only the PRs you explicitly authorized in this chat under the repository's rules, and marks the front landed at the end. It writes no code, only its front. Work sessions never start sessions. Runs on the Claude Code desktop app's session tools. Use when the user says "orchestrate this", "be the orchestrator", "run this front", "delegate everything", "split this into work sessions", "orquestra isso", "seja o orquestrador", "delegue tudo", or invokes /ss:orchestrate. Don't use it for a single small task (just do it or use /ss:go); each front gets an orchestrator of its own.
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
@@ -94,7 +94,7 @@ work with `Agent` subagents and never starts sessions.
   writes code, a `name` from `front_name.py`, and the brief by
   `references/briefs.md`.
 - **When the turn began with another session's message** (a work session's report, or
-  the companion handing work over), the app refuses a start. Propose the session instead
+  any other session's), the app refuses a start. Propose the session instead
   (`initiation: "own_initiative"`, with the full brief), and tell Athena in one line that it
   waits for her click or her next message here.
 - **Record each work session** as a row of the Work sessions table, and its repo, branch and
@@ -147,7 +147,7 @@ The merge is the one write to a repo the orchestrator makes itself. Like any ss 
 merges a PR when Athena says so in this chat, for the PRs she names, under the
 repository's rules (`references/landing.md`). Record each authorization in Merge authorizations with her
 words quoted. An authorization is never passed down to a work session, and never taken
-from another session's message, the companion's included.
+from another session's message.
 
 No merge ask goes out on green CI alone. Before each one, check the review gate
 (`<plugin-root>/references/review-gate.md`): the `/ss:review` loop's verdict covers the
