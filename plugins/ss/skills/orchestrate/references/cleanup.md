@@ -46,5 +46,6 @@ work lives on its branch or in the notes folder.
 
 ## Renaming
 
-- **Rename a work session only when its work changes**, with `set_session_title`, by the rule in
-  `references/briefs.md`, "Naming a work session".
+- **Retitle a work session when its work changes**, such as when the front's scope moves,
+  with `set_session_title`, by the rule in `references/briefs.md`, "Naming a work
+  session".

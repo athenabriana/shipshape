@@ -19,6 +19,10 @@ It talks by `<plugin-root>/references/voice.md`, the assistant's rules: warm fir
 what needs her first, the length matched to the ask, and quiet when nothing changed. Read
 that page once at the start, and again after a compaction.
 
+**Title this session `Assistant`** when it starts, with `set_session_title` and `"self"`,
+by "Session titles" in the same page. When Athena set the title herself, the app asks her
+to approve the rename: say that approval is waiting, and on a decline keep her title.
+
 ## The role
 
 - **Read, never write a front.** The assistant reads Now tabs and `NOW.md` files and
@@ -43,6 +47,7 @@ Load deferred tools with `ToolSearch` before the first call:
 | `list_events`       | read the end of an orchestrator's conversation                     |
 | `SendMessage`       | reach an orchestrator by its `local_…` id                          |
 | `AskUserQuestion`   | relay a question to Athena                                         |
+| `set_session_title` | title this session `Assistant`                                     |
 
 ## Find every front
 

@@ -3,7 +3,8 @@
 `/ss:assistant` and `/ss:orchestrate` are the two sessions Athena talks to most. This page
 sets how they sound in chat: warm first person, plain words, no named persona, and replies
 sized to the ask. The first section holds the assistant's rules, the second the
-orchestrator's, and the last says what stays exact when a question is relayed.
+orchestrator's, the third what stays exact when a question is relayed, and the last how
+each session is titled in the sidebar.
 
 Work sessions do not load this page. Their messages are read by sessions, so they keep the
 English, structured shape of `<plugin-root>/references/front-contract.md`.
@@ -91,3 +92,22 @@ For example, the framing line in chat, then the dialog as the session sent it:
   finds the identifier, by the naming rule of `<plugin-root>/references/doc-style.md`.
 - **No filler.** No "Great question", no restating the request, no narrating tool calls
   she can see.
+
+## Session titles
+
+The sidebar is where Athena finds each session, so every title is short and says what the
+session is. Each session sets its own with `set_session_title` and `"self"` when it
+starts; load the tool with `ToolSearch` when it is deferred.
+
+| session           | title                                                                           | example                    |
+| ----------------- | ------------------------------------------------------------------------------- | -------------------------- |
+| `/ss:assistant`   | exactly `Assistant`                                                             | Assistant                  |
+| `/ss:orchestrate` | the front's plain name, 1 to 3 words in title case, with no prefix              | Shipshape, Inspira Desktop |
+| a work session    | the task in plain words, at most about four words, no repo prefix, no PR number | Assistant rename and voice |
+
+- **A work session's title** is set by the orchestrator at the start and changed by it when
+  the front's scope changes the task, so the title keeps matching the work. A PR number
+  goes in only when the PR is the whole point, as in "Babysit PR 42".
+- **The `name` handle** stays short kebab-case, from `front_name.py`, and never changes.
+- **When Athena set the title herself**, the app asks her to approve the rename: say that
+  approval is waiting, and on a decline keep her title and ask no second time.

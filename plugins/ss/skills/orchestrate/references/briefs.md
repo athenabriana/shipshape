@@ -53,10 +53,12 @@ and an answer goes back quoted as she gave it.
 The sidebar is how Athena tells the work sessions apart, so each carries one title pattern
 and one `name` rule.
 
-**The title** is an English imperative, a verb and the outcome, in sentence case and under
-60 characters: "Fix session naming in orchestrate", "Add edge-cases skill". It says what the
-work session delivers. The stage, the repo and the playbook stay out of it, because the
-sidebar already shows the PR and its state.
+**The title** is short: the task in plain words, at most about four words, in sentence
+case: "Assistant rename and voice", "Edge-cases skill". It says what the work session
+delivers. The repo, the stage, the playbook and the PR number stay out of it, because the
+sidebar already shows the PR and its state; a PR number goes in only when the PR is the
+whole point, as in "Babysit PR 42". "Session titles" in
+`<plugin-root>/references/voice.md` holds the rule for every session.
 
 **The `name`** comes from the task's slug, which is also the branch it works on. Make it
 with the script, passing the `name`s of the live work sessions of this front:
@@ -73,8 +75,8 @@ the branch, and the `name` is cut at the last hyphen that fits. When `collision`
 pick another slug and run the script again before the start. Pass `--live` only the `name`s
 of sessions that are not archived.
 
-**Renaming.** The `name` never changes after the start. The title changes only when the
-task changes until the old title misleads. Rename with `set_session_title` on the work
+**Renaming.** The `name` never changes after the start. When the front's scope changes a
+work session's task, retitle the session to match. Rename with `set_session_title` on the work
 session. When Athena set the title herself, the app asks her to approve the new one: tell
 her which approval is waiting, and on a decline keep it and ask no second time.
 

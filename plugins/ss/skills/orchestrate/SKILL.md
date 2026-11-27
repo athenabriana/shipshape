@@ -50,9 +50,11 @@ python3 <plugin-root>/scripts/front_pointer.py get
 
 ## Open a front
 
-1. **Title this session** with `set_session_title` and `"self"`, as
-   `Orchestrate <the goal in a few words>`. When Athena set the title herself, the app asks
-   her to approve the rename: say that approval is waiting, and on a decline keep the title.
+1. **Title this session** with `set_session_title` and `"self"`, as the front's plain name
+   in 1 to 3 words and title case, with no prefix: "Shipshape", "Inspira Desktop". The
+   rules for every session title are in "Session titles" in
+   `<plugin-root>/references/voice.md`. When Athena set the title herself, the app asks her
+   to approve the rename: say that approval is waiting, and on a decline keep the title.
 2. **Shape the goal with Athena.** Settle the goal in her words and the acceptance criteria
    as WHEN/THEN lines. For a real feature, run `/ss:shape` in this session with the front
    as its path; it writes the criteria there and nothing else.
