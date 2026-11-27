@@ -61,7 +61,7 @@ the dialog would have carried, since Athena reads it through the orchestrator's 
 
 - **The question**: what is being decided and why it is open.
 - **The visual**, when the question asks for a review or an approval: the link to the
-  page, the doc or the file that shows it.
+  page, the canvas, the goals doc clarify wrote, or the file that shows it.
 - **Every option**: its label, what that pick does next, and what it costs.
 - **The recommended pick**, named as such, first in the list.
 

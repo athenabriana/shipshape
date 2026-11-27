@@ -4,7 +4,7 @@ description: Ship Shape's router. Matches the request to one playbook (investiga
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.5.0
+  version: 1.5.1
 ---
 
 # Go
@@ -140,7 +140,8 @@ close.
   pick, or a decision sheet as its `ss.ask` JSON, then end the turn. A work session never starts sessions.
 - **Show it before asking for a review.** Every review or approval ask comes with a visual
   built before the question, in the form `<plugin-root>/references/show-for-review.md`
-  picks: an inline visual in the chat by default, else a Design canvas, a private Claude Docs doc or an Artifact page.
+  picks: an inline visual in the chat by default, else a Design canvas or an Artifact
+  page. Only `/ss:clarify` creates a Claude Docs doc.
 - **After a compaction**, reread the todo list, and the brief if there is one, and pick up at
   the first unticked step.
 
