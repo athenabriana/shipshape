@@ -38,14 +38,15 @@ TAIL_BYTES = 400_000  # only the end of a transcript is read; the last turns are
 
 # Shapes of secrets that must never reach the chat, even inside a session's own words.
 SECRET_PATTERNS = [
-    re.compile(r"\b\d{8,10}:[A-Za-z0-9_-]{35}\b"),  # Telegram bot token
-    re.compile(r"\bgh[pousr]_[A-Za-z0-9]{30,}\b"),  # GitHub tokens
-    re.compile(r"\bgithub_pat_[A-Za-z0-9_]{30,}\b"),
-    re.compile(r"\bsk-[A-Za-z0-9_-]{20,}\b"),  # Anthropic and OpenAI style keys
-    re.compile(r"\bxox[abpors]-[A-Za-z0-9-]{10,}\b"),  # Slack tokens
-    re.compile(r"\bAKIA[0-9A-Z]{16}\b"),  # AWS access key id
-    re.compile(r"\bAIza[0-9A-Za-z_-]{35}\b"),  # Google API key
-    re.compile(r"\beyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\b"),  # JWT
+    # No leading word boundary: a secret glued to other text is still a secret.
+    re.compile(r"\d{6,12}:[A-Za-z0-9_-]{30,}"),  # Telegram bot token
+    re.compile(r"gh[pousr]_[A-Za-z0-9]{30,}"),  # GitHub tokens
+    re.compile(r"github_pat_[A-Za-z0-9_]{30,}"),
+    re.compile(r"(?<![A-Za-z])sk-[A-Za-z0-9_-]{20,}"),  # Anthropic, OpenAI keys (not "task-...")
+    re.compile(r"xox[abpors]-[A-Za-z0-9-]{10,}"),  # Slack tokens
+    re.compile(r"AKIA[0-9A-Z]{16}"),  # AWS access key id
+    re.compile(r"AIza[0-9A-Za-z_-]{35}"),  # Google API key
+    re.compile(r"eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}"),  # JWT
     re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?(?:-----END [A-Z ]*PRIVATE KEY-----|$)"),
 ]
 # `password: x`, `token=x`, `API_KEY="x"`: the name stays, the value goes.
