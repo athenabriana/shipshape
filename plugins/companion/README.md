@@ -103,21 +103,44 @@ The plugin adds three things to the upstream channel, so the companion reads wel
 ### Set up voice transcription
 
 The default transcriber is `scripts/transcribe-whisper-cpp.sh`, which runs whisper.cpp
-locally, so the audio never leaves your machine. It needs `whisper-cli`, `ffmpeg` and a
-model:
+locally, so the audio never leaves your machine. It needs `ffmpeg`, whisper.cpp's
+`whisper-cli` and a model. The adapter finds `whisper-cli` in this order: the path in
+`COMPANION_WHISPER_BIN`, then `whisper-cli` on `PATH`, then the older name `whisper-cpp` on
+`PATH`.
+
+On Ubuntu and Pop!\_OS, ffmpeg comes from apt. whisper.cpp has no apt package there, so build
+it and link the binary into `~/.local/bin`, which is on `PATH`:
 
 ```bash
-brew install whisper-cpp ffmpeg
+sudo apt install -y ffmpeg git cmake build-essential
+git clone --depth 1 https://github.com/ggml-org/whisper.cpp ~/.local/src/whisper.cpp
+cmake -S ~/.local/src/whisper.cpp -B ~/.local/src/whisper.cpp/build -DCMAKE_BUILD_TYPE=Release
+cmake --build ~/.local/src/whisper.cpp/build -j --config Release
+mkdir -p ~/.local/bin && ln -sf ~/.local/src/whisper.cpp/build/bin/whisper-cli ~/.local/bin/whisper-cli
+```
+
+Then download a model to the default path. `ggml-small.bin` handles Portuguese well on a
+CPU:
+
+```bash
 mkdir -p ~/.local/share/whisper-cpp
 curl -L -o ~/.local/share/whisper-cpp/ggml-small.bin \
   https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin
 ```
+
+With Homebrew (macOS, or Linuxbrew), `brew install whisper-cpp ffmpeg` replaces the apt and
+build steps.
+
+To check the setup without Telegram, run the adapter on any audio file:
+`scripts/transcribe-whisper-cpp.sh some-voice-note.ogg` prints the text, and exit code 3
+names what is missing.
 
 Restart the companion session after installing. These variables tune it, set in the
 command that launches the session:
 
 | variable                   | effect                                                                       |
 | -------------------------- | ---------------------------------------------------------------------------- |
+| `COMPANION_WHISPER_BIN`    | the `whisper-cli` binary, when it is not on `PATH`                           |
 | `COMPANION_WHISPER_MODEL`  | the model file, by default `~/.local/share/whisper-cpp/ggml-small.bin`       |
 | `COMPANION_WHISPER_LANG`   | the spoken language, such as `pt`, by default `auto`                         |
 | `COMPANION_TRANSCRIBE_CMD` | another transcriber: an executable that takes the audio path and prints text |
