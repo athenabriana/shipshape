@@ -4,8 +4,6 @@
 
 [![github](https://img.shields.io/badge/github-athenabriana%2Fshipshape-111111?style=flat-square&logo=github)](https://github.com/athenabriana/shipshape)
 
-_a claude code plugin of technical skills: shape → build → ship._
-
 </div>
 
 ship shape (`ss`) is a plugin for claude code. it gives the agent a set of skills for building software: plan the change, build it, review it, and land it as a branch or a pull request. you call each skill as `/ss:<name>`.
@@ -19,7 +17,7 @@ claude plugin marketplace add athenabriana/shipshape
 claude plugin install ss@shipshape-skills
 ```
 
-the plugin turns on a `SessionStart` hook by itself. at the start of every session, the hook gives the agent a short note on how ss works and the hard rules below. you do not run anything for it.
+the plugin turns on a `SessionStart` hook by itself. at the start of every session, the hook gives the agent a short note on how ss works and its hard rules. you do not run anything for it.
 
 ## the three core skills
 
@@ -88,33 +86,11 @@ start with `/ss:learn`. the three commands below it are what `/ss:learn` calls, 
 | `/ss:review-setup` | write or update `CODE_REVIEW_GUIDE.md`, the rules `/ss:review` checks against                                                                 |
 | `/ss:correct`      | turn a mistake that happened twice into a check, so it cannot happen a third time                                                             |
 
-## skills the agent loads by itself
-
-three skills are not in the menu: `prove-the-fix`, `explain-the-number` and `attack-the-premise`. an agent reads one when its trigger fires mid-task. `prove-the-fix` fires when the task fixes a bug, `explain-the-number` when the agent measures or trusts a number, and `attack-the-premise` when a second fix fails the same check as the first. the triggers are listed in `plugins/ss/references/triggers.md`.
-
-## hard rules
-
-- any ss session may merge a PR when you say so in its chat, under the repo's rules. it force-pushes or deploys only when you ask for it in so many words.
-- before every commit, ss rereads the staged diff, so nothing unrelated changes.
-- every time ss needs you to review or approve something, it shows it first: an inline visual in the chat by default, a Design canvas for an interface, a private Claude Docs doc for text to keep, an Artifact page when it is too big to show inline.
-- ss suggests the next step and waits for you, unless you approved that scope up front.
-
-## learn more
-
-- **playbooks:** one file per playbook in `plugins/ss/skills/go/playbooks/`. each has `## Steps`, `## Route` and `## Endpoint`.
-- **risk routes:** `plugins/ss/skills/go/SKILL.md`, section `2. Size the route`. `scripts/route.py` picks the route from five facts: blast radius, reversibility, data or auth, test coverage, and files touched.
-- **project facts:** `plugins/ss/references/project-facts.md`. a project fact is one short line the code cannot show, kept under `## Project facts` in `CLAUDE.md`. only `/ss:record-fact` writes them, after you approve each line.
-- **fronts:** `plugins/ss/references/front-doc.md` for the front's memory (a private Claude Docs doc, or a folder under `~/.ss/fronts`), and `plugins/ss/references/front-contract.md` for how a work session runs.
-- **review agents:** `/ss:review` uses three read only agents in `plugins/ss/agents/`: `ss-review-finder`, `ss-review-verifier` and `ss-review-judge`. you do not call them directly.
-- **writing style:** `plugins/ss/references/doc-style.md`, and `plugins/ss/references/voice.md` for how the assistant and the orchestrator talk in chat.
-
 ## develop locally
 
 ```bash
 git clone https://github.com/athenabriana/shipshape.git
 claude --plugin-dir ./shipshape/plugins/ss    # load the plugin from disk to test
 ```
-
-the Hermes port is not on main: it lives on the [`hermes-test`](https://github.com/athenabriana/shipshape/tree/hermes-test) branch.
 
 <sub>parts of `/ss:review` are adapted from Claude Code's `/simplify` and `/code-review` (Anthropic, Apache-2.0). individual components retain their original licenses.</sub>
