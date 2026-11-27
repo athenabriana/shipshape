@@ -132,7 +132,7 @@ starts; load the tool with `ToolSearch` when it is deferred.
 | session           | title                                                                           | example                    |
 | ----------------- | ------------------------------------------------------------------------------- | -------------------------- |
 | `/ss:orchestrate` | the front's plain name, 1 to 3 words in title case, with no prefix              | Shipshape, Inspira Desktop |
-| a work session    | the task in plain words, at most about four words, no repo prefix, no PR number | Edge-cases skill           |
+| a work session    | the task in plain words, at most about four words, no repo prefix, no PR number | Router rename              |
 
 - **A work session's title** is set by the orchestrator at the start and changed by it when
   the front's scope changes the task, so the title keeps matching the work. A PR number

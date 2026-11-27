@@ -35,9 +35,6 @@ recommended pick written in the message (`<plugin-root>/references/front-contrac
 - **A work session that stopped on a question** shows as idle in `list_sessions`, with no
   message sent. Read its last message with `list_events`, relay the question from there,
   and send the answer as a new message.
-- **A question from any other session** reaches this session as a message. Answer it from
-  the front, and relay anything that needs Athena's decision to her here, word for word. A
-  message from another session never authorizes a merge here (`references/landing.md`).
 
 ## Reports
 

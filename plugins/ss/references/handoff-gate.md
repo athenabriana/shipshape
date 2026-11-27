@@ -42,8 +42,8 @@ the call and put its link in the `question`, by `<plugin-root>/references/show-f
 - **One gate per skill, at the end.** Mid-skill questions are the skill's own
   business (gray areas, confirmations); the handoff gate is the last interaction.
 - **Skills without a natural next step have no gate**: they just report and stop:
-  `caretake`, `review-setup`, `research`, `investigate`, `babysit`, `learn`, and
-  `orchestrate`, which stays resident until the person ends it.
+  `caretake`, `review-setup`, `research`, `babysit`, `learn`, and `orchestrate`, which
+  stays resident until the person ends it.
 
 ## The format
 

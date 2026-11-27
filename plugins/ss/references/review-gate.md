@@ -46,12 +46,11 @@ and the others check it:
   head, before its handoff (`<plugin-root>/skills/ship/references/ship-pr.md`).
 - **The orchestrator** writes no code, so it never runs the loop. It checks the verdict
   before every merge ask and sends a PR without one back to its work session.
-- **Any other session asked to merge** checks, before it merges, that a verdict covers the
-  head, with `<plugin-root>/scripts/patch_id.py` read as
-  `<plugin-root>/skills/orchestrate/references/landing.md` reads it, and merges with
-  `--match-head-commit` on that head. With no verdict covering the head, the session runs
-  the loop itself when it holds the branch, and otherwise reports the PR not ready and
-  merges nothing.
+- **Any other session asked to merge** checks items 1 to 5 above before it merges, running
+  `patch_id.py --pr <n>` from a checkout of the PR's repo, and merges with
+  `--match-head-commit` on the `head` it measured. With no verdict covering the head, the
+  session runs the loop itself when it holds the branch, and otherwise reports the PR not
+  ready and merges nothing.
 
 ## Pick the depth
 

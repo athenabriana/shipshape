@@ -318,7 +318,7 @@ Deleting a doc or a folder is Athena's call.
 ## Rules every front keeps
 
 - The goal and every decision quote Athena exactly.
-- A merge authorization is recorded only from Athena's own turn in the orchestrator's
+- A merge authorization enters a front only from Athena's own turn in the orchestrator's
   chat, her words quoted in Merge authorizations.
 - No front holds a secret, token or credential. A step that meets one writes where to find
   it, never its value.

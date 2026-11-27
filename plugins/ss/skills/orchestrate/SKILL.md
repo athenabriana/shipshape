@@ -1,6 +1,6 @@
 ---
 name: orchestrate
-description: Runs one front across several work sessions. Runs when work is too big for one session; solves losing the thread between sessions and PRs. Turns this Desktop session into the orchestrator. It settles the goal with you through /ss:clarify, which creates the front's memory as a private Claude Docs doc that this session keeps up to date, then starts one work session per task with a standalone brief, relays their questions word for word, follows their PRs and CI, and merges only the PRs you authorized in this chat under the repository's rules. Outputs the briefs and the landed front. It writes no code, only its front, and work sessions never start sessions. Use when the user says "orchestrate this", "be the orchestrator", "run this front", "delegate everything", "split this into work sessions", "orquestra isso", "seja o orquestrador", "delegue tudo", or invokes /ss:orchestrate. Don't use it for a single small task (just do it or use /ss:go); each front gets an orchestrator of its own.
+description: Runs one front across several work sessions. Runs when work is too big for one session; solves losing the thread between sessions and PRs. Turns this Desktop session into the orchestrator. It settles the goal with you through /ss:clarify, which creates the front's memory as a private Claude Docs doc that this session keeps up to date, then starts one work session per task with a standalone brief, relays their questions word for word, follows their PRs and CI, and merges only the PRs you authorized in this chat under the repository's rules. Outputs the briefs and the landed front. It writes no code, only its front, and work sessions never start sessions. Use when the user says "orchestrate this", "be the orchestrator", "run this front", "delegate everything", "split this into work sessions", "orquestra isso", "seja o orquestrador", "delegue tudo", or invokes /ss:orchestrate. Don't use it for a single small task (just do it or use /ss:go), or to check on your sessions (use /ss:investigate).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
@@ -93,10 +93,10 @@ work with `Agent` subagents and never starts sessions.
   `start_session`: `initiation: "user_asked"`, `use_worktree: true` for any session that
   writes code, a `name` from `front_name.py`, and the brief by
   `references/briefs.md`.
-- **When the turn began with another session's message** (a work session's report, or
-  any other session's), the app refuses a start. Propose the session instead
-  (`initiation: "own_initiative"`, with the full brief), and tell Athena in one line that it
-  waits for her click or her next message here.
+- **When the turn began with another session's message**, such as a work session's report,
+  the app refuses a start. Propose the session instead (`initiation: "own_initiative"`,
+  with the full brief), and tell Athena in one line that it waits for her click or her next
+  message here.
 - **Record each work session** as a row of the Work sessions table, and its repo, branch and
   PR in the Repos table.
 
