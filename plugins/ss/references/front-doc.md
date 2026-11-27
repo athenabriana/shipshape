@@ -120,10 +120,10 @@ State: open · orchestrator <session id> · opened <date>
 
 `/ss:clarify` runs this and the next section, by "The front doc, when `/ss:orchestrate`
 calls" in its `SKILL.md`. Load the Docs tools first: call `ToolSearch` with `select:` and
-the bare tool names `read`, `batch`, `update` and `guide` as the server lists them, or load the `anthropic-skills:docs`
-skill. The server's name differs per account, so name the bare tool, never a full name
-from another machine. Before the first write, call `guide` with `topic.instructions` and
-`topic.tabs`, and follow them for the payload shapes.
+the bare tool names `read`, `batch`, `update` and `guide` as the server lists them, or
+load the `anthropic-skills:docs` skill. The server's name differs per account, so name the
+bare tool, never a full name from another machine. Before the first write, call `guide`
+with `topic.instructions` and `topic.tabs`, and follow them for the payload shapes.
 
 1. Create the doc in one `batch` at birth, titled `ss front · <slug>`, with the three tabs
    placed `a0` (Now), `a1` (Log) and `a2` (Notes). Fill Now from the template, Log with its

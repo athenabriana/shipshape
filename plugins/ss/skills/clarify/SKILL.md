@@ -61,7 +61,8 @@ the doc holds, how the front doc differs, and what to do without the Docs tools.
 
 ### When the goals get a doc
 
-Write the goals into a doc when **any** of these holds:
+Write the goals into a doc when **any** of these holds (when `/ss:orchestrate` calls, the
+front doc is that doc, by "The front doc, when `/ss:orchestrate` calls"):
 
 - **The work spans several PRs, repos or fronts.**
 - **Other people will read it**: a proposal, a spec for the team.
@@ -174,9 +175,10 @@ updates `goals.md` as it would the doc.
 ## The steps
 
 Every question goes through the question tool or one decision sheet, by
-`<plugin-root>/references/decision-sheet.md`, after the goals doc when the work is big. In a front, every one of them (the gate
-included) goes through `<plugin-root>/references/front-contract.md` instead of a local
-dialog, and a brief that already states what follows answers the gate.
+`<plugin-root>/references/decision-sheet.md`, after the goals doc when the work is big. In
+a front, every one of them (the gate included) goes through
+`<plugin-root>/references/front-contract.md` instead of a local dialog, and a brief that
+already states what follows answers the gate.
 
 1. **Map the problem and the code.** Read the request in the person's own words, the
    brief, the linked spec or issue, the code the work will touch and its callers, the tests
@@ -220,12 +222,12 @@ dialog, and a brief that already states what follows answers the gate.
 
 5. **Name what is out of scope**: the hard lines, and the ideas parked for later.
 
-6. **Ask once.** For big work, write the doc first, by "What the doc holds". One decision
-   sheet carries the goals block ("Approve these goals"
-   first, editable in the same answer), the out of scope block, and every gray area of what
-   gets built that genuinely could go more than one way, each with concrete options and your
-   pick first, by `goal-loop.md` section 3 and `<plugin-root>/references/long-run.md`. On
-   the single call most expensive to get wrong, give the options without marking your
+6. **Ask once.** For big work, write the doc first, by "What the doc holds" (when
+   `/ss:orchestrate` calls, the front doc is the doc). One decision sheet carries the goals
+   block ("Approve these goals" first, editable in the same answer), the out of scope
+   block, and every gray area of what gets built that genuinely could go more than one
+   way, each with concrete options and your pick first, by `goal-loop.md` section 3 and
+   `<plugin-root>/references/long-run.md`. On the single call most expensive to get wrong, give the options without marking your
    pick, so the answer is the person's own. A technical detail is the builder's and is not
    asked, unless only the person can make it (a stack settled elsewhere, a contract another
    system depends on). When a caller has an opening sheet of its own, these blocks join it
