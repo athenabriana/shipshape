@@ -87,6 +87,12 @@ start with `/ss:learn`. the three commands below it are what `/ss:learn` calls, 
 | `/ss:review-setup` | write or update `CODE_REVIEW_GUIDE.md`, the rules `/ss:review` checks against                                                                 |
 | `/ss:correct`      | turn a mistake that happened twice into a check, so it cannot happen a third time                                                             |
 
+## optional connectors
+
+ss works without them, and uses them when they are there.
+
+- **mobbin**: real app and website screens. connect it from the claude connector directory with your own mobbin account on a paid plan (pro or above: the free plan has no connector), and ss pulls ui references from it before a mockup, in every design critique and in `/ss:research`. without it, ss falls back to live sites in the browser.
+
 ## develop locally
 
 ```bash

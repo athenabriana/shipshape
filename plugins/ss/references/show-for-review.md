@@ -61,7 +61,9 @@ The mockup is a Design canvas: the Artifact type for visual designs, which the p
 comments on artboard by artboard. It has to be close to the app, so it starts from the
 app itself.
 
-1. **Take screenshots of the running app** for an existing screen, through the browser or
+1. **Gather real references** for the pattern, Mobbin first, by
+   `<plugin-root>/references/ui-references.md`, and put them on a "References" artboard.
+   Then take screenshots of the running app for an existing screen, through the browser or
    app tools, by the next section.
 2. **Rebuild that screen on the canvas** as closely as you can: the app's real tokens,
    type, spacing, components and copy. Create the canvas with the `Artifact` tool's
@@ -92,7 +94,8 @@ and each change comes back with Athena's comment quoted.
 
 ### The real-screen path
 
-Build the change in the app directly. It is still checked on screenshots of the running
+Gather real references first, by `<plugin-root>/references/ui-references.md`, then build
+the change in the app directly. It is still checked on screenshots of the running
 thing and goes through the design-review loop, by the next section, until the critic is
 pleased and the goals are achieved.
 

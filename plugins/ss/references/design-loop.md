@@ -24,6 +24,10 @@ asked for review, or shipped. On the mockup path of
 
 On the real-screen path it runs once, on the built screens.
 
+Before round 1, gather real references for the pattern, by
+`<plugin-root>/references/ui-references.md`, once for the whole loop. The critic gets them
+in every round.
+
 ## Real visuals, always
 
 The loop judges screenshots of the running thing, never code alone. Reading the source
@@ -66,7 +70,10 @@ and memoryless, as hard to please in the last round as in the first. The prompt 
    critic judges each one.
 6. The reference, when there is one: the screenshot of the app that a mockup rebuilds, or
    the approved canvas that a build must match.
-7. The cap, when the person set one in the brief.
+7. The real UI references for the pattern, gathered by
+   `<plugin-root>/references/ui-references.md`: each screenshot path with its product,
+   why it fits and its link, and the source they came from. Every round gets the same set.
+8. The cap, when the person set one in the brief.
 
 Never send the builder's own opinion, a self-score, the time spent or the history of the
 build. The critic judges what is on the screen.
