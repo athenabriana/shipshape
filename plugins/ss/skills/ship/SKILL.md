@@ -1,6 +1,6 @@
 ---
 name: ship
-description: Takes the current branch to shipped, your way. It does not review; it greens the project's checks, commits and ships through the destination you pick (push to a feature branch, push to main, or open or finish a pull request). On the PR path it handles the review comments, follows CI to green, and then offers a watcher for the PR through /ss:babysit. It merges or pushes a protected branch only when you say so in its chat; otherwise it hands you the command. Use when the user says "ship it", "ship this branch", "push to main", "open the PR", "finish the PR", "green the PR", "fix the CI on my PR". Don't use it to watch or babysit a PR by number (use /ss:babysit), to look after every open PR and dependency (use /ss:caretake), to finish somebody else's PR (use /ss:takeover) or to only summarize the branch (use /ss:investigate).
+description: Takes the current branch to shipped, your way. It greens the project's checks, commits and ships through the destination you pick (push to a feature branch, push to main, or open or finish a pull request). On the PR path it handles the review comments, follows CI to green, runs the /ss:review loop on the head when no verdict covers it, and then offers a watcher for the PR through /ss:babysit. It merges or pushes a protected branch only when you say so in its chat; otherwise it hands you the command. Use when the user says "ship it", "ship this branch", "push to main", "open the PR", "finish the PR", "green the PR", "fix the CI on my PR". Don't use it to watch or babysit a PR by number (use /ss:babysit), to look after every open PR and dependency (use /ss:caretake), to finish somebody else's PR (use /ss:takeover) or to only summarize the branch (use /ss:investigate).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
@@ -11,7 +11,7 @@ metadata:
 
 Read `<plugin-root>/references/triggers.md` before anything else.
 
-Take the current branch all the way to shipped (checks green, committed), then ship it the way you pick: push to a branch, prepare a push to main, or open and green a PR. The checks are the same substance regardless of destination; the ship differs. Reviewing is **not** part of it: reading the change is `/ss:review`'s, run on the branch before ship starts when the person wants it. **It merges only when you say so in its chat, and by default leaves the protected-branch push to you**: shipping to `main`/`master`/`release` stays your call (and is typically enforced server-side by branch protection), so ship preps everything and hands you the command.
+Take the current branch all the way to shipped (checks green, committed), then ship it the way you pick: push to a branch, prepare a push to main, or open and green a PR. The checks are the same substance regardless of destination; the ship differs. Ship does not review the change itself: reading the change is `/ss:review`'s. On the PR path, ship ends by running the `/ss:review` loop on the head once CI is green, when no verdict covers that head, because a PR never goes up for merge without one (`<plugin-root>/references/review-gate.md`). **It merges only when you say so in its chat, and by default leaves the protected-branch push to you**: shipping to `main`/`master`/`release` stays your call (and is typically enforced server-side by branch protection), so ship preps everything and hands you the command.
 
 ## Babysitting lives in /ss:babysit
 
@@ -38,7 +38,7 @@ Don't ask reflexively. If the destination is already settled by signal, **take i
 
 **Ask one `AskUserQuestion` only when** there's no such signal, or signals conflict (per the plugin-level `references/handoff-gate.md` format). Lead with the best-fit lean:
 
-- **Open / finish the PR**: the full flow, create the PR if none exists, auto-handle review comments (reply / fix / push / resolve), follow CI until green, then offer a watcher through `/ss:babysit`.
+- **Open / finish the PR**: the full flow, create the PR if none exists, auto-handle review comments (reply / fix / push / resolve), follow CI until green, run the review loop on the head when no verdict covers it, then offer a watcher through `/ss:babysit`.
 - **Push to a feature branch**: commit and push to a non-protected branch (the current one, or a new name you give). No PR. Reversible, so ship runs it.
 - **Push to main (or another protected branch)**: ship greens the checks and commits, then **hands you the exact push command** and stops. Shipping to a protected branch stays your call (and branch protection typically enforces it server-side); ship runs it only when you say so in its chat.
 
@@ -51,11 +51,12 @@ When the user confirms or corrects a destination that wasn't obvious, it's worth
 This runs identically whatever the destination; it's the mechanical half of
 shipping, and the only work ship does to the code on its own.
 
-**Ship does not review.** No fan-out of finder agents, no fronts, no verify pass:
-reading the change is `/ss:review`'s, and it's a deliberate yes, because it's the
-expensive part of the flow and the person shipping is who decides whether this change
-earns it. When it runs, it runs on this branch before ship starts. What ship owns is the
-part with no judgment in it: the checks CI would run anyway, and a clean commit.
+**This step does not review.** No fan-out of finder agents, no fronts, no verify pass:
+reading the change is `/ss:review`'s. It runs on this branch before ship starts when the
+person asks for it, and on the PR path ship runs its loop at the end, once CI is green,
+when no verdict covers the head (`references/ship-pr.md`, "Run the review loop"). What
+this step owns is the part with no judgment in it: the checks CI would run anyway, and a
+clean commit.
 
 1. **Name the project's checks, then pick where they run.** The repo's pre-commit hooks run
    on commit. `python3 <plugin-root>/scripts/resolve_checks.py` walks the authority chain
@@ -108,9 +109,9 @@ A commit in the diff range that carries a `Repro` trailer fixes a bug, and ship 
 
 A review verdict covers the change it read, and it carries that change's patch-id: the patch-id of the diff from the merge-base to the head, in the verdict line `/ss:review`'s loop writes (`<plugin-root>/skills/review/references/loop.md`, "The verdict line"). Run `python3 <plugin-root>/scripts/patch_id.py`. It measures the head, reads the verdict line from the open PR's description, and prints `{head, base_branch, base_ref, merge_base, patch_id, pr, recorded, unchanged}`. With no PR yet and a verdict line handed over in this session (a review loop run here), pass that line's patch-id as `--expect <patch-id>`.
 
-- **`recorded: null`**: the branch has no recorded verdict. Skip this step and ship as before.
+- **`recorded: null`**: the branch has no recorded verdict. Ship goes on. On the PR path, `references/ship-pr.md` runs the review loop once CI is green; on the other paths the report says no review loop ran.
 - **`unchanged: true`**: the verdict holds, even when the base was merged in since.
-- **`unchanged: false`**: the review read code that has changed since. Ship goes on. On the PR path the description carries, right under the verdict line, `Review verdict predates the last change: given at patch-id <recorded>, the branch is now at <patch_id>.`, and on every path the report says it. Reviewing the delta is `/ss:review`'s, and its loop replaces both lines.
+- **`unchanged: false`**: the review read code that has changed since. Ship goes on. On the PR path the description carries, right under the verdict line, `Review verdict predates the last change: given at patch-id <recorded>, the branch is now at <patch_id>.`, and on every path the report says it. Reviewing the delta is `/ss:review`'s, and its loop replaces both lines. On the PR path, `references/ship-pr.md` runs that loop once CI is green.
 
 On the PR path, run it again after every push (`references/ship-pr.md`), since each fix ship pushes can change the patch-id: the line is written while the two differ and removed once they are equal.
 
