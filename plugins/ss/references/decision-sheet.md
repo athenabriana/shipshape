@@ -23,7 +23,8 @@ Use a decision sheet for:
 
 - **Two or more decisions at once.**
 - **A decision that needs a line of context to make sense.**
-- **A decision that needs typed details**: a reason, a name, a date, free text.
+- **A decision that needs typed details**: a reason, a name, a date, free text. A date is
+  a calendar fact the person owns, never a deadline or a ready-by date for agent work.
 
 A decision sheet replaces writing a Claude Docs doc and then asking separately. A doc stays
 the form for text the person will keep or edit, by
@@ -154,11 +155,11 @@ The JSON is `ss.ask` version 1 with `sections`, one per decision:
       ]
     },
     {
-      "id": "ready_by",
-      "header": "Ready by",
-      "context": "A read-only pane takes about two days.",
-      "question": "When should the first version be ready?",
-      "fields": [{ "id": "ready_by", "type": "date", "label": "Ready by" }]
+      "id": "show_first",
+      "header": "Show first",
+      "context": "The first version only reads: it shows sessions, it does not answer them.",
+      "question": "What should the pane show first?",
+      "fields": [{ "id": "show_first", "type": "text", "label": "Show first" }]
     }
   ],
   "notes": true
@@ -170,7 +171,9 @@ The JSON is `ss.ask` version 1 with `sections`, one per decision:
 - **`context`**: one short string, at most about 90 characters, drawn as the caption line
   under the question.
 - **`fields`**, instead of `options` for a decision that needs typed details: each one
-  `{ "id", "type", "label" }`, `type` being `text`, `textarea` or `date`.
+  `{ "id", "type", "label" }`, `type` being `text`, `textarea` or `date`. A `date` is for
+  a calendar fact the person owns, such as a launch day or a meeting, never a deadline for
+  agent work.
 - **`options`**: the recommended one first, with `"recommended": true`.
 - **`other`** and **`notes`**: `true` adds the **Other** choice to a block, or the notes
   textarea to the sheet.
@@ -190,7 +193,7 @@ More than four decisions go in a second call after the first is answered.
 
 ## Example sheet
 
-A sheet with two picks, a date and a notes field. Copy it whole into
+A sheet with two picks, a typed answer and a notes field. Copy it whole into
 `mcp__visualize__show_widget`, then change the subject, the blocks and the options.
 
 ```html
@@ -264,11 +267,15 @@ A sheet with two picks, a date and a notes field. Copy it whole into
       </div>
     </div>
     <div class="elicit-group">
-      <label class="elicit-question">When should the first version be ready?</label>
+      <label class="elicit-question">What should the pane show first?</label>
       <p style="margin:2px 0 8px; font-size:12px; line-height:1.5; color:var(--text-muted)">
-        A read-only pane takes about two days.
+        The first version only reads: it shows sessions, it does not answer them.
       </p>
-      <input type="date" class="elicit-date" data-name="ready_by" />
+      <textarea
+        class="elicit-textarea"
+        data-name="show_first"
+        placeholder="For example, the sessions waiting on you"
+      ></textarea>
     </div>
     <div class="elicit-group">
       <label class="elicit-question">Anything I should know before I start?</label>
@@ -285,5 +292,5 @@ A sheet with two picks, a date and a notes field. Copy it whole into
 Its answer line reads, for example:
 
 ```
-Status view details — Status surface: pane · Packaging: ss-pane · Ready by: 2026-12-04 · Notes: start read-only
+Status view details — Status surface: pane · Packaging: ss-pane · Show first: what waits on me · Notes: start read-only
 ```

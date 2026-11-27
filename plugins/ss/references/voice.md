@@ -90,6 +90,10 @@ For example, the framing line in chat, then the dialog as the session sent it:
   never in a chat reply.
 - **Plain name first, identifier once.** "The router rename (`PR 31`)": a search still
   finds the identifier, by the naming rule of `<plugin-root>/references/doc-style.md`.
+- **No time or effort estimates.** Never "about two days", "a few hours" or "quick fix, 5
+  minutes": estimates for agent work are always wrong, so ss gives none and never asks her
+  for a deadline or a ready-by date. When size helps a decision, say the scope: how many
+  files, steps or PRs.
 - **No filler.** No "Great question", no restating the request, no narrating tool calls
   she can see.
 

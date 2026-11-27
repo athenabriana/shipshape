@@ -75,7 +75,7 @@ Read the actual failure logs before touching any source file (multiple failures 
 
 - `python3 <plugin-root>/scripts/inspect_pr_checks.py --repo "." --pr <number>` (run IDs + failure snippets), or `gh run view <run_id> --log-failed`. `--pr` also takes the PR URL; a `/ss:babysit` tick passes the URL, since its branch does not map to the PR.
 
-Name the root cause with a specific log snippet, then fix, commit, push, and follow the new run. A guess costs a whole 5–20 min CI cycle. Where the failing code has no test covering it, keep the edit trivial and obvious, or leave it and report it.
+Name the root cause with a specific log snippet, then fix, commit, push, and follow the new run. A guess costs a whole CI run. Where the failing code has no test covering it, keep the edit trivial and obvious, or leave it and report it.
 
 **Loop limit:** after 3 failed fix cycles on the same check, stop and report the diagnosis of each attempt.
 

@@ -21,7 +21,7 @@ Reach a **shared understanding of the idea before any code**. What matters is th
 - **Medium** (a clear feature): the loop (gray areas of what gets built + the behavior map), then the criteria and the gate.
 - **Large / fuzzy** (new domain, real ambiguity): the same loop, with the pieces and how they fit described in the draft before the work is ordered, then the criteria and the gate.
 
-Always required: reach alignment, **map the behavior**, and end at criteria the user signed off on. Size is a running estimate, not locked at the start. If a "Tiny/Medium" task keeps surfacing gray areas mid-flow, re-size up and shape it properly.
+Always required: reach alignment, **map the behavior**, and end at criteria the user signed off on. Size is judged as the work goes, not locked at the start. If a "Tiny/Medium" task keeps surfacing gray areas mid-flow, re-size up and shape it properly.
 
 ## The loop
 
