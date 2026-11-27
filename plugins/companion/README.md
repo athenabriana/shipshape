@@ -72,13 +72,59 @@ The MCP server is named `telegram`, so the tools read `mcp__plugin_companion_tel
 
 | tool                  | what it does                                                                       |
 | --------------------- | ---------------------------------------------------------------------------------- |
-| `reply`               | sends text and files to a chat, split at Telegram's 4096-character limit           |
+| `reply`               | answers a chat with text, files and drawn images, split at 4096 characters         |
+| `notify`              | sends news nobody asked for yet to every allowlisted person, with no `chat_id`     |
 | `react`               | adds an emoji reaction, from Telegram's fixed list                                 |
 | `edit_message`        | edits a message the bot sent, for progress updates                                 |
 | `download_attachment` | saves an inbound file to `~/.claude/channels/telegram/inbox/` and returns its path |
 
 Inbound photos download on arrival and reach the session as an `image_path`. Telegram's Bot
 API has no history or search, so the session sees only messages as they arrive.
+
+## Formatting, images and voice
+
+The plugin adds three things to the upstream channel, so the companion reads well on a phone.
+
+- **Markdown replies.** `reply`, `notify` and `edit_message` take ordinary Markdown by
+  default (`format: "markdown"`): bold, italic, strikethrough, inline code, code blocks,
+  links, headings, lists and quotes. The plugin converts it to Telegram's HTML mode, and
+  sends plain text when Telegram still refuses the result. `text` and `markdownv2` work as
+  upstream.
+- **Drawn images.** `reply` and `notify` take `svgs`, a list of SVG documents, and an `.svg`
+  path in `files` works too. Each renders to a PNG on a white background, at twice its size
+  up to 4000 pixels, and shows inline. The companion session cannot write files, so it
+  draws diagrams and charts this way. Rendering uses `@resvg/resvg-js`, which ships
+  prebuilt for Linux, macOS and Windows.
+- **Voice notes as text.** Claude cannot listen to audio. When a transcriber is set up, a
+  voice note or audio file is transcribed on arrival and reaches the session as the
+  message, tagged `voice_transcript="true"`, with the audio's path in `audio_path`. Without
+  one, it stays an attachment, as upstream.
+
+### Set up voice transcription
+
+The default transcriber is `scripts/transcribe-whisper-cpp.sh`, which runs whisper.cpp
+locally, so the audio never leaves your machine. It needs `whisper-cli`, `ffmpeg` and a
+model:
+
+```bash
+brew install whisper-cpp ffmpeg
+mkdir -p ~/.local/share/whisper-cpp
+curl -L -o ~/.local/share/whisper-cpp/ggml-small.bin \
+  https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin
+```
+
+Restart the companion session after installing. These variables tune it, set in the
+command that launches the session:
+
+| variable                   | effect                                                                       |
+| -------------------------- | ---------------------------------------------------------------------------- |
+| `COMPANION_WHISPER_MODEL`  | the model file, by default `~/.local/share/whisper-cpp/ggml-small.bin`       |
+| `COMPANION_WHISPER_LANG`   | the spoken language, such as `pt`, by default `auto`                         |
+| `COMPANION_TRANSCRIBE_CMD` | another transcriber: an executable that takes the audio path and prints text |
+
+Set `COMPANION_TRANSCRIBE_CMD=off` to keep voice notes as attachments. A cloud transcriber
+fits the same slot as a script that reads its own API key from its own file. The plugin
+never holds that key.
 
 ## Where the state lives
 

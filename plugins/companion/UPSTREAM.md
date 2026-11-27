@@ -7,25 +7,33 @@ path `external_plugins/telegram`, version 0.0.7, commit
 
 ## What changed from upstream
 
-| file                         | change                                                                                                 |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------ |
-| `server.ts`                  | a modification notice in the header comment                                                            |
-| `server.ts`                  | stays inert unless `COMPANION_CHANNEL=1`, by a call to `runInert()` right after the imports            |
-| `server.ts`                  | redacts the bot token from every stderr line                                                           |
-| `server.ts`                  | `/telegram:access` renamed to `/companion:access` in replies, errors and the session instructions      |
-| `inert.ts`                   | new: the MCP server with no tools that runs when the channel was not asked for                         |
-| `skills/access/SKILL.md`     | rewritten in Ship Shape's style, same rules (user-typed requests only, never auto-pick a pairing code) |
-| `skills/configure/SKILL.md`  | rewritten, and steers the token to the terminal instead of the chat, never echoing it                  |
-| `README.md`                  | rewritten for this plugin's setup                                                                      |
-| `ACCESS.md`                  | the title and the skill name                                                                           |
-| `.claude-plugin/plugin.json` | name `companion`, version 0.1.0, author and license                                                    |
-| `package.json`, `bun.lock`   | package name `companion`                                                                               |
-| `NOTICE`, `UPSTREAM.md`      | new                                                                                                    |
+| file                                     | change                                                                                                     |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `server.ts`                              | a modification notice in the header comment                                                                |
+| `server.ts`                              | stays inert unless `COMPANION_CHANNEL=1`, by a call to `runInert()` right after the imports                |
+| `server.ts`                              | redacts the bot token from every stderr line                                                               |
+| `server.ts`                              | `/telegram:access` renamed to `/companion:access` in replies, errors and the session instructions          |
+| `inert.ts`                               | new: the MCP server with no tools that runs when the channel was not asked for                             |
+| `skills/access/SKILL.md`                 | rewritten in Ship Shape's style, same rules (user-typed requests only, never auto-pick a pairing code)     |
+| `skills/configure/SKILL.md`              | rewritten, and steers the token to the terminal instead of the chat, never echoing it                      |
+| `README.md`                              | rewritten for this plugin's setup                                                                          |
+| `ACCESS.md`                              | the title and the skill name                                                                               |
+| `.claude-plugin/plugin.json`             | name `companion`, version 0.1.0, author and license                                                        |
+| `package.json`, `bun.lock`               | package name `companion`                                                                                   |
+| `NOTICE`, `UPSTREAM.md`                  | new                                                                                                        |
+| `server.ts`                              | `reply` takes Markdown by default, `svgs`, and `.svg` paths; shares `deliver()` with the new `notify` tool |
+| `server.ts`                              | `edit_message` takes Markdown by default                                                                   |
+| `server.ts`                              | voice and audio messages transcribed on arrival; `download_attachment`'s body moved to `downloadToInbox()` |
+| `server.ts`                              | session instructions name Markdown, `svgs`, voice transcripts and `notify`                                 |
+| `format.ts`, `media.ts`, `transcribe.ts` | new: Markdown to Telegram HTML, SVG to PNG, the transcriber hook                                           |
+| `scripts/transcribe-whisper-cpp.sh`      | new: the default transcriber                                                                               |
+| `test/`                                  | new: tests for the three modules, run by CI                                                                |
+| `package.json`, `bun.lock`               | `@resvg/resvg-js` added, a `test` script                                                                   |
 
 Kept as upstream: the state folder `~/.claude/channels/telegram/` (so the official plugin's
 token and allowlist carry over), the MCP server name `telegram`, pairing, the allowlist,
 static mode, the `.env` loading with `chmod 600`, the stale-poller guard through `bot.pid`,
-the permission relay and every tool. `server.ts` keeps upstream's formatting and is listed in
+the permission relay and every upstream tool. `server.ts` keeps upstream's formatting and is listed in
 `.oxfmtrc.json`'s `ignorePatterns`, so an upstream diff applies cleanly.
 
 ## Pull an upstream fix

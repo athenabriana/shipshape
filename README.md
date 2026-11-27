@@ -125,7 +125,7 @@ three free sources of real ui references, with no account and no api key. ss pul
 
 5. message the bot, then approve the code it sends with `/companion:access pair CODE`, and lock it with `/companion:access policy allowlist`.
 
-`plugins/companion/README.md` has the details, and `plugins/companion/UPSTREAM.md` says what changed from upstream and how to pull its fixes.
+replies render markdown on the phone, the session can send drawn diagrams as images, and voice notes arrive as text once whisper.cpp is installed. `plugins/companion/README.md` has the details, and `plugins/companion/UPSTREAM.md` says what changed from upstream and how to pull its fixes.
 
 ## develop locally
 
