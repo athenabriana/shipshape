@@ -19,7 +19,8 @@ and a user's `diff.algorithm`, `diff.noprefix` or rename setting must not move i
 
 The recorded verdict is the last `Review loop: ...` line of the PR description carrying a
 patch-id (`skills/review/references/loop.md` writes it), or the one `--expect` passes
-when no PR holds it yet.
+when no PR holds it yet. Its goal status, the text after `, goals ` that follows the
+patch-id, is `recorded.goals`, null when the line carries none.
 
 Usage:
   python3 patch_id.py
@@ -73,6 +74,7 @@ SHA = re.compile(r"^[0-9a-fA-F]{7,64}$")
 
 VERDICT_LINE = re.compile(
     r"Review loop: (\d+) rounds?, verdict (\w+), patch-id ([0-9a-f]{40,64})"
+    r"(?:, goals ([^.\n]+))?"
 )
 
 
@@ -159,6 +161,7 @@ def recorded_verdict(body: str) -> dict | None:
         "patch_id": last.group(3),
         "verdict": last.group(2),
         "rounds": int(last.group(1)),
+        "goals": last.group(4),
         "source": "description",
         "line": last.group(0),
     }

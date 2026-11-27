@@ -5,7 +5,7 @@ that solve the same pattern, so the design is measured against real work and not
 default. This page says when to gather them, which source to use first, how to set a
 source up when it is missing, how to pick them, where to keep them, and how they are used. The mockup path of
 `<plugin-root>/references/show-for-review.md`, the critic's prompt in
-`<plugin-root>/references/design-loop.md`, `/ss:ui-critique`, `/ss:shape` and
+`<plugin-root>/references/design-loop.md`, `/ss:ui-critique`, `/ss:scope` and
 `/ss:research`'s visual front all follow it.
 
 ## When to gather them

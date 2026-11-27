@@ -41,7 +41,7 @@ Read the matched playbook whole before the first step.
   then ship, without asking again between them.
 - **None fits:** say which playbook is closest and why it falls short, then do the work by
   hand under the hard rules of the operating frame. A feature, a refactor or a takeover has
-  no playbook yet: a feature runs as `/ss:shape`, the work, then `/ss:ship`, or as briefs
+  no playbook yet: a feature runs as `/ss:scope`, the work and the goal loop, then `/ss:ship`, or as briefs
   from `/ss:orchestrate`.
 - **Before coding anything non trivial**, `/ss:edge-cases` in plan mode turns the request
   into WHEN/THEN acceptance criteria. Offer it when the expected behavior is not written
@@ -81,12 +81,14 @@ secrets, auth, permissions, servers or money, standard otherwise, said in one li
 the map and the goals and ends with the goal loop, by
 `<plugin-root>/references/goal-loop.md`:
 
-- **First**, before the first edit: map the problem and the code, then propose verifiable
-  goals (numbered WHEN/THEN lines, each with its check: a test, a command, a screenshot or
-  a cited source). They go in the opening decision sheet as one block, "Approve these
-  goals" recommended, beside the endpoint and every other open question. The playbook may
-  supply goals of its own (the bug-fix playbook's reproduction and focused test); those
-  stand without a question unless the request leaves an outcome open.
+- **First**, before the first edit: run `/ss:scope`, which maps the problem and the code and
+  proposes verifiable goals (numbered WHEN/THEN lines, each with its check: a test, a
+  command, a screenshot or a cited source) and what is out of scope. Its blocks join the
+  opening decision sheet, "Approve these goals" recommended, beside the endpoint and every
+  other open question. Goals that already exist skip it, by `goal-loop.md` section 1: a
+  brief that carries approved goals (a work session asks nothing about them), and a
+  playbook's own goals (the bug-fix playbook's reproduction and focused test), which stand
+  without a question unless the request leaves an outcome open.
 - **Last**, before the endpoint: the playbook's judge (`/ss:review`'s loop, the design
   critic) checks every goal each round, with no default round limit, until every goal is
   achieved and the judge is pleased, or the usage window or the person's cap stops it. The

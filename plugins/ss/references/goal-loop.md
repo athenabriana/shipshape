@@ -1,11 +1,11 @@
-# The goal loop: map, propose goals, build, judge, fix, repeat
+# The goal loop: scope the goals, build, judge, fix, repeat
 
-Work that runs long runs against goals the person approved before the first edit. The
-session maps the problem and the code, proposes verifiable goals, has them approved once,
-builds, and then a fresh judge checks every goal and the quality of the result, round after
+Work that runs long runs against goals the person approved before the first edit.
+`/ss:scope` maps the problem and the code, proposes verifiable goals and has them approved
+once; the session builds, and then a fresh judge checks every goal and the quality of the result, round after
 round, until every goal is achieved and the judge is pleased. There is no default round
-limit. This page is the single source of that loop: what a goal is, how goals are proposed
-and approved, how a round runs, how the loop survives a restart, and when it stops.
+limit. This page is the single source of that loop: what a goal is, when goals are
+approved, how a round runs, how the loop survives a restart, and when it stops.
 
 Each skill runs it in its own terms. `<plugin-root>/references/design-loop.md` is the
 interface specialization (screenshots and the `ss-design-critic`), `/ss:review`'s loop
@@ -26,18 +26,18 @@ interface specialization (screenshots and the `ss-design-critic`), `/ss:review`'
 
 A tiny mechanical change, a read only question and a lightweight route skip it.
 
-## 1. Map the problem and the code
+## 1. Define the goals: `/ss:scope`
 
-Before any goal is written, read the ground: the request in the person's own words, the
-brief, the linked spec or issue, the code the work will touch and its callers, the tests
-near it, the repo's `CLAUDE.md` (or `AGENTS.md`) with its `## Project facts`, and the
-`CODE_REVIEW_GUIDE.md` when there is one. Note what already holds: a behavior the code
-already has is a goal to keep, not one to build.
+The goals come from `/ss:scope`, the goal-definition step of this loop: it maps the problem
+and the code, proposes verifiable goals and what is out of scope, and has them approved
+once. Every skill that needs goals calls it, and its blocks join the caller's opening
+sheet. Goals that already exist skip it: a brief or a front that carries approved goals, a
+PR description, a spec or acceptance criteria with WHEN/THEN lines (scope adds only what
+they leave out), or a playbook's own goals (the bug-fix playbook's reproduction and focused
+test). This page says what a goal is and how it is judged; `/ss:scope` says how the goals
+are found.
 
-The map is a few lines in the session's notes, never a document of its own: the points the
-work must answer, each with where it lives (`file:line`, a URL, a screen).
-
-## 2. Propose verifiable goals
+## 2. What a goal is
 
 A **goal** is one observable result the work must reach, written so a judge with no memory
 of the run can check it. Each goal carries:
@@ -50,18 +50,19 @@ with an empty email THEN the field shows "Enter your email" and nothing is sent`
   (a `file:line`, a URL and the passage). A goal nobody can check is rewritten until
   somebody can, or dropped.
 
-Propose from the map: the points the work must answer, the behaviors the request names,
-the edges whose wrong outcome would betray why the work exists, and the standing goals of
-the kind of work (WCAG AA on an interface, the review gate on a PR). Keep them few and
-load-bearing: a goal per point the work must answer, not one per line of code. A request,
-a brief or a spec that already states WHEN/THEN criteria supplies the goals as written;
-the session adds only what they leave out, and marks what it added.
+Goals are few and load-bearing: a goal per point the work must answer, not one per line
+of code, with the standing goals of the kind of work among them (WCAG AA on an interface,
+the review gate on a PR).
 
 **A deferred goal** is one this run cannot check, with a ground the next judge can read:
 a build-only goal on a mockup (`design-loop.md` says which), a check that needs production
 data or a service this session cannot reach. It is marked `deferred` with its ground at
 proposal time, it holds back nothing, and the report carries it forward. A goal is never
-deferred mid-loop to make the loop end.
+deferred mid-loop to make the loop end. A goal the loop finds it cannot reach (it needs
+production data, a service or an access this session lacks, and was not deferred at
+approval) is a real blocker by `long-run.md`: ask that one question, with the evidence and
+"defer it" as the recommended pick, and defer it only on the person's word. Until the
+answer, the loop works on every other goal.
 
 ## 3. Check the goals, then approve them once
 
@@ -131,8 +132,10 @@ rest given for context only.
 
 When a scoped round comes back pleased, with every goal achieved or deferred, the next
 round is a **full pass**: the whole work, every goal, as in round 1. Only a full pass can
-end the loop, so nothing regresses unseen. A full pass that finds anything goes back to
-scoped rounds.
+end the loop, so nothing regresses unseen. A full pass that leaves a goal not achieved, or
+that the judge is not pleased with, goes back to scoped rounds. What the judge's own rule
+lets it be pleased with despite (the review judge's Sugestões) is decided in that same
+round and opens no further round.
 
 ## 8. Convergence
 
@@ -172,7 +175,9 @@ run again before anything is judged.
 - **The person's cap is reached**: a cap they set in the request or the brief ("at most 3
   rounds"), copied word for word.
 
-Nothing else stops it. Without a cap the loop keeps going, round after round, however many
+Nothing else stops it. The one standing cap is `/ss:research`'s, which runs with nobody
+to ask: its three verify rounds stop it, and the questions still open go to its report's
+open section. Without a cap the loop keeps going, round after round, however many
 rounds that takes. A loop that stops short reports the goals not achieved and the open
 findings as they are, and never calls the work done.
 
@@ -194,11 +199,11 @@ data), none open.` Each goal not achieved is named with what is missing.
 
 | skill or playbook | the goals                                                                                                          | the judge and the end                                                     |
 | ----------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
-| `/ss:go`          | standard and intensive routes: proposed after the map, approved in the opening sheet                               | the playbook's own judge; the endpoint waits for every goal achieved      |
+| `/ss:go`          | standard and intensive routes: `/ss:scope` first, its blocks in the opening sheet                                  | the playbook's own judge; the endpoint waits for every goal achieved      |
 | `/ss:review`      | the change's goals, from the PR description, the brief, the linked spec or acceptance criteria; else proposed once | `ss-review-judge`, every goal plus the findings, no default round limit   |
 | design loop       | the brief's goals, WCAG AA always one of them                                                                      | `ss-design-critic`, `goals_achieved` and `pleased`, by `design-loop.md`   |
 | `/ss:ui-critique` | asked once in its opening sheet, through `design-loop.md`                                                          | the critic and the `ss-a11y-auditor` each round                           |
-| `/ss:shape`       | its WHEN/THEN acceptance criteria are the goals, each with its check                                               | none of its own: the build that follows runs the loop against them        |
+| `/ss:scope`       | it defines them: the map, the WHEN/THEN goals with their checks, out of scope, approved once                       | none of its own: the caller's loop, or on its own the build that follows  |
 | `/ss:edge-cases`  | plan mode's load-bearing rows feed the goals                                                                       | none of its own: the caller's loop judges them                            |
 | bug-fix playbook  | the reproduction fails before the fix and passes after, plus the focused test                                      | the review loop on the fix, every goal checked                            |
 | `/ss:research`    | the plan's questions, each answered with verified evidence                                                         | the claim verifier, within its own cap                                    |

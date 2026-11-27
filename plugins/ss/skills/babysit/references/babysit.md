@@ -235,7 +235,9 @@ last change: given at patch-id RECORDED, the branch is now at PATCH_ID.` sits ri
    `python3 <plugin-root>/scripts/patch_id.py --repo GIT_ROOT --pr N` and say "ready to
    merge on your word" only when the review gate passes, the final goal of every PR by
    `<plugin-root>/references/goal-loop.md`: `unchanged: true` with verdict `clean` or
-   `disputed`, every goal on the verdict line achieved or deferred, and on a UI PR the `Design:` line in the description. Otherwise
+   `disputed`, every goal on the verdict line achieved or deferred (a line with no goal
+   status passes on its verdict alone: the loop recorded no goals, as on the lightweight
+   route or before 5.13.0), and on a UI PR the `Design:` line in the description. Otherwise
    say the PR is not ready, and why: no review verdict, a verdict made stale by this
    watcher's own fix pushes, an `open` verdict with its findings, or a goal still open by
    its number. The next step is

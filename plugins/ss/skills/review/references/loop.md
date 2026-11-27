@@ -39,6 +39,11 @@ never a direct front ask: no fronts question, no curation, no gate. A restrictio
 drops the project facts growth check: when the diff edits a facts file, `rules` runs beside
 the restricted fronts for that check (`references/front-rules.md`, section 6).
 
+The lightweight route also runs without goals of its own: it reads them when a source
+below has them, and otherwise proposes none and asks nothing. With no goals, it ends on
+the first round that brings no Bloqueante, or at the usage window or the person's cap, and
+its verdict line carries no goal status.
+
 ## The goals of the change
 
 The loop judges the change against its goals as well as its findings. Read them once,
@@ -52,9 +57,9 @@ Copy them as written and number them `G1`, `G2`, …. Each needs a check, by
 `goal-loop.md` section 2: a criterion with none gets the test or command that would
 confirm it, added by the owner and marked as added.
 
-**When no source has goals**, propose them once from the intent block and the diff: what
-the change set out to do, each as a WHEN/THEN line with its check. Ask them in one
-question (a decision sheet when other questions are open), "Approve these goals"
+**When no source has goals**, run `/ss:scope` on the change, with the intent block and the
+diff as its ground: it proposes what the change set out to do, each as a WHEN/THEN line
+with its check. Ask them in one question (a decision sheet when other questions are open), "Approve these goals"
 recommended, by `goal-loop.md` section 3. In a work session the question goes to the
 orchestrator. When nobody can answer (a playbook run with its scope authorized, a
 watcher's tick), the owner takes its own proposal and names it under "decided on my own".
@@ -154,11 +159,12 @@ A new finding outside the delta is not this scoped round's: it waits for the ful
 
 ## The full pass
 
-When a scoped round leaves no finding open, no new Bloqueante, every goal achieved or
-deferred, and the judge `pleased`, the next round is a **full pass**, by `goal-loop.md`
+When a scoped round leaves no finding open other than disputed ones, no new Bloqueante,
+every goal achieved or deferred, and the judge `pleased`, the next round is a **full pass**, by `goal-loop.md`
 section 7: the finders fan out again over the whole diff from the merge-base to the head,
 as in round 1, and the judge checks every goal and judges every candidate. Only a full pass
-can end the loop. A full pass that finds anything goes back to scoped rounds.
+can end the loop. A full pass that verifies a Bloqueante, or leaves a goal not achieved,
+goes back to scoped rounds; its Sugestões are decided in that round (below).
 
 When round 1 ran the design front's critic pass (`references/front-design.md`, "The
 critic pass"), the critic's findings are not the judge's: each later round takes new
@@ -264,7 +270,7 @@ Review loop: 3 rounds, verdict clean, patch-id <patch-id>, goals 4 of 4 achieved
 
 The goal status follows the patch-id: `goals 4 of 4 achieved`, `goals 3 of 4 achieved, G2
 open`, or `goals 3 of 4 achieved, G4 deferred` when a deferred goal stands. `patch_id.py`
-reads the line up to the patch-id, so the goal status rides after it.
+reads the goal status after the patch-id as `recorded.goals`, null on a line with none.
 
 `/ss:ship` and the orchestrator's landing
 (`<plugin-root>/skills/orchestrate/references/landing.md`) compare it with the branch's
