@@ -70,99 +70,45 @@ It prints one line, `<route>: <reason>`. The same facts give the same route on e
 | standard    | the map and the goals, approved once; mechanical gate, `/ss:review` in its default loop until every goal is achieved, then `/ss:ship`                              |
 | intensive   | the map and the goals, approved once; a blast radius pass over the callers, `/ss:review deep` with its `edges` front until every goal is achieved, then `/ss:ship` |
 
-On the open PR endpoint, every route ends with the `/ss:review` loop on the PR's latest
-head, once CI is green, before the handoff: a PR never goes up for merge without it
-(`<plugin-root>/references/review-gate.md`). Deep depth when the change touches tokens,
-secrets, auth, permissions, servers or money, standard otherwise, said in one line.
+Read `references/route.md` once the route is known, before the first edit: it holds the
+review gate, the goals and the goal loop, the overrides and the mechanical gate.
 
-**Goals on the standard and intensive routes.** Every playbook on these routes opens with
-the map and the goals and ends with the goal loop, by
-`<plugin-root>/references/goal-loop.md`:
-
-- **First**, before the first edit: run `/ss:clarify`, which maps the problem and the code and
-  proposes verifiable goals (numbered WHEN/THEN lines, each with its check: a test, a
-  command, a screenshot or a cited source) and what is out of scope. Its blocks join the
-  opening decision sheet, "Approve these goals" recommended, beside the endpoint and every
-  other open question. Goals that already exist skip it, by `goal-loop.md` section 1: a
-  brief that carries approved goals (a work session asks nothing about them), and a
-  playbook's own goals (the bug-fix playbook's reproduction and focused test), which stand
-  without a question unless the request leaves an outcome open.
-- **Last**, before the endpoint: the playbook's judge (`/ss:review`'s loop, the design
-  critic) checks every goal each round, with no default round limit, until every goal is
-  achieved and the judge is pleased, or the usage window or the person's cap stops it. The
-  close carries the `Goals:` line.
-
-The lightweight route keeps its steps as they are, with no goals. A playbook with no route
-(investigate, babysit, review-setup, learn) runs its skill's own terms.
-
-The playbook's own `## Route` section says how this applies to it, and wins where it differs.
-"Keep it light" or "be thorough" from the person overrides the script. Say which route you
-are on and why, in one line.
-
-**Mechanical gate.** The cheap, objective checks come before any review front. The repo's
-pre-commit hooks run on commit. The rest of the gate is the project's checks, which
-`<plugin-root>/scripts/resolve_checks.py` names: run them locally when they are cheap and
-the repo's or the machine's `CLAUDE.md` allows it, or push and let CI run them. Push only
-when the endpoint or the playbook's scope allows it, then follow the run to the end with
-`Bash` `run_in_background` (`gh run watch <id> --exit-status`) and fix what it surfaces. An
-endpoint of "local commit" with no local run leaves the checks unrun; say so in the
-close.
+- **Open PR endpoint:** a PR never goes up for merge without the `/ss:review` loop on its
+  latest head, once CI is green (`<plugin-root>/references/review-gate.md`).
+- **Standard and intensive:** `/ss:clarify`'s goals first, the goal loop last, by
+  `<plugin-root>/references/goal-loop.md`. The lightweight route has no goals.
+- **Overrides:** the playbook's `## Route` section wins where it differs, and "keep it
+  light" or "be thorough" from the person overrides the script. Say the route and why in
+  one line.
+- **Mechanical gate:** the project's checks before any review front. Push only when the
+  endpoint or the playbook's scope allows it.
 
 ## 3. Run it
 
-- **Todo list.** Copy the playbook's steps into the session's todo list, word for word, and
-  tick each as it finishes. A step is done only with the evidence it asks for.
-- **Ask once, then run long.** When the goal is clear, gather every open question before
-  the first step and ask them together, in one decision sheet with a default on each,
-  by `<plugin-root>/references/long-run.md`. The endpoint, when the person left it open,
-  is one of its blocks: a local commit, a pushed branch, or an open PR. A work session
-  reads the endpoint from its brief; when the brief leaves it open, it stops at a local
-  commit and says so in its report. After the answers, run every step to the endpoint
-  without asking: no "should I continue?", no stop between steps. Ask again only on a
-  real blocker as that page defines it, and stop at a clean step when the person's cap is
-  reached or the usage window runs low.
-- **Interface work runs on real visuals.** A change the person sees is checked on
-  screenshots of the running thing, through the browser or app tools at hand, and goes
-  through the design-review loop of `<plugin-root>/references/design-loop.md` until the
-  critic is pleased and the goals are achieved. Whether to start on a mockup (recommended)
-  or the real screen is the person's pick, one block of the opening sheet when they have
-  not said, by `<plugin-root>/references/show-for-review.md`.
+Read `references/run.md` before the first step: it holds each rule below in full.
+
+- **Todo list.** The playbook's steps, word for word, ticked only with their evidence.
+- **Ask once, then run long.** One decision sheet before the first step, endpoint included,
+  then every step to the endpoint without asking, except on a real blocker
+  (`<plugin-root>/references/long-run.md`).
+- **Interface work runs on real visuals**, through the design-review loop of
+  `<plugin-root>/references/design-loop.md`.
 - **Preservation check before every commit.** Reread the staged diff: nothing unrelated
   changed, nothing removed the task did not ask to remove.
-- **Subagents.** Split independent work with `Agent` subagents, each with a standalone brief:
-  goal, repo, worktree, branch, acceptance criteria, limits. They cannot ask anyone: they
-  return their questions, and you ask them through the question tool, or a decision sheet
-  for anything bigger than one quick pick (`<plugin-root>/references/decision-sheet.md`).
-- **In a work session** (a session whose brief says an orchestrator started it), the
-  question tool is the orchestrator: `SendMessage` the question with its options and your
-  pick, or a decision sheet as its `ss.ask` JSON, then end the turn. A work session never starts sessions.
-- **Show it before asking for a review.** Every review or approval ask comes with a visual
-  built before the question, in the form `<plugin-root>/references/show-for-review.md`
-  picks: an inline visual in the chat by default, else a Design canvas or an Artifact
-  page. Only `/ss:clarify` creates a Claude Docs doc.
-- **After a compaction**, reread the todo list, and the brief if there is one, and pick up at
-  the first unticked step.
+- **Subagents** get standalone briefs and return their questions to you.
+- **In a work session**, the question tool is the orchestrator. A work session never
+  starts sessions.
+- **Show it before asking for a review**, by `<plugin-root>/references/show-for-review.md`.
+  Only `/ss:clarify` creates a Claude Docs doc.
+- **After a compaction**, reread the todo list and the brief, and pick up at the first
+  unticked step.
 
 ## 4. Watch for a repeated correction
 
-A **correction** is a fix the person asks for on work an agent did here: "no, use X",
-"that's wrong, do Y", an edit they undo. Its **class** names the mistake, so a second
-occurrence reads as the same one. While the router is on, keep the classes of this
-session's corrections in mind.
-
-When the same class lands a second time in one session, ask through the question tool
-whether to run the `learn` playbook on it, which picks the layer that holds it: a check, a
-review rule (through `/ss:review-setup`) or a project fact.
-The question names the class and both occurrences; "Learn it" is the recommended pick,
-and "Not now" the other option. Ask once per class, after the current step finishes, and
-go on with the task either way.
-
-- **On a yes**, run the `learn` playbook once the current task reaches its endpoint or the
-  person says to switch. A check it picks lands on its own branch from the base, never on
-  the branch of the task that surfaced it.
-- **On a no**, drop the class for the rest of the session.
-- **In a work session**, the question goes to the orchestrator like any other, as a
-  `Correction repeated:` line naming the class and its occurrences.
+When the same class of correction lands a second time in one session, offer the `learn`
+playbook through the question tool, once per class, after the current step finishes. Read
+`references/repeated-correction.md` before asking: it says what a correction and its class
+are, how the question reads, and what follows a yes, a no, or a work session.
 
 Nothing about a correction runs unasked: the router offers, the person decides.
 

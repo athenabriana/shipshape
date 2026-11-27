@@ -34,6 +34,7 @@ plugins/companion/                     # Telegram channel, vendored from the off
 ### Naming Conventions
 
 - Skills live in `plugins/ss/skills/<name>/SKILL.md`, invoked as `/ss:<name>`. Keep the dir name identical to the frontmatter `name`.
+- A SKILL.md body (what follows its frontmatter) stays within 150 lines and 12,000 characters: the frontmatter, the opening, the steps as a short outline, and a pointer at each step to the `references/<topic>.md` it needs. Every file a body names exists. `.github/scripts/validate-skill-size.ts` checks both; its header says why the numbers.
 - A skill's own `scripts/` and `references/*.md` are relative to the skill dir. Shared ones live at the plugin root and are written `<plugin-root>/...`; the SessionStart hook resolves that placeholder to the install path once per session.
 - Project facts live under `## Project facts` in the repo's `CLAUDE.md` (or `AGENTS.md`); `plugins/ss/references/project-facts.md` is the contract, and only `/ss:learn` writes them.
 - A situational skill carries `kind: situational` under `metadata` and one row in `plugins/ss/references/triggers.md`, the trigger table an agent reads first: every orchestrate brief, the bug-fix playbook and `/ss:ship` send it there. `.github/scripts/validate-triggers.ts` checks that every situational skill has a row and every row a skill. All three set `user-invocable: false`.
@@ -60,7 +61,7 @@ Each skill is a folder with a `SKILL.md` containing YAML frontmatter (`name`, `d
 - Python scripts use `gh api graphql` for GitHub data (not the REST API directly)
 - Scripts write to stdout (JSON or plain text) for the LLM to consume
 - New scripts should use Python, stdlib only (no third-party imports)
-- CI (`.github/workflows/validate.yml`) validates frontmatter, workflow scripts, agent names, the trigger table, the playbooks, runs the scripts' unit tests and checks formatting
+- CI (`.github/workflows/validate.yml`) validates frontmatter, workflow scripts, agent names, the trigger table, the playbooks, skill size and named files, runs the scripts' unit tests and checks formatting
 
 ## Commits
 

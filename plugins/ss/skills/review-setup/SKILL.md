@@ -30,7 +30,7 @@ its own reference, loaded only when that phase runs.
 ## Finding levels
 
 Every rule in the guide carries one of two levels, `HIGH` or `LOW`, defined
-once in the plugin-root `references/finding-levels.md`: what each one means, the
+once in `<plugin-root>/references/finding-levels.md`: what each one means, the
 concrete-cost gate that separates an inline comment from a body line, and how a rule
 still ranked `MEDIUM` reads. The guide is the surface that states them as `HIGH` and
 `LOW`; a review reports the same two as Bloqueante and Sugestão, and that file carries

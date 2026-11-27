@@ -37,8 +37,8 @@ improvement, and a "fix" that isn't justified against its finding is a guess.
    then Bloqueante rule deviations, then the Bloqueante a11y and design
    findings (a Critical or Major failure, a High deviation), then contract gaps,
    then the remaining a11y and design findings, then quality edits. A quality
-   pass over code about to be fixed is wasted work. Levels are the plugin-root
-   `references/finding-levels.md`; within one front the Bloqueantes go first and
+   pass over code about to be fixed is wasted work. Levels are
+   `<plugin-root>/references/finding-levels.md`; within one front the Bloqueantes go first and
    the Sugestões follow.
    - A **rule deviation** fix is applied the way the cited rule states it, and
      the commit body quotes the rule ID. When following the rule would change

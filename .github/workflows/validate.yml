@@ -37,6 +37,12 @@ jobs:
       - name: Validate the playbooks
         run: bun .github/scripts/validate-playbooks.ts
 
+      - name: Validate skill size and named files
+        run: bun .github/scripts/validate-skill-size.ts
+
+      - name: Validator tests
+        run: bun test ./.github/scripts/validate-skill-size.test.ts
+
       - name: Unit tests
         run: python3 -m unittest discover -s plugins/ss/scripts -p 'test_*.py' -v
 

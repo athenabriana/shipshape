@@ -176,6 +176,16 @@ export function parseFrontmatter(markdown: string): ParseResult {
   }
 }
 
+/**
+ * What follows the frontmatter: the part of a skill that loads into context when it runs. A
+ * file with no frontmatter is all body.
+ */
+export function bodyOf(markdown: string): string {
+  const match = markdown.match(FRONTMATTER_REGEX);
+  if (!match || match.index !== 0) return markdown;
+  return markdown.slice(match[0].length);
+}
+
 /** An agent definition is any `.md` directly under an `agents/` directory. */
 export function isAgentFile(filePath: string): boolean {
   return filePath.endsWith(".md") && basename(dirname(filePath)) === "agents";

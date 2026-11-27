@@ -18,8 +18,9 @@ metadata:
   line of the report.
 
 This skill holds the steps; `/ss:go`'s bug-fix playbook runs it. Read the router's sections
-2 to 5 once (`<plugin-root>/skills/go/SKILL.md`): how the route is sized, how the steps run,
-the repeated correction, the close. Copy the steps below into the todo list, word for word,
+2 to 5 once (`<plugin-root>/skills/go/SKILL.md`), with the pages they point to
+(`<plugin-root>/skills/go/references/route.md`, `run.md` and `repeated-correction.md`): how
+the route is sized, how the steps run, the repeated correction, the close. Copy the steps below into the todo list, word for word,
 and tick each one only with the evidence it asks for. The router stays on after this run.
 
 ## Steps

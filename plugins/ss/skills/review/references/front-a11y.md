@@ -57,7 +57,7 @@ Exactly one priority per finding: **Critical** (blocks access entirely),
 Those four are WCAG's priorities, so they stay this front's vocabulary and this
 front's alone. At the **report boundary**, where the front's findings enter the
 unified report, each one also carries the level the rest of ss reads, per the
-plugin-root `references/finding-levels.md`: Critical and Major are **Bloqueante**,
+`<plugin-root>/references/finding-levels.md`: Critical and Major are **Bloqueante**,
 Minor and Enhancement are **Sugestão**. The priority stays in the finding row above;
 the level is what `verify.md` ranks by and what the report and the PR comments show.
 
