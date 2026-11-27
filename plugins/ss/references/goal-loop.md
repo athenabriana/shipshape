@@ -32,7 +32,7 @@ The goals come from `/ss:clarify`, the goal-definition step of this loop: it map
 and the code, proposes verifiable goals and what is out of scope, and has them approved
 once. Every skill that needs goals calls it, and its blocks join the caller's opening
 sheet. Goals that already exist skip it: a brief or a front that carries approved goals, a
-PR description, a spec or acceptance criteria with WHEN/THEN lines (clarify adds only what
+PR description, a spec or acceptance criteria with WHEN/THEN lines (`/ss:clarify` adds only what
 they leave out), or a playbook's own goals (the bug-fix playbook's reproduction and focused
 test). This page says what a goal is and how it is judged; `/ss:clarify` says how the goals
 are found.
