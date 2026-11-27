@@ -4,7 +4,7 @@ description: Researches a topic across code, content and visual references, veri
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 4.1.0
+  version: 4.2.0
 ---
 
 # Research
@@ -273,9 +273,10 @@ many claims held, what stayed open, and the path the report went to. With no pat
 reply, and these lines close it. Commit nothing, and stop.
 
 When a person, not a calling agent, will read the report, show it to them by
-`<plugin-root>/references/show-for-review.md`: the report in a private Claude Docs doc opened for
-them, and a visual front's images as a board on an Artifact page. The file at the path
-stays the source; the doc and the page are how the person reads it.
+`<plugin-root>/references/show-for-review.md`: the report at the caller's path or in the
+chat, summed up in an inline visual, and a visual front's images as a board on an Artifact
+page. The file at the path stays the source. Research creates no Claude Docs doc: only
+`/ss:clarify` does.
 
 ## Guidelines
 

@@ -20,6 +20,8 @@ code and the repo's defaults leave open. Then ask them together:
 1. **One decision sheet**, by `<plugin-root>/references/decision-sheet.md`, with every open
    question as one block and a default on each: the recommended pick first, its subtitle
    saying "Recommended" and why. A single open decision goes through the question tool.
+   For big work, `/ss:clarify` writes a private Claude Docs doc first, by "When the goals
+   get a doc" in its `SKILL.md`, and the sheet follows it.
 2. **Say the promise in the sheet's header line or the dialog**: after this, the session
    runs to the endpoint and asks again only on a real blocker.
 3. **Take the answers as final for this run.** A decision the person skipped keeps its

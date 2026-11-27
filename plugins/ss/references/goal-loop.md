@@ -37,6 +37,31 @@ they leave out), or a playbook's own goals (the bug-fix playbook's reproduction 
 test). This page says what a goal is and how it is judged; `/ss:clarify` says how the goals
 are found.
 
+### Goals that live in a doc
+
+For big work, `/ss:clarify` writes the goals into a private Claude Docs doc (or `goals.md`
+when the Docs tools are missing), by "What the doc holds" in its `SKILL.md`, and hands its
+URL or path over with the goals. The loop records it in `state.json` as `goals_doc`, and
+the doc is where the goals live for the whole loop:
+
+- **The session reads the goals from the doc at the start of each round**, with the Docs
+  `read` tool (loaded with `ToolSearch` by its bare name), or `Read` for `goals.md`. The
+  judge's prompt carries the goals as the doc has them, never the link: the judge agents
+  only read files. When the Docs tools fail mid-loop, the round uses the goals in
+  `state.json` and says so in its line.
+- **An edit the person made in the doc is their word.** The session compares the doc's
+  goals with the ones in `state.json`; a goal that differs is judged as edited from this
+  round on, copied into `state.json`, and named in the round's line and the report.
+- **The session writes each goal's status back** after the judge returns, in its `status:`
+  field in `## Goals`: `open` until judged, then `achieved`,
+  `not achieved: <what is missing>` or `deferred: <ground>`. Each PR, branch or commit goes
+  under `## PRs and commits` as it lands. These are routine updates: the doc is opened for
+  the person when clarify creates it and again with the report, not after every round.
+- **A front keeps its goals in the front doc**, by `<plugin-root>/references/front-doc.md`,
+  and no goals doc is made. A work session never opens the front: its goals come in the
+  brief, it reports their status in its `Goals:` line, and the orchestrator writes that
+  into the front doc.
+
 ## 2. What a goal is
 
 A **goal** is one observable result the work must reach, written so a judge with no memory
@@ -44,7 +69,7 @@ of the run can check it. Each goal carries:
 
 - **A number**, `G1`, `G2`, …, kept for the whole loop.
 - **One WHEN/THEN line**, in the words of the product: `WHEN a visitor submits the form
-with an empty email THEN the field shows "Enter your email" and nothing is sent`.
+  with an empty email THEN the field shows "Enter your email" and nothing is sent`.
 - **Its check**: how a judge confirms it, one of a test (its name, or the one to write), a
   command and the output it must print, a screenshot of a named state, or a cited source
   (a `file:line`, a URL and the passage). A goal nobody can check is rewritten until
@@ -75,7 +100,8 @@ every other open question: one block that lists the numbered goals with their ch
 deferred ones with their grounds, and the default "Approve these goals" first. The person
 can edit a goal, drop one or add one in the same answer. After that the goals are fixed
 for the run, and the session asks again only on a real blocker, such as a finding that a
-goal itself is wrong.
+goal itself is wrong. The one change that needs no ask is an edit the person makes in the
+goals doc themselves, by "Goals that live in a doc" above.
 
 - **In a work session**, the block travels in the opening `ss.ask` JSON to the
   orchestrator, by `<plugin-root>/references/front-contract.md`. A brief that already
@@ -154,7 +180,7 @@ go on lives in one durable folder: the notes folder the brief names, else
 
 ```
 <loop folder>/
-├── state.json        # the approved goals, the round, its scope, open findings and refusals, the trend, agent ids
+├── state.json        # the approved goals, goals_doc (kept in every write), the round, its scope, open findings and refusals, the trend, agent ids
 ├── rounds/r<N>/      # what each round judged: check outputs, screenshots, the judge's return
 └── tools/            # any script the loop writes
 ```
@@ -183,8 +209,10 @@ findings as they are, and never calls the work done.
 
 ## 11. Report
 
+- **The goals doc**, when the goals live in one: its statuses current, and the doc opened
+  for the person by `<plugin-root>/references/show-for-review.md`.
 - **The goals line**, one per run: `Goals: 5 of 6 achieved, G4 deferred (needs production
-data), none open.` Each goal not achieved is named with what is missing.
+  data), none open.` Each goal not achieved is named with what is missing.
 - **The judge's last verdict** and how many rounds ran, the last one a full pass when the
   loop ended pleased.
 - **The fix groups** of each round, with the findings each one closed.
@@ -203,7 +231,7 @@ data), none open.` Each goal not achieved is named with what is missing.
 | `/ss:review`      | the change's goals, from the PR description, the brief, the linked spec or acceptance criteria; else proposed once | `ss-review-judge`, every goal plus the findings, no default round limit   |
 | design loop       | the brief's goals, WCAG AA always one of them                                                                      | `ss-design-critic`, `goals_achieved` and `pleased`, by `design-loop.md`   |
 | `/ss:ui-critique` | asked once in its opening sheet, through `design-loop.md`                                                          | the critic and the `ss-a11y-auditor` each round                           |
-| `/ss:clarify`     | it defines them: the map, the WHEN/THEN goals with their checks, out of scope, approved once                       | none of its own: the caller's loop, or on its own the build that follows  |
+| `/ss:clarify`     | it defines them, approved once; big work gets a goals doc the loop reads and updates each round                    | none of its own: the caller's loop, or on its own the build that follows  |
 | `/ss:edge-cases`  | plan mode's load-bearing rows feed the goals                                                                       | none of its own: the caller's loop judges them                            |
 | bug-fix playbook  | the reproduction fails before the fix and passes after, plus the focused test                                      | the review loop on the fix, every goal checked                            |
 | `/ss:research`    | the plan's questions, each answered with verified evidence                                                         | the claim verifier, within its own cap                                    |

@@ -18,6 +18,14 @@ plain session, an orchestrator and a work session.
 - **Keep it small enough to take in at once.** Show what the decision rests on, and link
   the rest.
 
+## Only `/ss:clarify` creates a Claude Docs doc
+
+A Claude Docs doc is created by `/ss:clarify` alone: a goals doc for big work, and the
+orchestrator's front doc. Every other skill asks with the question tool or a decision
+sheet, shows with an inline visual, a Design canvas or an Artifact page, and calls
+`/ss:clarify` when the work needs a doc. The orchestrator updates its front doc and creates
+none.
+
 ## Open every document in the chat
 
 Every time a document (a Claude Docs doc, a Design canvas or an Artifact page) is created,
@@ -25,8 +33,10 @@ updated or relied on, the session in chat with the person opens it with the `Art
 tool's `open` action in the same turn, and says in one line what it holds. That covers a
 doc a plan or a set of PRs is built from, not only one put up for review. A pasted link
 alone is not enough: the person sees only what is opened in front of them. The one
-exception is an orchestrator's front doc, its own memory, which opens once when the front
-is created (`<plugin-root>/references/front-doc.md`) and not on each routine update.
+exception is a doc the session updates as routine: an orchestrator's front doc, its own
+memory, which opens once when the front is created
+(`<plugin-root>/references/front-doc.md`), and a goals doc, which opens when clarify
+creates it and again with the loop's report, not on each round's status update.
 
 When a work session reports a doc or canvas URL, the orchestrator opens it before it
 relays any question about it. A work session has no chat, so it sends the URL with its
@@ -42,7 +52,7 @@ already reading, so use it for any review or decision unless one of the other ro
 | ------------------------------------------ | ------------------------------------------ | ------------------------------------------- |
 | anything that fits on one screen (default) | an inline visual in the chat               | `mcp__visualize__show_widget`               |
 | an interface                               | a mockup canvas, or screenshots of the app | `Artifact` `quickstart`, `intent: "design"` |
-| text people will comment on or keep        | a private Claude Docs doc, opened for them | the Docs tools                              |
+| goals and decisions to keep, for big work  | a private Claude Docs doc, opened for them | `/ss:clarify`, the only skill that makes it |
 | decisions bigger than one quick pick       | a decision sheet                           | `mcp__visualize__show_widget`               |
 | something too big to show inline           | an Artifact page                           | `Artifact` `quickstart`, `intent: "other"`  |
 
@@ -51,9 +61,10 @@ already reading, so use it for any review or decision unless one of the other ro
 - **An interface** is a screen, a component, or a flow the person clicks through. It goes
   on a mockup canvas or straight to the real screen, by the person's pick, as the next
   section says.
-- **Text people will comment on or keep** is a plan, acceptance criteria, a research
-  report, a README draft. It goes in a doc, and an inline visual can sum it up next to
-  the question.
+- **Goals and decisions to keep** are a plan, a spec or acceptance criteria for big work,
+  by "When the goals get a doc" in `/ss:clarify`. Clarify writes the doc, and an inline
+  visual can sum it up next to the question. A report or a draft from any other skill goes
+  to the caller's path or the chat, shown inline or on an Artifact page.
 - **Decisions bigger than one quick pick** are asked in one decision sheet, by
   `<plugin-root>/references/decision-sheet.md`: each question with one context line
   under it, all in one inline form. It replaces writing a doc and then asking separately.
@@ -138,10 +149,10 @@ call, and search before saying a tool is missing:
 - **`Artifact`**: query `select:Artifact`. Its `quickstart` action, with the `intent` from
   the table, names the type to start from and the design guidance to load. A page or a
   canvas it publishes is private.
-- **The Docs tools**: search by bare name (`create`, `batch`, `update`, `read`, `guide`),
-  because their full names carry a server prefix. Call `guide` with `topic.instructions`
-  before the first doc. Open the doc for the person with the `Artifact` tool's `open`
-  action.
+- **The Docs tools**, for `/ss:clarify` and the orchestrator's updates: search by bare
+  name (`create`, `batch`, `update`, `read`, `guide`), because their full names carry a
+  server prefix. Call `guide` with `topic.instructions` before the first write. Open the
+  doc for the person with the `Artifact` tool's `open` action.
 - **The inline visual tool**: `mcp__visualize__show_widget`, the default form. Call
   `mcp__visualize__read_me` first, once per session, then draw. It shows in this
   conversation only.
@@ -159,7 +170,8 @@ a flow, the before and after as two fenced blocks. Send it with `SendUserFile`,
 
 A work session has no chat with Athena: the visual reaches her through the orchestrator,
 so it travels as a file or a link. Write it as an SVG or HTML file in the notes folder, or
-publish it as an Artifact page, a Docs doc or a canvas by the table. The message to the
+publish it as an Artifact page or a canvas by the table (a doc only through
+`/ss:clarify`). The message to the
 orchestrator carries the path or the link next to the question, by
 `<plugin-root>/references/front-contract.md`. The orchestrator shows it to Athena inline
 with `mcp__visualize__show_widget`, or opens the page, the doc or the canvas for her,

@@ -11,8 +11,13 @@ file front, the Docs outage and its merge, and the rules every front keeps.
 
 ## Who reads and writes it
 
-- **The orchestrator** is the only writer. It writes a doc front through the Docs tools
-  and a file front with `Write` and `Edit`.
+- **`/ss:clarify` creates it**, doc or file front, when `/ss:orchestrate` opens the front,
+  and writes its opening sections: the goal, the acceptance criteria, what is out of
+  scope, and the opening decisions in the Log. It is the only skill that creates a Claude
+  Docs doc.
+- **The orchestrator keeps it up to date** and creates no doc: the running state (repos,
+  work sessions, waiting on Athena, merge authorizations, next), the Log and the Notes,
+  through the Docs tools for a doc front and with `Write` and `Edit` for a file front.
 - **Work sessions never open it.** Their brief stands alone and their reports come back
   through the relay, so none spends turns loading the Docs tools or acts on a stale tab.
 - **Athena** may edit a doc front by hand on claude.ai. The orchestrator's `sinceRev` read
@@ -49,18 +54,18 @@ script:
 
 Three tabs, so a reread costs one short tab and not the whole history:
 
-| tab          | holds                                                                                          | read when                         | size                                           |
-| ------------ | ---------------------------------------------------------------------------------------------- | --------------------------------- | ---------------------------------------------- |
-| Now (`a0`)   | goal, acceptance criteria, repos, work sessions, waiting on Athena, merge authorizations, next | every compaction                  | under about 120 lines: closed rows move to Log |
-| Log (`a1`)   | dated decisions with Athena's words, closed work sessions, landed PRs                          | only by a `search` read on a word | grows; never reread whole                      |
-| Notes (`a2`) | reports, research, anything too long for a message                                             | when a step names it              | grows                                          |
+| tab          | holds                                                                                                        | read when                         | size                                           |
+| ------------ | ------------------------------------------------------------------------------------------------------------ | --------------------------------- | ---------------------------------------------- |
+| Now (`a0`)   | goal, acceptance criteria, out of scope, repos, work sessions, waiting on Athena, merge authorizations, next | every compaction                  | under about 120 lines: closed rows move to Log |
+| Log (`a1`)   | dated decisions with Athena's words, closed work sessions, landed PRs                                        | only by a `search` read on a word | grows; never reread whole                      |
+| Notes (`a2`) | reports, research, anything too long for a message                                                           | when a step names it              | grows                                          |
 
 `a0`, `a1` and `a2` are the tabs' `order` values, so the tray shows Now first.
 
 ### The Now template
 
 The Now tab and `NOW.md` share this shape. `front_store.py create` writes it for a file
-front; the orchestrator writes the same text into a new doc's Now tab.
+front; `/ss:clarify` writes the same text into a new doc's Now tab, by "Open a doc front".
 
 ```markdown
 # ss front · <slug>
@@ -74,6 +79,10 @@ State: open · orchestrator <session id> · opened <date>
 ## Acceptance criteria
 
 - WHEN <...> THEN <...>
+
+## Out of scope
+
+- <a hard line, or an idea parked for later>
 
 ## Repos
 
@@ -108,11 +117,12 @@ State: open · orchestrator <session id> · opened <date>
 
 ## Open a doc front
 
-Load the Docs tools first: call `ToolSearch` with `select:` and the bare tool names `read`,
-`batch`, `update` and `guide` as the server lists them, or load the `anthropic-skills:docs`
-skill. The server's name differs per account, so name the bare tool, never a full name
-from another machine. Before the first write, call `guide` with `topic.instructions` and
-`topic.tabs`, and follow them for the payload shapes.
+`/ss:clarify` runs this and the next section, by "The front doc, when `/ss:orchestrate`
+calls" in its `SKILL.md`. Load the Docs tools first: call `ToolSearch` with `select:` and
+the bare tool names `read`, `batch`, `update` and `guide` as the server lists them, or
+load the `anthropic-skills:docs` skill. The server's name differs per account, so name the
+bare tool, never a full name from another machine. Before the first write, call `guide`
+with `topic.instructions` and `topic.tabs`, and follow them for the payload shapes.
 
 1. Create the doc in one `batch` at birth, titled `ss front · <slug>`, with the three tabs
    placed `a0` (Now), `a1` (Log) and `a2` (Notes). Fill Now from the template, Log with its
