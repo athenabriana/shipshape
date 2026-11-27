@@ -9,11 +9,13 @@
  * the same PR, method and head, with CI green, the repository's rules clear and a review
  * verdict that still covers the head. Only then does the agent's `canUseTool` send the
  * confirm button. A merge word that came by voice is refused: the persona asks her to
- * type it.
+ * type it. Whether the PR changes a user interface, and so needs the design loop's line, is
+ * not something the gate can tell: the persona checks `design_line` before it asks.
  */
 
 import { spawn } from "child_process";
 import { join } from "path";
+import type { MergeDecision } from "./permissions.ts";
 import { childEnv } from "./redact.ts";
 
 /** What `merge_gate.py` prints (the fields this check reads). */
@@ -31,13 +33,7 @@ export type GateResult = {
   error?: string;
 };
 
-export type MergeRequest = {
-  repo: string;
-  number: number;
-  method: string;
-  head: string;
-  command: string;
-};
+export type MergeRequest = Omit<MergeDecision, "kind">;
 
 export type MergeCheck = { ok: true; prompt: string } | { ok: false; reason: string };
 
@@ -46,7 +42,8 @@ export function checkMerge(req: MergeRequest, gate: GateResult, typed: boolean):
   if (!typed)
     return {
       ok: false,
-      reason: "her merge word came by voice: ask her to type it, then run the gate again",
+      reason:
+        "this turn holds no message she typed herself (a voice note, a forward or a watch event is never her merge word): ask her to type it, then run the gate again",
     };
   if (gate.error) return { ok: false, reason: `the review gate could not run: ${gate.error}` };
   if (gate.ok !== true) {
@@ -68,13 +65,14 @@ export function checkMerge(req: MergeRequest, gate: GateResult, typed: boolean):
   const verdict = gate.verdict
     ? `revisão ${gate.verdict} em ${gate.rounds ?? "?"} rodada(s)`
     : "revisão";
-  const title = gate.title ? ` _${gate.title}_` : "";
+  // Plain text: the button message is sent without a parse mode.
+  const title = gate.title ? ` "${gate.title}"` : "";
   return {
     ok: true,
     prompt:
-      `🔀 Mesclar o PR ${req.number} do \`${req.repo}\`${title}?\n\n` +
-      `CI verde e ${verdict} no commit \`${req.head.slice(0, 7)}\`.\n` +
-      `\`${req.command}\``,
+      `🔀 Mesclar o PR ${req.number} do ${req.repo}${title}?\n\n` +
+      `CI verde e ${verdict} no commit ${req.head.slice(0, 7)}.\n` +
+      `${req.command}`,
   };
 }
 
@@ -83,6 +81,7 @@ export function runMergeGate(
   pluginRoot: string,
   repo: string,
   number: number,
+  signal?: AbortSignal,
   timeoutMs = 240_000,
 ): Promise<GateResult> {
   return new Promise((resolve) => {
@@ -91,7 +90,8 @@ export function runMergeGate(
       [join(pluginRoot, "scripts", "merge_gate.py"), repo, String(number)],
       {
         env: childEnv(),
-        stdio: ["ignore", "pipe", "pipe"],
+        // stderr is not read, so it is not piped: a full pipe would stall the child.
+        stdio: ["ignore", "pipe", "ignore"],
       },
     );
     let out = "";
@@ -100,12 +100,19 @@ export function runMergeGate(
       if (settled) return;
       settled = true;
       clearTimeout(timer);
+      signal?.removeEventListener("abort", onAbort);
       resolve(r);
+    };
+    const onAbort = () => {
+      child.kill("SIGKILL");
+      done({ error: "the turn ended before the gate finished" });
     };
     const timer = setTimeout(() => {
       child.kill("SIGKILL");
       done({ error: "merge_gate.py did not finish in time" });
     }, timeoutMs);
+    if (signal?.aborted) onAbort();
+    else signal?.addEventListener("abort", onAbort);
     child.stdout.setEncoding("utf8").on("data", (c: string) => {
       if (out.length < 200_000) out += c;
     });

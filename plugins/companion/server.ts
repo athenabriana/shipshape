@@ -37,7 +37,7 @@ import { Companion, type Inbound, type Outbound } from './agent.ts'
 import { ChatSessions } from './chats.ts'
 import { runMergeGate } from './merge.ts'
 import { WatchRunner } from './watch-runner.ts'
-import type { Paths } from './permissions.ts'
+import { isSecretPath, resolvePath, type Paths } from './permissions.ts'
 
 // ss: outside ~/.claude, where `dontAsk` sessions cannot write (state.ts). An
 // existing token and access.json in upstream's folder are copied over once.
@@ -88,14 +88,13 @@ if (!TOKEN) {
   process.exit(1)
 }
 
-// ss: the token is a credential and must never reach a log or a tool result.
-// Everything the server prints goes through process.stderr.write, which is
+// ss: the tokens are credentials and must never reach a log or a message.
+// Everything the service prints goes through process.stderr.write, which is
 // wrapped here. Bun's console writes to fd 2 without that call, and grammy
 // logs through console.error (a fetch error can carry the URL that embeds the
-// token), so console is routed through the wrapper too. Tool errors go back to
-// Claude through redact() in the CallTool handler.
-// ss: both tokens (the bot's and Claude's) are masked, whichever line carries them.
-const SECRETS = [...new Set([...secretsOf(), TOKEN.trim(), TOKEN])].filter(Boolean)
+// token), so console is routed through the wrapper too. Tool failures and
+// permission previews go back through redact() in agent.ts.
+const SECRETS = secretsOf()
 function redact(text: string): string {
   return redactWith(text, SECRETS)
 }
@@ -119,10 +118,10 @@ console.trace = (...args: unknown[]) => {
 const INBOX_DIR = join(STATE_DIR, 'inbox')
 const PID_FILE = join(STATE_DIR, 'bot.pid')
 
-// Telegram allows exactly one getUpdates consumer per token. If a previous
-// session crashed (SIGKILL, terminal closed) its server.ts grandchild can
-// survive as an orphan and hold the slot forever, so every new session sees
-// 409 Conflict. Kill any stale holder before we start polling.
+// Telegram allows exactly one getUpdates consumer per token. A previous run of
+// the service (or an orphan of the old channel) can still hold the slot, so
+// every start would see 409 Conflict. Replace the holder before polling: the
+// newest start wins, and a supervisor's own restart is that newest start.
 mkdirSync(STATE_DIR, { recursive: true, mode: 0o700 })
 try {
   const stale = parseInt(readFileSync(PID_FILE, 'utf8'), 10)
@@ -133,7 +132,8 @@ try {
     // our own bun-run wrapper (kills our stdin → immediate self-shutdown) or
     // an unrelated user process.
     const cmd = execFileSync('ps', ['-p', String(stale), '-o', 'args='], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] })
-    if (cmd.includes('server.ts')) {
+    // ss: the service's own `server.ts`, never the inert `start-server.ts` of a session.
+    if (/(^|[\s/])server\.ts(\s|$)/.test(cmd) && !cmd.includes('start-server.ts')) {
       process.stderr.write(`companion: replacing stale poller pid=${stale}\n`)
       process.kill(stale, 'SIGTERM')
     }
@@ -142,7 +142,7 @@ try {
 writeFileSync(PID_FILE, String(process.pid))
 
 // Last-resort safety net — without these the process dies silently on any
-// unhandled promise rejection. With them it logs and keeps serving tools.
+// unhandled promise rejection. With them it logs and keeps polling.
 process.on('unhandledRejection', err => {
   process.stderr.write(`companion: unhandled rejection: ${err}\n`)
 })
@@ -201,10 +201,11 @@ const MAX_CHUNK_LIMIT = 4096
 const MAX_ATTACHMENT_BYTES = 50 * 1024 * 1024
 
 // reply's files param takes any path. .env is ~60 bytes and ships as a
-// document. Claude can already Read+paste file contents, so this isn't a new
-// exfil channel for arbitrary paths — but the server's own state is the one
-// thing Claude has no reason to ever send.
+// document. ss: permissions.ts already refuses a secret in `files` before the
+// tool runs; this is the second check, at the send itself: the state folder
+// (but its inbox) and every path permissions.ts calls a secret.
 function assertSendable(f: string): void {
+  if (isSecretPath(resolvePath(f, PATHS), PATHS)) throw new Error(`refusing to send a secret: ${f}`)
   let real, stateReal: string
   try {
     real = realpathSync(f)
@@ -212,7 +213,7 @@ function assertSendable(f: string): void {
   } catch { return } // statSync will fail properly; or STATE_DIR absent → nothing to leak
   const inbox = join(stateReal, 'inbox')
   if (real.startsWith(stateReal + sep) && !real.startsWith(inbox + sep)) {
-    throw new Error(`refusing to send channel state: ${f}`)
+    throw new Error(`refusing to send the service's state: ${f}`)
   }
 }
 
@@ -452,9 +453,22 @@ function chunk(text: string, limit: number, mode: 'length' | 'newline'): string[
 const PHOTO_EXTS = new Set(['.jpg', '.jpeg', '.png', '.gif', '.webp'])
 
 // ss: permission asks from the agent (agent.ts, canUseTool) wait here for a tap
-// on the button, a typed "yes/no CODE", or the timeout, which denies.
+// on the button, a typed "yes/no CODE" (not for a merge, which takes only the
+// tap), or the deadline, which denies. They fail closed: a timeout, an aborted
+// turn, a failed send, a message she sends meanwhile and shutdown all deny, and
+// the button message is edited so a late tap does nothing. The deadline is wall
+// clock, checked again at the tap, since a timer stands still while the laptop
+// sleeps. The pattern follows op7418/Claude-to-IM-skill's permission gateway
+// (MIT), src/permission-gateway.ts.
 const ASK_TIMEOUT_MS = Math.max(30, Number(process.env.COMPANION_ASK_TIMEOUT_SEC) || 600) * 1000
-type PendingAsk = { chatId: string; text: string; detail: string; resolve: (yes: boolean) => void }
+type PendingAsk = {
+  chatId: string
+  text: string
+  detail: string
+  tapOnly: boolean
+  expiresAt: number
+  resolve: (yes: boolean, label?: string) => void
+}
 const pendingAsks = new Map<string, PendingAsk>()
 
 function newAskId(): string {
@@ -464,30 +478,58 @@ function newAskId(): string {
   return pendingAsks.has(id) ? newAskId() : id
 }
 
-function askButton(chatId: string, text: string, detail: string, signal: AbortSignal): Promise<boolean> {
+/** Denies every open ask in the chat (or every chat): she moved on, or the service stops. */
+function denyAsks(chatId: string | undefined, label: string): void {
+  for (const ask of [...pendingAsks.values()])
+    if (chatId === undefined || ask.chatId === chatId) ask.resolve(false, label)
+}
+
+function askButton(
+  chatId: string,
+  text: string,
+  detail: string,
+  signal: AbortSignal,
+  opts: { tapOnly?: boolean } = {},
+): Promise<boolean> {
   return new Promise(resolve => {
+    if (signal.aborted) return resolve(false)
     const id = newAskId()
     let messageId: number | undefined
+    let outcome: string | undefined
+    const edit = () => {
+      if (messageId != null && outcome)
+        void bot.api.editMessageText(chatId, messageId, `${text}\n\n${outcome}`).catch(() => {})
+    }
     const finish = (yes: boolean, label: string) => {
       if (!pendingAsks.has(id)) return
       pendingAsks.delete(id)
       clearTimeout(timer)
       signal.removeEventListener('abort', onAbort)
-      if (messageId != null) {
-        void bot.api.editMessageText(chatId, messageId, `${text}\n\n${label}`).catch(() => {})
-      }
+      outcome = label
+      edit()
       resolve(yes)
     }
     const timer = setTimeout(() => finish(false, '⏱ Sem resposta, negado.'), ASK_TIMEOUT_MS)
     const onAbort = () => finish(false, '✖ Cancelado.')
     signal.addEventListener('abort', onAbort)
-    pendingAsks.set(id, { chatId, text, detail, resolve: yes => finish(yes, yes ? '✅ Permitido' : '❌ Negado') })
+    pendingAsks.set(id, {
+      chatId,
+      text,
+      detail: detail.slice(0, 3000),
+      tapOnly: Boolean(opts.tapOnly),
+      expiresAt: Date.now() + ASK_TIMEOUT_MS,
+      resolve: (yes, label) => finish(yes, label ?? (yes ? '✅ Permitido' : '❌ Negado')),
+    })
     const keyboard = new InlineKeyboard()
       .text('Ver mais', `perm:more:${id}`)
       .text('✅ Permitir', `perm:allow:${id}`)
       .text('❌ Negar', `perm:deny:${id}`)
-    bot.api.sendMessage(chatId, text, { reply_markup: keyboard }).then(
-      sent => { messageId = sent.message_id },
+    const code = opts.tapOnly ? '' : `\n\n(ou responda "yes ${id}" / "no ${id}")`
+    bot.api.sendMessage(chatId, `${text}${code}`, { reply_markup: keyboard }).then(
+      sent => {
+        messageId = sent.message_id
+        edit() // settled before the send came back: the buttons go away now
+      },
       err => {
         process.stderr.write(`companion: permission ask could not be sent: ${err}\n`)
         finish(false, '')
@@ -543,7 +585,7 @@ async function sendText(
 }
 
 // ss: media.ts loads a native renderer, so it is imported only when a message
-// carries an SVG. If it cannot load, that one call fails and the channel stays up.
+// carries an SVG. If it cannot load, that one call fails and the service stays up.
 async function loadMedia() {
   try {
     return await import('./media.ts')
@@ -629,26 +671,22 @@ async function deliver(chat_id: string, o: Outbound): Promise<number[]> {
   return sentIds
 }
 
-// ss: what the agent's notify tool does: news to every allowlisted person in a DM.
-async function notifyOwners(o: Outbound): Promise<string> {
-  // DMs only: in Telegram a DM's chat_id is the user's ID, and groups never
-  // get messages nobody in them asked for.
-  const access = loadAccess()
-  if (access.dmPolicy === 'disabled') throw new Error('notify is off: the DM policy is disabled')
-  const owners = access.allowFrom
-  if (owners.length === 0) throw new Error('nobody is allowlisted yet: pair first with /companion:access')
-  const lines: string[] = []
-  let delivered = 0
-  for (const chat_id of owners) {
-    try {
-      lines.push(`${chat_id}: ${sentSummary(await deliver(chat_id, { ...o, reply_to: undefined }))}`)
-      delivered++
-    } catch (err) {
-      lines.push(`${chat_id}: failed: ${redact(err instanceof Error ? err.message : String(err))}`)
-    }
-  }
-  if (delivered === 0) throw new Error(lines.join('; '))
-  return lines.join('\n')
+// ss: the agent acts with its owner's permissions, so it serves one person:
+// COMPANION_OWNER_ID when set, else the allowlist's only entry. With two or more
+// allowlisted and no owner named, nobody is served until one is.
+function ownerId(access: Access = loadAccess()): string | undefined {
+  if (access.dmPolicy === 'disabled') return undefined
+  const named = process.env.COMPANION_OWNER_ID
+  if (named) return access.allowFrom.includes(named) ? named : undefined
+  return access.allowFrom.length === 1 ? access.allowFrom[0] : undefined
+}
+
+// ss: what the agent's notify tool does: news to the owner, in a DM (in
+// Telegram a DM's chat_id is the user's ID).
+async function notifyOwner(o: Outbound): Promise<string> {
+  const owner = ownerId()
+  if (!owner) throw new Error('notify has nobody to reach: pair one person, or set COMPANION_OWNER_ID')
+  return sentSummary(await deliver(owner, { ...o, reply_to: undefined }))
 }
 
 // ss: the agent. Its working folder holds its memory; her repositories are read
@@ -667,15 +705,31 @@ const PERSONA = readFileSync(join(import.meta.dir, 'persona.md'), 'utf8')
   .replaceAll('<plugin-root>', import.meta.dir)
   .replaceAll('<memory-dir>', join(DATA_DIR, 'memory'))
 
+// ss: which login the agent uses, never its value.
+process.stderr.write(
+  `companion: Claude login: ${process.env.CLAUDE_CODE_OAUTH_TOKEN ? 'CLAUDE_CODE_OAUTH_TOKEN (claude setup-token)' : process.env.ANTHROPIC_API_KEY ? 'ANTHROPIC_API_KEY' : "this machine's own Claude Code login, if any"}\n`,
+)
+
+const positive = (v: string | undefined, fallback: number) => {
+  const n = Number(v)
+  return v && Number.isFinite(n) && n > 0 ? n : fallback
+}
+
+const SESSIONS = new ChatSessions(join(STATE_DIR, 'sessions.json'))
+
 const companion = new Companion({
   paths: PATHS,
   persona: PERSONA,
-  sessions: new ChatSessions(join(STATE_DIR, 'sessions.json')),
+  sessions: SESSIONS,
   model: process.env.COMPANION_MODEL || undefined,
-  gate: (repo, number) => runMergeGate(import.meta.dir, repo, number),
+  maxIdleDays: positive(process.env.COMPANION_SESSION_IDLE_DAYS, 7),
+  maxTranscriptMb: positive(process.env.COMPANION_SESSION_MAX_MB, 8),
+  watchDailyCap: positive(process.env.COMPANION_WATCH_DAILY_CAP, 24),
+  claudeHome: process.env.CLAUDE_CONFIG_DIR || join(homedir(), '.claude'),
+  gate: (repo, number, signal) => runMergeGate(import.meta.dir, repo, number, signal),
   io: {
-    deliver: (chatId, o) => { assertAllowedChat(chatId); return deliver(chatId, o) },
-    notify: notifyOwners,
+    deliver: async (chatId, o) => { assertAllowedChat(chatId); return deliver(chatId, o) },
+    notify: notifyOwner,
     react: async (chatId, messageId, emoji) => {
       assertAllowedChat(chatId)
       await bot.api.setMessageReaction(chatId, messageId, [
@@ -694,19 +748,19 @@ const companion = new Companion({
   },
 })
 
-// ss: the watch wakes the agent in the first allowlisted person's DM, the chat
-// her answers to a ping come back in.
+// ss: the watch wakes the agent in the owner's DM, the chat her answers to a
+// ping come back in. A disabled policy or no owner silences it.
 const watch = new WatchRunner({
   pluginRoot: import.meta.dir,
   stateFile: join(STATE_DIR, 'watch.json'),
   log: line => process.stderr.write(`${line}\n`),
   onEvents: lines => {
-    const owner = loadAccess().allowFrom[0]
+    const owner = ownerId()
     if (!owner) {
-      process.stderr.write('companion: watch events with nobody allowlisted yet, dropped\n')
+      process.stderr.write(`companion: ${lines.length} watch event(s) with no owner to tell, dropped\n`)
       return
     }
-    for (const line of lines) companion.submit(owner, { kind: 'watch', line })
+    companion.submit(owner, lines.map(line => ({ kind: 'watch' as const, line })))
   },
 })
 if (process.env.COMPANION_WATCH !== 'off') watch.start()
@@ -718,6 +772,7 @@ function shutdown(): void {
   process.stderr.write('companion: shutting down\n')
   watch.stop()
   companion.stop()
+  denyAsks(undefined, '✖ Serviço parando.')
   try {
     if (parseInt(readFileSync(PID_FILE, 'utf8'), 10) === process.pid) rmSync(PID_FILE)
   } catch {}
@@ -752,17 +807,28 @@ bot.command('help', async ctx => {
     `Messages you send here reach the assistant, which answers here. ` +
     `Text, photos, files and voice notes work.\n\n` +
     `/nova — start a fresh conversation\n` +
+    `/stop — stop what the assistant is doing\n` +
     `/start — pairing instructions\n` +
     `/status — check your pairing state`
   )
 })
 
-// ss: forgets this chat's Agent SDK session; the next message starts a new one.
+// ss: forgets this chat's Agent SDK session; the next message starts a new one,
+// even when a turn is running now (agent.ts keeps it from writing the old one back).
 bot.command('nova', async ctx => {
   const gated = dmCommandGate(ctx)
-  if (!gated || !gated.access.allowFrom.includes(gated.senderId)) return
-  const forgot = new ChatSessions(join(STATE_DIR, 'sessions.json')).forget(String(ctx.chat!.id))
+  if (!gated || gated.senderId !== ownerId(gated.access)) return
+  const forgot = companion.reset(String(ctx.chat!.id))
   await ctx.reply(forgot ? 'Conversa nova. Pode falar.' : 'Já é uma conversa nova.')
+})
+
+// ss: ends the running turn and drops what was waiting for it.
+bot.command('stop', async ctx => {
+  const gated = dmCommandGate(ctx)
+  if (!gated || gated.senderId !== ownerId(gated.access)) return
+  const chatId = String(ctx.chat!.id)
+  denyAsks(chatId, '✖ Parado.')
+  await ctx.reply(companion.abortChat(chatId) ? 'Parei.' : 'Não tinha nada rodando.')
 })
 
 bot.command('status', async ctx => {
@@ -806,8 +872,14 @@ bot.on('callback_query:data', async ctx => {
     return
   }
   const senderId = String(ctx.from.id)
-  if (!loadAccess().allowFrom.includes(senderId) || senderId !== ask.chatId) {
+  if (senderId !== ownerId() || senderId !== ask.chatId) {
     await ctx.answerCallbackQuery({ text: 'Not authorized.' }).catch(() => {})
+    return
+  }
+  // A tap after the deadline (the laptop slept through the timer) denies.
+  if (Date.now() > ask.expiresAt) {
+    ask.resolve(false, '⏱ Sem resposta, negado.')
+    await ctx.answerCallbackQuery({ text: 'Expirou.' }).catch(() => {})
     return
   }
 
@@ -931,12 +1003,22 @@ type AttachmentMeta = {
   name?: string
 }
 
-// Filenames and titles are uploader-controlled. They land inside the <channel>
-// notification — delimiter chars would let the uploader break out of the tag
-// or forge a second meta entry.
+// Filenames and titles are uploader-controlled. They land in the attributes of
+// the agent's <message> tag — delimiter chars would let the uploader break out
+// of the tag or forge a second attribute.
 function safeName(s: string | undefined): string | undefined {
   // ss: quotes too, so a value cannot close a meta attribute.
   return s?.replace(/[<>\[\]\r\n;"']/g, '_')
+}
+
+// ss: a message's time in the machine's own zone, with its offset, so "hoje" and
+// "ontem" mean what she means.
+function localTime(ms: number): string {
+  const d = new Date(ms)
+  const off = -d.getTimezoneOffset()
+  const pad = (n: number) => String(Math.trunc(Math.abs(n))).padStart(2, '0')
+  const local = new Date(ms + off * 60_000).toISOString().slice(0, 19)
+  return `${local}${off >= 0 ? '+' : '-'}${pad(off / 60)}:${pad(off % 60)}`
 }
 
 async function handleInbound(
@@ -962,19 +1044,27 @@ async function handleInbound(
   const chat_id = String(ctx.chat!.id)
   const msgId = ctx.message?.message_id
 
-  // ss: the assistant acts with Athena's permissions, so it answers only the
-  // allowlisted people in their own DMs. A group message never wakes it.
-  if (ctx.chat?.type !== 'private' || !access.allowFrom.includes(String(from.id))) {
-    process.stderr.write(`companion: a message from chat ${chat_id} was not for the assistant, dropped\n`)
+  // ss: the assistant acts with its owner's permissions, so it answers only the
+  // owner (ownerId), in a DM. A group message never wakes it; another allowlisted
+  // person gets one line saying so.
+  if (ctx.chat?.type !== 'private') {
+    process.stderr.write(`companion: a group message from chat ${chat_id} was dropped\n`)
+    return
+  }
+  if (String(from.id) !== ownerId(access)) {
+    process.stderr.write(`companion: a message from ${chat_id}, who is not the owner, was not answered\n`)
+    await ctx.reply('Este assistente atende só a pessoa dona dele.').catch(() => {})
     return
   }
 
-  // A typed "yes abcde" / "no abcde" answers that permission ask, like its button.
+  // A typed "yes abcde" / "no abcde" answers that permission ask, like its button,
+  // except a merge, which takes only the tap.
   const permMatch = PERMISSION_REPLY_RE.exec(text)
   if (permMatch) {
     const ask = pendingAsks.get(permMatch[2]!.toLowerCase())
     const yes = permMatch[1]!.toLowerCase().startsWith('y')
-    if (ask && ask.chatId === chat_id) ask.resolve(yes)
+    if (ask && ask.chatId === chat_id && !ask.tapOnly)
+      ask.resolve(Date.now() > ask.expiresAt ? false : yes)
     if (msgId != null) {
       void bot.api.setMessageReaction(chat_id, msgId, [
         { type: 'emoji', emoji: (yes ? '👍' : '👎') as ReactionTypeEmoji['emoji'] },
@@ -982,6 +1072,10 @@ async function handleInbound(
     }
     return
   }
+
+  // ss: a new message while a button waits means she moved on: the ask is
+  // denied, and the message goes to the agent in the next turn.
+  denyAsks(chat_id, '❌ Negado: você mandou outra mensagem.')
 
   // Typing indicator — signals "processing" until we reply (or ~5s elapses).
   void bot.api.sendChatAction(chat_id, 'typing').catch(() => {})
@@ -1011,7 +1105,7 @@ async function handleInbound(
       attrs: {
         ...(msgId != null ? { message_id: String(msgId) } : {}),
         user: from.username ?? String(from.id),
-        ts: new Date((ctx.message?.date ?? 0) * 1000).toISOString(),
+        ts: localTime((ctx.message?.date ?? 0) * 1000),
         ...(imagePath ? { image_path: imagePath } : {}),
         ...(forwarded ? { forwarded: 'true' } : {}),
         // ss: a transcribed note carries its words, not a file to download.
@@ -1082,6 +1176,7 @@ void (async () => {
               { command: 'start', description: 'Welcome and setup guide' },
               { command: 'help', description: 'What this bot can do' },
               { command: 'nova', description: 'Start a fresh conversation' },
+              { command: 'stop', description: 'Stop what the assistant is doing' },
               { command: 'status', description: 'Check your pairing status' },
             ],
             { scope: { type: 'all_private_chats' } },

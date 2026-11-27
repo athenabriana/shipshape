@@ -48,3 +48,29 @@ test("the watch never sees a token", async () => {
   expect(env.TELEGRAM_BOT_TOKEN).toBeUndefined();
   expect(env.CLAUDE_CODE_OAUTH_TOKEN).toBeUndefined();
 });
+
+test("a watch that cannot run because another holds the lock tells the agent once", async () => {
+  const batches: string[][] = [];
+  const runner = new WatchRunner({
+    pluginRoot: "/nonexistent",
+    stateFile: "/nonexistent/watch.json",
+    batchMs: 50,
+    onEvents: (lines) => batches.push(lines),
+    log: () => {},
+    spawnWatch: () =>
+      spawn(
+        "bash",
+        [
+          "-c",
+          "echo 'watch-error | watch | another watch is already running (pid 42)'; echo 'watch-error | watch | another watch is already running (pid 42)'; sleep 5",
+        ],
+        { stdio: ["ignore", "pipe", "pipe"] },
+      ),
+  });
+  runner.start();
+  await Bun.sleep(400);
+  runner.stop();
+  expect(batches.length).toBe(1);
+  expect(batches[0][0]).toStartWith("watch-broken | watch | ");
+  expect(batches[0][0]).toContain("pid 42");
+});

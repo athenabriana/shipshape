@@ -9,3 +9,20 @@ Version 2.0. The license text is in LICENSE.
 
 Changes from that version are listed in UPSTREAM.md, and each modified source
 file says it was modified in its header comment.
+
+Patterns adapted, in this plugin's own code, from MIT-licensed projects:
+- op7418/Claude-to-IM-skill (src/permission-gateway.ts): a map of pending
+  permission asks that fails closed on a timer, on abort and on shutdown
+  (server.ts, askButton).
+- nanocoai/nanoclaw (container/agent-runner/src/poll-loop.ts,
+  src/providers/claude.ts, src/modules/scheduling/create.ts): session rotation
+  by age and size, the stale-resume pattern, systemPrompt snapshot off, and a
+  daily cap on unattended runs (agent.ts).
+No code was copied from them.
+
+Login: the documented login is a token from `claude setup-token`, each person
+with their own Claude account; an ANTHROPIC_API_KEY works as an alternative.
+Anthropic's Agent SDK overview says: "Unless previously approved, Anthropic
+does not allow third party developers to offer claude.ai login or rate limits
+for their products, including agents built on the Claude Agent SDK." Whoever
+installs this plugin decides how that applies to them (README.md, "Login").

@@ -11,7 +11,7 @@
 #
 # The folder is the one the server reads: TELEGRAM_STATE_DIR, else
 # ${XDG_STATE_HOME:-~/.local/state}/companion-telegram. Upstream's folder,
-# ~/.claude/channels/telegram, is only checked by `status`, since the channel
+# ~/.claude/channels/telegram, is only checked by `status`, since the service
 # copies a token from there on its first start.
 # Other keys in .env (such as TELEGRAM_ACCESS_MODE) are kept.
 set -euo pipefail
@@ -34,13 +34,14 @@ case "${1:-status}" in
   status)
     if [ ! -f "$env_file" ]; then
       if [ "$key" = TELEGRAM_BOT_TOKEN ] && [ -z "${TELEGRAM_STATE_DIR:-}" ] && [ -f "$legacy_env" ] && grep -q "^$key=[0-9][0-9]*:." "$legacy_env"; then
-        echo "token: set in $legacy_env, copied to $env_file when the channel next starts"
+        echo "token: set in $legacy_env, copied to $env_file when the service next starts"
       else
         echo "token: missing"
       fi
       exit 0
     fi
-    if grep -E -q "^$key=${shape#^}" "$env_file"; then echo "token: set"
+    # Carriage returns stripped: the service loads a CRLF file, so status reads it the same way.
+    if tr -d '\r' < "$env_file" | grep -E -q "^$key=${shape#^}"; then echo "token: set"
     elif grep -q "^$key=" "$env_file"; then echo "token: empty or malformed"
     else echo "token: missing"; fi
     echo "mode: $(stat -c %a "$env_file" 2>/dev/null || stat -f %Lp "$env_file")"

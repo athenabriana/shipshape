@@ -4,8 +4,10 @@
  * Part of the companion plugin, Apache License, Version 2.0 (see LICENSE and NOTICE).
  *
  * One chat, one resumed session: the map lives in `sessions.json` in the state folder
- * (mode 600), so a restart picks the conversation up where it was. `/nova` in the chat
- * forgets the chat's session and the next message starts a fresh one.
+ * (mode 600), never in a temporary folder, so a restart picks the conversation up where
+ * it was. Each entry keeps when the chat last used it, so `agent.ts` can rotate a session
+ * left idle too long. `/nova` in the chat forgets the chat's session and the next message
+ * starts a fresh one.
  */
 
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from "fs";
@@ -45,10 +47,14 @@ export class ChatSessions {
     return this.load()[chatId]?.sessionId;
   }
 
+  /** The chat's session and when it was last used, in milliseconds since the epoch. */
+  entry(chatId: string): Entry | undefined {
+    return this.load()[chatId];
+  }
+
   set(chatId: string, sessionId: string, now = Date.now()): void {
     if (!SESSION_ID.test(sessionId)) return;
     const data = this.load();
-    if (data[chatId]?.sessionId === sessionId) return;
     data[chatId] = { sessionId, updated: now };
     this.save(data);
   }

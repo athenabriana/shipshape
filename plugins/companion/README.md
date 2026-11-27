@@ -17,22 +17,33 @@ from, and `UPSTREAM.md` lists what changed and how to pull upstream fixes.
 ## How it works
 
 `server.ts` is a long-running program. It polls Telegram (pairing, the allowlist, the
-stale-poller guard and token redaction work as upstream), and for each message from an
-allowlisted person, in a direct chat, it runs one Agent SDK conversation:
+stale-poller guard and token redaction work as upstream), and for each message from its
+owner, in a direct chat, it runs one Agent SDK conversation:
 
+- **One owner.** The agent acts with your permissions, so it answers one person: the only
+  one on the allowlist, or `COMPANION_OWNER_ID` when more are paired. Anyone else
+  allowlisted gets one line saying so; group chats never reach it.
 - **One session per chat.** The chat's session id is kept in `sessions.json` in the state
-  folder and resumed on the next message, so the conversation carries across restarts.
-  `/nova` in the chat starts a fresh one. Messages sent while it is answering are answered
-  together, in the next turn.
+  folder and resumed on the next message, so the conversation carries across restarts. A
+  session idle for `COMPANION_SESSION_IDLE_DAYS` (7) or grown past
+  `COMPANION_SESSION_MAX_MB` (8) starts fresh; the memory folder carries what matters.
+  `/nova` starts a fresh one by hand, and `/stop` ends what the agent is doing. Messages
+  sent while it is answering are answered together, in the next turn.
 - **The persona is the system prompt.** `persona.md` is appended to Claude Code's own
-  system prompt: warm, short answers in Portuguese, no offers to look, no time estimates.
+  system prompt, not recorded once, so a change reaches a resumed session too: warm, short
+  answers in Portuguese, no offers to look, no time estimates.
 - **Replies come back as before.** The final answer goes through the same Markdown, SVG and
   chunking code the channel used. The agent also has the Telegram tools in-process
   (`reply`, `notify`, `react`, `edit_message`, `download_attachment`) for progress notes,
   drawings and pings. Voice notes are transcribed first, as before.
 - **The watch runs inside the service.** `scripts/watch.py` runs as a child process,
-  restarted when it ends, so nothing needs re-arming after a restart. Its events wake the
-  agent, which pings you with `notify` only when one needs you.
+  restarted when it ends, so nothing needs re-arming after a restart. It is the cheap
+  check: the model is called only when it prints a change, in a turn of its own, at most
+  `COMPANION_WATCH_DAILY_CAP` (24) times a day. The agent pings you with `notify` only when
+  an event needs you, and a watch that cannot run tells you once.
+- **Messages to your sessions go one way.** The agent sends with `SendMessage`, but it runs
+  one turn at a time, so a session's reply does not come back into its conversation: it
+  reads the reply later from the session itself (`sessions.py show`).
 - **Your settings stay out.** The agent loads no `~/.claude` settings, CLAUDE.md or plugins
   (`settingSources: []`). Its working folder is `~/.local/share/companion/`, and its memory
   is the `memory/` folder there.
@@ -40,26 +51,27 @@ allowlisted person, in a direct chat, it runs one Agent SDK conversation:
 ## Permissions, in code
 
 `permissions.ts` decides every tool call, from a `PreToolUse` hook that sees each one
-whatever the mode, and again in `canUseTool`. The secret paths are Claude Code deny rules
-too, so a `Grep` over a folder skips them.
+whatever the mode, and again in `canUseTool`. No tool is pre-approved in `allowedTools`,
+since an auto-approved tool never reaches `canUseTool`, and the agent has only the built-in
+tools it needs. The secret paths are Claude Code deny rules too, written from the home
+folder, so a `Grep` over a folder skips them.
 
-| kind    | what                                                                                                                                                                                                                                                                                                                                                                                          |
-| ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| allowed | reading under `~/Workspaces` (or `COMPANION_REPOS`), the plugin and its own folders; `git log/status/diff/show` and the other read-only git commands; `gh pr view/list/checks/diff`, `gh run view`, `gh search`, read-only `gh api`; `sessions.py` and `merge_gate.py`; its Telegram tools; `SendMessage`, `ListAgents`; writes in its memory folder                                          |
-| denied  | the state folder (tokens, `access.json`, `sessions.json`), `.env` files, SSH, cloud, `gh` and Claude credentials, session `.key` files, raw transcripts, `/proc`, printing the environment; `gh api` mutations, `gh auth`, approving a review; every git write, force pushes included; `--admin` and `--auto` merges; deploys; any write outside its memory folder, a shell redirect included |
-| asks    | everything else: a button on Telegram, **Ver mais** shows the command, and no answer within `COMPANION_ASK_TIMEOUT_SEC` (600 by default) denies                                                                                                                                                                                                                                               |
+| kind    | what                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| allowed | `Read`, `Grep` and `Glob` under `~/Workspaces` (or `COMPANION_REPOS`), the plugin and its own folders; `git log/status/diff/show` and the other read-only git commands in your repositories; `gh pr view/list/checks/diff/status`, `gh run view/list`, `gh search`, `gh issue view/list`, read-only `gh api` (a plain GET, or GraphQL with the query inline); `sessions.py` and `merge_gate.py`; its Telegram tools (a file attached from where it may read); `SendMessage`, `ListAgents`; writes in its memory folder                                                                                                                                                                                        |
+| denied  | the state folder (tokens, `access.json`, `sessions.json`), secret files anywhere (`.env*`, `.npmrc`, `.netrc`, keys, `credentials`, `*secrets.*`, `.git/config`), SSH, cloud, `gh` and Claude credentials, session `.key` files, raw transcripts, `/proc`, printing the environment; `gh api` mutations, a GraphQL query read from a file, `--hostname`, `gh auth`, approving a review; every git write, force pushes included, and git flags that run or read outside the repository; a merge in any form but the gate's, `--admin` and `--auto` included; deploys; nested shells and interpreters (`bash -c`, `xargs`, `eval`, `python -c`); any write outside its memory folder, a shell redirect included |
+| asks    | everything else, a shell `cat`, `grep` or `find` included: a button on Telegram, **Ver mais** shows the command, and no answer within `COMPANION_ASK_TIMEOUT_SEC` (600 by default) denies. So do a tap after that deadline (the laptop slept), a message you send meanwhile, `/stop` and a restart                                                                                                                                                                                                                                                                                                                                                                                                            |
 
 A command with a pipe, a chain, a variable or a substitution is never allowed on its own:
 it asks, after the deny checks ran on the whole text.
 
 **Merges.** The agent merges only by running the exact command `merge_gate.py` prints. The
 service then runs the gate again, for that PR's head: CI green, the repository's rules
-clear, a `Review loop:` verdict that still covers the head. Only when it passes, and the
-turn came from a message you typed (not a voice note, not a forward), does the confirm
-button reach you. Your tap is the second yes.
-
-Every allowlisted person can message the assistant, which acts with your permissions, so
-keep the allowlist to yourself. Group chats never reach it.
+clear, a `Review loop:` verdict that still covers the head. Only when it passes, and every
+message of the turn was one you typed (not a voice note, not a forward, not a watch
+event), does the confirm button reach you. Your tap is the second yes; a typed "yes" does
+not stand for it. Whether a PR changes a user interface, and so needs the design loop's
+`Design:` line, is the persona's check, not the code's.
 
 ## Set it up
 
@@ -84,10 +96,10 @@ until you start the service.
    bash "$(ls -d ~/.claude/plugins/cache/shipshape/companion/*/ | sort -V | tail -1)scripts/token-env.sh" set
    ```
 
-4. **Make Claude's token.** Run `claude setup-token` yourself. It signs in with your
-   Claude subscription in the browser and prints a long-lived token that starts with
-   `sk-ant-`. Then paste it into the same file, the same way, without it ever reaching a
-   chat:
+4. **Log in to Claude.** Run `claude setup-token` yourself, with your own Claude account.
+   It signs in with your Claude subscription in the browser and prints a token that lasts
+   one year and starts with `sk-ant-`. Then paste it into the same file, the same way,
+   without it ever reaching a chat:
 
    ```bash
    bash "$(ls -d ~/.claude/plugins/cache/shipshape/companion/*/ | sort -V | tail -1)scripts/token-env.sh" set claude
@@ -95,13 +107,19 @@ until you start the service.
 
    The service gives that token to the Claude Code process the SDK starts, and to nothing
    else: the transcriber, the watch and the merge gate get neither token, and
-   `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1` keeps it out of the commands the agent runs.
-   Anthropic's docs recommend an API key for agents built on the Agent SDK, and do not
-   allow third-party products to offer claude.ai login
-   ([overview](https://code.claude.com/docs/en/agent-sdk/overview)). This service is
-   personal and single-user, on your own machine and your own subscription, by your choice.
-   To use an API key instead, put `ANTHROPIC_API_KEY=...` in the same `.env`; it takes
-   precedence.
+   `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1` keeps it out of the commands the agent runs. Its
+   log says which login is in use, never the value. When the year is up, the agent tells
+   you in the chat; run `claude setup-token` again and save the new one the same way.
+
+   **Login and Anthropic's terms.** Anthropic's Agent SDK overview
+   ([overview](https://code.claude.com/docs/en/agent-sdk/overview)) says: "Unless
+   previously approved, Anthropic does not allow third party developers to offer claude.ai
+   login or rate limits for their products, including agents built on the Claude Agent
+   SDK. Use the API key authentication methods described in the Quickstart instead." This
+   plugin documents `claude setup-token` as its login, each person with their own account,
+   and you decide how that sentence applies to you. An API key works instead: put
+   `ANTHROPIC_API_KEY=...` in the same `.env` and leave `CLAUDE_CODE_OAUTH_TOKEN` out (with
+   both set, the service uses the setup-token).
 
 5. **Start it.**
 
@@ -116,19 +134,20 @@ until you start the service.
 6. **Pair**, the first time. Message the bot; it replies with a six-character code. In any
    Claude Code session, run `/companion:access pair CODE`, then
    `/companion:access policy allowlist` so strangers get no reply at all. A pairing you
-   already have carries over.
+   already have carries over. Keep yourself the only one on the allowlist, or set
+   `COMPANION_OWNER_ID` to your Telegram user ID.
 
 ### Keep it running with systemd (optional)
 
 ```ini
 # ~/.config/systemd/user/companion.service
 [Unit]
-Description=Companion, Athena's Telegram assistant
+Description=Companion, a Telegram assistant
 After=network-online.target
 
 [Service]
 ExecStart=/bin/bash -lc 'exec bash "$(ls -d ~/.claude/plugins/cache/shipshape/companion/*/ | sort -V | tail -1)scripts/run-service.sh"'
-Restart=on-failure
+Restart=always
 RestartSec=30
 
 [Install]
@@ -142,6 +161,8 @@ journalctl --user -u companion -f
 ```
 
 A restart picks up a plugin update, since the launcher takes the newest installed copy.
+`Restart=always` brings it back even after another poller replaced it (an old channel
+session still loading 0.2.0, for example), so stop those first.
 
 ### Stop and remove
 
@@ -165,14 +186,18 @@ it. It lets any local session message any other one without approval, so weigh i
 
 Set these in the `.env` (or in the unit's environment):
 
-| variable                    | effect                                                                              |
-| --------------------------- | ----------------------------------------------------------------------------------- |
-| `COMPANION_REPOS`           | folders read without asking, `:`-separated, by default `~/Workspaces`               |
-| `COMPANION_MODEL`           | the model, by default Claude Code's                                                 |
-| `COMPANION_ASK_TIMEOUT_SEC` | how long a permission button waits before it denies, by default 600                 |
-| `COMPANION_WATCH`           | `off` turns the watch off                                                           |
-| `COMPANION_DATA_DIR`        | the agent's working folder, by default `${XDG_DATA_HOME:-~/.local/share}/companion` |
-| `TELEGRAM_STATE_DIR`        | the state folder, by default `${XDG_STATE_HOME:-~/.local/state}/companion-telegram` |
+| variable                      | effect                                                                               |
+| ----------------------------- | ------------------------------------------------------------------------------------ |
+| `COMPANION_OWNER_ID`          | the one Telegram user ID the agent answers, needed when more than one is allowlisted |
+| `COMPANION_SESSION_IDLE_DAYS` | a chat's session idle this long starts fresh, by default 7                           |
+| `COMPANION_SESSION_MAX_MB`    | a chat's session whose transcript grew past this starts fresh, by default 8          |
+| `COMPANION_WATCH_DAILY_CAP`   | watch turns per day, at most, by default 24; past it, events are only logged         |
+| `COMPANION_REPOS`             | folders read without asking, `:`-separated, by default `~/Workspaces`                |
+| `COMPANION_MODEL`             | the model, by default Claude Code's                                                  |
+| `COMPANION_ASK_TIMEOUT_SEC`   | how long a permission button waits before it denies, by default 600                  |
+| `COMPANION_WATCH`             | `off` turns the watch off                                                            |
+| `COMPANION_DATA_DIR`          | the agent's working folder, by default `${XDG_DATA_HOME:-~/.local/share}/companion`  |
+| `TELEGRAM_STATE_DIR`          | the state folder, by default `${XDG_STATE_HOME:-~/.local/state}/companion-telegram`  |
 
 ## Formatting, images and voice
 

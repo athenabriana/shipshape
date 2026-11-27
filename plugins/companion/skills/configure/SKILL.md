@@ -4,7 +4,7 @@ description: Sets up the companion, the Telegram assistant that runs as a servic
 license: Apache-2.0
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 0.2.0
+  version: 0.3.0
   upstream: the official Telegram channel plugin's configure skill, at the version plugins/companion/UPSTREAM.md names
 user-invocable: true
 allowed-tools:
@@ -46,6 +46,7 @@ terminal command below and read `TOKEN_SCRIPT status` from them instead.
 | `TOKEN_SCRIPT clear`         | removes the token line, and `.env` when nothing else is left                       |
 | `TOKEN_SCRIPT status claude` | the same for Claude's token, the one `claude setup-token` prints                   |
 | `TOKEN_SCRIPT set claude`    | saves Claude's token                                                               |
+| `TOKEN_SCRIPT clear claude`  | removes Claude's token line                                                        |
 
 Arguments passed: `$ARGUMENTS`
 

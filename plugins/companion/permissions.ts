@@ -9,16 +9,24 @@
  * the review gate before it even asks). The service runs it twice: in a `PreToolUse` hook,
  * which sees every call whatever the permission mode, and again in `canUseTool`, which
  * sends the Telegram button for an ask. `staticDenyRules()` repeats the secret paths as
- * Claude Code deny rules, so the CLI's own matcher refuses them too, for `Grep` and `Glob`
- * over a folder as well.
+ * Claude Code deny rules, written from the home folder, so the CLI's own matcher refuses
+ * them too, inside a `Grep` over a folder as well.
+ *
+ * The rule for Bash is narrow on purpose: a command runs on its own only when it is one
+ * plain read whose every argument this file understands (read-only `git` and `gh`, the
+ * plugin's two scripts). A file read goes through `Read`, `Grep` and `Glob`, whose paths
+ * are checked here and by the deny rules. Anything else asks, after the deny checks ran
+ * over the whole text, so neither a pipe nor a nested shell launders what is refused.
  *
  * - Allowed: reading under her repositories, the plugin and the companion's own folders;
  *   read-only `git` and `gh` commands; `sessions.py` and `merge_gate.py`; the companion's
- *   own Telegram tools; `SendMessage` and `ListAgents`; writes inside the memory folder.
- * - Denied: credential and secret reads (the state folder with the tokens, `.env` files,
- *   SSH, cloud and `gh` credentials, Claude's own, session keys, transcripts read raw, the
- *   process environment); `gh api` mutations; `gh auth`; approving a review; force pushes
- *   and every other git write; `--admin` and `--auto` merges; deploys; file writes outside
+ *   own Telegram tools (a file attached only from where it may read); `SendMessage` and
+ *   `ListAgents`; writes inside the memory folder.
+ * - Denied: credential and secret reads (the state folder with the tokens, `.env` and other
+ *   secret files, SSH, cloud and `gh` credentials, Claude's own, session keys, transcripts
+ *   read raw, the process environment); `gh api` mutations; `gh auth`; approving a review;
+ *   every git write, force pushes included; a merge in any form but the gate's, `--admin`
+ *   and `--auto` included; deploys; nested shells and interpreters; file writes outside
  *   the memory folder, a shell redirect included.
  * - Everything else asks.
  */
@@ -38,32 +46,55 @@ export type Paths = {
   readRoots: string[];
 };
 
+export type MergeDecision = {
+  kind: "merge";
+  repo: string;
+  number: number;
+  method: string;
+  head: string;
+  command: string;
+};
+
 export type Decision =
   | { kind: "allow" }
   | { kind: "deny"; reason: string }
   | { kind: "ask"; reason: string }
-  | { kind: "merge"; repo: string; number: number; method: string; head: string; command: string };
+  | MergeDecision;
 
 const allow: Decision = { kind: "allow" };
 const deny = (reason: string): Decision => ({ kind: "deny", reason });
 const ask = (reason: string): Decision => ({ kind: "ask", reason });
 
+const SECRET = "credentials and secrets are never read or sent";
+const GH_MUTATION = "gh api mutations are not the companion's to run";
+const NO_GIT_WRITE =
+  "git commands that change a repository are not the companion's: it writes no code";
+const MERGE_FORM =
+  "a merge runs only as the merge_command merge_gate.py printed, exactly: gh pr merge N --repo OWNER/REPO --squash --match-head-commit SHA";
+
 /** The companion's own in-process Telegram tools (agent.ts names the server `telegram`). */
 export const TELEGRAM_TOOL_PREFIX = "mcp__telegram__";
 
-/** Tools that read and change nothing outside the session itself. */
-const HARMLESS_TOOLS = new Set([
+/** The built-in tools the agent has at all (`tools` in agent.ts); every other one is absent. */
+export const AGENT_TOOLS = [
+  "Bash",
+  "Read",
+  "Grep",
+  "Glob",
+  "Write",
+  "Edit",
+  "WebFetch",
+  "WebSearch",
   "SendMessage",
   "ListAgents",
   "TodoWrite",
   "ToolSearch",
-  "TaskCreate",
-  "TaskUpdate",
-  "TaskList",
-  "TaskGet",
-]);
+];
 
-/** Tools the service turns off: a dialog nobody sees, schedulers the service replaces, sub-agents. */
+/** Tools that read and change nothing outside the session itself. */
+const HARMLESS_TOOLS = new Set(["SendMessage", "ListAgents", "TodoWrite", "ToolSearch"]);
+
+/** Tools named off on top of `AGENT_TOOLS`, in case a build adds one back. */
 export const DISALLOWED_TOOLS = [
   "AskUserQuestion",
   "Agent",
@@ -79,16 +110,18 @@ export const DISALLOWED_TOOLS = [
   "ExitPlanMode",
   "NotebookEdit",
   "Skill",
+  "Workflow",
+  "PushNotification",
 ];
 
-const WRITE_TOOLS = new Set(["Write", "Edit", "MultiEdit", "NotebookEdit"]);
+const WRITE_TOOLS = new Set(["Write", "Edit", "MultiEdit"]);
 
 // ---------------------------------------------------------------- paths
 
-/** `~` expanded, relative paths taken from the working folder, symlinks resolved where they exist. */
-export function resolvePath(p: string, paths: Paths): string {
+/** `~` expanded, relative paths taken from `base` (the working folder), symlinks resolved. */
+export function resolvePath(p: string, paths: Paths, base = paths.dataDir): string {
   const expanded = p === "~" ? paths.home : p.startsWith("~/") ? join(paths.home, p.slice(2)) : p;
-  const abs = isAbsolute(expanded) ? resolve(expanded) : resolve(paths.dataDir, expanded);
+  const abs = isAbsolute(expanded) ? resolve(expanded) : resolve(base, expanded);
   return realish(abs);
 }
 
@@ -129,17 +162,37 @@ const SECRET_HOME_DIRS = [
   ".local/share/keyrings",
   ".claude/projects", // raw transcripts: sessions.py reads them, masked
 ];
-const SECRET_HOME_FILES = [
+const SECRET_HOME_FILES = [".claude.json", ".claude/.credentials.json", ".docker/config.json"];
+
+/** File names that hold a credential wherever they sit, as globs for the deny rules. */
+const SECRET_GLOBS = [
+  ".env",
+  ".env.*",
+  ".envrc",
   ".netrc",
-  ".git-credentials",
   ".npmrc",
   ".pypirc",
-  ".claude.json",
-  ".claude/.credentials.json",
-  ".docker/config.json",
+  ".git-credentials",
+  "*.pem",
+  "*.key",
+  "*.p12",
+  "*.pfx",
+  "*.keystore",
+  "*.jks",
+  "id_rsa*",
+  "id_dsa*",
+  "id_ecdsa*",
+  "id_ed25519*",
+  "credentials",
+  "credentials.json",
+  "*secret*.json",
+  "*secret*.yml",
+  "*secret*.yaml",
+  "*secret*.toml",
+  ".git/config",
 ];
 const SECRET_NAME =
-  /^(\.env(\..*)?|\.envrc|.*\.(pem|key|p12|pfx|keystore|jks)|id_(rsa|dsa|ecdsa|ed25519)(\.pub)?|credentials(\.json)?|.*secrets?\.(json|ya?ml|toml))$/i;
+  /^(\.env(\..*)?|\.envrc|\.netrc|\.npmrc|\.pypirc|\.git-credentials|.*\.(pem|key|p12|pfx|keystore|jks)|id_(rsa|dsa|ecdsa|ed25519).*|credentials(\.json)?|.*secrets?\.(json|ya?ml|toml))$/i;
 
 /** True when a resolved path holds, or may hold, a credential. */
 export function isSecretPath(abs: string, paths: Paths): boolean {
@@ -148,6 +201,7 @@ export function isSecretPath(abs: string, paths: Paths): boolean {
   for (const d of SECRET_HOME_DIRS) if (inside(abs, join(paths.home, d))) return true;
   for (const f of SECRET_HOME_FILES) if (abs === realish(join(paths.home, f))) return true;
   if (inside(abs, join(paths.home, ".claude", "sessions")) && abs.endsWith(".key")) return true;
+  if (abs.endsWith(`${sep}.git${sep}config`)) return true; // a remote URL can carry a token
   return SECRET_NAME.test(basename(abs));
 }
 
@@ -157,7 +211,18 @@ function readable(abs: string, paths: Paths): boolean {
   );
 }
 
-/** The deny rules Claude Code applies itself: a `Grep` over a folder skips these files too. */
+/** A glob or search filter that names a secret file. */
+function namesSecret(glob: string): boolean {
+  return /\.env|\.envrc|\.netrc|\.npmrc|\.pypirc|credential|secrets?\.|\.pem|\.key|\.p12|\.pfx|id_(rsa|dsa|ecdsa|ed25519)|\.git\/config/i.test(
+    glob,
+  );
+}
+
+/**
+ * The deny rules Claude Code applies itself. Each is written from the root folder (`//`),
+ * since a rule without it is read from the session's working folder, which is not where
+ * her repositories are.
+ */
 export function staticDenyRules(paths: Paths): string[] {
   const abs = (p: string) => `/${p}`; // `//` starts an absolute path in a rule
   const rules: string[] = [];
@@ -167,12 +232,9 @@ export function staticDenyRules(paths: Paths): string[] {
     for (const f of SECRET_HOME_FILES) rules.push(`${tool}(${abs(join(paths.home, f))})`);
     rules.push(
       `${tool}(${abs(join(paths.home, ".claude", "sessions"))}/*.key)`,
-      `${tool}(**/.env)`,
-      `${tool}(**/.env.*)`,
-      `${tool}(**/*.pem)`,
-      `${tool}(**/*.key)`,
       `${tool}(//proc/**)`,
     );
+    for (const g of SECRET_GLOBS) rules.push(`${tool}(${abs(paths.home)}/**/${g})`);
   }
   return rules;
 }
@@ -182,7 +244,7 @@ export function staticDenyRules(paths: Paths): string[] {
 /**
  * A command line split into words, or null when it holds anything a plain split cannot
  * vouch for: a pipe, a chain, a substitution, a variable, a glob, a redirect left after
- * the harmless ones are taken out.
+ * the harmless ones are taken out, or a `~` that names another user's home.
  */
 export function shellWords(command: string): string[] | null {
   const words: string[] = [];
@@ -214,6 +276,9 @@ export function shellWords(command: string): string[] | null {
       continue;
     }
     if (/[;&|<>`$(){}\[\]*?!\\\n\r#]/.test(c)) return null;
+    // `~` expands only at a word's start; `~name` is another home, `~/` is hers.
+    if (c === "~" && !inWord && command[i + 1] !== "/" && !/[\s]/.test(command[i + 1] ?? " "))
+      return null;
     word += c;
     inWord = true;
   }
@@ -222,11 +287,29 @@ export function shellWords(command: string): string[] | null {
   return words;
 }
 
+/** The command with every quoted span blanked, scanned left to right as the shell reads it. */
+export function unquoted(command: string): string {
+  let out = "";
+  let quote: '"' | "'" | null = null;
+  for (const c of command) {
+    if (quote) {
+      if (c === quote) {
+        quote = null;
+        out += c;
+      } else out += " ";
+      continue;
+    }
+    if (c === "'" || c === '"') quote = c;
+    out += c;
+  }
+  return out;
+}
+
 /** Redirects that write nothing: to /dev/null, or stderr onto stdout. */
 const HARMLESS_REDIRECTS = /(^|\s)(\d?>\s*\/dev\/null|&>\s*\/dev\/null|2>&1)(?=\s|$)/g;
 
 const SECRET_WORDS =
-  /(^|[\s'"=:/])(\.env(\.\w+)?|\.envrc|\.netrc|\.git-credentials|\.npmrc|\.pypirc|\.claude\.json|\.credentials\.json|id_(rsa|dsa|ecdsa|ed25519)|environ|printenv)(?=$|[\s'"/;|&)])/;
+  /(^|[\s'"=:/])(\.env(\.\w+)?|\.envrc|\.netrc|\.git-credentials|\.npmrc|\.pypirc|\.claude\.json|\.credentials\.json|id_(rsa|dsa|ecdsa|ed25519)\w*|environ|printenv|hosts\.yml)(?=$|[\s'"/;|&)*])/;
 
 /** Paths and names in a raw command that point at a credential, before any parsing. */
 export function mentionsSecret(command: string, paths: Paths): boolean {
@@ -235,14 +318,18 @@ export function mentionsSecret(command: string, paths: Paths): boolean {
     paths.stateDir,
     "companion-telegram",
     "/proc/",
-    ...SECRET_HOME_DIRS.map((d) => `/${d}`),
-    ...SECRET_HOME_DIRS.map((d) => `~/${d}`),
     ".claude/sessions",
+    // A bare `.ssh` too: `git -C ~ show HEAD:.ssh/id_rsa` names no `/.ssh`.
+    ...SECRET_HOME_DIRS.flatMap((d) => [`/${d}`, `~/${d}`, ...(d.includes("/") ? [] : [d])]),
   ];
   const inbox = join(paths.stateDir, "inbox");
   const withoutInbox = command.split(inbox).join("");
   return named.some((n) => withoutInbox.includes(n));
 }
+
+/** A shell or interpreter run on text: whatever it runs escapes every check here. */
+const NESTED =
+  /(^|[\s;&|(`])(bash|sh|zsh|dash|ksh|fish)\s+(-\w*c|-s)\b|(^|[\s;&|(`])(eval|exec|xargs|source|nohup|setsid|timeout|watch|env)\b|(^|[\s;&|(`])(python3?|node|bun|deno|perl|ruby|php|osascript)\s+-\w*[ce]\b|(^|[\s;&|(`])(bun|npx|bunx|deno)\s+(run|x)\b/;
 
 const ENV_DUMPERS = new Set(["env", "printenv", "set", "export", "declare", "typeset", "compgen"]);
 const FILE_WRITERS = new Set([
@@ -266,6 +353,8 @@ const FILE_WRITERS = new Set([
   "su",
   "doas",
 ]);
+
+// git: reads only, with the flags that write, run, or reach outside the repository refused.
 const GIT_READS = new Set([
   "log",
   "status",
@@ -278,113 +367,237 @@ const GIT_READS = new Set([
   "describe",
   "merge-base",
   "rev-list",
-  "cat-file",
 ]);
 const GIT_BAD_ARGS =
-  /^(-c|--config-env|--output|--exec-path|--upload-pack|--receive-pack|--ext-diff)(=|$)/;
+  /^(-c|--config-env|--output|-o|-O|--exec-path|--upload-pack|--receive-pack|--ext-diff|--no-index|--contents|--git-dir|--work-tree|--namespace|--textconv|--open-files-in-pager)(=|$)|^-O./;
+const GIT_LIST_FLAGS = /^(-a|-r|-v|-vv|--list|--show-current|--all|--remotes)$/;
+
+function decideGit(args: string[], paths: Paths): Decision {
+  let base = paths.dataDir;
+  let i = 0;
+  while (i < args.length && (args[i] === "-C" || args[i] === "--no-pager")) {
+    if (args[i] === "-C") {
+      const dir = resolvePath(args[i + 1] ?? "", paths);
+      if (isSecretPath(dir, paths)) return deny(SECRET);
+      // The memory folder is the one place the agent writes: a repository planted there
+      // could carry a config that runs commands (core.fsmonitor).
+      if (inside(dir, paths.dataDir) || !readable(dir, paths))
+        return ask("git outside her repositories");
+      base = dir;
+      i += 2;
+    } else i += 1;
+  }
+  const sub = args[i];
+  const rest = args.slice(i + 1);
+  if (args.some((a) => GIT_BAD_ARGS.test(a)))
+    return deny("git options that run, write or read outside the repository are refused");
+  // A path argument is checked as a read: relative ones from the repository folder.
+  for (const a of rest.filter((a) => !a.startsWith("-"))) {
+    for (const part of a.split(":").filter((p) => p.includes("/") || p.startsWith("."))) {
+      if (isSecretPath(resolvePath(part, paths, base), paths)) return deny(SECRET);
+    }
+  }
+  if (sub && GIT_READS.has(sub)) return allow;
+  if (sub === "branch") {
+    for (let j = 0; j < rest.length; j++) {
+      if (GIT_LIST_FLAGS.test(rest[j])) continue;
+      if (
+        /^--(contains|merged|no-merged)$/.test(rest[j]) &&
+        /^[0-9a-f]{7,40}$/.test(rest[j + 1] ?? "")
+      ) {
+        j++;
+        continue;
+      }
+      return deny(NO_GIT_WRITE);
+    }
+    return allow;
+  }
+  if (sub === "remote" && (rest.length === 0 || (rest.length === 1 && rest[0] === "-v")))
+    return allow;
+  return deny(NO_GIT_WRITE);
+}
+
+// gh: the flags that take a value, so a value is never read as a subcommand or endpoint.
+const GH_VALUE_FLAGS = new Set([
+  "-R",
+  "--repo",
+  "-X",
+  "--method",
+  "-H",
+  "--header",
+  "-f",
+  "--raw-field",
+  "-F",
+  "--field",
+  "-q",
+  "--jq",
+  "-t",
+  "--template",
+  "-p",
+  "--preview",
+  "--input",
+  "--cache",
+  "--hostname",
+  "-L",
+  "--limit",
+  "-s",
+  "--state",
+  "-A",
+  "--author",
+  "-B",
+  "--base",
+  "-l",
+  "--label",
+  "--json",
+  "-b",
+  "--branch",
+  "-w",
+  "--workflow",
+  "--search",
+  "-S",
+  "--assignee",
+  "-a",
+  "--owner",
+  "--sort",
+  "--order",
+  "--language",
+  "--head",
+  "--commit",
+  "--checks",
+  "--required",
+  "-j",
+  "--job",
+  "--attempt",
+  "-e",
+  "--event",
+  "-u",
+  "--user",
+  "--created",
+  "--status",
+  "--app",
+  "--visibility",
+  "--topic",
+  "--match",
+  "--mention",
+  "--reviewed-by",
+  "--review-requested",
+  "--review",
+  "--merged",
+  "--merged-at",
+  "--involves",
+  "--interval",
+]);
+
+/** Positional words and flags of a gh command, a flag paired with its value. */
+function ghParse(args: string[]): { positional: string[]; flags: [string, string | undefined][] } {
+  const positional: string[] = [];
+  const flags: [string, string | undefined][] = [];
+  for (let i = 0; i < args.length; i++) {
+    const a = args[i];
+    if (a.startsWith("-") && a !== "-") {
+      const eq = a.indexOf("=");
+      if (eq > 0) flags.push([a.slice(0, eq), a.slice(eq + 1)]);
+      else if (GH_VALUE_FLAGS.has(a)) flags.push([a, args[++i]]);
+      else if (/^-[XHfFqtpRLsAB]./.test(a)) flags.push([a.slice(0, 2), a.slice(2)]);
+      else flags.push([a, undefined]);
+    } else positional.push(a);
+  }
+  return { positional, flags };
+}
+
 const GH_READS: Record<string, Set<string>> = {
   pr: new Set(["view", "list", "checks", "diff", "status"]),
   run: new Set(["view", "list"]),
-  search: new Set(["prs", "issues", "repos", "commits", "code"]),
+  search: new Set(["prs", "issues", "repos", "commits"]),
   issue: new Set(["view", "list", "status"]),
-  repo: new Set(["view", "list"]),
+  repo: new Set(["view"]),
   release: new Set(["view", "list"]),
   workflow: new Set(["view", "list"]),
 };
-const READ_COMMANDS = new Set([
-  "ls",
-  "cat",
-  "head",
-  "tail",
-  "wc",
-  "grep",
-  "rg",
-  "stat",
-  "file",
-  "find",
-]);
-const FIND_ACTIONS = /^-(exec|execdir|ok|okdir|delete|fprint|fprint0|fprintf|fls)$/;
-
-const MERGE_FORM =
-  "a merge runs only as the merge_command merge_gate.py printed, exactly: gh pr merge N --repo OWNER/REPO --squash --match-head-commit SHA";
 const MERGE_SHAPE =
   /^gh pr merge (\d+) --repo ([A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+) (--squash|--merge|--rebase) --match-head-commit ([0-9a-f]{40})$/;
 
-/** `gh api`: reads only. GraphQL without a mutation; REST with no body and no other method. */
-function ghApi(words: string[]): Decision {
-  const args = words.slice(2);
-  const endpoint = args.find((a) => !a.startsWith("-"));
+/** The merge decision when the whole command is the gate's merge_command, else a denial. */
+export function mergeDecision(command: string): Decision {
+  const m = MERGE_SHAPE.exec(command);
+  if (!m) return deny(MERGE_FORM);
+  return { kind: "merge", number: Number(m[1]), repo: m[2], method: m[3], head: m[4], command };
+}
+
+/** `gh api`: reads only. GraphQL with its query inline and no mutation; REST as a plain GET. */
+function decideGhApi(args: string[]): Decision {
+  const { positional, flags } = ghParse(args);
+  const endpoint = positional[0] ?? "";
+  for (const [flag, value] of flags) {
+    if (flag === "--hostname") return deny("gh api reaches only GitHub");
+    if (flag === "--input") return deny(GH_MUTATION);
+    if ((flag === "-X" || flag === "--method") && (value ?? "").toUpperCase() !== "GET")
+      return deny(GH_MUTATION);
+  }
+  if (endpoint.includes("://")) return deny("gh api reaches only GitHub");
+  const fields = flags.filter(([f]) => ["-f", "-F", "--field", "--raw-field"].includes(f));
   if (endpoint === "graphql") {
-    const query = args.join(" ");
-    return /\bmutation\b/i.test(query)
-      ? deny("gh api mutations are not the companion's to run")
-      : allow;
-  }
-  for (let i = 0; i < args.length; i++) {
-    const a = args[i];
-    if (/^(-f|-F|--field|--raw-field|--input)(=|$)/.test(a) || /^-[fF]./.test(a))
-      return deny("gh api mutations are not the companion's to run");
-    if (a === "-X" || a === "--method") {
-      if ((args[i + 1] ?? "").toUpperCase() !== "GET")
-        return deny("gh api mutations are not the companion's to run");
+    for (const [, value] of fields) {
+      const v = (value ?? "").slice((value ?? "").indexOf("=") + 1);
+      if (v.startsWith("@")) return deny(GH_MUTATION); // a query read from a file is not seen here
+      if (/\bmutation\b/i.test(v)) return deny(GH_MUTATION);
     }
-    if (/^(-X|--method=)(.+)$/.test(a) && !/^(-X|--method=)GET$/i.test(a))
-      return deny("gh api mutations are not the companion's to run");
+    return allow;
   }
+  if (fields.length > 0) return deny(GH_MUTATION); // a field makes gh send a POST
   return allow;
 }
 
-function pathArgsReadable(args: string[], paths: Paths): boolean {
-  return args
-    .filter((a) => !a.startsWith("-"))
-    .every((a) => {
-      const abs = resolvePath(a, paths);
-      return readable(abs, paths) && !isSecretPath(abs, paths);
-    });
+function decideGh(args: string[], command: string): Decision {
+  const { positional, flags } = ghParse(args);
+  const [group, sub] = positional;
+  if (group === "api") return decideGhApi(args);
+  if (group === "pr" && positional.includes("merge")) return mergeDecision(command);
+  if (flags.some(([f]) => f === "--hostname")) return deny("gh reaches only GitHub");
+  if (group && sub && GH_READS[group]?.has(sub)) {
+    if (flags.some(([f]) => f === "--web" || f === "-w")) return ask("opening a browser");
+    return allow;
+  }
+  return ask("a gh command that may change something");
 }
 
 export function decideBash(raw: string, paths: Paths): Decision {
   const command = raw.trim();
   if (!command) return deny("an empty command");
 
-  // What is refused whatever its shape: a pipe cannot launder any of it. Quoted text (a
-  // search phrase, a message) is left out of the word checks, never out of the secret one.
-  const outsideQuotes = command.replace(/'[^']*'/g, "''").replace(/"[^"]*"/g, '""');
-  if (mentionsSecret(command, paths)) return deny("credentials and secrets are never read or sent");
-  if (/\bdeploy\b/i.test(outsideQuotes))
-    return deny("deploys are Athena's to run, never the companion's");
-  if (/\bgh\s+auth\b/.test(command))
+  // What is refused whatever its shape: a pipe, a chain or quotes cannot launder any of it.
+  // Quoted text (a search phrase) is left out of the word checks, never out of the secret,
+  // merge and nested-shell ones.
+  const bare = unquoted(command);
+  if (mentionsSecret(command, paths)) return deny(SECRET);
+  if (NESTED.test(bare))
+    return deny("a nested shell or interpreter would run text no check here can read");
+  if (/\bgh\b[\s\S]*\bauth\b/.test(bare))
     return deny("gh's credentials are not the companion's to read");
-  if (/\bgh\s+pr\s+merge\b/.test(command) && /--admin\b|--auto\b/.test(command))
-    return deny("a merge never goes around the rules: no --admin, no --auto");
-  if (/\bgh\s+pr\s+merge\b/.test(outsideQuotes)) {
-    // Nothing chained, piped or added: the whole command is the gate's merge_command.
-    const m = MERGE_SHAPE.exec(command);
-    if (!m) return deny(MERGE_FORM);
-    return { kind: "merge", number: Number(m[1]), repo: m[2], method: m[3], head: m[4], command };
+  if (/\bgh\b[\s\S]*\bpr\b[\s\S]*\bmerge\b/.test(command)) {
+    if (/--admin\b|--auto\b/.test(command))
+      return deny("a merge never goes around the rules: no --admin, no --auto");
+    // Nothing chained, piped, quoted or added: the whole command is the gate's merge_command.
+    return mergeDecision(command);
   }
-  if (/\bgh\s+pr\s+review\b/.test(command) && /(--approve\b|\s-a\b)/.test(command))
+  if (/\bgh\b[\s\S]*\bapi\b[\s\S]*\bmutation\b/i.test(command)) return deny(GH_MUTATION);
+  if (
+    /\bmerge\b[\s\S]*\bpulls?\b|\bpulls?\b[\s\S]*\bmerge\b/.test(bare) &&
+    /\bgh\b[\s\S]*\bapi\b/.test(bare)
+  )
+    return deny(MERGE_FORM);
+  if (/\bgh\b[\s\S]*\bpr\b[\s\S]*\breview\b/.test(bare) && /(--approve\b|\s-a\b)/.test(bare))
     return deny("approving a review is never the companion's to do");
-  if (/\bgh\s+repo\s+(delete|archive|rename|edit)\b/.test(command))
+  if (/\bgh\b[\s\S]*\brepo\b[\s\S]*\b(delete|archive|rename|edit)\b/.test(bare))
     return deny("repository settings are not the companion's to change");
-  if (/\bgit\b[\s\S]*\bpush\b/.test(outsideQuotes)) {
-    if (/(\s-[A-Za-z]*f[A-Za-z]*\b|--force|\s\+\S)/.test(outsideQuotes))
+  if (/\bdeploy\b/i.test(bare)) return deny("deploys are Athena's to run, never the companion's");
+  if (/\bgit\b[\s\S]*\bpush\b/.test(bare)) {
+    if (/(\s-[A-Za-z]*f[A-Za-z]*\b|--force|\s\+\S)/.test(bare))
       return deny("a force push is never the companion's to do");
     return deny("pushing is the work session's job: the companion writes no code");
   }
-  if (/\bgh\s+api\b/.test(outsideQuotes)) {
-    if (/graphql/.test(command) && /\bmutation\b/i.test(command))
-      return deny("gh api mutations are not the companion's to run");
-    if (
-      /(\s(-f|-F|--field|--raw-field|--input)(\s|=))|\s-X\s*(?!GET\b)\S|--method[\s=](?!GET\b)/i.test(
-        outsideQuotes,
-      ) &&
-      !/graphql/.test(command)
-    )
-      return deny("gh api mutations are not the companion's to run");
-  }
   const stripped = command.replace(HARMLESS_REDIRECTS, " ").trim();
-  if (/>/.test(stripped.replace(/'[^']*'/g, "''").replace(/"[^"]*"/g, '""')))
+  if (/>/.test(unquoted(stripped)))
     return deny("writing files from the shell is not the companion's: it writes only its memory");
 
   const words = shellWords(stripped);
@@ -397,50 +610,8 @@ export function decideBash(raw: string, paths: Paths): Decision {
   if ((cmd === "sed" || cmd === "perl") && args.some((a) => /^-[a-zA-Z]*i/.test(a)))
     return deny("the companion writes only its memory folder, with Write and Edit");
 
-  if (cmd === "git") {
-    let i = 0;
-    while (i < args.length && (args[i] === "-C" || args[i] === "--no-pager"))
-      i += args[i] === "-C" ? 2 : 1;
-    const sub = args[i];
-    const rest = args.slice(i + 1);
-    if (args.some((a) => GIT_BAD_ARGS.test(a)))
-      return deny("git options that run or write things are refused");
-    if (sub && GIT_READS.has(sub)) return allow;
-    if (
-      sub === "branch" &&
-      rest.every((a) =>
-        /^(-a|-r|-v|-vv|--list|--show-current|--all|--remotes|--contains|--merged|--no-merged|[0-9a-f]{7,40})$/.test(
-          a,
-        ),
-      )
-    )
-      return allow;
-    if (sub === "remote" && (rest.length === 0 || rest[0] === "-v" || rest[0] === "get-url"))
-      return allow;
-    return deny("git commands that change a repository are not the companion's: it writes no code");
-  }
-
-  if (cmd === "gh") {
-    const [group, sub] = args;
-    if (group === "api") return ghApi(words);
-    if (group === "pr" && sub === "merge") {
-      const m = MERGE_SHAPE.exec(words.join(" "));
-      if (!m) return deny(MERGE_FORM);
-      return {
-        kind: "merge",
-        number: Number(m[1]),
-        repo: m[2],
-        method: m[3],
-        head: m[4],
-        command: words.join(" "),
-      };
-    }
-    if (group && sub && GH_READS[group]?.has(sub)) {
-      if (args.some((a) => a === "--web" || a === "-w")) return ask("opening a browser");
-      return allow;
-    }
-    return ask("a gh command that may change something");
-  }
+  if (cmd === "git") return decideGit(args, paths);
+  if (cmd === "gh") return decideGh(args, stripped);
 
   if (cmd === "python3" || cmd === "python") {
     const script = args[0] ? resolvePath(args[0], paths) : "";
@@ -451,13 +622,11 @@ export function decideBash(raw: string, paths: Paths): Decision {
     return ask("a script");
   }
 
-  if (cmd === "pwd" || cmd === "date" || cmd === "whoami" || cmd === "echo") return allow;
-  if (READ_COMMANDS.has(cmd)) {
-    if (cmd === "find" && args.some((a) => FIND_ACTIONS.test(a))) return ask("find with an action");
-    if (cmd === "ls" && args.length === 0) return allow;
-    return pathArgsReadable(args, paths) ? allow : ask("reading outside her repositories");
-  }
-  return ask("a command outside the companion's read-only list");
+  if (["pwd", "date", "whoami"].includes(cmd) && args.length === 0) return allow;
+  // File reads go through Read, Grep and Glob, whose paths are checked; a shell read asks.
+  return ask(
+    "a command outside the companion's read-only list (read files with Read, Grep and Glob)",
+  );
 }
 
 // ---------------------------------------------------------------- every tool
@@ -467,33 +636,38 @@ function str(v: unknown): string {
 }
 
 export function decide(toolName: string, input: Record<string, unknown>, paths: Paths): Decision {
-  if (toolName.startsWith(TELEGRAM_TOOL_PREFIX)) return allow;
+  if (toolName.startsWith(TELEGRAM_TOOL_PREFIX)) {
+    // A file goes out from where the agent may read; from anywhere else it asks, and a
+    // secret never goes.
+    const files = Array.isArray(input.files) ? input.files.map(str) : [];
+    const resolved = files.map((f) => (f ? resolvePath(f, paths) : ""));
+    if (resolved.some((abs) => !abs || isSecretPath(abs, paths))) return deny(SECRET);
+    if (resolved.some((abs) => !readable(abs, paths)))
+      return ask("attaching a file from outside her repositories");
+    return allow;
+  }
   if (HARMLESS_TOOLS.has(toolName)) return allow;
   if (DISALLOWED_TOOLS.includes(toolName)) return deny(`${toolName} is off in the companion`);
 
   if (toolName === "Read" || toolName === "Grep" || toolName === "Glob" || toolName === "LS") {
     const raw = str(input.file_path) || str(input.path) || paths.dataDir;
     const abs = resolvePath(raw, paths);
-    if (isSecretPath(abs, paths)) return deny("credentials and secrets are never read or sent");
+    if (isSecretPath(abs, paths)) return deny(SECRET);
     const pattern = str(input.pattern);
-    if (toolName === "Glob" && (isAbsolute(pattern) || pattern.startsWith("~"))) {
+    if (toolName === "Glob") {
+      if (namesSecret(pattern)) return deny(SECRET);
       const fixed = pattern.split(/[*?[{]/)[0];
-      const fixedAbs = resolvePath(fixed || "/", paths);
-      if (isSecretPath(fixedAbs, paths))
-        return deny("credentials and secrets are never read or sent");
+      const fixedAbs = resolvePath(fixed || ".", paths, abs);
+      if (isSecretPath(fixedAbs, paths)) return deny(SECRET);
       if (!readable(fixedAbs, paths)) return ask("reading outside her repositories");
     }
-    if (
-      toolName === "Grep" &&
-      str(input.glob) &&
-      /\.env|\.pem|\.key|credentials/i.test(str(input.glob))
-    )
-      return deny("credentials and secrets are never read or sent");
+    if (toolName === "Grep" && namesSecret(str(input.glob) + " " + str(input.type)))
+      return deny(SECRET);
     return readable(abs, paths) ? allow : ask("reading outside her repositories");
   }
 
   if (WRITE_TOOLS.has(toolName)) {
-    const target = str(input.file_path) || str(input.notebook_path);
+    const target = str(input.file_path);
     if (!target) return deny("a write with no path");
     const abs = resolvePath(target, paths);
     if (inside(abs, join(paths.dataDir, "memory")) && !isSecretPath(abs, paths)) return allow;
@@ -501,8 +675,6 @@ export function decide(toolName: string, input: Record<string, unknown>, paths: 
   }
 
   if (toolName === "Bash") return decideBash(str(input.command), paths);
-  if (toolName === "BashOutput" || toolName === "KillShell" || toolName === "KillBash")
-    return allow;
   if (toolName === "WebFetch" || toolName === "WebSearch") return ask("reaching the web");
   return ask(`a tool outside the companion's list (${toolName})`);
 }

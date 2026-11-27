@@ -5,9 +5,12 @@
  * Part of the companion plugin, Apache License, Version 2.0 (see LICENSE and NOTICE).
  *
  * No monitor to re-arm: the service starts the watch once and keeps it running. Lines
- * that never need Athena (`watch-started`, `github-back`, a single `watch-error`) are only
+ * that never need Athena (`watch-started`, `github-back`, a passing `watch-error`) are only
  * logged; the rest wait a few seconds for company and wake the agent together, which pings
- * her with `notify` only when something needs her. The watch never sees a token.
+ * her with `notify` only when something needs her. A watch that cannot run (another one
+ * holds its lock, or it keeps dying) wakes the agent once, so she learns her PRs are not
+ * watched. watch.py is the cheap check: the model is called only when it prints a change.
+ * The watch never sees a token.
  */
 
 import { spawn, type ChildProcess } from "child_process";
@@ -43,6 +46,7 @@ export class WatchRunner {
   private batch: string[] = [];
   private timer?: ReturnType<typeof setTimeout>;
   private restarts = 0;
+  private toldBroken = false;
 
   constructor(private readonly opts: WatchOptions) {}
 
@@ -60,20 +64,45 @@ export class WatchRunner {
     if (child.stdout) createInterface({ input: child.stdout }).on("line", (l) => this.line(l));
     if (child.stderr)
       createInterface({ input: child.stderr }).on("line", (l) => this.opts.log(`watch: ${l}`));
-    child.on("error", (err) => this.opts.log(`watch: could not start: ${err.message}`));
-    child.on("close", (code) => {
-      if (this.stopped) return;
+    // A failed spawn may come with no `close`: either event ends this run, once.
+    let ended = false;
+    const onEnd = (code: number | string | null) => {
+      if (ended || this.stopped) return;
+      ended = true;
       // A watch that ran a while starts over quickly; one that keeps dying backs off.
-      this.restarts = Date.now() - started > 600_000 ? 0 : this.restarts + 1;
+      const healthy = Date.now() - started > 600_000;
+      this.restarts = healthy ? 0 : this.restarts + 1;
+      if (healthy) this.toldBroken = false;
+      if (this.restarts === 3)
+        this.broken(`the watch stopped ${this.restarts} times in a row (last exit code ${code})`);
       const delay = Math.min(30_000 * 2 ** Math.min(this.restarts, 4), 600_000);
       this.opts.log(`watch: ended (code ${code}), starting again in ${delay / 1000}s`);
       setTimeout(() => this.start(), delay).unref();
+    };
+    child.on("error", (err) => {
+      this.opts.log(`watch: could not start: ${err.message}`);
+      onEnd("spawn error");
     });
+    child.on("close", (code) => onEnd(code));
+  }
+
+  /** Tells the agent once that the watch is not running, until it runs well again. */
+  private broken(why: string): void {
+    if (this.toldBroken) return;
+    this.toldBroken = true;
+    this.opts.log(`watch: ${why}`);
+    this.opts.onEvents([
+      `watch-broken | watch | ${why}: her PRs and sessions are not being watched`,
+    ]);
   }
 
   private line(line: string): void {
     const text = line.trim();
     if (!text) return;
+    if (kindOf(text) === "watch-error" && /already running/.test(text)) {
+      this.broken(text.split(" | ").slice(2).join(" | ") || "another watch holds the lock");
+      return;
+    }
     if (!wakes(text)) {
       this.opts.log(`watch: ${text}`);
       return;

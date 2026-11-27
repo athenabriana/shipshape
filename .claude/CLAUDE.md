@@ -6,7 +6,7 @@ A **Claude Code plugin** (`ss`) published through the `shipshape` marketplace, w
 
 ```
 .claude-plugin/marketplace.json        # lists `ss` and `companion`
-.oxfmtrc.json                          # formatter ignores the vendored companion server
+.oxfmtrc.json                          # formatter skips the companion's server.ts, kept in upstream's format so upstream diffs apply
 plugins/ss/
 ├── .claude-plugin/plugin.json
 ├── agents/                            # read-only roles dispatched as ss:ss-<name>
