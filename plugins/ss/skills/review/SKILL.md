@@ -340,7 +340,7 @@ Pipeline agents (plugin root, dispatched by the fan-out):
 - `<plugin-root>/agents/ss-review-finder.md`: the finder's contract, and the narrowed `tools:` list.
 - `<plugin-root>/agents/ss-review-verifier.md`: the CONFIRMED / PLAUSIBLE / REFUTED rubric.
 - `<plugin-root>/agents/ss-review-judge.md`: the loop's judge on Sonnet, round 1 verdicts and the later rounds' closed/open, accepted/contested and new findings, one JSON object.
-- `<plugin-root>/agents/ss-design-critic.md`: the design front's critic, very hard to please, over screenshots of the running UI; findings with a severity and a verdict, one JSON object. Its loop is `<plugin-root>/references/design-loop.md`.
+- `<plugin-root>/agents/ss-design-critic.md`: the design front's critic, very hard to please, over screenshots of the running UI; findings with a severity, and two verdicts (pleased, goals achieved), one JSON object. Its loop is `<plugin-root>/references/design-loop.md`.
 
 - `references/review-checklist.md`, `references/quality-checklist.md`, `references/design-checklist.md`: the correctness, quality and design criteria the fronts operationalize.
 

@@ -150,14 +150,22 @@ Every brief repeats these, whatever the task:
   Athena to approve the switch, so the brief says the work session asks for it.
 - **No secret, token or credential** in a message, a report or a file outside the repo's
   own secret handling.
-- **On an interface task, design comes before code, on a Design canvas**, by "Designs go on
-  a canvas" in `<plugin-root>/references/show-for-review.md`.
+- **On an interface task, a mockup first or the real screen, by Athena's pick**, by "A
+  mockup first, or the real screen" in `<plugin-root>/references/show-for-review.md`.
+  Write her pick in the brief when she gave one. When she did not, the work session asks
+  it in its opening sheet, the mockup recommended. On the mockup path the canvas rebuilds
+  the existing screen from screenshots of the running app, faithful to its tokens, type,
+  spacing, components and copy, and the critic confirms the match before any change is
+  designed; code waits for her approval of a canvas version, and the built screen is
+  checked against it.
 - **On an interface task, check every change on real visuals**: screenshots of the running
   thing, taken through the browser or app tools the session has (Claude in Chrome, the
   built-in browser, the `run` skill, or the app's own screenshots), never only by reading
   code. Run the design-review loop of `<plugin-root>/references/design-loop.md` (build,
-  screenshot, the `ss-design-critic` agent, fix, repeat) until the critic approves or the
-  cap is reached.
+  screenshot, the `ss-design-critic` agent, fix, repeat) until the critic is pleased and
+  the brief's goals are achieved. It has no default round limit: only the usage window or
+  a cap Athena set in the brief stops it sooner. Copy the goals and acceptance criteria
+  into the brief, because the critic judges them one by one.
 - **Every review or approval ask carries a visual**, a page, a doc or a rendered file built
   before the question, by `<plugin-root>/references/show-for-review.md`.
 
@@ -201,7 +209,8 @@ reports done:
 3. Take a screenshot of each state, with the browser or app tools the session has.
 4. Run the design-review loop of `<plugin-root>/references/design-loop.md` on those
    screenshots: the `ss-design-critic` agent judges them, the session fixes what it finds,
-   and the loop repeats until the critic approves or the cap is reached.
+   and the loop repeats until the critic is pleased and the goals are achieved, or the
+   usage window or the brief's cap stops it at a clean step.
 5. Fix what diverges from what was asked, and walk it again.
 6. Send a board of the screenshots to the orchestrator, with the critic's last verdict.
 

@@ -64,8 +64,8 @@ recommended pick written in the message (`<plugin-root>/references/front-contrac
 - **When Athena asks to change an artifact**, read it with the `Artifact` tool's `read`
   action, apply the edit, and publish again to the same URL. An edit that needs code or the
   work session's context goes to the work session with her words quoted.
-- **A design canvas** (`<plugin-root>/references/show-for-review.md`, "Designs go on a
-  canvas"): open it, and watch it with `ArtifactComments`. Send every design change to the
+- **A design canvas** (`<plugin-root>/references/show-for-review.md`, "A mockup first, or
+  the real screen"): open it, and watch it with `ArtifactComments`. Send every design change to the
   work session, the comment quoted with its artboard. When Athena approves a variation,
   send its label quoted; that approval lets the work session write code.
 - **A local file** reaches Athena through `SendUserFile`, from the path the work session

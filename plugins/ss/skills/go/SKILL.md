@@ -99,7 +99,10 @@ close.
   reached or the usage window runs low.
 - **Interface work runs on real visuals.** A change the person sees is checked on
   screenshots of the running thing, through the browser or app tools at hand, and goes
-  through the design-review loop of `<plugin-root>/references/design-loop.md`.
+  through the design-review loop of `<plugin-root>/references/design-loop.md` until the
+  critic is pleased and the goals are achieved. Whether to start on a mockup (recommended)
+  or the real screen is the person's pick, one block of the opening sheet when they have
+  not said, by `<plugin-root>/references/show-for-review.md`.
 - **Preservation check before every commit.** Reread the staged diff: nothing unrelated
   changed, nothing removed the task did not ask to remove.
 - **Subagents.** Split independent work with `Agent` subagents, each with a standalone brief:

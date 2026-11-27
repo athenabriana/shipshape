@@ -76,7 +76,9 @@ The critic pass runs whenever the diff touches UI or the surface is an interface
    hand (Claude in Chrome, the built-in browser, the `run` skill, the app's own
    screenshots). Load each with `ToolSearch` before calling it missing.
 2. **Dispatch one critic**, `subagent_type: "ss:ss-design-critic"`, in the same message as
-   the finders, with the screenshots, the tasks, the resolved design sources and the cap.
+   the finders, with the screenshots, the tasks, the resolved design sources, the goals
+   (the acceptance criteria from the brief or the PR body), the approved mockup as the
+   reference when the change came from one, and the cap.
 3. **Its findings join the report** under Design system, each with the critic's severity
    (`High`, `Medium`, `Low`), mapped to a level like this front's priorities
    (`<plugin-root>/references/finding-levels.md`): `High` is a Bloqueante, `Medium` and
@@ -85,6 +87,13 @@ The critic pass runs whenever the diff touches UI or the surface is an interface
    pass and the loop's `ss-review-judge`. In the review loop, a later round re-runs a fresh
    critic on new screenshots of what the fixes touched, with the open critic findings,
    in the same message as the judge.
+
+The report carries the critic's two verdicts, `pleased` and `goals_achieved`, with each
+goal's status. A Design canvas mockup under review is judged the same way: against the
+screenshot of the app it rebuilds when it changes an existing screen, then on its own
+craft. The full loop until both verdicts are true, with no default round limit, belongs to
+the build (`<plugin-root>/references/design-loop.md`); inside `/ss:review` the critic runs
+within the review loop's budget.
 
 When nothing can render the UI, the critic pass does not run: say so in one line in the
 front's section, name what was missing, and never report the front as a visual check.

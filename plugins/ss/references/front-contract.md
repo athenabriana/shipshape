@@ -106,7 +106,7 @@ with her, so the visual travels as a file in the notes folder or a link, and the
 orchestrator shows it inline.
 
 - **A page** (a board, a report): publish it as an Artifact and send its URL to the
-  orchestrator, which opens it for her. A design goes on a canvas, as the next section says.
+  orchestrator, which opens it for her. A mockup goes on a canvas, as the next section says.
 - **A local file** (a screenshot, a video): leave it in the notes folder the brief names
   and send its path. The orchestrator puts it in front of her with `SendUserFile`.
 
@@ -121,12 +121,22 @@ a relayed line names no target ("I don't like it"), describe what you built in o
 lines and send one decision-sheet question back, the most likely reading as the pick,
 before changing anything.
 
-## Designs go on a canvas
+## A mockup first, or the real screen
 
-An interface change shows its design on a Design canvas before any code, by "Designs go on
-a canvas" in `<plugin-root>/references/show-for-review.md`. In a work session, send the
-canvas URL to the orchestrator with what each artboard shows and why A is the pick, then
-wait. Each change comes back with Athena's comment quoted: apply it on the same canvas,
-republish to the same URL, and send the URL again. Write the code only after she approves
-a variation. Once it is built, check it on screenshots of the running thing and run the
-design-review loop of `<plugin-root>/references/design-loop.md` before reporting done.
+UI work starts on a mockup or on the real screen, by Athena's pick, as "A mockup first, or
+the real screen" in `<plugin-root>/references/show-for-review.md` says. When the brief does
+not say which, the question goes in the opening `ss.ask` sheet: "Start on a mockup, or go
+straight to the real screen?", the mockup first and recommended.
+
+- **On the mockup path**, take screenshots of the running app, rebuild the screen on a
+  Design canvas faithful to it, and have the critic confirm the match before designing the
+  change. Run the design-review loop on the canvas, then send the canvas URL to the
+  orchestrator with what each artboard shows and why A is the pick, and wait. Each change
+  comes back with Athena's comment quoted: apply it on the same canvas, republish to the
+  same URL, and send the URL again. Write the code only after she approves a version, then
+  screenshot the built screen and have the critic check it matches the approved canvas.
+- **On the real-screen path**, build in the app directly.
+
+Either way, check the result on screenshots of the running thing and run the
+design-review loop of `<plugin-root>/references/design-loop.md` until the critic is pleased
+and the goals are achieved, before reporting done.

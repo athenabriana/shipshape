@@ -27,6 +27,10 @@ code and the repo's defaults leave open. Then ask them together:
    recommended pick only when they said "go with the defaults"; a plain **Skip** leaves it
    open, by "Read the answer" in the decision-sheet page.
 
+UI work adds one block when the person has not already said: "Start on a mockup, or go
+straight to the real screen?", the mockup first and recommended, by
+`<plugin-root>/references/show-for-review.md`.
+
 A question the session can answer from the code, the repo, the brief or a sensible
 default is not an open question. Decide it, and name the decision in the final report
 under "decided on my own".
