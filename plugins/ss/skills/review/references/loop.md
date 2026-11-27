@@ -58,7 +58,7 @@ Copy them as written and number them `G1`, `G2`, …. Each needs a check, by
 `goal-loop.md` section 2: a criterion with none gets the test or command that would
 confirm it, added by the owner and marked as added.
 
-**When no source has goals**, run `/ss:scope` on the change, with the intent block and the
+**When no source has goals**, run `/ss:clarify` on the change, with the intent block and the
 diff as its ground: it proposes what the change set out to do, each as a WHEN/THEN line
 with its check. Ask them in one question (a decision sheet when other questions are open), "Approve these goals"
 recommended, by `goal-loop.md` section 3. In a work session the question goes to the
