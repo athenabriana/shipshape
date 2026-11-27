@@ -67,7 +67,7 @@ you can call any skill directly. `/ss:go` calls most of them for you.
 | `/ss:bug-fix`      | take a bug from a pasted error or "fix this bug" to a proven fix, through `/ss:go`'s bug-fix playbook |
 | `/ss:investigate`  | answer a question about the code, a branch or its history, without editing                            |
 | `/ss:edge-cases`   | list the edge cases of a plan, or find the ones a diff misses                                         |
-| `/ss:review`       | review your branch, fix what it finds and review again, up to 3 rounds                                |
+| `/ss:review`       | review your branch against its goals, fix what it finds and review again until the goals are met                                |
 | `/ss:ui-critique`  | judge a screen on real screenshots, design and accessibility, and fix it until it holds up            |
 | `/ss:ship`         | green the checks, commit, and push or open a PR                                                       |
 | `/ss:babysit`      | watch a PR by number: answer review threads and fix red CI until it is done                           |

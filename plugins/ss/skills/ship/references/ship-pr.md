@@ -9,6 +9,7 @@ Reached from ship's Step 1 when the destination is a pull request. Step 2 is don
 3. Draft from the commits + diff (and the brief or acceptance criteria this session worked from, if any, since they're the intended scope):
    - **Title**: conventional commit style `<type>(<scope>): <description>` (≤70 chars).
    - **Body**: follow `.github/pull_request_template.md` if it exists (fill every section; mark N/A where not applicable). Otherwise: Context (why) → Changes (grouped by purpose, not file) → Breaking Changes (only if any).
+   - **The goals**, when the run worked from approved goals (`<plugin-root>/references/goal-loop.md`) or the brief carries acceptance criteria: a `Goals` section with each numbered WHEN/THEN line and its check, so the review loop reads them from the description.
    - **The review verdict**, when a review loop's verdict line was handed over: the body carries that line as written, with its patch-id, and under it the `Review verdict predates the last change` line when ship's Step 2c found the patch-id changed.
 4. Present title + body as an inline visual (the body rendered, not a raw block), by `<plugin-root>/references/show-for-review.md`, get approval/edits, then create:
    ```
@@ -83,12 +84,14 @@ Name the root cause with a specific log snippet, then fix, commit, push, and fol
 
 A PR never goes up for merge on green CI alone (`<plugin-root>/references/review-gate.md`). Once CI is green, run `python3 <plugin-root>/scripts/patch_id.py` again:
 
-- **`unchanged: true`**: a review loop already covers the head. Read `recorded.verdict`: `clean` or `disputed` meets this part of the gate; `open` does not, and the report lists every open finding by file and line and never calls the PR ready.
+The review gate is the final goal of every ship on this path, by `<plugin-root>/references/goal-loop.md`: the PR is shipped only when the gate passes on its head with every goal of the change achieved.
+
+- **`unchanged: true`**: a review loop already covers the head. Read `recorded.verdict` and the goal status after the patch-id on the verdict line: `clean` or `disputed` with every goal achieved or deferred meets this part of the gate; `open`, or a goal still open, does not, and the report lists every open finding by file and line and every open goal by number, and never calls the PR ready.
 - **`recorded: null` or `unchanged: false`**: run `/ss:review` in its default loop on the branch, at the depth `<plugin-root>/references/review-gate.md` picks (deep for tokens, secrets, auth, permissions, servers or money, standard otherwise), said in one line. The loop fixes or refuses what its judge finds, pushes, follows CI to green and writes its verdict line into the description, replacing the `Review verdict predates the last change` line. Then read its verdict as above.
 
 Then, on a PR that changes UI (preflight's `ui.hit` is true), check the description for the design loop's `Design:` line. When it is missing, run `/ss:ui-critique` on the built screen and add the line, or say in the report that the gate is not met and why. Then go to "Offer the watcher".
 
-The report carries the `Review:` line of the review gate: rounds, verdict, depth, fixed, refused and the head sha the last round read. A loop whose verdict is `open` lists every open finding by file and line.
+The report carries the `Review:` line of the review gate: rounds, verdict, goal status, depth, fixed, refused and the head sha the last round read. A loop whose verdict is `open` lists every open finding by file and line.
 
 ## Offer the watcher
 

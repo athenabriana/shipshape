@@ -4,7 +4,7 @@ description: Align on the idea before building. Develops a draft, iterates the g
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 5.0.0
+  version: 5.1.0
 ---
 
 # Shape
@@ -54,7 +54,7 @@ The behaviors are what guarantee the built thing matches the idea. An unmapped b
 - **Happy path**: walk the main flow step by step and concretely: input → what happens → observable output. Every step the flow really takes gets a line.
 - **Edge cases**: every deviation that changes the outcome for the user, each with its **expected outcome**: empty / zero / huge input, invalid input, first-run vs repeat, concurrent use, failure & rollback, denied permission/auth, partial or interrupted runs, migrating existing data. Map the _outcome_, not just that the case exists.
 
-Each behavior becomes one `WHEN <case> THEN <observable outcome>` line, so each line reads directly as a test. Walking each behavior surfaces calls you haven't made; those go back into the loop as gray areas. **A behavior with no decided outcome is an open item the gate blocks on.** Litmus for whether an edge's outcome is load-bearing (not just a minor case): **does its outcome contradict the `why`?** If choosing the wrong outcome would make the built thing betray its own reason for existing, it's load-bearing, and the gate blocks on it. This map is the acceptance criteria: `/ss:review`'s `contract` front checks the branch against them line by line, reading them from the brief or the PR body.
+Each behavior becomes one `WHEN <case> THEN <observable outcome>` line, so each line reads directly as a test. These lines are the goals of the goal loop (`<plugin-root>/references/goal-loop.md`): each carries its check (the test, the command, the screenshot or the source that confirms it), and the build that follows runs the loop against them until every one is achieved. Walking each behavior surfaces calls you haven't made; those go back into the loop as gray areas. **A behavior with no decided outcome is an open item the gate blocks on.** Litmus for whether an edge's outcome is load-bearing (not just a minor case): **does its outcome contradict the `why`?** If choosing the wrong outcome would make the built thing betray its own reason for existing, it's load-bearing, and the gate blocks on it. This map is the acceptance criteria: `/ss:review`'s `contract` front checks the branch against them line by line, reading them from the brief or the PR body.
 
 ## Write the criteria
 
@@ -68,8 +68,8 @@ Shape creates no other file and commits nothing.
 ```markdown
 ## Acceptance criteria
 
-- WHEN <case> THEN <observable outcome>
-- WHEN <case> THEN <observable outcome>
+- WHEN <case> THEN <observable outcome> · check: <test, command, screenshot or source>
+- WHEN <case> THEN <observable outcome> · check: <test, command, screenshot or source>
 
 ## Decisions
 
@@ -113,7 +113,7 @@ Do NOT offer to build. Ask one `AskUserQuestion` whose options are **resolve it 
 
 Ask one `AskUserQuestion` (the format in the plugin-level `references/handoff-gate.md`):
 
-- **Build it now (Recommended)**: this session does the work against the criteria, splitting it across `Agent` subagents where the steps run side by side, then offers `/ss:ship`.
+- **Build it now (Recommended)**: this session does the work against the criteria, splitting it across `Agent` subagents where the steps run side by side, runs the goal loop with the criteria as its approved goals (signing off here is their approval), then offers `/ss:ship`.
 - **Stop here**: the criteria stay where they were written; the user builds later.
 
 The user can answer with an adjustment instead (the tool's free-text option). A change made at the gate is folded into the block, and the gate reopens. A `Build it now` pick is the affirmative start, not a silent roll-through.
@@ -126,7 +126,7 @@ Before asserting how something works: check the codebase, then its docs, then th
 
 Shape always ends at acceptance criteria the user signed off on; they are the durable asset either way. The step from shaping to building is a checkpoint the user crosses on purpose, not a stop.
 
-- **Build it now:** the session builds against the criteria, step by step in the order written, with an `Agent` subagent per step where steps run side by side. When the work is done, it offers `/ss:ship` and stops there; the ship runs only on the user's pick.
+- **Build it now:** the session builds against the criteria, step by step in the order written, with an `Agent` subagent per step where steps run side by side, then runs the goal loop of `<plugin-root>/references/goal-loop.md` with the criteria as the goals, until every one is achieved and the judge is pleased. When the work is done, it offers `/ss:ship` and stops there; the ship runs only on the user's pick.
 - **Stop here:** say the next step plainly: where the criteria were written, and that a later session builds from them and lands the branch with `/ss:ship`.
 
 **Safety valve:** if building reveals that a business rule or a behavior is missing, or contradicts another, the build stops and comes back here to re-shape. That's the signal alignment was incomplete. A technical gap is not: the builder settles it and says what it chose.

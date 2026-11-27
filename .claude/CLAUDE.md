@@ -1,6 +1,6 @@
 # Ship Shape
 
-A **Claude Code plugin** (`ss`) published through the `shipshape` marketplace, which also ships `companion`, an optional Telegram channel plugin. Install via `claude plugin marketplace add athenabriana/shipshape` then `claude plugin install ss@shipshape`. Skills are invoked as `/ss:<skill>` (e.g. `/ss:ship`). `/ss:go` routes a request to a playbook sized to risk; the flow is shape → build → ship. `ss` ships a `SessionStart` operating-context hook, auto-active when the plugin is enabled.
+A **Claude Code plugin** (`ss`) published through the `shipshape` marketplace, which also ships `companion`, an optional Telegram channel plugin. Install via `claude plugin marketplace add athenabriana/shipshape` then `claude plugin install ss@shipshape`. Skills are invoked as `/ss:<skill>` (e.g. `/ss:ship`). `/ss:go` routes a request to a playbook sized to risk; the flow is shape → build → ship. Long work runs on the goal loop (`plugins/ss/references/goal-loop.md`): goals proposed and approved once, then a fresh judge each round until every goal is achieved and the judge is pleased; `design-loop.md` and `/ss:review`'s loop specialize it. `ss` ships a `SessionStart` operating-context hook, auto-active when the plugin is enabled.
 
 ## Structure
 
@@ -16,7 +16,7 @@ plugins/ss/
 │   ├── operating-context.md            # the injected operating frame (edit to tune)
 │   ├── enter_worktree.py               # worktree isolation for local autonomous runs
 │   └── scheduling-decision.md          # /loop vs Desktop task vs Cloud Routine decision table
-├── references/                        # plugin-level docs shared across skills (project-facts, handoff-gate, review-gate, decision-sheet, doc-style, voice, long-run, design-loop, ui-references, triggers, ...)
+├── references/                        # plugin-level docs shared across skills (project-facts, handoff-gate, review-gate, decision-sheet, doc-style, voice, long-run, goal-loop, design-loop, ui-references, triggers, ...)
 ├── scripts/                           # plugin-level scripts shared across skills (preflight, check_project_facts, ...)
 └── skills/
     ├── go                                 # the /ss:go router; playbooks/ holds one recipe per playbook

@@ -26,6 +26,8 @@ Two situational skills fire by trigger (`<plugin-root>/references/triggers.md`):
 | standard    | mechanical gate, `/ss:review` in its default loop                                     |
 | intensive   | a blast radius pass first, `edge-cases` on the diff, `/ss:review deep` with its table |
 
+On the standard and intensive routes the goals are the playbook's own, by `<plugin-root>/references/goal-loop.md`: **G1** the reproduction of step 4 fails before the fix and passes after, **G2** the focused test of step 6 fails before and passes after, and on intensive **G3** every caller in the blast radius pass stays correct. They stand without a question, said in one line after step 5; an expected outcome the report leaves open joins them as a goal in one decision sheet. Step 10's review loop judges every goal each round until all are achieved and the judge is pleased, and step 11's report carries the `Goals:` line.
+
 Every route then runs `ship`. The blast radius pass, before the fix, writes one line per caller of the changed code: does the fix keep it correct. A caller the fix would break widens the fix, and step 8 decides.
 
 ## Endpoint

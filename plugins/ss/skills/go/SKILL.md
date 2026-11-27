@@ -4,7 +4,7 @@ description: Ship Shape's router. Matches the request to one playbook (investiga
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.4.0
+  version: 1.5.0
 ---
 
 # Go
@@ -66,16 +66,34 @@ python3 <plugin-root>/scripts/route.py --blast-radius <low|medium|high> --revers
 
 It prints one line, `<route>: <reason>`. The same facts give the same route on every run.
 
-| Route       | What runs                                                                                                    |
-| ----------- | ------------------------------------------------------------------------------------------------------------ |
-| lightweight | preservation check, mechanical gate, the review loop with only the correctness front, then `/ss:ship`        |
-| standard    | mechanical gate, `/ss:review` in its default loop, then `/ss:ship`                                           |
-| intensive   | a blast radius pass over the callers first, `/ss:edge-cases` on the diff, `/ss:review deep`, then `/ss:ship` |
+| Route       | What runs                                                                                                                                       |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| lightweight | preservation check, mechanical gate, the review loop with only the correctness front, then `/ss:ship`                                           |
+| standard    | the map and the goals, approved once; mechanical gate, `/ss:review` in its default loop until every goal is achieved, then `/ss:ship`            |
+| intensive   | the map and the goals, approved once; a blast radius pass over the callers, `/ss:edge-cases` on the diff, `/ss:review deep` until every goal is achieved, then `/ss:ship` |
 
 On the open PR endpoint, every route ends with the `/ss:review` loop on the PR's latest
 head, once CI is green, before the handoff: a PR never goes up for merge without it
 (`<plugin-root>/references/review-gate.md`). Deep depth when the change touches tokens,
 secrets, auth, permissions, servers or money, standard otherwise, said in one line.
+
+**Goals on the standard and intensive routes.** Every playbook on these routes opens with
+the map and the goals and ends with the goal loop, by
+`<plugin-root>/references/goal-loop.md`:
+
+- **First**, before the first edit: map the problem and the code, then propose verifiable
+  goals (numbered WHEN/THEN lines, each with its check: a test, a command, a screenshot or
+  a cited source). They go in the opening decision sheet as one block, "Approve these
+  goals" recommended, beside the endpoint and every other open question. The playbook may
+  supply goals of its own (the bug-fix playbook's reproduction and focused test); those
+  stand without a question unless the request leaves an outcome open.
+- **Last**, before the endpoint: the playbook's judge (`/ss:review`'s loop, the design
+  critic) checks every goal each round, with no default round limit, until every goal is
+  achieved and the judge is pleased, or the usage window or the person's cap stops it. The
+  close carries the `Goals:` line.
+
+The lightweight route keeps its steps as they are, with no goals. A playbook with no route
+(investigate, edge-cases, babysit, review-setup, correct, learn) runs its skill's own terms.
 
 The playbook's own `## Route` section says how this applies to it, and wins where it differs.
 "Keep it light" or "be thorough" from the person overrides the script. Say which route you
@@ -149,8 +167,9 @@ Nothing about a correction runs unasked: the router offers, the person decides.
 
 ## 5. Close
 
-Say what changed, what is verified and by what evidence, what is left, where the run
-stopped and why, and the choices made without asking. When the run
+Say what changed, what is verified and by what evidence, the `Goals:` line on the standard
+and intensive routes, what is left, where the run stopped and why, and the choices made
+without asking. When the run
 learned a project fact that passes the filter in `<plugin-root>/references/project-facts.md`,
 offer `/ss:record-fact` with the exact line, or the `learn` playbook when the layer is not
 clear. End at the handoff gate

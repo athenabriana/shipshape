@@ -4,7 +4,7 @@ description: Critiques a UI on real screenshots and, by default, fixes it until 
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana; the accessibility pass absorbed from /ss:review's a11y front, itself from rafael's ui-accessibility skill (loja inspira-skills, MIT)
-  version: 1.1.0
+  version: 1.2.0
 ---
 
 # UI critique
@@ -13,7 +13,8 @@ Point it at a screen and it judges what the user gets: screenshots of the runnin
 read by the `ss-design-critic` agent and walked for accessibility. By default it then fixes
 what it found and judges again, round after round, until the critic is pleased, every goal
 is achieved and no accessibility finding is open. The loop is
-`<plugin-root>/references/design-loop.md`; this skill is its entry point for a screen that
+`<plugin-root>/references/design-loop.md`, the interface specialization of the goal loop
+in `<plugin-root>/references/goal-loop.md`; this skill is its entry point for a screen that
 already exists, with no branch to review.
 
 A branch's diff is `/ss:review`'s: its design and a11y fronts judge the changed lines. This
@@ -76,7 +77,9 @@ request, the brief and the repo leave open, and ask it all in one decision sheet
 saying that after this the run goes to the end and asks again only on a real blocker. The
 blocks, each only when it is open:
 
-- **The goals.** What the screen should let a user do and what done looks like, numbered.
+- **The goals.** What the screen should let a user do and what done looks like, numbered,
+  each with the screenshot of a named state or the check that confirms it, by
+  `goal-loop.md` section 2.
   Taken from the request or the brief when they state them, copied as written. When there
   are none, ask: "What should this screen do?", with defaults drawn from what the screen
   plainly is ("A new visitor understands the product and finds sign up", "The form can be

@@ -4,7 +4,7 @@ description: Maps the edge cases of a behavior, in two modes picked from the req
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # Edge cases
@@ -55,7 +55,10 @@ Walk each one. Keep only those the behavior can reach, and say in one line which
    `WHEN <case> THEN <observable outcome>`. One case per row, phrased so it reads as a test.
    Map the outcome, not only that the case exists.
 3. **Mark the load-bearing rows.** A row is load-bearing when the wrong outcome would betray
-   the reason the behavior exists. Put those first.
+   the reason the behavior exists. Put those first. The load-bearing rows feed the goals of
+   the goal loop (`<plugin-root>/references/goal-loop.md`): a caller that runs it (a `/ss:go`
+   route, a brief) takes each as a goal, and each row names its check, the test or command
+   that would confirm it.
 4. **Ask what nobody decided.** A row with no known outcome is a product question for the
    person. Ask with `AskUserQuestion`, at most 4 questions per call, the recommended outcome
    first, each question naming the case and what each choice does. Two or more open rows, or
@@ -67,7 +70,7 @@ Walk each one. Keep only those the behavior can reach, and say in one line which
    paste as acceptance criteria:
 
    ```
-   | # | category | WHEN | THEN | load-bearing |
+   | # | category | WHEN | THEN | check | load-bearing |
    ```
 
    Then list the `open` rows with the question each one is waiting on. Before a question

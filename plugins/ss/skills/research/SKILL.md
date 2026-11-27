@@ -4,7 +4,7 @@ description: Researches a topic across code, content and visual references, veri
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 4.0.0
+  version: 4.1.0
 ---
 
 # Research
@@ -63,7 +63,10 @@ Derive a kebab slug from the topic, two to five lowercase ASCII words joined by 
 Turn the topic into a plan before searching:
 
 - **Questions**: the 2–5 questions the report must settle ("how does X handle concurrency?",
-  "which approach scales to N?"). They become the verify checklist.
+  "which approach scales to N?"). They become the verify checklist, and they are the run's
+  goals in the terms of `<plugin-root>/references/goal-loop.md`: `Q1`, `Q2`, …, each
+  achieved only when it is answered with a claim that holds against its evidence. The
+  research asks nothing, so its own proposal stands, written in the report.
 - **Fronts**: which of code, content and visual the questions need.
 - **Constraints**: language, framework, license, platform, activity level, from the topic
   or the caller's context.
@@ -203,8 +206,9 @@ refuted ones. A claim with no verdict is an open question, never a finding.
 
 ### 6. Loop within the cap
 
-A refuted load-bearing claim, or a planned question still unanswered, sends the research
-back for another round: explore deeper in the repositories already cloned, scout a better
+This is the goal loop's round, with the verifiers as its judge: each round checks every
+question, answered with verified evidence or not yet. A refuted load-bearing claim, or a
+planned question still unanswered, sends the research back for another round: explore deeper in the repositories already cloned, scout a better
 one while under three clones, search new sources or reference pages. Run at most three
 verify rounds in total. After the last round, what is still open goes to the open section.
 When every load-bearing claim ends refuted, the report says nothing was verified and lists
@@ -220,6 +224,8 @@ Write the report to the destination from step 1, replacing any earlier version t
 ## Question
 
 [The topic as asked, and the 2–5 questions the report settles.]
+
+Goals: [n] of [m] questions answered with verified evidence; [each open one by number].
 
 ## Fronts
 
@@ -262,8 +268,8 @@ when it is short: "Nothing." is a valid entry.
 
 ### 8. Return the summary
 
-Return three to five lines: the recommendation in one sentence, how many claims held, what
-stayed open, and the path the report went to. With no path, the report in chat is the
+Return three to five lines: the recommendation in one sentence, the `Goals:` line, how
+many claims held, what stayed open, and the path the report went to. With no path, the report in chat is the
 reply, and these lines close it. Commit nothing, and stop.
 
 When a person, not a calling agent, will read the report, show it to them by

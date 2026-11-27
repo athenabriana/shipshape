@@ -27,8 +27,11 @@ goal, the decisions so far and how this task fits in `background`, which the cal
 5. **The goal and what done means**: the observable result, and the step it ends on.
 6. **The repo, the worktree and the branch**: the repository, `use_worktree: true` for code,
    and the slug as the branch.
-7. **The acceptance criteria**, copied as WHEN/THEN lines from the front's Now tab, so the
-   work session never reads the front.
+7. **The goals**: the acceptance criteria that concern this task, copied as WHEN/THEN lines
+   from the front's Now tab and numbered `G1`, `G2`, … with each one's check, so the work
+   session never reads the front. They are approved: the work session runs the goal loop
+   of `<plugin-root>/references/goal-loop.md` against them without asking again, and its
+   done means every one is achieved or deferred with its ground.
 8. **The endpoint, the scope and the cap**, as the next sections set them.
 9. **The files and areas** it touches, as far as the orchestrator knows them.
 10. **The decisions already made**, so the work session does not ask them again. When the
@@ -151,6 +154,9 @@ Every brief repeats these, whatever the task:
   the session's folder is not a git repository, creates its own with `git worktree add` on
   a new branch before it touches a file, and works only there.
 - **No rebase on a shared branch.** Bring the base in with a merge.
+- **Done means the goals are achieved**, by `<plugin-root>/references/goal-loop.md`: the
+  loop runs until every goal of the brief is achieved and the judge is pleased, or the
+  usage window or Athena's cap stops it, and the report says which.
 - **Review your own PR before reporting done**, by
   `<plugin-root>/references/review-gate.md`. Once CI is green, run `/ss:review` (the loop)
   on the PR's latest head, at deep depth (`/ss:review deep`) when the change touches
@@ -202,8 +208,9 @@ for facts, not for a voice. Write this section into every brief:
   path goes to the orchestrator.
 - **The final report**, at done or at a blocker, carries the result, the PR url with the
   state of its CI, the review verdict as the `Review:` line of
-  `<plugin-root>/references/review-gate.md` (rounds, verdict, depth, fixed, refused and the
-  head sha the last round read), the blockers, where the run stopped and why (the endpoint, a real
+  `<plugin-root>/references/review-gate.md` (rounds, verdict, goal status, depth, fixed,
+  refused and the head sha the last round read), the `Goals:` line of
+  `<plugin-root>/references/goal-loop.md`, the blockers, where the run stopped and why (the endpoint, a real
   blocker, the cap or the usage window with its reset time), and the choices it made on
   its own. Every `Correction repeated:` line goes in it verbatim.
 

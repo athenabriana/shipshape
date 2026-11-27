@@ -27,6 +27,10 @@ code and the repo's defaults leave open. Then ask them together:
    recommended pick only when they said "go with the defaults"; a plain **Skip** leaves it
    open, by "Read the answer" in the decision-sheet page.
 
+Work that runs the goal loop of `<plugin-root>/references/goal-loop.md` adds one block: the
+proposed goals, numbered, each with its check, "Approve these goals" first. Their approval
+is the only time the goals are asked; after it they hold for the run.
+
 UI work adds one block when the person has not already said: "Start on a mockup, or go
 straight to the real screen?", the mockup first and recommended, by
 `<plugin-root>/references/show-for-review.md`.
