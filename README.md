@@ -19,15 +19,14 @@ claude plugin install ss@shipshape
 
 the plugin turns on a `SessionStart` hook by itself. at the start of every session, the hook gives the agent a short note on how ss works and its hard rules. you do not run anything for it.
 
-## the three core skills
+## the two core skills
 
-three skills do most of the work. each one runs at a different height:
+two skills do most of the work. each one runs at a different height:
 
 - **`/ss:go` does the work in one session.** it takes one request and carries it through.
 - **`/ss:orchestrate` runs one front across work sessions.** it splits a bigger goal into tasks, starts one work session per task and lands their PRs.
-- **`/ss:assistant` helps you manage all your sessions.** it is your assistant: it tells you what needs you, what changed and what to look at next.
 
-a _front_ is one stream of work an orchestrator runs, from the first request to the last merged PR. the orchestrator and the assistant write no code: every edit is a work session's.
+a _front_ is one stream of work an orchestrator runs, from the first request to the last merged PR. the orchestrator writes no code: every edit is a work session's.
 
 ### `/ss:go`
 
@@ -51,11 +50,7 @@ a feature with no playbook goes through three stages: **clarify** (`/ss:clarify`
 
 in the claude code desktop app, type `/ss:orchestrate` and describe the goal. this session becomes the orchestrator of one front: it settles the goal with you, keeps the front's memory in a private Claude Docs doc, starts one work session per task with a brief that stands alone, and brings you every question those sessions have. you only ever talk to the orchestrator. when a PR is green, it asks, and merges when you say so.
 
-### `/ss:assistant`
-
-type `/ss:assistant` in its own desktop session, or ask "how are my sessions?". the assistant reads every open front and checks it against your live sessions. it leads with what needs you, or tells you nothing does, then says in a few sentences what changed and recommends one thing to look at next. it passes work to an orchestrator for you, and relays an orchestrator's question with one line of context and the options as they were sent.
-
-the assistant and the orchestrator talk in warm first person, by `plugins/ss/references/voice.md`.
+the orchestrator talks in warm first person, by `plugins/ss/references/voice.md`.
 
 ## other commands
 

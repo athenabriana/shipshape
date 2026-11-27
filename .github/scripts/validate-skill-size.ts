@@ -49,9 +49,7 @@ export const MAX_CHARS = 12_000;
  * whose skill is gone is a warning, so it gets removed without failing the PR that removed
  * the skill.
  */
-export const EXEMPT: Record<string, string> = {
-  assistant: "PR #41 removes this skill; drop this entry when it lands",
-};
+export const EXEMPT: Record<string, string> = {};
 
 const PLUGIN_ROOT = "<plugin-root>/";
 
@@ -101,22 +99,26 @@ export function namedPaths(body: string, skillDir: string, pluginDir: string): N
   return found;
 }
 
-/** The issues of one skill. `exists` is injectable so the test needs no files on disk. */
+/**
+ * The issues of one skill. `exists` and `exempt` are injectable so the test needs no files
+ * on disk and no real exemption.
+ */
 export function checkSkill(
   name: string,
   markdown: string,
   skillDir: string,
   pluginDir: string,
   exists: (path: string) => boolean = existsSync,
+  exempt: Record<string, string> = EXEMPT,
 ): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
   const body = bodyOf(markdown);
   const offset = markdown.length - body.length;
   const { lines, chars } = measure(body);
 
-  if (Object.hasOwn(EXEMPT, name)) {
+  if (Object.hasOwn(exempt, name)) {
     const size = `${lines} lines, ${chars} chars`;
-    return [{ level: "warning", message: `not checked (${size}): ${EXEMPT[name]}` }];
+    return [{ level: "warning", message: `not checked (${size}): ${exempt[name]}` }];
   }
 
   const move = "move the detail to references/ and point to it from the step that needs it";

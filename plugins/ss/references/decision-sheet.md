@@ -108,9 +108,8 @@ explanation left open, once they reply.
 A work session has no chat with Athena, so it does not draw the sheet. It sends the sheet's
 content to the orchestrator as one `ss.ask` JSON in the `SendMessage`, by
 `<plugin-root>/references/front-contract.md`, then ends the turn. The orchestrator draws
-the sheet in its own chat, and the assistant does the same when an orchestrator passes the
-sheet on to it. The context, the questions, the options and the pick are drawn word for
-word, translated only into Athena's language.
+the sheet in its own chat. The context, the questions, the options and the pick are drawn
+word for word, translated only into Athena's language.
 
 The JSON is `ss.ask` version 1 with `sections`, one per decision:
 

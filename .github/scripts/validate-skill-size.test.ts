@@ -39,7 +39,8 @@ describe("size", () => {
 
   test("an exempt skill gets one warning, not an error", () => {
     const body = "x\n".repeat(MAX_LINES) + "see references/gone.md\n";
-    const issues = checkSkill("assistant", skill(body), SKILL_DIR, PLUGIN_DIR, () => false);
+    const exempt = { demo: "a reason" };
+    const issues = checkSkill("demo", skill(body), SKILL_DIR, PLUGIN_DIR, () => false, exempt);
     expect(issues.map((issue) => issue.level)).toEqual(["warning"]);
   });
 });

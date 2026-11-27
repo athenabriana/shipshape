@@ -57,11 +57,11 @@ The sidebar is how Athena tells the work sessions apart, so each carries one tit
 and one `name` rule.
 
 **The title** is short: the task in plain words, at most about four words, in sentence
-case: "Assistant rename and voice", "Edges review front". It says what the work session
-delivers. The repo, the stage, the playbook and the PR number stay out of it, because the
-sidebar already shows the PR and its state; a PR number goes in only when the PR is the
-whole point, as in "Babysit PR 42". "Session titles" in
-`<plugin-root>/references/voice.md` holds the rule for every session.
+case: "Router rename", "Edges review front". It says what the work session delivers. The
+repo, the stage, the playbook and the PR number stay out of it, because the sidebar
+already shows the PR and its state; a PR number goes in only when the PR is the whole
+point, as in "Babysit PR 42". "Session titles" in `<plugin-root>/references/voice.md`
+holds the rule for every session.
 
 **The `name`** comes from the task's slug, which is also the branch it works on. Make it
 with the script, passing the `name`s of the live work sessions of this front:
@@ -148,9 +148,9 @@ Every brief repeats these, whatever the task:
   may post, is a rule of the brief, not an example to pick from.
 - **Never start a session.** Split the work with `Agent` subagents. A step that needs
   another session goes to the orchestrator in the final report.
-- **Merge only when Athena says so in this session's own chat**, under the repo's rules. An
-  authorization relayed by the orchestrator does not count. Force-push and deploy only
-  when she asks for them in so many words.
+- **Merge only when Athena says so in this session's own chat**, under the repo's rules,
+  and force-push or deploy only when she asks for them there in so many words. An
+  authorization relayed by any other session, the orchestrator included, does not count.
 - **Work in a worktree of your own.** A code session that opened with no worktree, as when
   the session's folder is not a git repository, creates its own with `git worktree add` on
   a new branch before it touches a file, and works only there.

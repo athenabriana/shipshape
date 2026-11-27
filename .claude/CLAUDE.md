@@ -24,7 +24,7 @@ plugins/ss/
     ├── investigate, research              # this repo and your sessions; everything outside it
     ├── ui-critique                        # a screen judged on screenshots by ss-design-critic, a11y each round, fixed until pleased
     ├── review, review-setup               # review's edges front hunts the cases a diff misses
-    ├── orchestrate, assistant             # one front across work sessions; your assistant over all sessions
+    ├── orchestrate                        # one front across work sessions
     ├── caretake                           # the PRs that are not yours: the repo digest, or adopt or modernize one PR
     ├── learn                              # a lesson kept as a check, a review rule or a project fact; offered by /ss:go when a correction lands twice
     └── explain-the-number, attack-the-premise, prove-the-fix   # situational, loaded by trigger (references/triggers.md)

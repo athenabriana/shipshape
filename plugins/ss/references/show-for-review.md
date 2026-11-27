@@ -3,8 +3,8 @@
 Every time ss asks the person to review, approve or pick something they need to see, it
 shows that thing visually first, then asks. This page states the rule, which form to pick
 for what is being reviewed, how interface work is checked on screenshots, how to find each
-tool, and what to do when no visual tool is there. Every skill that asks for a review or an approval follows it, in every session: a
-plain session, an orchestrator, the assistant and a work session.
+tool, and what to do when no visual tool is there. Every skill that asks for a review or an
+approval follows it, in every session: a plain session, an orchestrator, and a work session.
 
 ## The rule
 

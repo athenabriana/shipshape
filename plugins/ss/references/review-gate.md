@@ -36,16 +36,48 @@ and no merge ask goes out until it returns.
 
 ## Who runs the loop
 
-The session that holds the branch runs it, after CI is green and before it reports done:
+The session that holds the branch runs it, after CI is green and before it reports done.
+The orchestrator checks the verdict before every merge ask, and any other session checks
+it before a merge Athena asks for. Each session's part:
 
 - **A work session** runs `/ss:review` on its own PR, fixes or refuses what the judge
   finds, follows CI to green again, and reports the verdict. Its brief says so
   (`<plugin-root>/skills/orchestrate/references/briefs.md`).
 - **`/ss:ship`** on the PR path runs the loop once CI is green, when no verdict covers the
   head, before its handoff (`<plugin-root>/skills/ship/references/ship-pr.md`).
-- **The orchestrator and `/ss:assistant`** write no code, so they never run the loop. They
-  check the verdict before every merge ask and send a PR without one back to its work
-  session.
+- **The orchestrator** writes no code, so it never runs the loop. It checks the verdict
+  before every merge ask and sends a PR without one back to its work session.
+- **Any other session Athena asks to merge**, in her own turn in its chat and for the PRs
+  she names there, checks items 1–5 above first, with
+  `python3 <plugin-root>/scripts/patch_id.py --pr <n>` run from a checkout of the PR's
+  repo (`--repo <path>` names one), and confirms the PR the script read is in the repo she
+  meant. Then:
+  - A `clean` verdict that covers the head, with every goal achieved or deferred, merges
+    under the repository's own rules: its method, the reviews it requires, its branch
+    protection, and any rule in its `CLAUDE.md`, `CONTRIBUTING.md` or review guide, never
+    bypassed with `--admin` or any other way. It merges once CI is green on the `head` the
+    script measured, with `--match-head-commit` on that `head` and `-R <owner>/<repo>`,
+    and announces the commit before it runs. Several PRs merge one at a time. Where those
+    rules forbid an agent merge, the session hands her the command and says what it waits
+    on.
+  - A `disputed` verdict merges the same way only when her word came after its refusals
+    were named to her. Otherwise, handle it as an `open` verdict, below.
+  - An `open` verdict, a goal still open, or a design loop that left verdicts open goes to
+    her in that chat as a merge ask by "The merge ask" below. On her yes, the session runs
+    the script again and merges by the steps of the `clean` case, her yes standing for the
+    verdict, on the `head` it measured then.
+  - CI that is pending or red on that `head`, or a merge the repository refuses, means no
+    merge: the session tells her which, and a moved head means running the script again
+    and asking again. It never retries without the pin and never updates the branch
+    without her word.
+  - A missing or stale verdict means no merge: a session that holds the branch runs
+    `/ss:review` itself and asks her again with the new verdict, and a session that does
+    not hold it tells her why and that `/ss:review` has to run on the branch. A UI PR with
+    no design loop goes the same way with the design loop or `/ss:ui-critique` on the
+    built screen, and its `Design:` line: the holder runs it, any other session tells her
+    it has to run.
+  - A script error means no merge: the session tells her the error and its fix, such as
+    `--repo <path>` to the PR's checkout or `gh auth login`.
 
 ## Pick the depth
 
@@ -86,8 +118,8 @@ Review: 2 rounds, verdict clean, goals 4 of 4 achieved, depth standard, 6 fixed,
 
 On a UI PR, the report adds a `Design:` line with the design loop's last verdicts, as in
 `Design: pleased, goals achieved, nothing open.` The PR description carries the same line
-under the verdict line, so the orchestrator and the assistant can read it from the PR. A UI
-PR with no `Design:` line in its description fails item 5 of the gate.
+under the verdict line, so any session checking the gate can read it from the PR. A UI PR
+with no `Design:` line in its description fails item 5 of the gate.
 
 ## The merge ask
 

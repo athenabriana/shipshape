@@ -65,13 +65,12 @@ or a comma.
 ## Chat replies
 
 A chat reply is prose spoken to the person, so a few rules of this page bend for it, by
-the voice in `<plugin-root>/references/voice.md`, which `/ss:assistant` and
-`/ss:orchestrate` load:
+the voice in `<plugin-root>/references/voice.md`, which `/ss:orchestrate` loads:
 
 - **Names.** Give the plain name first, then the identifier once in code font: "the router
   rename (`PR 31`)". The identifier still reads exactly as written, so a search finds it.
 - **Format.** A chat reply is prose: no headings, no tables, and a list only for three or
-  more fronts or PRs. Tables belong in a doc or a visual.
+  more PRs or work sessions. Tables belong in a doc or a visual.
 - **Relays.** The framing and every report are rewritten in the session's own voice. The
   question, its options and the recommended pick stay word for word.
 - **Short replies.** "Nothing needs you right now" carries something the reader can act
