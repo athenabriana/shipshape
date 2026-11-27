@@ -97,6 +97,12 @@ three free sources of real ui references, with no account and no api key. ss pul
 - **screenrove**: screens and flows of shipped web products, such as linear and stripe. in claude's settings, connectors, add a custom connector named `Screenrove` with the url `https://screenrove.com/mcp`, or in claude code run `claude mcp add --transport http --scope user screenrove https://screenrove.com/mcp`.
 - **chrome devtools mcp**: its own chrome to screenshot any public page, at a desktop or a mobile size. needs node and chrome: `claude mcp add --scope user chrome-devtools -- npx -y chrome-devtools-mcp@latest --no-usage-statistics`.
 
+## telegram companion
+
+`companion` is a second, optional plugin in the same marketplace: a telegram bot that bridges your messages to one claude code session. it is adapted from the official telegram channel plugin (apache-2.0), so it needs no plugin from outside this repo. telegram lets one poller hold a bot at a time, so the server polls only in the session launched with `--channels plugin:companion@shipshape` (or the development flag) and stays inert in every other one.
+
+`plugins/companion/README.md` has the setup, and `plugins/companion/UPSTREAM.md` says what changed from upstream and how to pull its fixes.
+
 ## develop locally
 
 ```bash
@@ -104,4 +110,4 @@ git clone https://github.com/athenabriana/shipshape.git
 claude --plugin-dir ./shipshape/plugins/ss    # load the plugin from disk to test
 ```
 
-<sub>parts of `/ss:review` are adapted from Claude Code's `/simplify` and `/code-review` (Anthropic, Apache-2.0). individual components retain their original licenses.</sub>
+<sub>parts of `/ss:review` are adapted from Claude Code's `/simplify` and `/code-review` (Anthropic, Apache-2.0), and `companion` from the official telegram channel plugin (Anthropic, Apache-2.0). individual components retain their original licenses.</sub>

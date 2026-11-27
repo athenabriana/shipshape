@@ -1,0 +1,8 @@
+{
+  "ignorePatterns": [
+    "plugins/companion/server.ts",
+    "plugins/companion/bun.lock",
+    "plugins/companion/ACCESS.md",
+    "plugins/companion/package.json"
+  ]
+}

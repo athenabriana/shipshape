@@ -1,11 +1,12 @@
 # Ship Shape
 
-A **Claude Code plugin** (`ss`) published through a one-plugin marketplace (`shipshape`). Install via `claude plugin marketplace add athenabriana/shipshape` then `claude plugin install ss@shipshape`. Skills are invoked as `/ss:<skill>` (e.g. `/ss:ship`). `/ss:go` routes a request to a playbook sized to risk; the flow is shape → build → ship. The plugin ships a `SessionStart` operating-context hook, auto-active when the plugin is enabled.
+A **Claude Code plugin** (`ss`) published through the `shipshape` marketplace, which also ships `companion`, an optional Telegram channel plugin. Install via `claude plugin marketplace add athenabriana/shipshape` then `claude plugin install ss@shipshape`. Skills are invoked as `/ss:<skill>` (e.g. `/ss:ship`). `/ss:go` routes a request to a playbook sized to risk; the flow is shape → build → ship. `ss` ships a `SessionStart` operating-context hook, auto-active when the plugin is enabled.
 
 ## Structure
 
 ```
-.claude-plugin/marketplace.json        # lists the single `ss` plugin
+.claude-plugin/marketplace.json        # lists `ss` and `companion`
+.oxfmtrc.json                          # formatter ignores the vendored companion server
 plugins/ss/
 ├── .claude-plugin/plugin.json
 ├── agents/                            # read-only roles dispatched as ss:ss-<name>
@@ -28,6 +29,7 @@ plugins/ss/
     ├── caretake, takeover, research, write-readme
     ├── correct                            # offered by /ss:go when the same correction lands twice
     └── explain-the-number, attack-the-premise, prove-the-fix   # situational, loaded by trigger (references/triggers.md)
+plugins/companion/                     # Telegram channel, vendored from the official plugin (Apache-2.0); UPSTREAM.md says how to pull fixes
 ```
 
 ### Naming Conventions
@@ -65,7 +67,7 @@ Each skill is a folder with a `SKILL.md` containing YAML frontmatter (`name`, `d
 
 - No AI attribution in commits, PRs, or code comments
 - Conventional commit style: `<type>(<scope>): <description>`
-- Scope is the skill name (`shape`, `caretake`, …), `hooks` for the hook layer, or `repo` for repo-wide changes
+- Scope is the skill name (`shape`, `caretake`, …), `hooks` for the hook layer, `companion` for the Telegram plugin, or `repo` for repo-wide changes
 
 ## Project facts
 
