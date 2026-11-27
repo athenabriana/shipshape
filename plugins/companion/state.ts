@@ -14,7 +14,7 @@
  * is left as it is, since it may still belong to the official plugin.
  */
 
-import { copyFileSync, chmodSync, existsSync, mkdirSync } from "fs";
+import { chmodSync, constants, copyFileSync, existsSync, mkdirSync } from "fs";
 import { homedir } from "os";
 import { join } from "path";
 
@@ -27,13 +27,13 @@ export function stateDir(env: Env = process.env, home: string = homedir()): stri
 
 /** The upstream folder, read only as a fallback. */
 export function legacyStateDir(env: Env = process.env, home: string = homedir()): string {
-  return join(env.CLAUDE_CONFIG_DIR ?? join(home, ".claude"), "channels", "telegram");
+  return join(env.CLAUDE_CONFIG_DIR || join(home, ".claude"), "channels", "telegram");
 }
 
 /**
  * Copies `.env` and `access.json` from the upstream folder when the state folder lacks
  * them. Does nothing when TELEGRAM_STATE_DIR is set: that choice is explicit. Returns the
- * names it copied.
+ * names it copied. Throws on a file system error; the caller decides what that means.
  */
 export function adoptLegacyState(env: Env = process.env, home: string = homedir()): string[] {
   if (env.TELEGRAM_STATE_DIR) return [];
@@ -45,7 +45,9 @@ export function adoptLegacyState(env: Env = process.env, home: string = homedir(
     const to = join(dir, name);
     if (existsSync(to) || !existsSync(from)) continue;
     mkdirSync(dir, { recursive: true, mode: 0o700 });
-    copyFileSync(from, to);
+    chmodSync(dir, 0o700);
+    // EXCL: never write through a link or over a file that appeared since the check.
+    copyFileSync(from, to, constants.COPYFILE_EXCL);
     chmodSync(to, 0o600);
     copied.push(name);
   }

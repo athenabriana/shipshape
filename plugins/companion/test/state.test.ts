@@ -37,3 +37,7 @@ test("an explicit TELEGRAM_STATE_DIR copies nothing", () => {
   writeFileSync(join(legacyStateDir({}, home), ".env"), "TELEGRAM_BOT_TOKEN=1:a\n");
   expect(adoptLegacyState({ TELEGRAM_STATE_DIR: join(home, "t") }, home)).toEqual([]);
 });
+
+test("an empty CLAUDE_CONFIG_DIR falls back to ~/.claude, as in the token script", () => {
+  expect(legacyStateDir({ CLAUDE_CONFIG_DIR: "" }, "/h")).toBe("/h/.claude/channels/telegram");
+});

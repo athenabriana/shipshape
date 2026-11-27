@@ -46,8 +46,13 @@ if (!launchedAsChannel()) await runInert()
 // ss: outside ~/.claude, where `dontAsk` sessions cannot write (state.ts). An
 // existing token and access.json in upstream's folder are copied over once.
 const STATE_DIR = stateDir()
-for (const name of adoptLegacyState()) {
-  process.stderr.write(`companion: copied ${name} from ${legacyStateDir()} to ${STATE_DIR}\n`)
+try {
+  for (const name of adoptLegacyState()) {
+    process.stderr.write(`companion: copied ${name} from ${legacyStateDir()} to ${STATE_DIR}\n`)
+  }
+} catch (err) {
+  // The copy is a convenience: without it the server still starts, and says what is missing.
+  process.stderr.write(`companion: could not copy the old state from ${legacyStateDir()}: ${err}\n`)
 }
 const ACCESS_FILE = join(STATE_DIR, 'access.json')
 const APPROVED_DIR = join(STATE_DIR, 'approved')
