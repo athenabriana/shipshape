@@ -1,7 +1,10 @@
 # A round and its fixes
 
 Steps 3 and 4 of `/ss:ui-critique` read this page: what every round does, and how critique
-and fix lands the fixes before the next round.
+and fix lands the fixes before the next round. The round structure (round 1 full, scoped
+rounds, a full pass, fixes in batches, when it stops) is the loop engine of
+`<plugin-root>/references/goal-loop.md`, the one `/ss:iterate` opens; this page says what a
+screen adds to it, with the critic and the auditor as the round's judges.
 
 ## A round
 
@@ -51,9 +54,8 @@ In critique and fix, by `design-loop.md` "Fix, then repeat":
 - **On the mockup path** of a code target, the fixes land on the canvas first, through the loop
   `show-for-review.md` describes (the faithful rebuild, the design, the person's approval),
   and the code is written from the approved canvas.
-- **Fix in batches**, by `design-loop.md` "Fix, then repeat": group the findings that share
-  a cause (a token, a component, a pattern across screens), fix each group in one change,
-  and list the groups with the findings each closes in the round's line.
+- **Fix in batches**, by `design-loop.md` "Fix, then repeat", and list the groups with the
+  findings each closes in the round's line.
 - **On the real screen**, fix every open finding, every severity, group by group.
   An accessibility fix is the concrete fix its row names. A finding is refused only with
   a ground the next round can check: it contradicts the person's request, the goals or

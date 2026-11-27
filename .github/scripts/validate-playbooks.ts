@@ -7,16 +7,20 @@
  * Every file under `skills/go/playbooks/` carries the three parts the router reads, each as
  * its own `##` section, once and in this order: `## Steps`, `## Route`, `## Endpoint`.
  *
+ * The router's frontmatter `description` is what the agent reads to pick `/ss:go` at all, and
+ * it lists the playbooks by name in "playbook (...)", so every row's playbook must be in that list.
+ *
  * Usage:
  *   bun validate-playbooks.ts
  */
 
 import { readFile } from "fs/promises";
-import { basename, join, resolve } from "path";
+import { basename, join, relative, resolve } from "path";
 
 import {
   type FileIssues,
   type ValidationIssue,
+  parseFrontmatter,
   reportAndExit,
   runMain,
   walkFiles,
@@ -76,6 +80,28 @@ function readRows(markdown: string): { rows: Row[]; issues: ValidationIssue[] } 
   return { rows, issues: [] };
 }
 
+/** The description's playbook list: the parentheses after "playbook (", e.g. "(investigate, bug-fix, ...)". */
+const LIST_REGEX = /playbook \(([^)]*)\)/;
+
+/**
+ * Each row's playbook named in that list. A comma-separated item compares whole, so
+ * `review` never passes on the strength of `review-setup`, and a trigger phrase elsewhere in
+ * the description ("iterate on this") cannot stand in for the list entry.
+ */
+function descriptionIssues(markdown: string, rows: Row[]): ValidationIssue[] {
+  const description = parseFrontmatter(markdown).frontmatter["description"];
+  if (typeof description !== "string") return [error("The router has no description")];
+  const list = description.match(LIST_REGEX);
+  if (!list) return [error('The router description has no "playbook (...)" list')];
+  const named = new Set(list[1]!.split(",").map((item) => item.trim()));
+  const where = relative(PLUGIN_DIR, ROUTER_FILE);
+  return rows
+    .filter(({ playbook }) => !named.has(playbook))
+    .map(({ playbook }) =>
+      error(`The playbook list in the description of ${where} does not name \`${playbook}\``),
+    );
+}
+
 /** The three sections, each once and in order, outside fenced code. */
 function sectionIssues(markdown: string): ValidationIssue[] {
   const headings: string[] = [];
@@ -127,6 +153,8 @@ async function main() {
       issues.push(error(`${where}: the Read cell should be \`${expected}\`, the router reads it`));
     }
   }
+
+  issues.push(...descriptionIssues(markdown, rows));
 
   const reports: FileIssues[] = [{ path: ROUTER_FILE, issues }];
   for (const [name, file] of playbooks) {

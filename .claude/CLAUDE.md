@@ -1,6 +1,6 @@
 # Ship Shape
 
-A **Claude Code plugin** (`ss`) published through the `shipshape` marketplace, which also ships `companion`, an optional Telegram assistant that runs as an Agent SDK service. Install via `claude plugin marketplace add athenabriana/shipshape` then `claude plugin install ss@shipshape`. Skills are invoked as `/ss:<skill>` (e.g. `/ss:ship`). `/ss:go` routes a request to a playbook sized to risk; the flow is clarify → build → ship. Long work runs on the goal loop (`plugins/ss/references/goal-loop.md`): goals proposed and approved once, then a fresh judge each round until every goal is achieved and the judge is pleased; `design-loop.md` and `/ss:review`'s loop specialize it. `ss` ships a `SessionStart` operating-context hook, auto-active when the plugin is enabled.
+A **Claude Code plugin** (`ss`) published through the `shipshape` marketplace, which also ships `companion`, an optional Telegram assistant that runs as an Agent SDK service. Install via `claude plugin marketplace add athenabriana/shipshape` then `claude plugin install ss@shipshape`. Skills are invoked as `/ss:<skill>` (e.g. `/ss:ship`). `/ss:go` routes a request to a playbook sized to risk; the flow is clarify → build → ship. Long work runs on the goal loop (`plugins/ss/references/goal-loop.md`): goals proposed and approved once, then a fresh judge each round until every goal is achieved and the judge is pleased. `/ss:iterate` is its door (improve what exists until a measured bar is met, the judge picked for the target); `design-loop.md` is iterate's design judge, run by `/ss:ui-critique`, and `/ss:review`'s loop specializes it for code. `ss` ships a `SessionStart` operating-context hook, auto-active when the plugin is enabled.
 
 ## Structure
 
@@ -23,6 +23,7 @@ plugins/ss/
     ├── clarify, bug-fix, ship, babysit
     ├── investigate, research              # this repo and your sessions; everything outside it
     ├── ui-critique                        # a screen judged on screenshots by ss-design-critic, a11y each round, fixed until pleased
+    ├── iterate                            # improve what exists until a measured bar is met; the door to the goal loop, one reference per judge kind
     ├── review, review-setup               # review's edges front hunts the cases a diff misses
     ├── orchestrate                        # one front across work sessions
     ├── caretake                           # the PRs that are not yours: the repo digest, or adopt or modernize one PR

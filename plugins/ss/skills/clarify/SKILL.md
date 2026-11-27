@@ -4,7 +4,7 @@ description: Clarifies the goals before work starts, the first step of the goal 
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 6.1.0
+  version: 6.1.1
 ---
 
 # Clarify
@@ -33,7 +33,8 @@ settled while building with the code open. A technical risk you see is named in
 
 - **A caller that needs goals**: `/ss:go` on its standard and intensive routes, the
   `/ss:review` loop when no source holds the change's goals, `/ss:orchestrate` when it
-  settles a front's goal, `/ss:ui-critique` when none are given. The caller names where
+  settles a front's goal, `/ss:ui-critique` when none are given, `/ss:iterate` for the bars
+  it measures. The caller names where
   the goals go and whether the approval rides its own opening sheet. Clarify returns the
   approved goals to the caller and has no exit gate: the caller's loop is what follows.
 - **On its own**, for a new feature: the same steps, then the exit gate.

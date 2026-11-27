@@ -4,7 +4,7 @@ description: Gets a screen the critic is pleased with and that passes WCAG AA. R
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana; the accessibility pass absorbed from /ss:review's a11y front, itself from rafael's ui-accessibility skill (loja inspira-skills, MIT)
-  version: 1.2.1
+  version: 1.3.0
 ---
 
 # UI critique
@@ -12,10 +12,11 @@ metadata:
 Point it at a screen and it judges what the user gets: screenshots of the running thing,
 read by the `ss-design-critic` agent and walked for accessibility. By default it then fixes
 what it found and judges again, round after round, until the critic is pleased, every goal
-is achieved and no accessibility finding is open. The loop is
-`<plugin-root>/references/design-loop.md`, the interface specialization of the goal loop
-in `<plugin-root>/references/goal-loop.md`; this skill is its entry point for a screen that
-already exists, with no branch to review.
+is achieved and no accessibility finding is open. This skill is `/ss:iterate`'s door for a
+screen that already exists, with no branch to review: it runs the one loop engine,
+`<plugin-root>/references/goal-loop.md`, with its judges fixed, the critic by
+`<plugin-root>/references/design-loop.md` (iterate's design judge) and the
+`ss-a11y-auditor` beside it. It keeps its own setup, rounds and report below.
 
 A branch's diff is `/ss:review`'s: its design and a11y fronts judge the changed lines. This
 skill judges the whole screen, whatever changed it.
@@ -114,7 +115,8 @@ low, a restart, a canvas board that is not static), read the table in
 
 Shared, at the plugin root:
 
-- `<plugin-root>/references/design-loop.md`: the loop, the screenshots, the critic's prompt, when it stops, the report.
+- `<plugin-root>/references/goal-loop.md`: the loop engine `/ss:iterate` opens, which this skill runs with its judges fixed.
+- `<plugin-root>/references/design-loop.md`: iterate's design judge: the screenshots, the critic's prompt, when it stops, the report.
 - `<plugin-root>/references/long-run.md`: ask once, then run; the cap and the usage window.
 - `<plugin-root>/references/show-for-review.md`: the mockup or the real screen, and the board.
 - `<plugin-root>/references/ui-references.md`: real screens for the pattern, Inspo first, given to the critic each round, and the setup of a missing source.
