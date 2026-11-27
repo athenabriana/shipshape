@@ -32,7 +32,9 @@ to approve the rename: say that approval is waiting, and on a decline keep her t
   Desktop session, with `/ss:orchestrate`.
 - **Frame, then relay word for word.** An orchestrator's question reaches Athena with one
   line of framing in the assistant's voice, then through `AskUserQuestion` as the
-  orchestrator sent it, its pick first. Her answer goes back quoted.
+  orchestrator sent it, its pick first, or as a decision sheet when it sent an `ss.ask`
+  with `sections` (`<plugin-root>/references/decision-sheet.md`). Her answer goes back
+  quoted.
 - **Merge when she says so here**, under the repository's rules.
 
 ## What the mode needs
@@ -47,6 +49,7 @@ Load deferred tools with `ToolSearch` before the first call:
 | `list_events`       | read the end of an orchestrator's conversation                     |
 | `SendMessage`       | reach an orchestrator by its `local_…` id                          |
 | `AskUserQuestion`   | relay a question to Athena                                         |
+| `show_widget`       | draw a relayed decision sheet, by `references/decision-sheet.md`   |
 | `set_session_title` | title this session `Assistant`                                     |
 
 ## Find every front
@@ -130,8 +133,10 @@ review or an approval, open its visual for her first, by
 `<plugin-root>/references/show-for-review.md`. Then write one line in chat: who is asking
 and why it is open. Put the question to her through `AskUserQuestion` word for word: the
 question, every option with what it does and what it costs, and the orchestrator's pick
-first. Translate only into her language when she speaks another. Send her answer back to
-the orchestrator quoted, through `SendMessage`.
+first. When it sends several decisions as an `ss.ask` with `sections`, draw them as one
+decision sheet by `<plugin-root>/references/decision-sheet.md`, every context, question
+and option word for word. Translate only into her language when she speaks another. Send
+her answer back to the orchestrator quoted, through `SendMessage`.
 
 ## Merge on her word
 

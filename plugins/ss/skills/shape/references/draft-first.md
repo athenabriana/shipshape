@@ -50,7 +50,8 @@ Ask them through the **`AskUserQuestion` tool**: concrete options the user picks
   revealing your pick. Anchoring is strongest on the call that matters most,
   so don't pre-frame that one. Everything else stays draft-first.
 - One **small batch** of questions at a time via `AskUserQuestion` (up to 4 per
-  call), never a wall.
+  call), never a wall. A batch of two or more, or one that needs a line of context, goes
+  in one decision sheet (`<plugin-root>/references/decision-sheet.md`).
 - After each round, **fold the answers into the draft and show only what
   changed**: the diff, not the whole document again.
 - **When the gray areas run dry, write the criteria and open the gate.** Order the work

@@ -29,6 +29,7 @@ already reading, so use it for any review or decision unless one of the other ro
 | anything that fits on one screen (default) | an inline visual in the chat               | `mcp__visualize__show_widget`               |
 | an interface                               | a Design canvas                            | `Artifact` `quickstart`, `intent: "design"` |
 | text people will comment on or keep        | a private Claude Docs doc, opened for them | the Docs tools                              |
+| decisions bigger than one quick pick       | a decision sheet                           | `mcp__visualize__show_widget`               |
 | something too big to show inline           | an Artifact page                           | `Artifact` `quickstart`, `intent: "other"`  |
 
 - **Anything that fits on one screen** is a flow, an architecture, a diff summary, a
@@ -38,6 +39,10 @@ already reading, so use it for any review or decision unless one of the other ro
 - **Text people will comment on or keep** is a plan, acceptance criteria, a research
   report, a README draft. It goes in a doc, and an inline visual can sum it up next to
   the question.
+- **Decisions bigger than one quick pick** are asked in one decision sheet, by
+  `<plugin-root>/references/decision-sheet.md`: each question with one context line
+  under it, all in one inline form. It replaces writing a doc and then asking separately.
+  A doc stays the form for text to keep and edit.
 - **Something too big to show inline** is a board of many screenshots, a dashboard, a
   report with many findings. It goes on a page, and an inline visual can sum it up next
   to the question.
@@ -53,7 +58,8 @@ type for visual designs, which the person comments on artboard by artboard.
    recommended one is A, on the first artboard, and its label says it is the pick. A
    change to an existing screen puts the current screen on its own artboard, labeled
    "Before".
-3. Ask through the question tool, with the canvas link, what each artboard shows and why
+3. Ask through the question tool, or a decision sheet by
+   `<plugin-root>/references/decision-sheet.md`, with the canvas link, what each artboard shows and why
    A is the pick. Then wait.
 4. Apply each change the person asks for, from their comments on the artboards, on the
    same canvas. Republish to the same URL and ask again.

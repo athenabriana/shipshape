@@ -13,7 +13,8 @@ id, the `local_…` id `SendMessage` takes in `to`. Read the brief once, at the 
 keep that id for every message below.
 
 Without such a brief, nothing on this page applies: the skill asks through
-`AskUserQuestion`, as it always does.
+`AskUserQuestion`, or a decision sheet by `references/decision-sheet.md`, as it always
+does.
 
 ## What a work session never does
 
@@ -50,6 +51,10 @@ the dialog would have carried, since Athena reads it through the orchestrator's 
 
 At most four questions go in one message. A setting that goes with a question, like the
 scope that goes with a handoff gate's pick, travels in the same message.
+
+A decision sheet (`references/decision-sheet.md`) is never drawn here: its decisions go in
+the message as one `ss.ask` JSON with `sections`, each with its `context`, as that page
+defines. The orchestrator draws the sheet and sends back Athena's answer line, quoted.
 
 After sending, end the turn and wait. The orchestrator asks Athena word for word and sends
 the answer back quoted. Act on those words as the answer to the dialog: a pick names an

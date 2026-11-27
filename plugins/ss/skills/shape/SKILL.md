@@ -21,7 +21,7 @@ Reach a **shared understanding of the idea before any code**. What matters is th
 - **Medium** (a clear feature): the loop (gray areas of what gets built + the behavior map), then the criteria and the gate.
 - **Large / fuzzy** (new domain, real ambiguity): the same loop, with the pieces and how they fit described in the draft before the work is ordered, then the criteria and the gate.
 
-Always required: reach alignment, **map the behavior**, and end at criteria the user signed off on. Size is a running estimate, not locked at the start. If a "Tiny/Medium" task keeps surfacing gray areas mid-flow, re-size up and shape it properly.
+Always required: reach alignment, **map the behavior**, and end at criteria the user signed off on. Size is judged as the work goes, not locked at the start. If a "Tiny/Medium" task keeps surfacing gray areas mid-flow, re-size up and shape it properly.
 
 ## The loop
 
@@ -33,7 +33,7 @@ You bring the idea; Claude develops it, then loops with you through the **`AskUs
 
 2. **Highest-stakes question first, ask before you anchor.** On the single call most expensive to get wrong about what gets built, ask the user how _they'd_ call it _before_ you reveal your own pick (an open `AskUserQuestion`). Anchoring is strongest on the choice that matters most. Don't pre-frame that one. One question only; everything else stays draft-first.
 
-3. **Surface the gray areas as questions.** Everything else about what gets built and how it behaves that genuinely could go more than one way → ask via `AskUserQuestion`, batched (the tool takes up to 4 at once), each as concrete options with your lean. Decide the obvious yourself; don't ask about what the codebase or goal already settles. A technical detail is the builder's and is not asked. The exception is a technical choice only the user can make, like a stack already settled elsewhere or a contract another system depends on: ask it.
+3. **Surface the gray areas as questions.** Everything else about what gets built and how it behaves that genuinely could go more than one way → ask via `AskUserQuestion`, batched (the tool takes up to 4 at once), each as concrete options with your lean. A batch of two or more, or a question that needs a line of context, goes in one decision sheet (`<plugin-root>/references/decision-sheet.md`). Decide the obvious yourself; don't ask about what the codebase or goal already settles. A technical detail is the builder's and is not asked. The exception is a technical choice only the user can make, like a stack already settled elsewhere or a contract another system depends on: ask it.
 
 4. **Loop.** Fold each answer into the draft, re-surface anything new it opens, ask again. Keep going until a round surfaces no new gray areas.
 
