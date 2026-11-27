@@ -9,6 +9,11 @@ Two scopes, one method:
   folder, a set of files, or a running page and asks for a design review. Same
   criteria, wider scope, and a rendered page unlocks the checks source can't settle.
 
+Both scopes add **the critic pass** (`## The critic pass` below): screenshots of the
+running UI, judged by the `ss-design-critic` agent, very hard to please, on the tasks a
+user does and the craft of every screen. A UI change is never reviewed from code alone:
+the static finder reads the source, and the critic reads what the user gets.
+
 The criteria are `design-checklist.md`, sibling of this file, shared by both scopes so
 findings read the same either way. The discipline is the `rules` front's, applied to
 design sources: **a finding is worth what its citation is worth**, so every finding
@@ -26,12 +31,14 @@ resolves (they supplement each other):
    the brief names. It supplements the token source with the intended hierarchy, components, and states for the surfaces this
    branch builds.
 
-Nothing resolving makes the front **unavailable**, the same way no
+Nothing resolving makes the **static finder** unavailable, the same way no
 `CODE_REVIEW_GUIDE.md` makes `rules` unavailable: with no source there is nothing to
-cite, and the engine does not ship opinion. The probe (`fronts.md`) is where the
-decision lives, and its one line naming what would create a source, printed before the
-fronts question, is the run's only mention of it: the report carries no section for an
-unavailable front.
+cite, and the engine does not ship opinion. The critic pass needs no source: it judges
+the rendered screens on their own craft, so the front still runs when the UI renders.
+With neither a source nor a way to render the UI, the front is **unavailable**. The probe
+(`fronts.md`) is where the decision lives, and its one line naming what would create a
+source, printed before the fronts question, is the run's only mention of it: the report
+carries no section for an unavailable front.
 
 Report at the top of the front's section which sources resolved and were judged
 against. The two rungs disagreeing on a value is itself a finding: a delta the
@@ -58,6 +65,29 @@ anything.
 component's path, where the states are documented, or the visual direction's section. The
 priorities are the checklist's: **High**, **Medium**, **Low**. Cap 8 in diff scope; no
 cap in surface scope.
+
+## The critic pass
+
+The critic pass runs whenever the diff touches UI or the surface is an interface, by
+`<plugin-root>/references/design-loop.md`:
+
+1. **Render it and take screenshots** of every task the change touches, each step and the
+   states it passes by, at a desktop and a phone width, with the browser or app tools at
+   hand (Claude in Chrome, the built-in browser, the `run` skill, the app's own
+   screenshots). Load each with `ToolSearch` before calling it missing.
+2. **Dispatch one critic**, `subagent_type: "ss:ss-design-critic"`, in the same message as
+   the finders, with the screenshots, the tasks, the resolved design sources and the cap.
+3. **Its findings join the report** under Design system, each with the critic's severity
+   (`High`, `Medium`, `Low`), mapped to a level like this front's priorities
+   (`<plugin-root>/references/finding-levels.md`): `High` is a Bloqueante, `Medium` and
+   `Low` are Sugestões. They carry the screenshot as their citation.
+4. **One judge per finding.** The critic judges its own findings: they skip the verify
+   pass and the loop's `ss-review-judge`. In the review loop, a later round re-runs a fresh
+   critic on new screenshots of what the fixes touched, with the open critic findings,
+   in the same message as the judge.
+
+When nothing can render the UI, the critic pass does not run: say so in one line in the
+front's section, name what was missing, and never report the front as a visual check.
 
 ## Scope discipline (diff scope)
 
@@ -90,8 +120,9 @@ no other fronts, no curation question. The scope is whatever the user pointed at
 4. **With the page rendered, settle what source can't**: the computed value where the
    cascade decides (which color actually painted, which spacing actually resolved),
    states reached by actually hovering and focusing, and consistency across breakpoints.
-   Values still come from the source or the computed styles, never measured off a
-   screenshot.
+   Token values still come from the source or the computed styles, never measured off a
+   screenshot. Then run the critic pass on the screenshots, the critic findings joining
+   the report with their severity.
 5. **Report grouped by priority**, High first, each finding with where, the criterion,
    the source cited, and a concrete fix. Close with the per-priority count and the one
    line of design-system gaps found along the way.

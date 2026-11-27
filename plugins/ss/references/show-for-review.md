@@ -2,8 +2,8 @@
 
 Every time ss asks the person to review, approve or pick something they need to see, it
 shows that thing visually first, then asks. This page states the rule, which form to pick
-for what is being reviewed, how to find each tool, and what to do when no visual tool is
-there. Every skill that asks for a review or an approval follows it, in every session: a
+for what is being reviewed, how interface work is checked on screenshots, how to find each
+tool, and what to do when no visual tool is there. Every skill that asks for a review or an approval follows it, in every session: a
 plain session, an orchestrator, the assistant and a work session.
 
 ## The rule
@@ -65,9 +65,30 @@ type for visual designs, which the person comments on artboard by artboard.
    same canvas. Republish to the same URL and ask again.
 5. Write the code only after the person approves a variation, and build that one.
 
+Before the canvas goes to the person, run the critic on its artboards, by
+`<plugin-root>/references/design-loop.md`, so the variations they compare are already past
+the critic. After the code is built, check it on screenshots of the running thing by the
+next section.
+
 In a work session, steps 3 and 4 run through the orchestrator by
 `<plugin-root>/references/front-contract.md`: send the URL with what each artboard shows,
 and each change comes back with Athena's comment quoted.
+
+## Interface work is checked on screenshots
+
+Any UI change is checked on screenshots of the running thing, never only by reading code.
+Run it in an isolated instance and capture it through the browser or app tools available:
+Claude in Chrome, the built-in browser, the `run` skill, or the app's own screenshots.
+Capture each task a user does, step by step, with the states it passes by, at a desktop
+and a phone width. Then run the design-review loop of
+`<plugin-root>/references/design-loop.md`: the `ss-design-critic` agent judges the
+screenshots, the session fixes what it finds, and the loop repeats until the critic
+approves or the cap is reached.
+
+The review ask for a UI change shows those screenshots: a board of the final screens, the
+"Before" next to each changed one, and the critic's last verdict. When no tool could
+render the interface, say so in one line, and never present a code reading as a visual
+check.
 
 ## Find the tools
 

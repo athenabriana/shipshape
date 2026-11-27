@@ -11,16 +11,16 @@ door as any other run.
 
 ## The catalog
 
-| id            | Label         | What it covers                                                                                     | Available when                                           | Reference              |
-| ------------- | ------------- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------- | ---------------------- |
-| `correctness` | Correctness   | bugs in the diff, logic, edges, contracts, concurrency, security                                   | the diff is not empty                                    | `front-correctness.md` |
-| `quality`     | Quality       | behavior-preserving cleanup, reuse, simplification, efficiency, dead weight, altitude, consistency | the diff is not empty                                    | `front-quality.md`     |
-| `rules`       | Project rules | deviations from the repo's `CODE_REVIEW_GUIDE.md`                                                  | the root has a guide, or the diff edits a facts file     | `front-rules.md`       |
-| `contract`    | Contract      | the diff built what was agreed, and only that, and contradicts no project fact                     | the brief or the PR body holds acceptance criteria       | `front-contract.md`    |
-| `a11y`        | Accessibility | WCAG AA on the UI the diff touched, semantics, accessible name, keyboard, focus, contrast          | the diff touches a UI file                               | `front-a11y.md`        |
-| `design`      | Design system | raw values where a token exists, rebuilt components, missing states, drift from the direction      | the diff touches a UI file and a design source resolves  | `front-design.md`      |
-| `threads`     | PR threads    | unresolved review comments                                                                         | there is an open PR for the branch                       | `front-threads.md`     |
-| `ci`          | CI            | red checks, evidence, diagnosis, root cause                                                        | a check is failing on the PR or on the branch's last run | `front-ci.md`          |
+| id            | Label         | What it covers                                                                                     | Available when                                                      | Reference              |
+| ------------- | ------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- | ---------------------- |
+| `correctness` | Correctness   | bugs in the diff, logic, edges, contracts, concurrency, security                                   | the diff is not empty                                               | `front-correctness.md` |
+| `quality`     | Quality       | behavior-preserving cleanup, reuse, simplification, efficiency, dead weight, altitude, consistency | the diff is not empty                                               | `front-quality.md`     |
+| `rules`       | Project rules | deviations from the repo's `CODE_REVIEW_GUIDE.md`                                                  | the root has a guide, or the diff edits a facts file                | `front-rules.md`       |
+| `contract`    | Contract      | the diff built what was agreed, and only that, and contradicts no project fact                     | the brief or the PR body holds acceptance criteria                  | `front-contract.md`    |
+| `a11y`        | Accessibility | WCAG AA on the UI the diff touched, semantics, accessible name, keyboard, focus, contrast          | the diff touches a UI file                                          | `front-a11y.md`        |
+| `design`      | Design system | deviations from the design source, and the critic's pass over screenshots of the running UI        | the diff touches a UI file, and a source resolves or the UI renders | `front-design.md`      |
+| `threads`     | PR threads    | unresolved review comments                                                                         | there is an open PR for the branch                                  | `front-threads.md`     |
+| `ci`          | CI            | red checks, evidence, diagnosis, root cause                                                        | a check is failing on the PR or on the branch's last run            | `front-ci.md`          |
 
 ## Probe availability before asking
 
@@ -56,7 +56,9 @@ call `/ss:ship` makes. What each field settles:
   field for it): a token source the project reads (a `tokens.json`, CSS custom
   properties, a Tailwind theme config or a
   `styles.css`), or a visual direction in `design/<surface>.md` or a path the brief names.
-  One resolving makes `design` available; the resolution order and what each rung is worth are `front-design.md`'s.
+  One resolving makes the static finder available; the resolution order and what each rung is worth are `front-design.md`'s.
+  The critic pass needs no source, only a UI the session can render and screenshot, so
+  `design` is available when either holds.
 - `pr`: an open PR for this branch, the only thing `threads` needs.
 - `checks`: that PR's checks, which is `ci`'s evidence. `failing`, `pending` and
   `cancelled` are lists of checks, because the name and the run link are what the front
@@ -74,9 +76,9 @@ call `/ss:ship` makes. What each field settles:
 A front whose probe comes back empty is **not offered** and not reported as a
 failure. `gh` unauthenticated: say so once, with `gh auth login` as the remedy, and
 offer the rest. No `CODE_REVIEW_GUIDE.md`: one line, with `/ss:review-setup` as the
-remedy. UI in the diff but no design source makes `design` unavailable. One line,
-naming what would create a source (a token file the build reads, or a visual
-direction the design reads).
+remedy. UI in the diff with no design source and no way to render it makes `design`
+unavailable. One line, naming what would create a source (a token file the build reads,
+or a visual direction the design reads) and which render tools were missing.
 
 ## Depth: two tiers by default, a third only when asked
 

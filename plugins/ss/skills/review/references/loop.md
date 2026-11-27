@@ -119,6 +119,12 @@ It returns three lists:
 A new finding outside the delta is not this round's: it goes to the report as out of the
 loop's reach, unfixed.
 
+When round 1 ran the design front's critic pass (`references/front-design.md`, "The
+critic pass"), the critic's findings are not the judge's: each later round takes new
+screenshots of what the fixes touched and sends a fresh `ss-design-critic` with the open
+critic findings, in the same message as the judge. The critic returns them `closed` or
+open and adds new ones from the new screenshots.
+
 ## What the owner does with each item
 
 - **Fix** it under `references/act-apply-fixes.md`: one change per commit, justified against

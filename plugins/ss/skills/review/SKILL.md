@@ -4,7 +4,7 @@ description: Reviews the change end to end. On the current branch it loops by de
 license: Apache-2.0
 metadata:
   author: Athena Briana - github.com/athenabriana; quality-pass material adapted from Claude Code's /simplify, angle/verify architecture adapted from Claude Code's /code-review (Anthropic, Apache-2.0), a11y front absorbed from rafael's ui-accessibility skill (loja inspira-skills, MIT)
-  version: 2.11.0
+  version: 2.12.0
 ---
 
 # Review
@@ -289,7 +289,8 @@ offered, which needs no row here. What this table covers is everything else:
 | `gh` unauthenticated                         | `threads`/`ci` and the intent read unavailable; say so once with `gh auth login`, offer the diff fronts               |
 | a11y or design finding needs a rendered page | report it as out of static reach; the gate offers the surface-scope audit                                             |
 | accessibility audit asked outside a git repo | surface scope needs no diff and no repo, so step 0's probe and intent read are skipped                                |
-| design review asked and no design source     | say what would create one (a token file the build reads), stop                                                        |
+| design review asked and no design source     | the critic pass runs on screenshots; with no way to render either, say what would create a source, stop               |
+| UI in the diff and no render tool            | the static finder runs alone; the report says no screenshot was taken, never calls it a visual check                  |
 | an external PR at the intent read            | skipped here; `mode-external-pr.md` reads that PR's own body, comments and diff                                       |
 | legacy `.claude/skills/code-review/` present | flag as superseded; the user deletes it                                                                               |
 | uncommitted changes present                  | include in diff scope, flagged separately                                                                             |
@@ -320,7 +321,7 @@ Per-front method (loaded only when that front is picked):
 - `references/front-rules.md`: `CODE_REVIEW_GUIDE.md` deviations, with the citation discipline, and the project facts growth check.
 - `references/front-contract.md`: the acceptance criteria from the brief or the PR body as the contract, and the project facts.
 - `references/front-a11y.md`: WCAG AA: diff scope (static) and surface scope (folder, files or a rendered page).
-- `references/front-design.md`: design-system deviations: the source ladder, both scopes, the citation discipline.
+- `references/front-design.md`: design-system deviations and the critic pass over screenshots: the source ladder, both scopes, the citation discipline.
 - `references/front-threads.md`: PR review threads: fetch, triage, the resolve pass over what the code already satisfies, fix/answer, reply/resolve.
 - `references/front-ci.md`: CI failures: evidence → diagnosis → fix → verify.
 
@@ -339,6 +340,7 @@ Pipeline agents (plugin root, dispatched by the fan-out):
 - `<plugin-root>/agents/ss-review-finder.md`: the finder's contract, and the narrowed `tools:` list.
 - `<plugin-root>/agents/ss-review-verifier.md`: the CONFIRMED / PLAUSIBLE / REFUTED rubric.
 - `<plugin-root>/agents/ss-review-judge.md`: the loop's judge on Sonnet, round 1 verdicts and the later rounds' closed/open, accepted/contested and new findings, one JSON object.
+- `<plugin-root>/agents/ss-design-critic.md`: the design front's critic, very hard to please, over screenshots of the running UI; findings with a severity and a verdict, one JSON object. Its loop is `<plugin-root>/references/design-loop.md`.
 
 - `references/review-checklist.md`, `references/quality-checklist.md`, `references/design-checklist.md`: the correctness, quality and design criteria the fronts operationalize.
 

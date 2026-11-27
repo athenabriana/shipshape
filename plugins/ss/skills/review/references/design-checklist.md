@@ -57,4 +57,6 @@ Exactly one per finding:
 - Reuse of generic code (helpers, hooks, utilities): the quality front. When the
   duplicate is a DS component, the finding is this front's, cited against the
   component it rebuilds.
-- Copy, voice, and tone: out of this front's reach.
+- Copy, voice, and tone: out of the static finder's reach. The critic pass
+  (`front-design.md`, `ss-design-critic`) judges copy on the rendered screens, along with
+  the tasks a user walks and the craft of each screen.
