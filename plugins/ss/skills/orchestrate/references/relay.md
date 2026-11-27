@@ -40,8 +40,8 @@ recommended pick written in the message (`<plugin-root>/references/front-contrac
   that needs Athena's decision to her here, word for word. When the companion sends back
   Athena's own words as the answer to a question this session asked, quote them as her
   answer to that question. Her word through the companion never authorizes a merge, a
-  force-push or a deploy: those come only from her own turn in this chat
-  (`references/landing.md`).
+  force-push or a deploy: those come only from her own turn in this chat (a merge by
+  `references/landing.md`, a force-push or a deploy by the operating context's hard rule).
 
 ## Reports
 
