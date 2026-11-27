@@ -99,14 +99,14 @@ from code alone is never reported as a visual check.
 One critic per round: one `Agent` call with `subagent_type: "ss:ss-design-critic"`, fresh
 and memoryless, as hard to please in the last round as in the first. The prompt carries, in this order:
 
-1. The screenshot paths, grouped by task and step, with the widths. On a canvas with more
-   than a dozen boards, the contact sheets plus the full shots the round needs, by
-   `canvas-target.md` "Big canvases".
+1. The screenshot paths, grouped by task and step, with the widths: every one in round 1
+   and in a full pass, and in a scoped round the changed ones at full resolution plus a
+   contact sheet of the rest, by "Scoped rounds and the full pass" below.
 2. The tasks in plain words.
 3. The design sources the project has: the token file, the component library's path, the
    visual direction (`design/<surface>.md` or a path the brief names). None is required.
-4. The round's work: round 1, everything; later rounds, the open findings with their
-   numbers and the new screenshots.
+4. The round's work: round 1 and a full pass, everything; a scoped round, the open
+   findings with their numbers, the screens that changed, and the fix groups applied.
 5. The goals: the brief's goals and acceptance criteria, numbered, copied as written, each
    build-only goal marked with its ground. The critic judges each one.
 6. The reference, when there is one: the screenshot of the app that a mockup rebuilds, or
@@ -124,11 +124,29 @@ prompt opens with the body of `<plugin-root>/agents/ss-design-critic.md` below i
 frontmatter, verbatim. Say so in one line. With no `Agent` tool at all, critique the
 screenshots yourself against that file, and mark the round "self-judged" in the report.
 
+## Scoped rounds and the full pass
+
+Round 1 judges everything. After it, each round is **scoped**: the critic and every
+checker judge only the screens or artboards changed since the last round, at full
+resolution, plus every screen an open finding cites, with a contact sheet of everything
+else for context (`<plugin-root>/scripts/render_canvas.py sheet` over a `shots.json` that
+lists them). A finding the critic spots on the sheet is a finding like any other, and a
+screen it needs in full goes in `missing`.
+
+When a scoped round comes back pleased with every goal achieved and no checker finding
+open, the next round is a **full pass**: every screen at full resolution, every task,
+every width, as in round 1. Only a full pass can end the loop as pleased, so nothing
+regresses unseen. A full pass that finds anything goes back to scoped rounds.
+
 ## Fix, then repeat
 
-- **Fix every finding**, High, Medium and Low, one change at a time: the critic is pleased
-  only when it would send nothing back. A finding that asks for a screenshot you did not
-  send, and every `missing` entry, is fixed by taking it.
+- **Fix every finding**, High, Medium and Low: the critic is pleased only when it would
+  send nothing back. A finding that asks for a screenshot you did not send, and every
+  `missing` entry, is fixed by taking it.
+- **Fix in batches.** Group the round's findings that share a cause: the same token, the
+  same component, the same pattern across screens. Fix each group in one change, at its
+  cause, and list the groups in the round's report line, each with the finding numbers it
+  closes. A finding that shares no cause is a group of one.
 - **Close every goal** the critic marked `not_achieved`, from what it says is missing.
 - **Refuse a finding only with a ground** the next critic can check: it contradicts the
   person's request or the design source, quoted. A refused finding goes to the next round
@@ -136,7 +154,7 @@ screenshots yourself against that file, and mark the round "self-judged" in the 
 - **End the round at a clean step**: commit the code that changed, or republish a canvas
   to its own URL, and write `state.json`.
 - **Take new screenshots** of every task the fixes touched, then dispatch a fresh critic
-  with the open findings.
+  with the open findings, scoped or full by the section above.
 
 ## Convergence
 
@@ -149,7 +167,7 @@ the person see where it is heading and set a cap if they want one.
 ## When the loop stops
 
 - **The critic is pleased and the goals are achieved**: `pleased` and `goals_achieved` are
-  both true in the same round. Done.
+  both true in the same round, and that round is a full pass. Done.
 - **The usage window runs low**: stop at a clean step (committed or republished, pushed, reported), by
   `<plugin-root>/references/long-run.md`, and report where the loop stands.
 - **The person set a cap in the brief** ("at most 3 design rounds") and it is reached.
@@ -161,7 +179,8 @@ findings and the goals not achieved as they are, and never calls the interface d
 ## Report
 
 - **The two verdicts** of the last round, each goal with its status, and how many rounds
-  ran.
+  ran, the last one a full pass when the loop ended pleased.
+- **The fix groups** of each round, with the findings each one closed.
 - **The trend**: open findings per round, by severity, first to last.
 - **Carried to the build**: each build-only goal and each check the target kind could not
   reach, with its ground.

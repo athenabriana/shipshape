@@ -111,8 +111,9 @@ Every round is the same, from round 1 to the last:
    the states it passes by (empty, loading, error, disabled, hover, focus, overflow), at a
    desktop width and at 390 px, by `design-loop.md` "Real visuals, always", into the loop
    folder's `shots/r<N>/`. A canvas is rendered by `references/canvas-target.md`. After
-   round 1, capture again only what the last fixes touched, plus anything a finding asked
-   for. With the browser in hand, run the rendered accessibility checks here too
+   round 1 the round is scoped: capture again what the last fixes touched, plus anything a
+   finding asked for, and a contact sheet of the rest; a full pass captures everything, by
+   `design-loop.md` "Scoped rounds and the full pass". With the browser in hand, run the rendered accessibility checks here too
    (`references/a11y-pass.md` §3): the `Tab` walk, the accessibility tree, the live
    regions.
 2. **The critic and the auditor, in one message.** One `Agent` call with
@@ -132,7 +133,9 @@ Every round is the same, from round 1 to the last:
    `pleased: true` and `goals_achieved: true` and no accessibility or design system
    finding is open. Accessibility findings block like the critic's: a page the critic
    loves and a keyboard cannot reach is not done. A check the auditor lists as "not
-   reachable on a canvas" blocks nothing: it is carried to the build.
+   reachable on a canvas" blocks nothing: it is carried to the build. A scoped round that
+   comes back pleased is not the end: the next round is the full pass, and only a pleased
+   full pass ends the loop.
 5. **Show the convergence**, by `design-loop.md` "Convergence": the open findings by
    severity and the trend so far, as the round's line in the task list.
 
@@ -148,7 +151,10 @@ In critique and fix, by `design-loop.md` "Fix, then repeat":
 - **On the mockup path** of a code target, the fixes land on the canvas first, through the loop
   `show-for-review.md` describes (the faithful rebuild, the design, the person's approval),
   and the code is written from the approved canvas.
-- **On the real screen**, fix every open finding, every severity, one change at a time.
+- **Fix in batches**, by `design-loop.md` "Fix, then repeat": group the findings that share
+  a cause (a token, a component, a pattern across screens), fix each group in one change,
+  and list the groups with the findings each closes in the round's line.
+- **On the real screen**, fix every open finding, every severity, group by group.
   An accessibility fix is the concrete fix its row names. A finding is refused only with
   a ground the next round can check: it contradicts the person's request, the goals or
   the design source, quoted. A refused finding rides into the next round with its ground.
@@ -168,7 +174,8 @@ By `design-loop.md` "Report", plus the accessibility line:
 - **The verdicts** of the last round: `pleased`, `goals_achieved` with each goal's status,
   and `WCAG AA: pass | fail | partial` with the count per priority. How many rounds ran,
   and why the loop stopped.
-- **The trend**: open findings per round, by severity, first to last.
+- **The trend**: open findings per round, by severity, first to last, and each round's
+  fix groups.
 - **Carried to the build**: the build-only goals and the checks not reachable on a canvas,
   each with its ground.
 - **A board of the screenshots**, by `<plugin-root>/references/show-for-review.md`: the

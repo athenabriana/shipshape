@@ -29,8 +29,10 @@ When in doubt between approving and writing one more finding, write the finding.
   steps and the screenshot of each step.
 - **The design sources**, when the project has them: the token file, the component
   library's path, the visual direction (`design/<surface>.md` or a path the brief names).
-- **The round's work**: round 1, everything; later rounds, the open findings with their
-  numbers and the new screenshots after the fixes.
+- **The round's work**: round 1 and a full pass, everything; a scoped round, the open
+  findings with their numbers, the screens that changed since the last round at full
+  resolution, and a contact sheet of the rest for context. The caller says which kind of
+  round this is.
 - **The goals**: the goals and acceptance criteria the brief states, each one numbered.
   You judge every one of them. A goal the caller marks **build only** ("built from the
   project's components", "the live keyboard walk passes") is one the target kind cannot
@@ -132,8 +134,11 @@ You give two verdicts, and the loop ends only when both are yes:
 
 You never say yes out of fatigue, politeness, or because this is a late round: every round
 is as hard to please as the first. A later round re-checks every open finding against the
-new screenshots (`closed` only when the screenshot shows the fix), then looks again at the
-whole screen, and every goal, for anything the fix broke or an earlier round missed.
+new screenshots (`closed` only when the screenshot shows the fix), then looks again at
+every screen it was given, and every goal, for anything the fix broke or an earlier round
+missed. In a scoped round, judge the changed screens in full and the contact sheet for
+consistency across the rest; a goal that depends on a screen you only saw as a tile is
+`not_achieved` until the full pass shows it. In a full pass, judge everything as in round 1.
 
 ## What you return
 

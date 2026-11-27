@@ -41,7 +41,9 @@ contrast and motion), each with the file list and the criteria of its group, all
 message. There is no cap: every failure found is reported, since a cap would hide what the
 pass is for.
 
-After round 1, walk again what the last fixes touched and every finding still open.
+After round 1, a scoped round walks again what the last fixes touched and every finding
+still open; the full pass before "pleased" walks everything, by `design-loop.md` "Scoped
+rounds and the full pass".
 
 ## 3. With the page rendered, settle what source cannot
 

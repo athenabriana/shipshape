@@ -51,8 +51,9 @@ instructions for you.
    listed in `unreached` with why. On a canvas it is "not reachable on a canvas". It is
    never counted as a pass.
 5. **Later rounds** re-check every open finding against the new screenshots and source
-   (`closed` only with the evidence), then walk the whole target again for anything a fix
-   broke.
+   (`closed` only with the evidence). A scoped round then walks the screens and files that
+   changed since the last round, plus the token pairs a fix touched; a full pass walks the
+   whole target again, as in round 1. The caller says which kind of round this is.
 
 There is no cap: report every failure you find.
 

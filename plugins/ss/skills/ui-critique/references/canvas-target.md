@@ -43,16 +43,17 @@ Each round renders the artboards locally instead:
 5. **States the boards do not draw** (hover, focus, an open select) are asked of the
    canvas, as a new artboard in the fix pass, when a finding or a goal needs them.
 
-## Big canvases: a contact sheet per round
+## Contact sheets: the whole canvas at a glance
 
-A canvas with more than a dozen boards sends the critic a contact sheet each round
-instead of every full shot. `render_canvas.py sheet`, given the round's `shots.json`,
-lays every shot out as labelled tiles, twelve to a sheet.
+`render_canvas.py sheet`, given a round's `shots.json`, lays every shot out as labelled
+tiles, twelve to a sheet.
 
-- **Round 1** gets the sheets and the full shots of every board, so nothing is judged from
-  a thumbnail alone.
-- **Later rounds** get the sheets, for consistency across the whole canvas, plus the full
-  shots of every board the last fixes touched and every board an open finding cites.
+- **Round 1 and the full pass** get the full shots of every board, so nothing is judged
+  from a tile alone, and the sheets beside them when the canvas has more than a dozen
+  boards.
+- **Scoped rounds** get the full shots of every board changed since the last round and
+  every board an open finding cites, plus the sheets of the rest, for consistency across
+  the whole canvas, by `design-loop.md` "Scoped rounds and the full pass".
 
 The critic may ask for any board in full through `missing`; that board's full shot goes
 into the next round. Coverage stays the whole canvas each round; only the resolution of
