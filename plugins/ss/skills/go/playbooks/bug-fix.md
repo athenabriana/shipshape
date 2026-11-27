@@ -14,7 +14,7 @@ Take a bug from a short report (a pasted error, a stack trace, "fix this bug") t
 8. Stop and hand to `/ss:shape` when the fix grows past a small change (several modules, a public contract, a design decision) or depends on a business rule nobody decided: edit nothing more, and pass on the cause, the rule and the reproduction.
 9. Run the mechanical gate: the preservation check on the staged diff, commit the test as `test(SCOPE): ...` and the fix as `fix(SCOPE): ...` (pre-commit hooks run), then push and follow CI when the endpoint allows a push.
 10. Review per route with `review`, run as a playbook step: its verdict line comes back to this run.
-11. Ship per endpoint with `ship`, handing it the proof lines and the review verdict for the PR body. Report the cause, the fix, the route, the proof and the follow-ups, each in one line.
+11. Ship per endpoint with `ship`, handing it the proof lines and the review verdict for the PR body. On the PR endpoint, a commit after step 10 (a CI fix, a thread fix) makes the verdict stale, and `ship` runs the review loop again on the head before its handoff, by `<plugin-root>/references/review-gate.md`. Report the cause, the fix, the route, the proof and the follow-ups, each in one line.
 
 Two situational skills fire by trigger (`<plugin-root>/references/triggers.md`): `attack-the-premise` when a second fix fails the same gate as the first, and `explain-the-number` when the bug is that something got slow, where a benchmark is the reproduction and its verdict is the proof.
 

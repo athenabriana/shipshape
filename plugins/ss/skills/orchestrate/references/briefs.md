@@ -82,9 +82,12 @@ her which approval is waiting, and on a decline keep it and ask no second time.
 
 ## The scope
 
-A code work session runs at the full scope unless Athena asked for less: the work, review
-and ship, up to a PR with green CI, with no merge. Write the scope in the brief in those
-words, so the work session asks nothing about what runs after the work. A work-only scope
+A code work session runs at the full scope unless Athena asked for less: the work, the
+ship up to a PR with green CI, then the `/ss:review` loop on that PR's latest head, with no
+merge. Write the scope in the brief in those words, so the work session asks nothing about
+what runs after the work. The review loop is part of every scope that ends in a PR, a
+reduced one included: without it the PR cannot go up for merge
+(`<plugin-root>/references/review-gate.md`). A work-only scope
 stops at a green, committed branch. The merge stays with the orchestrator, for a PR Athena
 authorized here (`references/landing.md`), unless she says so in the work session's own
 chat.
@@ -101,7 +104,7 @@ and the usage window bound the run".
 ## The endpoint
 
 Name one: a local commit, a pushed branch, or an open PR. A code task defaults to an open
-PR with green CI. A read-only task (an investigation, research, a review) ends at its
+PR with green CI and a review verdict that covers its head. A read-only task (an investigation, research, a review) ends at its
 report.
 
 ## The playbook route
@@ -146,6 +149,14 @@ Every brief repeats these, whatever the task:
   the session's folder is not a git repository, creates its own with `git worktree add` on
   a new branch before it touches a file, and works only there.
 - **No rebase on a shared branch.** Bring the base in with a merge.
+- **Review your own PR before reporting done**, by
+  `<plugin-root>/references/review-gate.md`. Once CI is green, run `/ss:review` (the loop)
+  on the PR's latest head, at deep depth when the change touches tokens, auth, permissions,
+  servers or money and standard otherwise, said in one line. Fix or refuse what the judge
+  finds, follow CI to green again, and let the loop write its verdict line into the PR
+  description. A commit after the loop makes the verdict stale: run the loop again on the
+  delta. On a UI change the design loop runs too. Never report the PR done or ready to
+  merge on green CI alone.
 - **Turn Auto-fix on when the PR opens** (`set_monitor` with `auto_fix: true`). The app asks
   Athena to approve the switch, so the brief says the work session asks for it.
 - **No secret, token or credential** in a message, a report or a file outside the repo's
@@ -186,7 +197,9 @@ for facts, not for a voice. Write this section into every brief:
 - **A local file** (a screenshot, a video, a long report) goes to the notes folder, and its
   path goes to the orchestrator.
 - **The final report**, at done or at a blocker, carries the result, the PR url with the
-  state of its CI, the blockers, where the run stopped and why (the endpoint, a real
+  state of its CI, the review verdict as the `Review:` line of
+  `<plugin-root>/references/review-gate.md` (rounds, verdict, depth, fixed, refused and the
+  head sha the last round read), the blockers, where the run stopped and why (the endpoint, a real
   blocker, the cap or the usage window with its reset time), and the choices it made on
   its own. Every `Correction repeated:` line goes in it verbatim.
 

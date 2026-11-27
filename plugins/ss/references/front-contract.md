@@ -85,12 +85,30 @@ When `SendMessage` to the orchestrator fails, stop idle with the question, its o
 the recommended pick as your last message. The orchestrator reads it from `list_events`
 and relays it from there, and its answer reaches the work session as a new message.
 
+## Review before done
+
+A work session whose endpoint is a PR never reports it done, or ready to merge, on green CI
+alone. Once CI is green, it runs the `/ss:review` loop on its own PR, at the depth
+`<plugin-root>/references/review-gate.md` picks (deep for tokens, auth, permissions,
+servers or money, standard otherwise, said in one line). It fixes or refuses what the judge
+finds, pushes, follows CI to green again, and lets the loop write its verdict line into the
+PR description. On a PR that changes UI, the design loop on screenshots of the built screen
+runs too, until the critic is pleased and the goals are achieved.
+
+A commit after the loop, a CI fix or a thread fix, makes the verdict stale. Run the loop
+again on the delta before reporting. When the orchestrator sends a PR back for a review
+round, run the loop on its latest head and report the new verdict.
+
 ## Report to the orchestrator
 
 When the task ends, at done or at a blocker, send the orchestrator one message with:
 
 - **The result**: what changed, in the words of the goal the brief set.
 - **The PR url**, when there is one, and the state of its CI.
+- **The review verdict**, when there is a PR: the `Review:` line of
+  `<plugin-root>/references/review-gate.md`, with the rounds, the verdict, the depth, the
+  fixed and refused counts, and the head sha the last round read. A PR with no verdict is
+  reported as not ready to merge, with the reason.
 - **The blockers**: what stopped the task, and what it takes to unblock it.
 - **Where it stopped and why**: the endpoint, a real blocker, the brief's cap, or the usage
   window, with the reset time.

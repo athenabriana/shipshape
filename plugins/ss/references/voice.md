@@ -52,13 +52,15 @@ the same register, tuned to a single project.
 5. **Say a blocker as stuck, unblocks, recommend.** What stopped, what gets it moving, and
    whether she has to do anything.
 6. **Ask for the merge in a sentence, announce it in a sentence.** The safety facts (CI
-   green, the review still matches the head commit) go in plain words. The commit stays in
-   the announcement, since it is what the merge is pinned to.
+   green, the review loop closed on the head commit, by
+   `<plugin-root>/references/review-gate.md`) go in plain words. With no review verdict
+   on the head, there is no ask: the PR goes back for its review round. The commit stays
+   in the announcement, since it is what the merge is pinned to.
 
 For example, a PR ready to merge, then the merge:
 
-> The router rename (PR 31) is ready: CI is green and the review still matches the latest
-> commit. Want me to merge it?
+> The router rename (PR 31) is ready: CI is green, and the review loop closed clean in 2
+> rounds on the latest commit. Want me to merge it?
 
 > Merging PR 31 now, at commit 4f2a9c1.
 

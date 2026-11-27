@@ -72,6 +72,11 @@ It prints one line, `<route>: <reason>`. The same facts give the same route on e
 | standard    | mechanical gate, `/ss:review` in its default loop, then `/ss:ship`                                           |
 | intensive   | a blast radius pass over the callers first, `/ss:edge-cases` on the diff, `/ss:review deep`, then `/ss:ship` |
 
+On the open PR endpoint, every route ends with the `/ss:review` loop on the PR's latest
+head, once CI is green, before the handoff: a PR never goes up for merge without it
+(`<plugin-root>/references/review-gate.md`). Deep depth when the change touches tokens,
+auth, permissions, servers or money, standard otherwise, said in one line.
+
 The playbook's own `## Route` section says how this applies to it, and wins where it differs.
 "Keep it light" or "be thorough" from the person overrides the script. Say which route you
 are on and why, in one line.
