@@ -47,12 +47,17 @@ SECRET_PATTERNS = [
     re.compile(r"AKIA[0-9A-Z]{16}"),  # AWS access key id
     re.compile(r"AIza[0-9A-Za-z_-]{35}"),  # Google API key
     re.compile(r"eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}"),  # JWT
+    re.compile(r"(?i)\bbearer\s+[A-Za-z0-9._~+/=-]{16,}"),  # Authorization: Bearer ...
+    re.compile(r"\b[sr]k_(?:live|test)_[A-Za-z0-9]{16,}"),  # Stripe keys
     re.compile(r"-----BEGIN [A-Z ]*PRIVATE KEY-----[\s\S]*?(?:-----END [A-Z ]*PRIVATE KEY-----|$)"),
 ]
-# `password: x`, `token=x`, `API_KEY="x"`: the name stays, the value goes.
+# `password: x`, `"token": "x"`, `API_KEY="x"`: the name stays, the value goes. The match
+# starts only where a run of name characters starts, so a long run costs one pass, not n.
 NAMED_SECRET = re.compile(
-    r"(?i)\b([\w-]*(?:password|passwd|secret|token|api[_-]?key)[\w-]*)(\s*[:=]\s*)(\"[^\"\n]*\"|'[^'\n]*'|[^\s,;]+)"
+    r"(?i)(?<![\w-])([\w-]*?(?:password|passwd|pass|pwd|secret|token|api[_-]?key)[\w-]*)"
+    r"([\"']?\s*[:=]\s*)(\"[^\"\n]*\"|'[^'\n]*'|[^\s,;]+)"
 )
+URL_CREDENTIALS = re.compile(r"(\b[a-z][a-z0-9+.-]*://[^/\s:@]+:)[^@\s/]+@", re.IGNORECASE)
 PR_URL = re.compile(r"https://github\.com/([\w.-]+/[\w.-]+)/pull/(\d+)")
 
 
@@ -63,12 +68,14 @@ def claude_home() -> Path:
 def redact(text: str) -> str:
     for pattern in SECRET_PATTERNS:
         text = pattern.sub("[hidden]", text)
+    text = URL_CREDENTIALS.sub(lambda m: f"{m.group(1)}[hidden]@", text)
     return NAMED_SECRET.sub(lambda m: f"{m.group(1)}{m.group(2)}[hidden]", text)
 
 
 def excerpt(text: str, limit: int = EXCERPT) -> str:
-    # Cut before masking would let a secret straddle the cut; mask first, then cut.
-    text = redact(text.strip())
+    # Mask first, then cut: a cut first could split a secret so no pattern sees it. Only a
+    # bounded head is masked, far past the cut, so a huge turn costs no more than a short one.
+    text = redact(text.strip()[: limit * 4 + 200])
     return text if len(text) <= limit else text[: limit - 1].rstrip() + "…"
 
 
@@ -79,29 +86,55 @@ def transcript_path(home: Path, cwd: str, session_id: str) -> Path | None:
     return home / "projects" / re.sub(r"[^A-Za-z0-9]", "-", cwd) / f"{session_id}.jsonl"
 
 
-def alive(pid: int) -> bool:
+def proc_start(pid: int) -> str | None:
+    """Field 22 of /proc/<pid>/stat, the process start time, as the registry records it."""
+    try:
+        stat = Path(f"/proc/{pid}/stat").read_text()
+        return stat[stat.rindex(")") + 2 :].split()[19]
+    except (OSError, ValueError, IndexError):
+        return None
+
+
+def alive(entry: dict) -> bool:
+    pid = entry.get("pid")
+    if not isinstance(pid, int) or not 1 < pid < 2**31:
+        return False
     try:
         os.kill(pid, 0)
     except ProcessLookupError:
         return False
     except PermissionError:
-        return True
-    return True
+        pass
+    except (OSError, OverflowError):
+        return False
+    # A pid can be reused: when the registry recorded the start time, it has to match.
+    recorded, now = entry.get("procStart"), proc_start(pid)
+    return recorded is None or now is None or str(recorded) == now
 
 
-def ancestor_pids(start: int | None = None) -> set[int]:
-    """This script's ancestors: the session that runs it is one of them."""
+def parent_pid(pid: int) -> int | None:
+    try:
+        stat = Path(f"/proc/{pid}/stat").read_text()
+        return int(stat[stat.rindex(")") + 2 :].split()[1])
+    except (OSError, ValueError, IndexError):
+        pass
+    try:  # no /proc (macOS): ask ps, as channel.ts readProc does
+        out = subprocess.run(["ps", "-o", "ppid=", "-p", str(pid)], capture_output=True, text=True, timeout=5)
+        return int(out.stdout.strip()) if out.returncode == 0 and out.stdout.strip() else None
+    except (OSError, ValueError, subprocess.SubprocessError):
+        return None
+
+
+def ancestor_pids() -> set[int]:
+    """This script's ancestors: the session that runs it is one of them. The same walk as
+    channel.ts readProc, in Python."""
     pids: set[int] = set()
-    pid = os.getppid() if start is None else start
+    pid: int | None = os.getppid()
     for _ in range(12):
-        if pid <= 1:
+        if pid is None or pid <= 1:
             break
         pids.add(pid)
-        try:
-            stat = Path(f"/proc/{pid}/stat").read_text()
-            pid = int(stat[stat.rindex(")") + 2 :].split()[1])
-        except (OSError, ValueError, IndexError):
-            break
+        pid = parent_pid(pid)
     return pids
 
 
@@ -152,7 +185,8 @@ def turns(lines: list[str]) -> list[dict]:
         kind = entry.get("type")
         if kind not in ("user", "assistant"):
             continue
-        content = (entry.get("message") or {}).get("content")
+        message = entry.get("message")
+        content = message.get("content") if isinstance(message, dict) else None
         texts: list[str] = []
         if isinstance(content, str):
             texts.append(content)
@@ -201,10 +235,13 @@ def git_branch(cwd: str) -> str | None:
     return out.stdout.strip() or None
 
 
-def summarize(entry: dict, home: Path, now: float, with_branch: bool = True) -> dict:
+def summarize(
+    entry: dict, home: Path, now: float, with_branch: bool = True, all_turns: list[dict] | None = None
+) -> dict:
     cwd = str(entry.get("cwd") or "")
     sid = str(entry.get("sessionId") or "")
-    all_turns = turns(tail_lines(transcript_path(home, cwd, sid))) if cwd else []
+    if all_turns is None:
+        all_turns = turns(tail_lines(transcript_path(home, cwd, sid))) if cwd else []
     said = [t for t in all_turns if t["role"] == "assistant"]
     question = all_turns[-1] if all_turns and all_turns[-1]["role"] == "question" else None
     last = said[-1]["text"] if said else ""
@@ -241,7 +278,7 @@ def summarize(entry: dict, home: Path, now: float, with_branch: bool = True) -> 
 
 def live_sessions(home: Path, exclude: set[int] | None = None) -> list[dict]:
     own = ancestor_pids() if exclude is None else exclude
-    return [e for e in read_registry(home) if e["pid"] not in own and alive(e["pid"])]
+    return [e for e in read_registry(home) if e["pid"] not in own and alive(e)]
 
 
 def find(entries: list[dict], key: str) -> dict | None:
@@ -264,14 +301,15 @@ def find(entries: list[dict], key: str) -> dict | None:
 
 def show(entry: dict, home: Path, now: float, count: int) -> dict:
     lines = tail_lines(transcript_path(home, str(entry.get("cwd") or ""), str(entry.get("sessionId") or "")))
-    recent = turns(lines)[-max(1, min(count, 30)) :]
+    all_turns = turns(lines)
+    recent = all_turns[-max(1, min(count, 30)) :]
     rows = []
     for t in recent:
         row = {"role": t["role"], "text": excerpt(t["text"], 1500), "ts": t.get("ts")}
         if "options" in t:
             row["options"] = [excerpt(o, 80) for o in t["options"]]
         rows.append(row)
-    return {"session": summarize(entry, home, now), "turns": rows}
+    return {"session": summarize(entry, home, now, all_turns=all_turns), "turns": rows}
 
 
 def main() -> None:

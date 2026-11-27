@@ -6,13 +6,16 @@ Part of the companion plugin, Apache License, Version 2.0 (see LICENSE and NOTIC
 
 It checks, for one PR: open and not a draft; CI green on the head commit; the repository's
 own rules not blocking it (GitHub's merge state); a `Review loop:` verdict line in the
-description with verdict `clean` or `disputed`; and that the verdict still covers the head,
-by Ship Shape's `patch_id.py --pr N` run in a local clone of the repository. It then prints
-the exact merge command when every check passes, pinned to the head commit with `--match-head-commit`.
+description with verdict `clean` or `disputed` and no goal left open; and that the verdict
+still covers the head, by Ship Shape's `patch_id.py --pr N` run in a local clone of the
+repository, reading the same verdict line. It then prints the exact merge command when
+every check passes, pinned to the head commit with `--match-head-commit`.
 
 It decides nothing and merges nothing. The companion asks Athena only when `ok` is true,
 and runs the printed command only after her word in the Telegram chat; that command then
-waits for her tap on the permission button.
+waits for her tap on the permission button. It does not know whether the PR changes a user
+interface: `design_line` says whether the description carries the design loop's line, and
+the companion requires it on a UI PR.
 
 The local clone is found among the live sessions' folders and under `~/Workspaces`, or
 given with `--repo-dir`. `patch_id.py` comes from the newest installed ss plugin, or from
@@ -21,8 +24,8 @@ given with `--repo-dir`. `patch_id.py` comes from the newest installed ss plugin
 Usage:
   python3 merge_gate.py OWNER/REPO NUMBER [--repo-dir PATH]
 
-Prints JSON: {ok, pr, url, title, head, ci, merge_state, verdict, rounds, unchanged,
-design_line, reasons, merge_command}. On a failure to read the PR: {"error": "..."}, exit 1.
+Prints JSON: {ok, pr, url, title, head, ci, merge_state, verdict, rounds, goals, unchanged,
+design_line, reasons, merge_command}. When the PR cannot be read: {"error": "..."}, exit 1.
 """
 
 from __future__ import annotations
@@ -36,11 +39,11 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import github as GH  # noqa: E402
 import sessions as S  # noqa: E402
 
 REPO_RE = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 SHA_RE = re.compile(r"^[0-9a-f]{40}$")
-VERDICT_LINE = re.compile(r"Review loop: (\d+) rounds?, verdict (\w+), patch-id ([0-9a-f]{40,64})")
 DESIGN_LINE = re.compile(r"^Design: .+$", re.MULTILINE)
 
 QUERY = """
@@ -56,64 +59,62 @@ query($owner: String!, $name: String!, $number: Int!) {
 """
 
 
-def run(cmd: list[str], cwd: str | None = None, timeout: int = 120) -> subprocess.CompletedProcess:
-    return subprocess.run(cmd, cwd=cwd, capture_output=True, text=True, timeout=timeout)
-
-
 def fail(message: str) -> None:
-    print(json.dumps({"error": message}))
+    print(json.dumps({"error": S.excerpt(message, 300)}))
     sys.exit(1)
 
 
 def read_pr(repo: str, number: int) -> dict:
     owner, name = repo.split("/", 1)
-    out = run(
-        [
-            "gh",
-            "api",
-            "graphql",
-            "-f",
-            f"query={QUERY}",
-            "-f",
-            f"owner={owner}",
-            "-f",
-            f"name={name}",
-            "-F",
-            f"number={number}",
-        ]
-    )
-    if out.returncode != 0:
-        fail(f"could not read {repo}#{number} with gh: {S.excerpt(out.stderr, 200)}")
-    data = (json.loads(out.stdout).get("data") or {}).get("repository") or {}
-    if not data.get("pullRequest"):
+    try:
+        data = GH.graphql(QUERY, {"owner": owner, "name": name, "number": number})
+    except GH.GitHubError as err:
+        fail(f"could not read {repo}#{number} with gh: {err}")
+    repo_data = data.get("repository") or {}
+    if not isinstance(repo_data.get("pullRequest"), dict):
         fail(f"{repo}#{number} not found")
-    return data
+    return repo_data
+
+
+def git(args: list[str], cwd: str, timeout: int = 10) -> str | None:
+    try:
+        out = subprocess.run(["git", "-C", cwd, *args], capture_output=True, text=True, timeout=timeout)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return out.stdout.strip() if out.returncode == 0 else None
 
 
 def origin_matches(folder: str, repo: str) -> bool:
-    out = run(["git", "-C", folder, "remote", "get-url", "origin"], timeout=10)
-    if out.returncode != 0:
-        return False
-    url = out.stdout.strip().lower()
+    url = (git(["remote", "get-url", "origin"], folder) or "").lower()
     return bool(re.search(rf"github\.com[:/]{re.escape(repo.lower())}(\.git)?/?$", url))
 
 
 def candidate_folders(extra: list[str]) -> list[str]:
-    seen: list[str] = []
-    for folder in extra:
-        seen.append(folder)
+    found = list(extra)
+    seen = set(found)
+
+    def add(folder: str) -> None:
+        if folder not in seen:
+            seen.add(folder)
+            found.append(folder)
+
     for entry in S.live_sessions(S.claude_home()):
-        cwd = entry.get("cwd")
-        if isinstance(cwd, str) and cwd not in seen:
-            seen.append(cwd)
+        if isinstance(entry.get("cwd"), str):
+            add(entry["cwd"])
     root = Path.home() / "Workspaces"
-    if root.is_dir():
+    try:
         # Two levels down (Workspaces/<group>/<repo>), where checkouts usually live.
         for group in sorted(p for p in root.iterdir() if p.is_dir()):
-            for repo in [group, *sorted(p for p in group.iterdir() if p.is_dir())]:
-                if (repo / ".git").exists() and str(repo) not in seen:
-                    seen.append(str(repo))
-    return seen
+            try:
+                children = sorted(p for p in group.iterdir() if p.is_dir())
+            except OSError:
+                continue
+            for folder in [group, *children]:
+                if (folder / ".git").exists():
+                    add(str(folder))
+    except OSError:
+        pass
+    return found
 
 
 def find_clone(repo: str, extra: list[str]) -> str | None:
@@ -137,6 +138,35 @@ def find_patch_id() -> Path | None:
     return found[-1] if found else None
 
 
+def measure(script: Path, clone: str, repo: str, number: int) -> tuple[dict | None, str | None]:
+    """patch_id.py's JSON for the PR, or why it could not be had."""
+    # GH_REPO pins gh to this repository: in a clone with an `upstream` remote, gh would
+    # otherwise read that repository's PR of the same number.
+    env = {**os.environ, "GH_REPO": repo}
+    try:
+        out = subprocess.run(
+            [sys.executable, str(script), "--pr", str(number)],
+            cwd=clone,
+            env=env,
+            capture_output=True,
+            text=True,
+            timeout=180,
+        )
+    except subprocess.TimeoutExpired:
+        return None, "patch_id.py did not finish in time"
+    except (OSError, subprocess.SubprocessError) as err:
+        return None, f"patch_id.py could not run: {err.__class__.__name__}"
+    try:
+        patch = json.loads(out.stdout)
+    except ValueError:
+        return None, S.excerpt(out.stderr or "patch_id.py printed no JSON", 200)
+    if not isinstance(patch, dict):
+        return None, "patch_id.py printed something other than an object"
+    if "error" in patch:
+        return None, S.excerpt(str(patch["error"]), 200)
+    return patch, None
+
+
 def merge_method(repo_data: dict) -> str | None:
     if repo_data.get("squashMergeAllowed"):
         return "--squash"
@@ -147,13 +177,20 @@ def merge_method(repo_data: dict) -> str | None:
     return None
 
 
+MERGE_STATES = {
+    "BLOCKED": "the repository's rules block the merge (required reviews or checks)",
+    "DIRTY": "the PR has merge conflicts",
+    "BEHIND": "the branch is behind its base and the repository requires it up to date",
+    "UNKNOWN": "GitHub has not computed mergeability yet; check again in a moment",
+}
+
+
 def judge(repo: str, number: int, repo_data: dict, patch: dict | None, patch_error: str | None) -> dict:
     pr = repo_data["pullRequest"]
     head = pr.get("headRefOid") or ""
-    nodes = (pr.get("commits") or {}).get("nodes") or []
-    ci = (((nodes[-1] or {}).get("commit") or {}).get("statusCheckRollup") or {}).get("state") if nodes else None
-    verdicts = list(VERDICT_LINE.finditer(pr.get("body") or ""))
-    verdict = verdicts[-1] if verdicts else None
+    ci = GH.ci_state(pr)
+    verdict = GH.last_verdict(pr.get("body"))
+    goals = verdict.group(4) if verdict else None
     reasons: list[str] = []
 
     if pr.get("state") != "OPEN":
@@ -163,27 +200,27 @@ def judge(repo: str, number: int, repo_data: dict, patch: dict | None, patch_err
     if ci != "SUCCESS":
         reasons.append(f"CI is not green on the head commit (state: {ci or 'none'})")
     state = pr.get("mergeStateStatus")
-    if state in ("BLOCKED", "DIRTY", "BEHIND", "UNKNOWN"):
-        reasons.append(
-            {
-                "BLOCKED": "the repository's rules block the merge (required reviews or checks)",
-                "DIRTY": "the PR has merge conflicts",
-                "BEHIND": "the branch is behind its base and the repository requires it up to date",
-                "UNKNOWN": "GitHub has not computed mergeability yet; check again in a moment",
-            }[state]
-        )
+    if state in MERGE_STATES:
+        reasons.append(MERGE_STATES[state])
     if verdict is None:
         reasons.append("no review verdict in the description: the PR goes back for a review round")
-    elif verdict.group(2) not in ("clean", "disputed"):
-        reasons.append(f"the review verdict is {verdict.group(2)}: each open finding must be named in the ask")
+    else:
+        if verdict.group(2) not in ("clean", "disputed"):
+            reasons.append(f"the review verdict is {verdict.group(2)}: each open finding must be named in the ask")
+        left = GH.goals_left(goals)
+        if left:
+            reasons.append(f"the review left goals undone ({S.excerpt(left, 80)}): each must be named in the ask")
     unchanged = None
     if patch_error:
         reasons.append(f"could not check that the verdict covers the head: {patch_error}")
-    elif patch is not None:
+    elif patch is not None and verdict is not None:
         unchanged = patch.get("unchanged")
+        recorded = patch.get("recorded") or {}
         if patch.get("head") != head:
             reasons.append("the patch-id was measured on another commit than the PR head")
-        elif verdict is not None and unchanged is not True:
+        elif recorded.get("patch_id") != verdict.group(3):
+            reasons.append("the verdict line changed while the gate ran; run the gate again")
+        elif unchanged is not True:
             reasons.append("the review verdict does not cover the current head: it needs a new review round")
     method = merge_method(repo_data)
     if method is None:
@@ -195,12 +232,13 @@ def judge(repo: str, number: int, repo_data: dict, patch: dict | None, patch_err
         "ok": not reasons,
         "pr": f"{repo}#{number}",
         "url": pr.get("url"),
-        "title": pr.get("title"),
+        "title": S.excerpt(str(pr.get("title") or ""), 120),
         "head": head,
         "ci": ci,
         "merge_state": state,
         "verdict": verdict.group(2) if verdict else None,
         "rounds": int(verdict.group(1)) if verdict else None,
+        "goals": goals,
         "unchanged": unchanged,
         "design_line": bool(DESIGN_LINE.search(pr.get("body") or "")),
         "reasons": reasons,
@@ -220,20 +258,14 @@ def main() -> None:
     repo_data = read_pr(args.repo, args.number)
     patch, patch_error = None, None
     script = find_patch_id()
-    clone = find_clone(args.repo, args.repo_dir)
     if script is None:
         patch_error = "Ship Shape's patch_id.py was not found (install ss or set COMPANION_SS_ROOT)"
-    elif clone is None:
-        patch_error = f"no local clone of {args.repo} found (pass --repo-dir)"
     else:
-        out = run([sys.executable, str(script), "--pr", str(args.number)], cwd=clone)
-        try:
-            patch = json.loads(out.stdout)
-        except ValueError:
-            patch_error = S.excerpt(out.stderr or "patch_id.py printed no JSON", 200)
+        clone = find_clone(args.repo, args.repo_dir)
+        if clone is None:
+            patch_error = f"no local clone of {args.repo} found (pass --repo-dir)"
         else:
-            if "error" in patch:
-                patch_error, patch = str(patch["error"]), None
+            patch, patch_error = measure(script, clone, args.repo, args.number)
     print(json.dumps(judge(args.repo, args.number, repo_data, patch, patch_error)))
 
 
