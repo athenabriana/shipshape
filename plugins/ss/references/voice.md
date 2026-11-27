@@ -96,8 +96,8 @@ For example, the framing line in chat, then the dialog as the session sent it:
 ## Session titles
 
 The sidebar is where Athena finds each session, so every title is short and says what the
-session is. Each session sets its own with `set_session_title` and `"self"` when it
-starts; load the tool with `ToolSearch` when it is deferred.
+session is. The assistant and the orchestrator set their own with `set_session_title` and
+`"self"` when they start; load the tool with `ToolSearch` when it is deferred.
 
 | session           | title                                                                           | example                    |
 | ----------------- | ------------------------------------------------------------------------------- | -------------------------- |
