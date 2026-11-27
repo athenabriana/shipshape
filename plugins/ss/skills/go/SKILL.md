@@ -1,10 +1,10 @@
 ---
 name: go
-description: Ship Shape's router, one door for engineering work, sized to its risk. Runs on any non trivial request and stays on until you turn it off; solves picking the right recipe and the right amount of process. Matches the request to one playbook (investigate, bug-fix, review, ui-critique, ship, babysit, review-setup, learn), sizes the route (lightweight, standard or intensive) with scripts/route.py from five risk facts, and outputs the playbook's steps in the todo list, each run by its skill, with clarify's goals first and the goal loop last on the standard and intensive routes. Offers /ss:learn when the same correction lands twice. Use when the user types /ss:go, says "use ss", "be rigorous", "do this properly", "fix it and ship it", "fix and babysit", or starts any non trivial engineering task. Don't use it for a tiny mechanical change (just do it) or a question about Claude Code itself.
+description: Ship Shape's router, one door for engineering work, sized to its risk. Runs on any non trivial request and stays on until you turn it off; solves picking the right recipe and the right amount of process. Matches the request to one playbook (investigate, bug-fix, review, ui-critique, iterate, ship, babysit, review-setup, learn), sizes the route (lightweight, standard or intensive) with scripts/route.py from five risk facts, and outputs the playbook's steps in the todo list, each run by its skill, with clarify's goals first and the goal loop last on the standard and intensive routes. Offers /ss:learn when the same correction lands twice. Use when the user types /ss:go, says "use ss", "be rigorous", "do this properly", "fix it and ship it", "fix and babysit", "iterate on this", "until parity", or starts any non trivial engineering task. Don't use it for a tiny mechanical change (just do it) or a question about Claude Code itself.
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.6.0
+  version: 1.7.0
 ---
 
 # Go
@@ -27,6 +27,7 @@ stays the only source of the steps.
 | `bug-fix`      | a defect, an error, a stack trace, "this fails", "fix this bug"                                      | `playbooks/bug-fix.md`      |
 | `review`       | judge a diff: the current branch, or a PR by number; "what could break" runs its `edges` front       | `playbooks/review.md`       |
 | `ui-critique`  | judge a screen, not a diff: a page, an app, a mockup or a folder of UI; "critique this screen", a11y | `playbooks/ui-critique.md`  |
+| `iterate`      | improve what exists until a bar is met: "until parity", "until it passes", "until it's fast enough"  | `playbooks/iterate.md`      |
 | `ship`         | land a branch: commit, push, open or finish a PR, green CI                                           | `playbooks/ship.md`         |
 | `babysit`      | "babysit PR 42", "watch PR 42", "fica de olho no PR 42": a watcher on any PR, by number              | `playbooks/babysit.md`      |
 | `review-setup` | write or update the repo's `CODE_REVIEW_GUIDE.md`: "set up code review", "the review guide is stale" | `playbooks/review-setup.md` |

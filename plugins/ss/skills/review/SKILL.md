@@ -1,10 +1,10 @@
 ---
 name: review
-description: Judges a change against its goals until the judge is pleased. Runs after the build and before every merge ask, or on an external PR by number; solves shipping a diff nobody checked against what it promised. On the current branch it loops by default, every front in parallel (edges among them when deep or named), each finding verified, then fixed and re-reviewed with a judge on Sonnet until every goal is met, no round limit. Outputs the verified findings, the fixes and the verdict line with the head sha. `/ss:review manual` lets you pick; `/ss:review deep` turns on every angle; `/ss:review edges` hunts the inputs a diff does not handle. Use when the user says "review my changes", "review the PR", "are there bugs here", "what could break", "edge cases", "o que pode quebrar", "answer the PR comments", "check it followed the project rules", or "review PR 42 in repo X". Don't use it on a screen with no diff (use /ss:ui-critique) or to land a branch (use /ss:ship).
+description: Judges a change against its goals until the judge is pleased. Runs after the build and before every merge ask, or on an external PR by number; solves shipping a diff nobody checked against what it promised. On the current branch it loops by default, every front in parallel (edges among them when deep or named), each finding verified, then fixed and re-reviewed with a judge on Sonnet until every goal is met, no round limit. Outputs the verified findings, the fixes and the verdict line with the head sha. `/ss:review manual` lets you pick; `/ss:review deep` turns on every angle; `/ss:review edges` hunts the inputs a diff does not handle. Use when the user says "review my changes", "review the PR", "are there bugs here", "what could break", "edge cases", "o que pode quebrar", "answer the PR comments", "check it followed the project rules", or "review PR 42 in repo X". Don't use it on a screen with no diff (use /ss:ui-critique), to reach a measured bar (use /ss:iterate) or to land a branch (use /ss:ship).
 license: Apache-2.0
 metadata:
   author: Athena Briana - github.com/athenabriana; quality-pass material adapted from Claude Code's /simplify, angle/verify architecture adapted from Claude Code's /code-review (Anthropic, Apache-2.0), a11y front absorbed from rafael's ui-accessibility skill (loja inspira-skills, MIT)
-  version: 3.2.0
+  version: 3.2.1
 ---
 
 # Review

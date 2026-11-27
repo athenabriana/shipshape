@@ -30,8 +30,8 @@ and when a row names a skill that does not carry it.
 
 ## The table
 
-| skill                | trigger                                                     | path                                               | read by                                                                         |
-| -------------------- | ----------------------------------------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `explain-the-number` | Before you measure a number, or trust, report or act on one | `<plugin-root>/skills/explain-the-number/SKILL.md` | the bug-fix playbook (`/ss:go`), a session measuring a number                   |
-| `attack-the-premise` | Your second fix failed the same gate as the first           | `<plugin-root>/skills/attack-the-premise/SKILL.md` | the bug-fix playbook (`/ss:go`), the `/ss:ship` CI loop, a session fixing a bug |
-| `prove-the-fix`      | Your task fixes a bug                                       | `<plugin-root>/skills/prove-the-fix/SKILL.md`      | the bug-fix playbook (`/ss:go`), a session fixing a bug                         |
+| skill                | trigger                                                     | path                                               | read by                                                                                        |
+| -------------------- | ----------------------------------------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `explain-the-number` | Before you measure a number, or trust, report or act on one | `<plugin-root>/skills/explain-the-number/SKILL.md` | the bug-fix playbook (`/ss:go`), `/ss:iterate`, a session measuring a number                   |
+| `attack-the-premise` | Your second fix failed the same gate as the first           | `<plugin-root>/skills/attack-the-premise/SKILL.md` | the bug-fix playbook (`/ss:go`), `/ss:iterate`, the `/ss:ship` CI loop, a session fixing a bug |
+| `prove-the-fix`      | Your task fixes a bug                                       | `<plugin-root>/skills/prove-the-fix/SKILL.md`      | the bug-fix playbook (`/ss:go`), `/ss:iterate`'s test reruns, a session fixing a bug           |
