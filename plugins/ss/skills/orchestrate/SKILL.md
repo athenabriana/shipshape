@@ -1,10 +1,10 @@
 ---
 name: orchestrate
-description: Turns this Desktop session into the orchestrator of one front. It scopes the goal with you, keeps the front's memory in a private Claude Docs doc (a local folder under ~/.ss/fronts when the Docs connector is missing), starts one work session per task with a standalone brief, relays their questions word for word, follows their PRs and CI, merges only the PRs you explicitly authorized in this chat under the repository's rules, and marks the front landed at the end. It writes no code, only its front. Work sessions never start sessions. Runs on the Claude Code desktop app's session tools. Use when the user says "orchestrate this", "be the orchestrator", "run this front", "delegate everything", "split this into work sessions", "orquestra isso", "seja o orquestrador", "delegue tudo", or invokes /ss:orchestrate. Don't use it for a single small task (just do it or use /ss:go), or to oversee several fronts at once (use /ss:assistant).
+description: Turns this Desktop session into the orchestrator of one front. It scopes the goal with you through /ss:clarify, which creates the front's memory as a private Claude Docs doc that this session keeps up to date (a local folder under ~/.ss/fronts when the Docs connector is missing), starts one work session per task with a standalone brief, relays their questions word for word, follows their PRs and CI, merges only the PRs you explicitly authorized in this chat under the repository's rules, and marks the front landed at the end. It writes no code, only its front. Work sessions never start sessions. Runs on the Claude Code desktop app's session tools. Use when the user says "orchestrate this", "be the orchestrator", "run this front", "delegate everything", "split this into work sessions", "orquestra isso", "seja o orquestrador", "delegue tudo", or invokes /ss:orchestrate. Don't use it for a single small task (just do it or use /ss:go), or to oversee several fronts at once (use /ss:assistant).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 3.0.1
+  version: 3.1.0
 ---
 
 # Orchestrate
@@ -56,20 +56,16 @@ python3 <plugin-root>/scripts/front_pointer.py get
    rules for every session title are in "Session titles" in
    `<plugin-root>/references/voice.md`. When Athena set the title herself, the app asks her
    to approve the rename: say that approval is waiting, and on a decline keep the title.
-2. **Clarify the goal with Athena.** Run `/ss:clarify` in this session with the front as
-   its path: it settles the goal in her words and the acceptance criteria as WHEN/THEN
-   lines, each with its check, asks her in the form it picks, and writes the criteria into
-   the front and nothing else: the front doc holds the goals, and clarify makes no goals
-   doc of its own. These are the front's goals, by
-   `<plugin-root>/references/goal-loop.md`, and her sign-off is their approval.
-3. **Pick the home.** Call `ToolSearch` for the Docs tools (`read`, `batch`, `update`,
-   `guide`). Present: a doc front. Missing: say so in one line, and open a file front.
-4. **Pick the slug** that no home holds, with `front_name.py`, by "Pick a slug no home
-   holds" in `<plugin-root>/references/front-doc.md`.
-5. **Create the front and record the pointer**, by "Open a doc front" or "Open a file
-   front" in the same page. A doc front is private: never share it and never change its
-   sharing. Open it for Athena with the `Artifact` tool's `open` action.
-6. **Read the project facts.** When a repo's `CLAUDE.md` (or `AGENTS.md`) has
+2. **Clarify the goal and create the front.** Run `/ss:clarify` in this session to open
+   the front: it settles the goal in her words and the acceptance criteria as WHEN/THEN
+   lines, each with its check, asks her in the form it picks, then picks the home and the
+   slug, creates the front (a doc front when the Docs tools load, a file front otherwise),
+   records the pointer, opens a doc front for her, and writes the opening sections, by
+   "The front doc, when `/ss:orchestrate` calls" in its `SKILL.md`. These are the front's
+   goals, by `<plugin-root>/references/goal-loop.md`, and her sign-off is their approval.
+   The orchestrator creates no Claude Docs doc itself: from here it keeps the front's
+   running state up to date.
+3. **Read the project facts.** When a repo's `CLAUDE.md` (or `AGENTS.md`) has
    `## Project facts` (`<plugin-root>/references/project-facts.md`), read it, so each brief
    names the facts that cover the code it touches.
 

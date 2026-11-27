@@ -10,8 +10,8 @@ It ends with a complete example to copy.
 
 The split: the dialog for one quick pick, the sheet for anything bigger. When in doubt,
 the sheet. Before work starts, `/ss:clarify` owns the ask and applies this split, with a
-third form for work to keep: a private Claude Docs doc first, then the sheet for what it
-leaves open.
+third form for big work: a private Claude Docs doc first, then the sheet for what it
+leaves open, so the person answers in one place. Only clarify creates that doc.
 
 Use the question tool (`AskUserQuestion`) for:
 
@@ -28,8 +28,8 @@ Use a decision sheet for:
 - **A decision that needs typed details**: a reason, a name, a date, free text. A date is
   a calendar fact the person owns, never a deadline or a ready-by date for agent work.
 
-A decision sheet replaces writing a Claude Docs doc and then asking separately. A doc stays
-the form for text the person will keep or edit, by
+A decision sheet replaces writing a doc and then asking separately. A doc stays the form
+for goals and decisions the person will keep on big work, written by `/ss:clarify`, by
 `<plugin-root>/references/show-for-review.md`. When the decision rests on something the
 person has to see, show that first, then the sheet.
 

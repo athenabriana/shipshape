@@ -4,7 +4,7 @@ description: Maps the edge cases of a behavior, in two modes picked from the req
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.1.0
+  version: 1.1.1
 ---
 
 # Edge cases
@@ -75,8 +75,8 @@ Walk each one. Keep only those the behavior can reach, and say in one line which
 
    Then list the `open` rows with the question each one is waiting on. Before a question
    asks the person to settle or approve rows, show the table as a visual, by
-   `<plugin-root>/references/show-for-review.md`: a private Claude Docs doc opened for them, or the page the
-   caller's path names, opened for them. When a row taught
+   `<plugin-root>/references/show-for-review.md`: an inline visual, an Artifact page when
+   the table is too big, or the doc the caller's path names, opened for them. When a row taught
    something about the project the code does not show (a constraint, a trap), offer
    `/ss:record-fact` for it, and record it only on a yes.
 

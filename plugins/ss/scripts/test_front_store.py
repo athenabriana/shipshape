@@ -33,7 +33,7 @@ class RenderNowTest(unittest.TestCase):
         self.assertIn("State: open · orchestrator sess-1 · opened 2026-11-26\n", text)
         self.assertIn("<one paragraph, Athena's words>\n", text)
         self.assertIn("- WHEN <...> THEN <...>\n", text)
-        for heading in ("Goal", "Acceptance criteria", "Repos", "Work sessions",
+        for heading in ("Goal", "Acceptance criteria", "Out of scope", "Repos", "Work sessions",
                         "Waiting on Athena", "Merge authorizations", "Next"):
             self.assertIn(f"\n## {heading}\n", text)
         self.assertNotIn("{", text)

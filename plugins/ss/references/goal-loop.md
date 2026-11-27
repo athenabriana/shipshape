@@ -39,23 +39,28 @@ are found.
 
 ### Goals that live in a doc
 
-For big work, `/ss:clarify` writes the goals into a private Claude Docs doc titled
-`ss goals · <subject>` (or `goals.md` in the loop folder when the Docs connector is
-missing), and records its URL in `state.json` as `goals_doc`. The doc is then where the
-goals live for the whole loop:
+For big work, `/ss:clarify` writes the goals into a private Claude Docs doc (or `goals.md`
+when the Docs tools are missing), by "What the doc holds" in its `SKILL.md`, and hands its
+URL or path over with the goals. The loop records it in `state.json` as `goals_doc`, and
+the doc is where the goals live for the whole loop:
 
-- **Each round reads the goals from the doc**, fresh, with the Docs `read` tool, and the
-  judge's prompt carries them as the doc has them. The judge agents only read files, so the
-  session reads the doc and hands the goals over. A goal the person edited in the doc
-  after approval is their word: the round judges against the edited goal, and the report
-  says which goal changed.
-- **Each round writes the status back**: every goal's `status:` in `## Goals` (`achieved`,
-  `not achieved: <what is missing>`, `deferred: <ground>`), and each PR, branch or commit
-  under `## Work` as it lands.
-- **A front keeps its goals in the front doc**, by `<plugin-root>/references/front-doc.md`:
-  `/ss:orchestrate` has clarify write them there, and no goals doc is made. A work session
-  never opens the front, so it reports goal status in its `Goals:` line and the
-  orchestrator writes it into the front doc.
+- **The session reads the goals from the doc at the start of each round**, with the Docs
+  `read` tool (loaded with `ToolSearch` by its bare name), or `Read` for `goals.md`. The
+  judge's prompt carries the goals as the doc has them, never the link: the judge agents
+  only read files. When the Docs tools fail mid-loop, the round uses the goals in
+  `state.json` and says so in its line.
+- **An edit the person made in the doc is their word.** The session compares the doc's
+  goals with the ones in `state.json`; a goal that differs is judged as edited from this
+  round on, copied into `state.json`, and named in the round's line and the report.
+- **The session writes each goal's status back** after the judge returns, in its `status:`
+  field in `## Goals`: `open` until judged, then `achieved`,
+  `not achieved: <what is missing>` or `deferred: <ground>`. Each PR, branch or commit goes
+  under `## PRs and commits` as it lands. These are routine updates: the doc is opened for
+  the person when clarify creates it and again with the report, not after every round.
+- **A front keeps its goals in the front doc**, by `<plugin-root>/references/front-doc.md`,
+  and no goals doc is made. A work session never opens the front: its goals come in the
+  brief, it reports their status in its `Goals:` line, and the orchestrator writes that
+  into the front doc.
 
 ## 2. What a goal is
 
@@ -95,7 +100,8 @@ every other open question: one block that lists the numbered goals with their ch
 deferred ones with their grounds, and the default "Approve these goals" first. The person
 can edit a goal, drop one or add one in the same answer. After that the goals are fixed
 for the run, and the session asks again only on a real blocker, such as a finding that a
-goal itself is wrong.
+goal itself is wrong. The one change that needs no ask is an edit the person makes in the
+goals doc themselves, by "Goals that live in a doc" above.
 
 - **In a work session**, the block travels in the opening `ss.ask` JSON to the
   orchestrator, by `<plugin-root>/references/front-contract.md`. A brief that already
@@ -127,9 +133,6 @@ The judge returns, every round:
   `deferred` (only for a goal marked deferred at approval, with its ground).
 - **Findings on quality**, each with its level, its location and its evidence.
 - **`pleased`**: true only when it would send nothing back.
-
-When the goals live in a doc, the session writes each goal's status back into it after the
-judge returns, by "Goals that live in a doc" above.
 
 The session runs each goal's check where the judge cannot (a test, a command) and hands it
 the output; the judge reads the output, never the session's word for it.
@@ -177,7 +180,7 @@ go on lives in one durable folder: the notes folder the brief names, else
 
 ```
 <loop folder>/
-├── state.json        # the approved goals (and goals_doc, the doc's URL, when they live in one), the round, its scope, open findings and refusals, the trend, agent ids
+├── state.json        # the approved goals, goals_doc (kept in every write), the round, its scope, open findings and refusals, the trend, agent ids
 ├── rounds/r<N>/      # what each round judged: check outputs, screenshots, the judge's return
 └── tools/            # any script the loop writes
 ```
@@ -206,8 +209,8 @@ findings as they are, and never calls the work done.
 
 ## 11. Report
 
-- **The goals doc**, when the goals live in one: its link, opened for the person with the
-  `Artifact` tool's `open` action, with its statuses already current.
+- **The goals doc**, when the goals live in one: its statuses current, and the doc opened
+  for the person by `<plugin-root>/references/show-for-review.md`.
 - **The goals line**, one per run: `Goals: 5 of 6 achieved, G4 deferred (needs production
 data), none open.` Each goal not achieved is named with what is missing.
 - **The judge's last verdict** and how many rounds ran, the last one a full pass when the

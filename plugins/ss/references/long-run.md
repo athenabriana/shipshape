@@ -22,7 +22,7 @@ which owns the opening ask and picks its form:
    pick first, its subtitle saying "Recommended" and why. Clarify's form rule decides the
    shape: the question tool for a single quick pick, one decision sheet
    (`<plugin-root>/references/decision-sheet.md`) for more, and a private Claude Docs doc
-   first when the work is a spec or a plan to keep.
+   first when the work is big, by "When the goals get a doc" in clarify.
 2. **Say the promise in the sheet's header line or the dialog**: after this, the session
    runs to the endpoint and asks again only on a real blocker.
 3. **Take the answers as final for this run.** A decision the person skipped keeps its
