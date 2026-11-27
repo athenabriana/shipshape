@@ -80,3 +80,15 @@ describe("launchedAsChannel", () => {
     expect(launchedAsChannel(40, tree({}))).toBe(false);
   });
 });
+
+test("a prompt after the channel flag is never read as a channel", () => {
+  expect(
+    namesThisChannel([
+      CLAUDE,
+      "-p",
+      "--channels",
+      "plugin:other@x",
+      "plugin:companion@shipshape is great",
+    ]),
+  ).toBe(false);
+});

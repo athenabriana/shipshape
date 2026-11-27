@@ -38,6 +38,9 @@ case "${1:-status}" in
     ;;
   set)
     if [ -t 0 ]; then
+      # Turn echo back on however the read ends, Ctrl-C included.
+      trap 'stty echo' EXIT
+      trap 'stty echo; exit 130' INT TERM
       printf 'Bot token: ' >&2; stty -echo; IFS= read -r token || true; stty echo; printf '\n' >&2
     else
       IFS= read -r token || true

@@ -94,11 +94,15 @@ process.stderr.write = ((chunk: string | Uint8Array, ...rest: unknown[]) => {
   const leaks = SECRETS.some(secret => bytes.includes(secret))
   return writeStderr(leaks ? redact(bytes.toString('utf8')) : chunk, ...(rest as []))
 }) as typeof process.stderr.write
-for (const level of ['log', 'info', 'warn', 'error', 'debug', 'trace'] as const) {
+for (const level of ['log', 'info', 'warn', 'error', 'debug'] as const) {
   // stdout is the MCP transport, so even console.log goes to stderr.
   console[level] = (...args: unknown[]) => {
     process.stderr.write(formatWithOptions({ colors: false }, ...args) + '\n')
   }
+}
+console.trace = (...args: unknown[]) => {
+  const stack = new Error().stack?.split('\n').slice(2).join('\n') ?? ''
+  process.stderr.write(`Trace: ${formatWithOptions({ colors: false }, ...args)}\n${stack}\n`)
 }
 const INBOX_DIR = join(STATE_DIR, 'inbox')
 const PID_FILE = join(STATE_DIR, 'bot.pid')

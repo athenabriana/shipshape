@@ -63,10 +63,12 @@ export function namesThisChannel(args: string[], plugin = "companion"): boolean 
     const inline = CHANNEL_FLAGS.find((f) => arg.startsWith(`${f}=`));
     if (inline) values.push(arg.slice(inline.length + 1));
     else if (CHANNEL_FLAGS.includes(arg)) {
-      while (i + 1 < args.length && !args[i + 1].startsWith("-")) values.push(args[++i]);
+      // Take only what looks like a channel spec, so a prompt after the flag never counts.
+      while (i + 1 < args.length && /^(plugin|server):\S+$/.test(args[i + 1]))
+        values.push(args[++i]);
     }
   }
-  return values.flatMap((v) => v.split(/[,\s]+/)).some((v) => v.startsWith(`plugin:${plugin}@`));
+  return values.flatMap((v) => v.split(",")).some((v) => v.startsWith(`plugin:${plugin}@`));
 }
 
 /** Walks up to the nearest Claude Code process and asks whether it named this channel. */

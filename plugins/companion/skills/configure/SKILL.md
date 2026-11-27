@@ -9,8 +9,6 @@ metadata:
 user-invocable: true
 allowed-tools:
   - Read
-  - Write
-  - Bash(mkdir *)
   - Bash(echo *)
 ---
 
@@ -35,7 +33,10 @@ fallback: the channel copies an existing `.env` and `access.json` from it on its
 
 The token script is `scripts/token-env.sh` in the plugin, two folders up from this skill's
 base directory: `SKILL_BASE/../../scripts/token-env.sh`, written below as `TOKEN_SCRIPT`.
-It resolves the same folder by itself, and it never prints the token:
+It resolves the same folder by itself, and it never prints the token. Its path depends on
+where the plugin is installed, so `allowed-tools` cannot name it: each call asks for
+permission, and a session in `dontAsk` mode refuses it. There, tell the person to run the
+terminal command below and read `TOKEN_SCRIPT status` from them instead.
 
 | command               | what it does                                                                       |
 | --------------------- | ---------------------------------------------------------------------------------- |

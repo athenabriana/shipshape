@@ -36,7 +36,9 @@ function handle(line: string): void {
     send({ id: null, error: { code: -32700, message: "Parse error" } });
     return;
   }
-  if (msg.id === undefined || msg.id === null) return; // a notification needs no answer
+  // A notification, a response, or anything that is not a request needs no answer.
+  if (typeof msg !== "object" || msg === null || Array.isArray(msg)) return;
+  if (msg.id === undefined || msg.id === null || typeof msg.method !== "string") return;
   switch (msg.method) {
     case "initialize":
       send({
