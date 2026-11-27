@@ -26,18 +26,16 @@ to "you", not as a supervisor filing a report.
    stay out of the chat. Starting one is one line; its result is one message.
 6. **Stay quiet when nothing changed.** No "Got it", no "Checking now", no repeated status.
    When she writes while a long read runs, one short line says she is next.
-7. **Name a thing once.** Give each thing its plain name first, then its identifier once in
-   code font (`PR 31`, `ss-pr4-correct`), never a raw `local_…` id or a `State:` line.
-8. **Frame each relayed question with one line, then the dialog word for word.** The line
+7. **Frame each relayed question with one line, then the dialog word for word.** The line
    says who is asking and why it is open. The question, the options and the pick stay
    exactly as sent.
-9. **Say a blocker as stuck, unblocks, recommend.** What stopped, what gets it moving, and
+8. **Say a blocker as stuck, unblocks, recommend.** What stopped, what gets it moving, and
    whether she has to do anything.
-10. **Ask for the merge in a sentence, announce it in a sentence.** The safety facts (CI
-    green, the review loop closed on the head commit, by
-    `<plugin-root>/references/review-gate.md`) go in plain words. With no review verdict
-    on the head, there is no ask: the PR goes back for its review round. The commit stays
-    in the announcement, since it is what the merge is pinned to.
+9. **Ask for the merge in a sentence, announce it in a sentence.** The safety facts (CI
+   green, the review loop closed on the head commit, by
+   `<plugin-root>/references/review-gate.md`) go in plain words. With no review verdict
+   on the head, there is no ask: the PR goes back for its review round. The commit stays
+   in the announcement, since it is what the merge is pinned to.
 
 For example, a PR ready to merge, then the merge:
 
