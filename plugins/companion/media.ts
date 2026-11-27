@@ -17,7 +17,25 @@ import { randomBytes } from "crypto";
 
 /** Telegram refuses a photo whose sides add up to more than 10000 pixels. */
 const MAX_SIDE = 4000;
+/** Telegram refuses a photo whose sides differ by more than this factor. */
+const MAX_RATIO = 20;
+/** Telegram's photo limit; a larger PNG goes out as a document. */
+export const MAX_PHOTO_BYTES = 10 * 1024 * 1024;
 const MAX_SVG_BYTES = 5 * 1024 * 1024;
+
+const DEJAVU: Record<string, string> = {
+  "sans-serif": "DejaVu Sans",
+  serif: "DejaVu Serif",
+  monospace: "DejaVu Sans Mono",
+};
+
+function run(cmd: string, args: string[]): string {
+  try {
+    return execFileSync(cmd, args, { encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] });
+  } catch {
+    return "";
+  }
+}
 
 /**
  * The renderer maps `sans-serif`, `serif` and `monospace` to fixed names that a machine may
@@ -30,27 +48,14 @@ function systemFamilies(): {
   serifFamily: string;
   monospaceFamily: string;
 } {
+  const installed = new Set(
+    run("fc-list", [":", "family"])
+      .split(/[\n,]/)
+      .map((f) => f.trim()),
+  );
   const match = (pattern: string, fallback: string): string => {
-    try {
-      const listed = execFileSync("fc-list", [":", "family"], {
-        encoding: "utf8",
-        stdio: ["ignore", "pipe", "ignore"],
-      });
-      const dejavu = {
-        "sans-serif": "DejaVu Sans",
-        serif: "DejaVu Serif",
-        monospace: "DejaVu Sans Mono",
-      }[pattern];
-      if (dejavu && listed.split("\n").some((l) => l.split(",").includes(dejavu))) return dejavu;
-      return (
-        execFileSync("fc-match", ["-f", "%{family[0]}", pattern], {
-          encoding: "utf8",
-          stdio: ["ignore", "pipe", "ignore"],
-        }).trim() || fallback
-      );
-    } catch {
-      return fallback;
-    }
+    if (installed.has(DEJAVU[pattern])) return DEJAVU[pattern];
+    return run("fc-match", ["-f", "%{family[0]}", pattern]).trim() || fallback;
   };
   const mac = process.platform === "darwin";
   return {
@@ -62,29 +67,50 @@ function systemFamilies(): {
 
 let families: ReturnType<typeof systemFamilies> | undefined;
 
+/**
+ * Makes model-written SVG safe and parseable: adds the SVG namespace when the root lacks it
+ * (the renderer finds no root element without it), and drops every image reference that is
+ * not inline data, so a drawing can never pull a file from this machine into the picture.
+ */
+export function prepareSvg(svg: string): string {
+  let out = svg.replace(
+    /<image\b[^>]*?\b(?:xlink:)?href\s*=\s*(["'])(?!data:)[\s\S]*?\1[^>]*?\/?>(?:\s*<\/image>)?/gi,
+    "",
+  );
+  out = out.replace(/<feImage\b[^>]*?\/?>(?:\s*<\/feImage>)?/gi, "");
+  if (!/<svg\b[^>]*\bxmlns\s*=/i.test(out)) {
+    out = out.replace(/<svg\b/i, '<svg xmlns="http://www.w3.org/2000/svg"');
+  }
+  return out;
+}
+
 /** Renders SVG markup to a PNG in `dir` and returns its path. Throws on markup it cannot render. */
 export function renderSvg(svg: string, dir: string): string {
   if (Buffer.byteLength(svg, "utf8") > MAX_SVG_BYTES) {
     throw new Error("svg too large (max 5MB)");
   }
+  const fonts = (families ??= systemFamilies());
   const options = {
     background: "white",
-    font: {
-      loadSystemFonts: true,
-      ...(families ??= systemFamilies()),
-      defaultFontFamily: families.sansSerifFamily,
-    },
+    font: { loadSystemFonts: true, ...fonts, defaultFontFamily: fonts.sansSerifFamily },
   };
-  const probe = new Resvg(svg, options);
+  const markup = prepareSvg(svg);
+  const probe = new Resvg(markup, options);
   const longest = Math.max(probe.width, probe.height, 1);
+  const shortest = Math.max(Math.min(probe.width, probe.height), 1e-9);
+  if (longest / shortest > MAX_RATIO) {
+    throw new Error(
+      `svg is ${Math.round(probe.width)}x${Math.round(probe.height)}; Telegram shows a photo only up to ${MAX_RATIO}:1, so draw it less wide or tall`,
+    );
+  }
   // Phones show small SVGs blurry, so render at twice the size, within Telegram's limit.
   const zoom = Math.min(2, MAX_SIDE / longest);
-  const png = new Resvg(svg, { ...options, fitTo: { mode: "zoom" as const, value: zoom } })
+  const png = new Resvg(markup, { ...options, fitTo: { mode: "zoom" as const, value: zoom } })
     .render()
     .asPng();
 
-  mkdirSync(dir, { recursive: true });
+  mkdirSync(dir, { recursive: true, mode: 0o700 });
   const path = join(dir, `${Date.now()}-${randomBytes(4).toString("hex")}.png`);
-  writeFileSync(path, png);
+  writeFileSync(path, png, { mode: 0o600 });
   return path;
 }

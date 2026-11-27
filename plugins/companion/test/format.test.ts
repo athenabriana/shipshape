@@ -1,6 +1,11 @@
 import { describe, expect, test } from "bun:test";
 
-import { isParseError, markdownToTelegramHtml as md } from "../format.ts";
+import {
+  balanceFences,
+  isParseError,
+  markdownToTelegramHtml as md,
+  sendFormatted,
+} from "../format.ts";
 
 describe("markdownToTelegramHtml", () => {
   test("escapes the three characters Telegram's HTML mode reserves", () => {
@@ -42,6 +47,67 @@ describe("markdownToTelegramHtml", () => {
 
   test("raw HTML from the model is escaped, never passed through", () => {
     expect(md('<a href="x">hi</a>')).toBe('&lt;a href="x"&gt;hi&lt;/a&gt;');
+  });
+});
+
+describe("markdownToTelegramHtml, literal text", () => {
+  test("file names and paths keep their underscores", () => {
+    expect(md("edit __init__.py and snake_case, then __bold__ here")).toBe(
+      "edit __init__.py and snake_case, then <b>bold</b> here",
+    );
+    expect(md("see https://x.com/__init__/a_b_c")).toBe("see https://x.com/__init__/a_b_c");
+  });
+
+  test("a backslash keeps the next mark literal", () => {
+    expect(md("use \\*args\\* here")).toBe("use *args* here");
+  });
+
+  test("a one-line fence keeps its first word", () => {
+    expect(md("```rm -rf build```")).toBe("<pre>rm -rf build</pre>");
+  });
+
+  test("a heading keeps a # that belongs to it, and a spaced rule is a rule", () => {
+    expect(md("## Using C#")).toBe("<b>Using C#</b>");
+    expect(md("- - -")).toBe("──────");
+  });
+
+  test("a link keeps balanced parentheses and a code label", () => {
+    expect(md("[wiki](https://en.wikipedia.org/wiki/Foo_(bar)) ok")).toBe(
+      '<a href="https://en.wikipedia.org/wiki/Foo_(bar)">wiki</a> ok',
+    );
+    expect(md("[`npm test`](https://x.y)")).toBe('<a href="https://x.y"><code>npm test</code></a>');
+  });
+});
+
+describe("balanceFences", () => {
+  test("closes a code block cut by a chunk boundary and reopens it", () => {
+    expect(balanceFences(["a\n```py\nx=1", "y=2\n```\nend"])).toEqual([
+      "a\n```py\nx=1\n```",
+      "```py\ny=2\n```\nend",
+    ]);
+  });
+});
+
+describe("sendFormatted", () => {
+  test("sends HTML, and the plain text when Telegram refuses the formatting", async () => {
+    const calls: [string, string | undefined][] = [];
+    const send = async (body: string, mode?: string) => {
+      calls.push([body, mode]);
+      if (mode === "HTML") throw new Error("400: Bad Request: can't parse entities");
+      return 1;
+    };
+    expect(await sendFormatted("**hi**", "markdown", send)).toBe(1);
+    expect(calls).toEqual([
+      ["<b>hi</b>", "HTML"],
+      ["**hi**", undefined],
+    ]);
+  });
+
+  test("rethrows any other error", async () => {
+    const send = async () => {
+      throw new Error("403: Forbidden: bot was blocked by the user");
+    };
+    await expect(sendFormatted("hi", "markdown", send)).rejects.toThrow("403");
   });
 });
 

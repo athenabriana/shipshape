@@ -100,17 +100,23 @@ The plugin adds three things to the upstream channel, so the companion reads wel
 - **Markdown replies.** `reply`, `notify` and `edit_message` take ordinary Markdown by
   default (`format: "markdown"`): bold, italic, strikethrough, inline code, code blocks,
   links, headings, lists and quotes. The plugin converts it to Telegram's HTML mode, and
-  sends plain text when Telegram still refuses the result. `text` and `markdownv2` work as
-  upstream.
+  sends plain text when Telegram still refuses the result. Underscores inside words and
+  paths, as in `__init__.py`, stay as written, and a backslash keeps the next mark literal.
+  `text` and `markdownv2` work as upstream.
 - **Drawn images.** `reply` and `notify` take `svgs`, a list of SVG documents, and an `.svg`
   path in `files` works too. Each renders to a PNG on a white background, at twice its size
-  up to 4000 pixels, and shows inline. The companion session cannot write files, so it
-  draws diagrams and charts this way. Rendering uses `@resvg/resvg-js`, which ships
-  prebuilt for Linux, macOS and Windows.
+  up to 4000 pixels, and shows inline; the PNG is deleted once sent. The companion session
+  cannot write files, so it draws diagrams and charts this way. A drawing more than 20 times
+  wider than tall (or the reverse) is refused, since Telegram will not show it as a photo.
+  Images an SVG references are dropped unless they are inline `data:` images, so a drawing
+  never pulls a file from this machine. Rendering uses `@resvg/resvg-js`, which ships
+  prebuilt for Linux, macOS and Windows, and loads only when a message carries an SVG.
 - **Voice notes as text.** Claude cannot listen to audio. When a transcriber is set up, a
   voice note or audio file is transcribed on arrival and reaches the session as the
-  message, tagged `voice_transcript="true"`, with the audio's path in `audio_path`. Without
-  one, it stays an attachment, as upstream.
+  message, tagged `voice_transcript="true"`. `attachment_kind` says whether it was a voice
+  note or a forwarded audio file. The recording is deleted once transcribed, and the
+  transcription runs off Telegram's update queue, so a permission tap sent meanwhile is
+  not held up. Without a transcriber, it stays an attachment, as upstream.
 
 ### Set up voice transcription
 
@@ -121,22 +127,26 @@ locally, so the audio never leaves your machine. It needs `ffmpeg`, whisper.cpp'
 `PATH`.
 
 On Ubuntu and Pop!\_OS, ffmpeg comes from apt. whisper.cpp has no apt package there, so build
-it and link the binary into `~/.local/bin`, which is on `PATH`:
+it:
 
 ```bash
 sudo apt install -y ffmpeg git cmake build-essential
 git clone --depth 1 https://github.com/ggml-org/whisper.cpp ~/.local/src/whisper.cpp
 cmake -S ~/.local/src/whisper.cpp -B ~/.local/src/whisper.cpp/build -DCMAKE_BUILD_TYPE=Release
 cmake --build ~/.local/src/whisper.cpp/build -j --config Release
-mkdir -p ~/.local/bin && ln -sf ~/.local/src/whisper.cpp/build/bin/whisper-cli ~/.local/bin/whisper-cli
 ```
+
+Then point the adapter at the binary, in the command that launches the companion session:
+`COMPANION_WHISPER_BIN=$HOME/.local/src/whisper.cpp/build/bin/whisper-cli`. Linking it into
+`~/.local/bin` works too, but Ubuntu puts that folder on `PATH` only when it existed at
+login, so a folder created now needs a new login first.
 
 Then download a model to the default path. `ggml-small.bin` handles Portuguese well on a
 CPU:
 
 ```bash
-mkdir -p ~/.local/share/whisper-cpp
-curl -L -o ~/.local/share/whisper-cpp/ggml-small.bin \
+m="${XDG_DATA_HOME:-$HOME/.local/share}/whisper-cpp"
+mkdir -p "$m" && curl -L -o "$m/ggml-small.bin" \
   https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin
 ```
 
@@ -150,12 +160,12 @@ names what is missing.
 Restart the companion session after installing. These variables tune it, set in the
 command that launches the session:
 
-| variable                   | effect                                                                       |
-| -------------------------- | ---------------------------------------------------------------------------- |
-| `COMPANION_WHISPER_BIN`    | the `whisper-cli` binary, when it is not on `PATH`                           |
-| `COMPANION_WHISPER_MODEL`  | the model file, by default `~/.local/share/whisper-cpp/ggml-small.bin`       |
-| `COMPANION_WHISPER_LANG`   | the spoken language, such as `pt`, by default `auto`                         |
-| `COMPANION_TRANSCRIBE_CMD` | another transcriber: an executable that takes the audio path and prints text |
+| variable                   | effect                                                                                   |
+| -------------------------- | ---------------------------------------------------------------------------------------- |
+| `COMPANION_WHISPER_BIN`    | the `whisper-cli` binary, when it is not on `PATH`                                       |
+| `COMPANION_WHISPER_MODEL`  | the model file, by default `${XDG_DATA_HOME:-~/.local/share}/whisper-cpp/ggml-small.bin` |
+| `COMPANION_WHISPER_LANG`   | the spoken language, such as `pt`, by default `auto`                                     |
+| `COMPANION_TRANSCRIBE_CMD` | another transcriber: an executable that takes the audio path and prints text             |
 
 Set `COMPANION_TRANSCRIBE_CMD=off` to keep voice notes as attachments. A cloud transcriber
 fits the same slot as a script that reads its own API key from its own file. The plugin
@@ -189,6 +199,7 @@ with the path written out from your home folder:
       "Edit(//home/YOU/.local/state/companion-telegram/approved/**)",
       "Bash(mkdir -p /home/YOU/.local/state/companion-telegram/approved)",
       "mcp__plugin_companion_telegram__reply",
+      "mcp__plugin_companion_telegram__notify",
       "mcp__plugin_companion_telegram__react",
       "mcp__plugin_companion_telegram__edit_message",
       "mcp__plugin_companion_telegram__download_attachment"
