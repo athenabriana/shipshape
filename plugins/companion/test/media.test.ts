@@ -1,12 +1,17 @@
 import { expect, test } from "bun:test";
-import { mkdtempSync, readFileSync } from "fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "fs";
 import { tmpdir } from "os";
 import { join } from "path";
 
-import { renderSvg } from "../media.ts";
+import { prepareSvg, renderSvg } from "../media.ts";
 
 const dir = mkdtempSync(join(tmpdir(), "companion-media-"));
 const PNG_SIGNATURE = [0x89, 0x50, 0x4e, 0x47];
+// A 1x1 red PNG.
+const RED_PNG = Buffer.from(
+  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==",
+  "base64",
+);
 
 test("renders SVG markup to a PNG at twice its size", () => {
   const path = renderSvg(
@@ -19,14 +24,47 @@ test("renders SVG markup to a PNG at twice its size", () => {
   expect(png.readUInt32BE(20)).toBe(160);
 });
 
-test("keeps a large SVG within Telegram's photo limit", () => {
+test("an SVG without xmlns still renders", () => {
+  const path = renderSvg('<svg width="40" height="20"><rect width="40" height="20"/></svg>', dir);
+  expect(readFileSync(path).readUInt32BE(16)).toBe(80);
+});
+
+test("keeps a large SVG within Telegram's photo size", () => {
   const path = renderSvg(
-    '<svg xmlns="http://www.w3.org/2000/svg" width="3000" height="100"/>',
+    '<svg xmlns="http://www.w3.org/2000/svg" width="3000" height="1000"/>',
     dir,
   );
   const width = readFileSync(path).readUInt32BE(16);
   expect(width).toBeGreaterThanOrEqual(3999);
   expect(width).toBeLessThanOrEqual(4000);
+});
+
+test("refuses a shape Telegram will not show as a photo, before rendering", () => {
+  expect(() =>
+    renderSvg('<svg xmlns="http://www.w3.org/2000/svg" width="3000" height="100"/>', dir),
+  ).toThrow("20:1");
+  expect(() =>
+    renderSvg('<svg xmlns="http://www.w3.org/2000/svg" width="10000000" height="1"/>', dir),
+  ).toThrow("20:1");
+});
+
+test("refuses any reference to a file outside the drawing", () => {
+  const red = join(dir, "red.png");
+  writeFileSync(red, RED_PNG);
+  const attempts = [
+    `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><image xlink:href="${red}" width="9" height="9"/></svg>`,
+    `<svg xmlns="http://www.w3.org/2000/svg"><image title=">" href="${red}" width="9" height="9"/></svg>`,
+    `<svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg"><svg:image href='file://${red}' width="9" height="9"/></svg>`,
+    `<svg xmlns="http://www.w3.org/2000/svg"><rect width="9" height="9" style="fill: url(${red})"/></svg>`,
+    `<svg xmlns="http://www.w3.org/2000/svg"><style>@import "${red}";</style></svg>`,
+  ];
+  for (const svg of attempts) expect(() => renderSvg(svg, dir)).toThrow("only inline data:");
+});
+
+test("keeps inline data images and #fragment references", () => {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><defs><linearGradient id="g"/></defs><rect width="10" height="10" fill="url(#g)"/><image href="data:image/png;base64,${RED_PNG.toString("base64")}" width="1" height="1"/></svg>`;
+  expect(prepareSvg(svg)).toBe(svg);
+  expect(readFileSync(renderSvg(svg, dir)).length).toBeGreaterThan(0);
 });
 
 test("throws on markup that is not SVG", () => {

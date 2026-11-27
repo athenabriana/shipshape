@@ -23,6 +23,8 @@ command -v ffmpeg >/dev/null || { echo "ffmpeg not found on PATH" >&2; exit 3; }
 
 tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
+# A signal ends the script through the EXIT trap, so the temporary audio is removed.
+trap 'exit 143' TERM INT
 # whisper.cpp reads 16 kHz mono WAV; Telegram voice notes are Ogg Opus.
-ffmpeg -nostdin -loglevel error -i "$in" -ar 16000 -ac 1 -c:a pcm_s16le "$tmp/audio.wav"
+ffmpeg -nostdin -loglevel error -protocol_whitelist file -i "$in" -ar 16000 -ac 1 -c:a pcm_s16le "$tmp/audio.wav"
 "$bin" -m "$model" -l "$lang" --no-timestamps --no-prints -f "$tmp/audio.wav" 2>/dev/null

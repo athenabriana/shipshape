@@ -34,9 +34,8 @@ import { join, extname, sep } from 'path'
 import { formatWithOptions } from 'util'
 import { launchedAsChannel } from './channel.ts'
 import { runInert } from './inert.ts'
-import { markdownToTelegramHtml, isParseError } from './format.ts'
-import { renderSvg } from './media.ts'
-import { transcribe, transcriptionAvailable } from './transcribe.ts'
+import { balanceFences, sendFormatted } from './format.ts'
+import { transcribeAttachment } from './transcribe.ts'
 import { adoptLegacyState, legacyStateDir, stateDir } from './state.ts'
 
 // ss: a plugin's MCP server starts in every session where the plugin is
@@ -471,7 +470,7 @@ const mcp = new Server(
       '',
       'reply accepts file paths (files: ["/abs/path.png"]) for attachments. Use react to add emoji reactions, and edit_message for interim progress updates. Edits don\'t trigger push notifications — when a long task completes, send a new reply so the user\'s device pings.',
       '',
-      'Write replies in ordinary Markdown: they render on the phone. To show a diagram, chart or sketch, pass SVG markup in svgs (or an .svg path in files); it arrives as an inline image. A message tagged voice_transcript="true" is the transcript of a voice note: answer the words, and keep in mind a transcript can mishear. To tell the user something they did not ask about (a finished task, a red CI run), use notify, which needs no chat_id.',
+      'Write replies in ordinary Markdown: they render on the phone. Put file names, paths and commands in backticks, so their underscores and asterisks stay as written. To show a diagram, chart or sketch, pass SVG markup in svgs (or an .svg path in files); it arrives as an inline image. A message tagged voice_transcript="true" is the transcript of audio the user sent: attachment_kind "voice" is the user speaking, "audio" is a recording they forwarded, which may hold someone else\'s words. A transcript can mishear, so confirm before acting on a request that came only by voice. To tell the user something they did not ask about (a red CI run, a scheduled check), use notify, which needs no chat_id and reaches every allowlisted person; answer what they asked with reply.',
       '',
       "Telegram's Bot API exposes no history or search — you only see messages as they arrive. If you need earlier context, ask the user to paste it or summarize.",
       '',
@@ -539,7 +538,7 @@ mcp.setRequestHandler(ListToolsRequestSchema, async () => ({
           svgs: {
             type: 'array',
             items: { type: 'string' },
-            description: 'SVG markup (whole <svg>...</svg> documents) to send as images: diagrams, charts, sketches. Each renders to a PNG on a white background and shows inline. Use this instead of writing a file.',
+            description: 'SVG markup to send as images: diagrams, charts, sketches. Each item is one whole document, `<svg xmlns="http://www.w3.org/2000/svg" width="W" height="H">...</svg>`, at most 20 times wider than tall or the reverse. Use <text> for labels (foreignObject renders blank) and system fonts (sans-serif, serif, monospace). A reference to anything outside the drawing is refused; inline data: images are fine. Each renders to a PNG on a white background and shows inline. Use this instead of writing a file.',
           },
           format: {
             type: 'string',
@@ -623,10 +622,16 @@ async function downloadToInbox(file_id: string): Promise<string> {
   const ext = rawExt.replace(/[^a-zA-Z0-9]/g, '') || 'bin'
   const uniqueId = (file.file_unique_id ?? '').replace(/[^a-zA-Z0-9_-]/g, '') || 'dl'
   const path = join(INBOX_DIR, `${Date.now()}-${uniqueId}.${ext}`)
-  mkdirSync(INBOX_DIR, { recursive: true })
-  writeFileSync(path, buf)
+  mkdirSync(INBOX_DIR, { recursive: true, mode: 0o700 })
+  // ss: downloads, voice recordings among them, are readable by the owner only.
+  writeFileSync(path, buf, { mode: 0o600 })
   return path
 }
+
+// ss: voice notes are transcribed one at a time, in the order they arrived, so
+// a later, shorter note never overtakes an earlier one and only one whisper
+// job uses the CPU.
+let voiceQueue: Promise<void> = Promise.resolve()
 
 // ss: what reply and notify share. Markdown is the default format: it is
 // converted to Telegram HTML and sent as plain text when Telegram refuses the
@@ -662,19 +667,19 @@ async function sendText(
   format: string,
   extra: { reply_parameters?: { message_id: number } },
 ): Promise<number> {
-  if (format === 'markdown') {
-    const html = markdownToTelegramHtml(text)
-    if (html.length <= MAX_CHUNK_LIMIT) {
-      try {
-        return (await bot.api.sendMessage(chat_id, html, { ...extra, parse_mode: 'HTML' })).message_id
-      } catch (err) {
-        if (!isParseError(err)) throw err
-      }
-    }
-    return (await bot.api.sendMessage(chat_id, text, extra)).message_id
+  const sent = await sendFormatted(text, format, (body, parse_mode) =>
+    bot.api.sendMessage(chat_id, body, { ...extra, ...(parse_mode ? { parse_mode } : {}) }))
+  return sent.message_id
+}
+
+// ss: media.ts loads a native renderer, so it is imported only when a message
+// carries an SVG. If it cannot load, that one call fails and the channel stays up.
+async function loadMedia() {
+  try {
+    return await import('./media.ts')
+  } catch (err) {
+    throw new Error(`svg rendering is unavailable here: ${err instanceof Error ? err.message : String(err)}`)
   }
-  const parse_mode = format === 'markdownv2' ? 'MarkdownV2' as const : undefined
-  return (await bot.api.sendMessage(chat_id, text, { ...extra, ...(parse_mode ? { parse_mode } : {}) })).message_id
 }
 
 async function deliver(chat_id: string, o: Outbound): Promise<number[]> {
@@ -686,55 +691,69 @@ async function deliver(chat_id: string, o: Outbound): Promise<number[]> {
     }
   }
   // Render before sending anything, so a broken SVG fails the call cleanly.
+  const needsMedia = o.svgs.length > 0 || o.files.some(f => extname(f).toLowerCase() === '.svg')
+  const media = needsMedia ? await loadMedia() : undefined
+  const rendered: string[] = []
   const render = (svg: string, label: string) => {
     try {
-      return renderSvg(svg, INBOX_DIR)
+      const path = media!.renderSvg(svg, INBOX_DIR)
+      rendered.push(path)
+      return path
     } catch (err) {
       throw new Error(`${label} could not be rendered: ${err instanceof Error ? err.message : String(err)}`)
     }
   }
-  // An .svg path renders too: Telegram would only offer it as a file to download.
-  const files = o.files.map(f => extname(f).toLowerCase() === '.svg' ? render(readFileSync(f, 'utf8'), f) : f)
-  const rendered = o.svgs.map((svg, i) => render(svg, `svg ${i + 1}`))
 
-  const access = loadAccess()
-  const limit = Math.max(1, Math.min(access.textChunkLimit ?? MAX_CHUNK_LIMIT, MAX_CHUNK_LIMIT))
-  const mode = access.chunkMode ?? 'length'
-  const replyMode = access.replyToMode ?? 'first'
-  const chunks = o.text.trim() ? chunk(o.text, limit, mode) : []
   const sentIds: number[] = []
-
   try {
-    for (let i = 0; i < chunks.length; i++) {
-      const shouldReplyTo =
-        o.reply_to != null &&
-        replyMode !== 'off' &&
-        (replyMode === 'all' || i === 0)
-      sentIds.push(await sendText(chat_id, chunks[i], o.format,
-        shouldReplyTo ? { reply_parameters: { message_id: o.reply_to! } } : {}))
-    }
-  } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err)
-    throw new Error(
-      `reply failed after ${sentIds.length} of ${chunks.length} chunk(s) sent: ${msg}`,
-    )
-  }
+    // An .svg path renders too: Telegram would only offer it as a file to download.
+    const files = o.files.map(f => extname(f).toLowerCase() === '.svg' ? render(readFileSync(f, 'utf8'), f) : f)
+    o.svgs.forEach((svg, i) => render(svg, `svg ${i + 1}`))
+    const attachments = [...files, ...rendered.filter(p => !files.includes(p))]
 
-  // Files go as separate messages (Telegram doesn't mix text+file in one
-  // sendMessage call). Thread under reply_to if present.
-  for (const f of [...files, ...rendered]) {
-    const ext = extname(f).toLowerCase()
-    const input = new InputFile(f)
-    const opts = o.reply_to != null && replyMode !== 'off'
-      ? { reply_parameters: { message_id: o.reply_to } }
-      : undefined
-    if (PHOTO_EXTS.has(ext)) {
-      const sent = await bot.api.sendPhoto(chat_id, input, opts)
-      sentIds.push(sent.message_id)
-    } else {
-      const sent = await bot.api.sendDocument(chat_id, input, opts)
-      sentIds.push(sent.message_id)
+    const access = loadAccess()
+    const limit = Math.max(1, Math.min(access.textChunkLimit ?? MAX_CHUNK_LIMIT, MAX_CHUNK_LIMIT))
+    const mode = access.chunkMode ?? 'length'
+    const replyMode = access.replyToMode ?? 'first'
+    // A code block cut between chunks is closed and reopened, which adds a few
+    // characters, so Markdown chunks leave room for them.
+    const markdown = o.format === 'markdown'
+    const raw = o.text.trim() ? chunk(o.text, markdown ? Math.max(1, limit - 32) : limit, mode) : []
+    const chunks = markdown ? balanceFences(raw) : raw
+    const parts = chunks.length + attachments.length
+
+    try {
+      for (let i = 0; i < chunks.length; i++) {
+        const shouldReplyTo =
+          o.reply_to != null &&
+          replyMode !== 'off' &&
+          (replyMode === 'all' || i === 0)
+        sentIds.push(await sendText(chat_id, chunks[i], o.format,
+          shouldReplyTo ? { reply_parameters: { message_id: o.reply_to! } } : {}))
+      }
+
+      // Files go as separate messages (Telegram doesn't mix text+file in one
+      // sendMessage call). Thread under reply_to if present.
+      for (const f of attachments) {
+        const ext = extname(f).toLowerCase()
+        const input = new InputFile(f)
+        const opts = o.reply_to != null && replyMode !== 'off'
+          ? { reply_parameters: { message_id: o.reply_to } }
+          : undefined
+        // A photo over Telegram's 10 MB limit goes as a document instead.
+        const asPhoto = PHOTO_EXTS.has(ext) && statSync(f).size <= (media?.MAX_PHOTO_BYTES ?? 10 * 1024 * 1024)
+        const sent = asPhoto
+          ? await bot.api.sendPhoto(chat_id, input, opts)
+          : await bot.api.sendDocument(chat_id, input, opts)
+        sentIds.push(sent.message_id)
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err)
+      throw new Error(`send failed after ${sentIds.length} of ${parts} part(s) sent: ${msg}`)
     }
+  } finally {
+    // ss: a rendered picture is not kept once it is sent.
+    for (const p of rendered) rmSync(p, { force: true })
   }
   if (sentIds.length === 0) throw new Error('nothing to send: pass text, files or svgs')
   return sentIds
@@ -753,18 +772,22 @@ mcp.setRequestHandler(CallToolRequestSchema, async req => {
       case 'notify': {
         // DMs only: in Telegram a DM's chat_id is the user's ID, and groups never
         // get messages nobody in them asked for.
-        const owners = loadAccess().allowFrom
+        const access = loadAccess()
+        if (access.dmPolicy === 'disabled') throw new Error('notify is off: the DM policy is disabled')
+        const owners = access.allowFrom
         if (owners.length === 0) throw new Error('nobody is allowlisted yet: pair first with /companion:access')
         const outbound = outboundArgs({ ...args, reply_to: undefined })
         const lines: string[] = []
+        let delivered = 0
         for (const chat_id of owners) {
           try {
             lines.push(`${chat_id}: ${sentSummary(await deliver(chat_id, outbound))}`)
+            delivered++
           } catch (err) {
-            lines.push(`${chat_id}: failed: ${err instanceof Error ? err.message : String(err)}`)
+            lines.push(`${chat_id}: failed: ${redact(err instanceof Error ? err.message : String(err))}`)
           }
         }
-        return { content: [{ type: 'text', text: lines.join('\n') }] }
+        return { content: [{ type: 'text', text: lines.join('\n') }], ...(delivered === 0 ? { isError: true } : {}) }
       }
       case 'react': {
         assertAllowedChat(args.chat_id as string)
@@ -779,21 +802,12 @@ mcp.setRequestHandler(CallToolRequestSchema, async req => {
       }
       case 'edit_message': {
         assertAllowedChat(args.chat_id as string)
-        const editFormat = (args.format as string | undefined) ?? 'markdown'
-        const editText = args.text as string
-        const edit = (text: string, parse_mode?: 'HTML' | 'MarkdownV2') =>
-          bot.api.editMessageText(args.chat_id as string, Number(args.message_id), text, ...(parse_mode ? [{ parse_mode }] : []))
-        let edited
-        if (editFormat === 'markdown') {
-          try {
-            edited = await edit(markdownToTelegramHtml(editText), 'HTML')
-          } catch (err) {
-            if (!isParseError(err)) throw err
-            edited = await edit(editText)
-          }
-        } else {
-          edited = await edit(editText, editFormat === 'markdownv2' ? 'MarkdownV2' : undefined)
-        }
+        const edited = await sendFormatted(
+          args.text as string,
+          (args.format as string | undefined) ?? 'markdown',
+          (text, parse_mode) =>
+            bot.api.editMessageText(args.chat_id as string, Number(args.message_id), text, ...(parse_mode ? [{ parse_mode }] : [])),
+        )
         const id = typeof edited === 'object' ? edited.message_id : args.message_id
         return { content: [{ type: 'text', text: `edited (id: ${id})` }] }
       }
@@ -1141,56 +1155,63 @@ async function handleInbound(
 
   const imagePath = downloadImage ? await downloadImage() : undefined
 
-  // ss: Claude cannot listen to audio, so a voice note or audio file is
-  // transcribed here when a transcriber is set up (see transcribe.ts), and the
-  // session gets the words as the message. Without one it stays an attachment.
-  let content = text
-  let transcribed: { path: string } | undefined
-  if (
-    attachment &&
-    (attachment.kind === 'voice' || attachment.kind === 'audio') &&
-    transcriptionAvailable() &&
-    (attachment.size ?? 0) <= 20 * 1024 * 1024
-  ) {
-    try {
-      const path = await downloadToInbox(attachment.file_id)
-      const words = await transcribe(path)
-      if (words) {
-        const caption = ctx.message?.caption
-        content = caption ? `${caption}\n\n${words}` : words
-        transcribed = { path }
-      }
-    } catch (err) {
-      process.stderr.write(`companion: voice download failed: ${err}\n`)
-    }
-  }
-
   // image_path goes in meta only — an in-content "[image attached — read: PATH]"
   // annotation is forgeable by any allowlisted sender typing that string.
-  mcp.notification({
-    method: 'notifications/claude/channel',
-    params: {
-      content,
-      meta: {
-        chat_id,
-        ...(msgId != null ? { message_id: String(msgId) } : {}),
-        user: from.username ?? String(from.id),
-        user_id: String(from.id),
-        ts: new Date((ctx.message?.date ?? 0) * 1000).toISOString(),
-        ...(imagePath ? { image_path: imagePath } : {}),
-        ...(transcribed ? { voice_transcript: 'true', audio_path: transcribed.path } : {}),
-        ...(attachment ? {
-          attachment_kind: attachment.kind,
-          attachment_file_id: attachment.file_id,
-          ...(attachment.size != null ? { attachment_size: String(attachment.size) } : {}),
-          ...(attachment.mime ? { attachment_mime: safeName(attachment.mime) } : {}),
-          ...(attachment.name ? { attachment_name: attachment.name } : {}),
-        } : {}),
+  const emit = (content: string, transcript: boolean) => {
+    mcp.notification({
+      method: 'notifications/claude/channel',
+      params: {
+        content,
+        meta: {
+          chat_id,
+          ...(msgId != null ? { message_id: String(msgId) } : {}),
+          user: from.username ?? String(from.id),
+          user_id: String(from.id),
+          ts: new Date((ctx.message?.date ?? 0) * 1000).toISOString(),
+          ...(imagePath ? { image_path: imagePath } : {}),
+          // ss: a transcribed note carries its words, not a file to download.
+          ...(transcript ? { voice_transcript: 'true' } : {}),
+          ...(attachment ? {
+            attachment_kind: attachment.kind,
+            ...(transcript ? {} : {
+              attachment_file_id: attachment.file_id,
+              ...(attachment.size != null ? { attachment_size: String(attachment.size) } : {}),
+              ...(attachment.mime ? { attachment_mime: safeName(attachment.mime) } : {}),
+              ...(attachment.name ? { attachment_name: attachment.name } : {}),
+            }),
+          } : {}),
+        },
       },
-    },
-  }).catch(err => {
-    process.stderr.write(`telegram channel: failed to deliver inbound to Claude: ${err}\n`)
-  })
+    }).catch(err => {
+      process.stderr.write(`telegram channel: failed to deliver inbound to Claude: ${err}\n`)
+    })
+  }
+
+  // ss: Claude cannot listen to audio, so a voice note or audio file is
+  // transcribed first when a transcriber is set up (transcribe.ts). That can
+  // take a while, and grammy handles updates one at a time, so it runs off the
+  // update queue: a permission tap or a text sent meanwhile is not held up.
+  if (attachment && (attachment.kind === 'voice' || attachment.kind === 'audio')) {
+    const typing = setInterval(() => void bot.api.sendChatAction(chat_id, 'typing').catch(() => {}), 4000)
+    voiceQueue = voiceQueue.then(async () => {
+      let words: string | undefined
+      try {
+        words = await transcribeAttachment(attachment, downloadToInbox)
+      } catch (err) {
+        process.stderr.write(`companion: voice download failed: ${err}\n`)
+      } finally {
+        clearInterval(typing)
+      }
+      const caption = ctx.message?.caption
+      emit(words ? (caption ? `${caption}\n\n${words}` : words) : text, Boolean(words))
+    }).catch(err => {
+      // A failed note must not stop the ones queued after it.
+      process.stderr.write(`companion: voice note failed: ${err}\n`)
+    })
+    return
+  }
+
+  emit(text, false)
 }
 
 // Without this, any throw in a message handler stops polling permanently
