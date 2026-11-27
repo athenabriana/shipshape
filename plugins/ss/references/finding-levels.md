@@ -57,8 +57,8 @@ uppercase wherever a guide states them.
 | a missing mapped edge, a missing test, scope drift                        | `front-contract.md`    | Sugestão   |
 | a `Critical` or `Major` accessibility failure                             | `front-a11y.md`        | Bloqueante |
 | a `Minor` failure or an `Enhancement`                                     | `front-a11y.md`        | Sugestão   |
-| a `High` design deviation                                                 | `front-design.md`      | Bloqueante |
-| a `Medium` or `Low` design deviation                                      | `front-design.md`      | Sugestão   |
+| a `High` design deviation or critic finding                               | `front-design.md`      | Bloqueante |
+| a `Medium` or `Low` design deviation or critic finding                    | `front-design.md`      | Sugestão   |
 | every cleanup, since the front is behavior-preserving                     | `front-quality.md`     | Sugestão   |
 
 `front-a11y.md` keeps `Critical` / `Major` / `Minor` / `Enhancement` internally, because those

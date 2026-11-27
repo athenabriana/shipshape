@@ -4,7 +4,7 @@ description: Ship Shape's router. Matches the request to one playbook (investiga
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.2.0
+  version: 1.3.0
 ---
 
 # Go
@@ -88,10 +88,21 @@ close.
 
 - **Todo list.** Copy the playbook's steps into the session's todo list, word for word, and
   tick each as it finishes. A step is done only with the evidence it asks for.
-- **Endpoint.** Run to the endpoint the person stated. When they left it open, ask once
-  through the question tool: stop at a local commit, a pushed branch, or an open PR. A work
-  session reads the endpoint from its brief; when the brief leaves it open, it stops at a
-  local commit and says so in its report.
+- **Ask once, then run long.** When the goal is clear, gather every open question before
+  the first step and ask them together, in one decision sheet with a default on each,
+  by `<plugin-root>/references/long-run.md`. The endpoint, when the person left it open,
+  is one of its blocks: a local commit, a pushed branch, or an open PR. A work session
+  reads the endpoint from its brief; when the brief leaves it open, it stops at a local
+  commit and says so in its report. After the answers, run every step to the endpoint
+  without asking: no "should I continue?", no stop between steps. Ask again only on a
+  real blocker as that page defines it, and stop at a clean step when the person's cap is
+  reached or the usage window runs low.
+- **Interface work runs on real visuals.** A change the person sees is checked on
+  screenshots of the running thing, through the browser or app tools at hand, and goes
+  through the design-review loop of `<plugin-root>/references/design-loop.md` until the
+  critic is pleased and the goals are achieved. Whether to start on a mockup (recommended)
+  or the real screen is the person's pick, one block of the opening sheet when they have
+  not said, by `<plugin-root>/references/show-for-review.md`.
 - **Preservation check before every commit.** Reread the staged diff: nothing unrelated
   changed, nothing removed the task did not ask to remove.
 - **Subagents.** Split independent work with `Agent` subagents, each with a standalone brief:
@@ -132,7 +143,8 @@ Nothing about a correction runs unasked: the router offers, the person decides.
 
 ## 5. Close
 
-Say what changed, what is verified and by what evidence, and what is left. When the run
+Say what changed, what is verified and by what evidence, what is left, where the run
+stopped and why, and the choices made without asking. When the run
 learned a project fact that passes the filter in `<plugin-root>/references/project-facts.md`,
 offer `/ss:record-fact` with the exact line, or the `learn` playbook when the layer is not
 clear. End at the handoff gate

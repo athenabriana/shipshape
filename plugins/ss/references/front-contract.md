@@ -36,6 +36,22 @@ of `references/doc-style.md` that a string the person reads follows their langua
 Athena's words stay as she said them: quote the request and every answer exactly as the
 brief and the orchestrator give them.
 
+## Ask once, then run long
+
+A work session asks every open question once, at the start, and then runs to its endpoint
+without asking, by `<plugin-root>/references/long-run.md`:
+
+- **At the start**, every decision the brief leaves open goes to the orchestrator in one
+  `ss.ask` decision sheet, a default on each. A brief that answers everything needs none.
+- **After the answers**, the session never sends "should I continue?" and never stops
+  between steps. A choice that comes up mid-run is decided and listed in the report under
+  "decided on my own".
+- **It asks again only on a real blocker**, as that page defines it: a decision only Athena
+  can make, a missing permission, or an action reserved for her word.
+- **It bounds itself** by the cap the brief carries, in Athena's words, and by the plan's
+  usage window: it stops at a clean step (committed, pushed, reported) before the window
+  runs out, and puts the reset time in the report.
+
 ## Send each question to the orchestrator
 
 In a work session, every question a skill would ask through `AskUserQuestion` goes to the
@@ -76,6 +92,9 @@ When the task ends, at done or at a blocker, send the orchestrator one message w
 - **The result**: what changed, in the words of the goal the brief set.
 - **The PR url**, when there is one, and the state of its CI.
 - **The blockers**: what stopped the task, and what it takes to unblock it.
+- **Where it stopped and why**: the endpoint, a real blocker, the brief's cap, or the usage
+  window, with the reset time.
+- **Decided on my own**: each choice made without asking, one line each with the reason.
 - **Anything that needs another session**, such as a PR watcher, with what it should do.
 
 ## Pages and files
@@ -87,7 +106,7 @@ with her, so the visual travels as a file in the notes folder or a link, and the
 orchestrator shows it inline.
 
 - **A page** (a board, a report): publish it as an Artifact and send its URL to the
-  orchestrator, which opens it for her. A design goes on a canvas, as the next section says.
+  orchestrator, which opens it for her. A mockup goes on a canvas, as the next section says.
 - **A local file** (a screenshot, a video): leave it in the notes folder the brief names
   and send its path. The orchestrator puts it in front of her with `SendUserFile`.
 
@@ -96,11 +115,28 @@ publishes it again to the same URL. An edit that needs code or the work session'
 comes back as a message, with Athena's words quoted. Apply it, republish to the same URL,
 and send the URL again.
 
-## Designs go on a canvas
+Feedback arrives as a concrete checklist item with Athena's words quoted beside it, by
+"Feedback with a target" in `<plugin-root>/references/voice.md`. Work from the item. When
+a relayed line names no target ("I don't like it"), describe what you built in one or two
+lines and send one decision-sheet question back, the most likely reading as the pick,
+before changing anything.
 
-An interface change shows its design on a Design canvas before any code, by "Designs go on
-a canvas" in `<plugin-root>/references/show-for-review.md`. In a work session, send the
-canvas URL to the orchestrator with what each artboard shows and why A is the pick, then
-wait. Each change comes back with Athena's comment quoted: apply it on the same canvas,
-republish to the same URL, and send the URL again. Write the code only after she approves
-a variation.
+## A mockup first, or the real screen
+
+UI work starts on a mockup or on the real screen, by Athena's pick, as "A mockup first, or
+the real screen" in `<plugin-root>/references/show-for-review.md` says. When the brief does
+not say which, the question goes in the opening `ss.ask` sheet: "Start on a mockup, or go
+straight to the real screen?", the mockup first and recommended.
+
+- **On the mockup path**, take screenshots of the running app, rebuild the screen on a
+  Design canvas faithful to it, and have the critic confirm the match before designing the
+  change. Run the design-review loop on the canvas, then send the canvas URL to the
+  orchestrator with what each artboard shows and why A is the pick, and wait. Each change
+  comes back with Athena's comment quoted: apply it on the same canvas, republish to the
+  same URL, and send the URL again. Write the code only after she approves a version, then
+  screenshot the built screen and have the critic check it matches the approved canvas.
+- **On the real-screen path**, build in the app directly.
+
+Either way, check the result on screenshots of the running thing and run the
+design-review loop of `<plugin-root>/references/design-loop.md` until the critic is pleased
+and the goals are achieved, before reporting done.

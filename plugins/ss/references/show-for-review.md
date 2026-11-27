@@ -2,8 +2,8 @@
 
 Every time ss asks the person to review, approve or pick something they need to see, it
 shows that thing visually first, then asks. This page states the rule, which form to pick
-for what is being reviewed, how to find each tool, and what to do when no visual tool is
-there. Every skill that asks for a review or an approval follows it, in every session: a
+for what is being reviewed, how interface work is checked on screenshots, how to find each
+tool, and what to do when no visual tool is there. Every skill that asks for a review or an approval follows it, in every session: a
 plain session, an orchestrator, the assistant and a work session.
 
 ## The rule
@@ -27,7 +27,7 @@ already reading, so use it for any review or decision unless one of the other ro
 | what is reviewed                           | form                                       | how to make it                              |
 | ------------------------------------------ | ------------------------------------------ | ------------------------------------------- |
 | anything that fits on one screen (default) | an inline visual in the chat               | `mcp__visualize__show_widget`               |
-| an interface                               | a Design canvas                            | `Artifact` `quickstart`, `intent: "design"` |
+| an interface                               | a mockup canvas, or screenshots of the app | `Artifact` `quickstart`, `intent: "design"` |
 | text people will comment on or keep        | a private Claude Docs doc, opened for them | the Docs tools                              |
 | decisions bigger than one quick pick       | a decision sheet                           | `mcp__visualize__show_widget`               |
 | something too big to show inline           | an Artifact page                           | `Artifact` `quickstart`, `intent: "other"`  |
@@ -35,7 +35,8 @@ already reading, so use it for any review or decision unless one of the other ro
 - **Anything that fits on one screen** is a flow, an architecture, a diff summary, a
   choice between options, a line to write, a setting. Draw it inline, then ask.
 - **An interface** is a screen, a component, or a flow the person clicks through. It goes
-  on a canvas by the next section.
+  on a mockup canvas or straight to the real screen, by the person's pick, as the next
+  section says.
 - **Text people will comment on or keep** is a plan, acceptance criteria, a research
   report, a README draft. It goes in a doc, and an inline visual can sum it up next to
   the question.
@@ -47,27 +48,70 @@ already reading, so use it for any review or decision unless one of the other ro
   report with many findings. It goes on a page, and an inline visual can sum it up next
   to the question.
 
-## Designs go on a canvas
+## A mockup first, or the real screen
 
-An interface change shows its design before any code, on a Design canvas: the Artifact
-type for visual designs, which the person comments on artboard by artboard.
+UI work starts on a mockup or on the real screen, and the person picks which. When they
+have not said, ask it once, in the opening decision sheet of
+`<plugin-root>/references/long-run.md`: "Start on a mockup, or go straight to the real
+screen?", with the mockup first, recommended. When they already said, do not ask.
 
-1. Create it with the `Artifact` tool's `quickstart` action, `intent: "design"`, and
-   publish from the type it names.
-2. Put one variation per artboard, two wherever there is a choice, labeled A and B. The
-   recommended one is A, on the first artboard, and its label says it is the pick. A
-   change to an existing screen puts the current screen on its own artboard, labeled
-   "Before".
-3. Ask through the question tool, or a decision sheet by
-   `<plugin-root>/references/decision-sheet.md`, with the canvas link, what each artboard shows and why
-   A is the pick. Then wait.
-4. Apply each change the person asks for, from their comments on the artboards, on the
-   same canvas. Republish to the same URL and ask again.
-5. Write the code only after the person approves a variation, and build that one.
+### The mockup path
 
-In a work session, steps 3 and 4 run through the orchestrator by
+The mockup is a Design canvas: the Artifact type for visual designs, which the person
+comments on artboard by artboard. It has to be close to the app, so it starts from the
+app itself.
+
+1. **Take screenshots of the running app** for an existing screen, through the browser or
+   app tools, by the next section.
+2. **Rebuild that screen on the canvas** as closely as you can: the app's real tokens,
+   type, spacing, components and copy. Create the canvas with the `Artifact` tool's
+   `quickstart` action, `intent: "design"`, and publish from the type it names. Put the
+   screenshot beside the rebuild, on an artboard labeled "Before".
+3. **Check the match first.** The `ss-design-critic` agent compares the rebuild against the
+   screenshot, by `<plugin-root>/references/design-loop.md`, and the rebuild is fixed until
+   the critic finds it faithful. Only then is a change designed on top. A new screen has no
+   screenshot: build it from the app's existing tokens and components, so it looks like it
+   belongs.
+4. **Design the change** next to the faithful rebuild: one variation per artboard, two
+   wherever there is a choice, labeled A and B, the recommended one A on the first
+   artboard with a label that says it is the pick.
+5. **Run the design-review loop on the canvas** until the critic is pleased and the goals
+   are achieved, then ask through the question tool, or a decision sheet by
+   `<plugin-root>/references/decision-sheet.md`, with the canvas link, what each artboard
+   shows and why A is the pick. Then wait.
+6. **Iterate on the same canvas** with each change the person asks for, from their
+   comments on the artboards, running the loop again on what changed. Republish to the same
+   URL and ask again.
+7. **Write the code only after the person approves a version**, and build that one. Then
+   take screenshots of the real result and run the loop once more with the approved canvas
+   as the reference: the critic checks the built screen matches it.
+
+In a work session, steps 5 and 6 run through the orchestrator by
 `<plugin-root>/references/front-contract.md`: send the URL with what each artboard shows,
 and each change comes back with Athena's comment quoted.
+
+### The real-screen path
+
+Build the change in the app directly. It is still checked on screenshots of the running
+thing and goes through the design-review loop, by the next section, until the critic is
+pleased and the goals are achieved.
+
+## Interface work is checked on screenshots
+
+Any UI change is checked on screenshots of the running thing, never only by reading code.
+Run it in an isolated instance and capture it through the browser or app tools available:
+Claude in Chrome, the built-in browser, the `run` skill, or the app's own screenshots.
+Capture each task a user does, step by step, with the states it passes by, at a desktop
+and a phone width. Then run the design-review loop of
+`<plugin-root>/references/design-loop.md`: the `ss-design-critic` agent judges the
+screenshots, the session fixes what it finds, and the loop repeats until the critic is
+pleased and the goals are achieved. Only the usage window or a cap the person set stops it
+sooner.
+
+The review ask for a UI change shows those screenshots: a board of the final screens, the
+"Before" next to each changed one, and the critic's last verdict. When no tool could
+render the interface, say so in one line, and never present a code reading as a visual
+check.
 
 ## Find the tools
 

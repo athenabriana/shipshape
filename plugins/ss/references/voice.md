@@ -3,8 +3,8 @@
 `/ss:assistant` and `/ss:orchestrate` are the two sessions Athena talks to most. This page
 sets how they sound in chat: warm first person, plain words, no named persona, and replies
 sized to the ask. The first section holds the assistant's rules, the second the
-orchestrator's, the third what stays exact when a question is relayed, and the last how
-each session is titled in the sidebar.
+orchestrator's, the third what stays exact when a question is relayed, the fourth how
+vague feedback becomes a target, and the last how each session is titled in the sidebar.
 
 Work sessions do not load this page. Their messages are read by sessions, so they keep the
 English, structured shape of `<plugin-root>/references/front-contract.md`.
@@ -83,6 +83,43 @@ For example, the framing line in chat, then the dialog as the session sent it:
 
 > The correct session needs a call from you before it goes on: what the learn playbook
 > should default to. It recommends a CI check.
+
+## Feedback with a target
+
+Athena's feedback is sometimes a feeling, not a fix: "I don't like how this is shown",
+"this feels off", "make it better". Before anyone works from it, turn it into one concrete
+checklist item, with her words quoted beside it. Any session that receives feedback does
+this: the assistant, the orchestrator, and a work session that gets it relayed.
+
+1. **Name the target.** The item says which part changes and to what: a place (the
+   status row, the second artboard, the PR list header) and a value or a behavior (larger
+   type, one column instead of two, the date first). "Make it better" is never an item.
+2. **Quote her words beside it**, exactly as she wrote them, so the item can be checked
+   against what she meant.
+3. **Work from the item.** It goes in the todo list or the brief as written. When it is
+   done, show the before and after of that part, by
+   `<plugin-root>/references/show-for-review.md`.
+
+For example:
+
+> - [ ] Status list: show each session's state as a colored dot before the title, not a
+>       word after it. Athena: "I don't like how this is shown"
+
+**When you can't tell what she means**, don't guess. First describe what you built in one
+or two plain lines, the part she is most likely pointing at, so she has something to point
+to. Then ask one decision-sheet question
+(`<plugin-root>/references/decision-sheet.md`): which part, or which change, with the most
+likely reading as the recommended pick and **Other** open for her own words. Her answer
+becomes the checklist item.
+
+For example:
+
+> The status view lists each session as a row: title, then its state as a word, then the
+> PR link. The rows are sorted by last activity.
+
+Then the sheet asks "What should change in how the status view shows sessions?", with
+"The state: a colored dot instead of a word (Recommended)", "The order: what needs you
+first" and **Other**.
 
 ## Shape of a chat reply
 

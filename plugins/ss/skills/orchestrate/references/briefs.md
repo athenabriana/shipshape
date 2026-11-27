@@ -29,7 +29,7 @@ goal, the decisions so far and how this task fits in `background`, which the cal
    and the slug as the branch.
 7. **The acceptance criteria**, copied as WHEN/THEN lines from the front's Now tab, so the
    work session never reads the front.
-8. **The endpoint and the scope**, as the next sections set them.
+8. **The endpoint, the scope and the cap**, as the next sections set them.
 9. **The files and areas** it touches, as far as the orchestrator knows them.
 10. **The decisions already made**, so the work session does not ask them again. When the
     repo has `## Project facts`, name the ones that cover that code.
@@ -89,6 +89,15 @@ stops at a green, committed branch. The merge stays with the orchestrator, for a
 authorized here (`references/landing.md`), unless she says so in the work session's own
 chat.
 
+## The cap
+
+When Athena sets a limit on the run, copy it into the brief word for word: "at most 3
+review rounds", "stop after the PR is green", "one PR only". The work session stops at a
+clean step when the cap is reached, or earlier when the plan's usage window runs low, by
+`<plugin-root>/references/long-run.md`. A cap is a limit she chose, never a time: ss gives
+no time estimates and asks her for no deadline. With no cap, write "no cap: the endpoint
+and the usage window bound the run".
+
 ## The endpoint
 
 Name one: a local commit, a pushed branch, or an open PR. A code task defaults to an open
@@ -118,6 +127,13 @@ the route names a skill the installed plugin lacks, name the closest one and tel
 
 Every brief repeats these, whatever the task:
 
+- **Ask once, then run long**, by `<plugin-root>/references/long-run.md`: every open
+  question goes to the orchestrator once, at the start, as one decision sheet with a
+  default on each; after that the session runs to its endpoint without asking, never sends
+  "should I continue?", and asks again only on a real blocker (a decision only Athena can
+  make, a missing permission, or an action reserved for her word). It stops at a clean
+  step before the usage window runs out.
+
 - **Athena's global rules, copied word for word** from her global `CLAUDE.md` and the
   project's. Whatever rule she has there, such as where checks run or where the session
   may post, is a rule of the brief, not an example to pick from.
@@ -134,8 +150,22 @@ Every brief repeats these, whatever the task:
   Athena to approve the switch, so the brief says the work session asks for it.
 - **No secret, token or credential** in a message, a report or a file outside the repo's
   own secret handling.
-- **On an interface task, design comes before code, on a Design canvas**, by "Designs go on
-  a canvas" in `<plugin-root>/references/show-for-review.md`.
+- **On an interface task, a mockup first or the real screen, by Athena's pick**, by "A
+  mockup first, or the real screen" in `<plugin-root>/references/show-for-review.md`.
+  Write her pick in the brief when she gave one. When she did not, the work session asks
+  it in its opening sheet, the mockup recommended. On the mockup path the canvas rebuilds
+  the existing screen from screenshots of the running app, faithful to its tokens, type,
+  spacing, components and copy, and the critic confirms the match before any change is
+  designed; code waits for her approval of a canvas version, and the built screen is
+  checked against it.
+- **On an interface task, check every change on real visuals**: screenshots of the running
+  thing, taken through the browser or app tools the session has (Claude in Chrome, the
+  built-in browser, the `run` skill, or the app's own screenshots), never only by reading
+  code. Run the design-review loop of `<plugin-root>/references/design-loop.md` (build,
+  screenshot, the `ss-design-critic` agent, fix, repeat) until the critic is pleased and
+  the brief's goals are achieved. It has no default round limit: only the usage window or
+  a cap Athena set in the brief stops it sooner. Copy the goals and acceptance criteria
+  into the brief, because the critic judges them one by one.
 - **Every review or approval ask carries a visual**, a page, a doc or a rendered file built
   before the question, by `<plugin-root>/references/show-for-review.md`.
 
@@ -156,7 +186,9 @@ for facts, not for a voice. Write this section into every brief:
 - **A local file** (a screenshot, a video, a long report) goes to the notes folder, and its
   path goes to the orchestrator.
 - **The final report**, at done or at a blocker, carries the result, the PR url with the
-  state of its CI, and the blockers. Every `Correction repeated:` line goes in it verbatim.
+  state of its CI, the blockers, where the run stopped and why (the endpoint, a real
+  blocker, the cap or the usage window with its reset time), and the choices it made on
+  its own. Every `Correction repeated:` line goes in it verbatim.
 
 ## The notes folder
 
@@ -174,9 +206,13 @@ reports done:
 1. Run the project in an isolated instance (the next section says how), so it never touches
    the instance Athena is using.
 2. Walk every behavior the change affects.
-3. Take a screenshot of each state.
-4. Fix what diverges from what was asked, and walk it again.
-5. Send a board of the screenshots to the orchestrator.
+3. Take a screenshot of each state, with the browser or app tools the session has.
+4. Run the design-review loop of `<plugin-root>/references/design-loop.md` on those
+   screenshots: the `ss-design-critic` agent judges them, the session fixes what it finds,
+   and the loop repeats until the critic is pleased and the goals are achieved, or the
+   usage window or the brief's cap stops it at a clean step.
+5. Fix what diverges from what was asked, and walk it again.
+6. Send a board of the screenshots to the orchestrator, with the critic's last verdict.
 
 Write these steps into the brief of every interface task.
 

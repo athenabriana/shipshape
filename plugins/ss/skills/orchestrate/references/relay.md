@@ -1,7 +1,7 @@
 # While work sessions run
 
 The orchestrator is the only place Athena looks. This page covers how questions, reports
-and artifacts reach her, what the front records as they pass, how many work sessions run
+and artifacts reach her, how her feedback gets a target, what the front records as they pass, how many work sessions run
 at once, what to do on the usage limit and when work sessions collide, and how a change of
 plan travels.
 
@@ -64,8 +64,8 @@ recommended pick written in the message (`<plugin-root>/references/front-contrac
 - **When Athena asks to change an artifact**, read it with the `Artifact` tool's `read`
   action, apply the edit, and publish again to the same URL. An edit that needs code or the
   work session's context goes to the work session with her words quoted.
-- **A design canvas** (`<plugin-root>/references/show-for-review.md`, "Designs go on a
-  canvas"): open it, and watch it with `ArtifactComments`. Send every design change to the
+- **A design canvas** (`<plugin-root>/references/show-for-review.md`, "A mockup first, or
+  the real screen"): open it, and watch it with `ArtifactComments`. Send every design change to the
   work session, the comment quoted with its artboard. When Athena approves a variation,
   send its label quoted; that approval lets the work session write code.
 - **A local file** reaches Athena through `SendUserFile`, from the path the work session
@@ -94,6 +94,22 @@ the first turn after the reset. Say so in the same line as the reset time.
 - **Athena spoke to a work session directly**: what she said there stands. Read the end of
   that conversation with `list_events` before replacing the session or sending it anything
   that contradicts it.
+
+## Feedback with a target
+
+Athena's feedback on a work session's result often names a feeling, not a change: "I don't
+like how this is shown". Before it goes to the work session, turn it into a target, by
+"Feedback with a target" in `<plugin-root>/references/voice.md`:
+
+1. **Write one concrete checklist item**: the part that changes and what it changes to,
+   with her exact words quoted beside it. Send the work session both, the item and the
+   quote, and record both in Log.
+2. **When you can't tell what she means**, describe what the work session built in one or
+   two plain lines first, from its report and its visual, then ask her one decision-sheet
+   question with the most likely reading as the recommended pick. Send the answer on as
+   the item, her words quoted.
+3. **Never forward the vague line alone.** A work session that gets only "I don't like
+   it" guesses, and the guess is a second decision she did not make.
 
 ## A change of plan
 
