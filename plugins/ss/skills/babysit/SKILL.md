@@ -1,10 +1,10 @@
 ---
 name: babysit
-description: Watches a pull request while it waits for review. Sets up one recurring watcher per PR (a second request for the same PR finds and reuses the first), on any PR by number whoever opened it, in its own worktree. Each run answers new review threads, fixes red CI and pushes without force, reports merge conflicts, and the watcher removes itself when the PR is merged, closed, or approved with CI green. Its runs merge, approve and force-push nothing, since nobody gives them the word in a chat; on a fork PR it cannot push to, it only answers threads and reports red CI. Use when the user says "babysit PR 42", "watch PR 42", "fica de olho no PR 42", "keep an eye on my PR", "watch my PR", "babysit this PR URL", or picks the watcher /ss:ship offers at the end of its PR path. Don't use it to open or finish a PR or green CI now (use /ss:ship) or to review a diff (use /ss:review).
+description: Tends one PR while it waits for review. Runs on "babysit PR 42" or when /ss:ship offers it at the end of its PR path; solves threads and red CI sitting unanswered between your sessions. Sets up one recurring watcher per PR (a second request reuses the first), on any PR by number whoever opened it, in its own worktree. Each run answers new review threads, fixes red CI and pushes without force, and reports merge conflicts; the watcher removes itself when the PR is merged, closed, or approved with CI green. Outputs the watcher, how often it runs and when it stops. Its runs merge, approve and force-push nothing; on a fork PR it cannot push to, it only answers threads and reports red CI. Use when the user says "babysit PR 42", "watch PR 42", "fica de olho no PR 42", "keep an eye on my PR", "watch my PR". Don't use it to open or finish a PR now (use /ss:ship), to triage the repo or adopt someone else's PR (use /ss:caretake), or to review a diff (use /ss:review).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.0.0
+  version: 1.0.1
 ---
 
 # Babysit

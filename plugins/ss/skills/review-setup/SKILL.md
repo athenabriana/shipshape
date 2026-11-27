@@ -1,10 +1,10 @@
 ---
 name: review-setup
-description: Generates or updates the repository's CODE_REVIEW_GUIDE.md. Runs automatic discovery with parallel subagents, interviews the maintainer to validate every rule, and writes the guide at the root as the source of truth /ss:review consumes. Generates from scratch when there is no guide; when one exists, it updates surgically, only what changed. Use when the user says "set up code review", "generate the review guide", "create the CODE_REVIEW_GUIDE", "update the review guide", "the review guide is stale", or when /ss:review reports drift. Don't use it to review code (use /ss:review).
+description: Writes the repo's CODE_REVIEW_GUIDE.md, the rules /ss:review checks against. Runs when a repo has no guide, when /ss:review reports drift, or when /ss:learn picks the review rule layer for one lesson; solves review rules living only in people's heads. Runs discovery with parallel subagents, interviews the maintainer to validate every rule, and outputs the guide at the repo root, generated from scratch or updated surgically, uncommitted. Use when the user says "set up code review", "generate the review guide", "create the CODE_REVIEW_GUIDE", "update the review guide", or "the review guide is stale". Don't use it to review code (use /ss:review) or to keep a single lesson whose layer is not picked (use /ss:learn).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 2.5.0
+  version: 2.5.1
 ---
 
 # Review setup
@@ -17,13 +17,12 @@ per-repo skill is generated; the review engine is `/ss:review` itself.
 
 **Review rules live in the guide alone.** No rule goes into `AGENTS.md`,
 `CLAUDE.md` or `.claude/CLAUDE.md`: those files steer the agent writing code, and
-their `## Project facts` section belongs to `/ss:record-fact`
+their `## Project facts` section belongs to `/ss:learn`
 (`<plugin-root>/references/project-facts.md`). Discovery may read them as evidence. A
 finding that is a project fact rather than a review rule (a choice, a trap, a
 constraint the code cannot show) is named in the closing report with an offer of
-`/ss:record-fact`, never written by this skill. When a lesson arrives with its layer
-not picked yet, the `learn` playbook of `/ss:go` (`skills/go/playbooks/learn.md`) picks
-between this skill, `/ss:correct` and `/ss:record-fact`.
+`/ss:learn`, never written by this skill. A single lesson arrives here from `/ss:learn`,
+which picked the review rule layer, and runs in update mode.
 
 This SKILL.md is the router: it picks the mode, and each phase's method lives in
 its own reference, loaded only when that phase runs.
@@ -78,7 +77,7 @@ No handoff gate, report and stop:
   flag it as superseded by `/ss:review` and suggest the user delete it (their
   action, not yours).
 - Suggest committing the guide so CI-side and teammates' reviews see it.
-- Name any project fact the interview surfaced, with the offer of `/ss:record-fact`.
+- Name any project fact the interview surfaced, with the offer of `/ss:learn`.
 
 ## Edge cases
 
@@ -90,7 +89,7 @@ No handoff gate, report and stop:
 | maintainer rejects every candidate               | guide ships with confirmed rules only; thin is fine, invented is not  |
 | legacy `.claude/skills/code-review/` present     | flag as superseded; never regenerate it                               |
 | not a git repo                                   | report the error, stop                                                |
-| a rule the maintainer wants in `CLAUDE.md`       | it goes in the guide; a project fact is offered to `/ss:record-fact`  |
+| a rule the maintainer wants in `CLAUDE.md`       | it goes in the guide; a project fact is offered to `/ss:learn`        |
 
 ## Bundled resources
 

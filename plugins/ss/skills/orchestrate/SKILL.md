@@ -1,10 +1,10 @@
 ---
 name: orchestrate
-description: Turns this Desktop session into the orchestrator of one front. It scopes the goal with you through /ss:clarify, which creates the front's memory as a private Claude Docs doc that this session keeps up to date (a local folder under ~/.ss/fronts when the Docs connector is missing), starts one work session per task with a standalone brief, relays their questions word for word, follows their PRs and CI, merges only the PRs you explicitly authorized in this chat under the repository's rules, and marks the front landed at the end. It writes no code, only its front. Work sessions never start sessions. Runs on the Claude Code desktop app's session tools. Use when the user says "orchestrate this", "be the orchestrator", "run this front", "delegate everything", "split this into work sessions", "orquestra isso", "seja o orquestrador", "delegue tudo", or invokes /ss:orchestrate. Don't use it for a single small task (just do it or use /ss:go); each front gets an orchestrator of its own.
+description: Runs one front across several work sessions. Runs when work is too big for one session; solves losing the thread between sessions and PRs. Turns this Desktop session into the orchestrator. It settles the goal with you through /ss:clarify, which creates the front's memory as a private Claude Docs doc that this session keeps up to date, then starts one work session per task with a standalone brief, relays their questions word for word, follows their PRs and CI, and merges only the PRs you authorized in this chat under the repository's rules. Outputs the briefs and the landed front. It writes no code, only its front, and work sessions never start sessions. Use when the user says "orchestrate this", "be the orchestrator", "run this front", "delegate everything", "split this into work sessions", "orquestra isso", "seja o orquestrador", "delegue tudo", or invokes /ss:orchestrate. Don't use it for a single small task (just do it or use /ss:go); each front gets an orchestrator of its own.
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 3.1.0
+  version: 3.1.1
 ---
 
 # Orchestrate

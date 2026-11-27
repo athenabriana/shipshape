@@ -1,20 +1,10 @@
----
-name: record-fact
-description: Records one project fact, a durable thing the code cannot show, as one short line under "## Project facts" in the repo's CLAUDE.md (or .claude/CLAUDE.md, else AGENTS.md). Applies the three-part filter, merges with a line on the same ground, quotes the exact line in a question and writes only on your yes. Use when the user says "record this fact", "remember this for the project", "add a project fact", "note this in CLAUDE.md", "/ss:record-fact", or when a playbook closes having learned something that passes the filter. Don't use it for review rules (use /ss:review-setup) or for status and history (those stay in the PR).
-license: MIT
-metadata:
-  author: Athena Briana - github.com/athenabriana
-  version: 1.0.0
----
+# The fact layer: one project fact as an approved line
 
-# Record fact
-
-Propose one project fact as an exact line, get the person's approval, and merge it into
-the facts file. The contract is `<plugin-root>/references/project-facts.md`: which file,
-the filter, the form, and who writes. Read it once before the first step. When a lesson
-arrives with its layer not picked yet, the `learn` playbook of `/ss:go`
-(`skills/go/playbooks/learn.md`) picks between this skill, `/ss:correct` and
-`/ss:review-setup`.
+Reached from `SKILL.md`'s layer pick when the lesson is a choice, a trap or a constraint the
+code cannot show, and no check can hold it. It proposes one project fact as an exact line,
+gets the person's approval, and merges it into the facts file. The contract is
+`<plugin-root>/references/project-facts.md`: which file, the filter, the form, and who
+writes. Read it once before the first step.
 
 ## Steps
 
@@ -31,8 +21,8 @@ The steps run in order. Steps 1 to 5 only read, and the file changes only in ste
 
 2. **Apply the filter.** The fact goes in only when the code cannot show it, it will matter
    again, and getting it wrong is costly. When it fails any of the three, decline it, tell
-   the person which test it failed, and stop. A review rule goes to `/ss:review-setup`
-   instead.
+   the person which test it failed, and stop. A review rule is the review rule
+   layer's, through `/ss:review-setup`.
 
 3. **Draft one short line.** State what holds now, in plain words, under 160 characters.
    Leave out status, history, PR numbers, and dates.

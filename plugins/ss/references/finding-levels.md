@@ -55,6 +55,8 @@ uppercase wherever a guide states them.
 | every other deviation, and every rule the guide states with no level      | `front-rules.md`       | Sugestão   |
 | a missing happy path                                                      | `front-contract.md`    | Bloqueante |
 | a missing mapped edge, a missing test, scope drift                        | `front-contract.md`    | Sugestão   |
+| a reachable input that gets a broken outcome                              | `front-edges.md`       | Bloqueante |
+| any other edge case worth saying, or one on code the diff did not touch   | `front-edges.md`       | Sugestão   |
 | a `Critical` or `Major` accessibility failure                             | `front-a11y.md`        | Bloqueante |
 | a `Minor` failure or an `Enhancement`                                     | `front-a11y.md`        | Sugestão   |
 | a `High` design deviation or critic finding                               | `front-design.md`      | Bloqueante |

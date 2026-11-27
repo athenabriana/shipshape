@@ -1,26 +1,55 @@
 ---
 name: bug-fix
-description: Takes a bug from a short report to a proven fix, with no spec. Runs the bug-fix playbook of /ss:go under its risk route, so the cause is found, the failure reproduced, a focused test written and the smallest fix proven, then reviewed and shipped to the endpoint you name. Use when the user says "fix this bug", "debug this", "why does this fail", "this is broken", "esse bug", "corrige esse bug", pastes an error or a stack trace and asks for a fix, or types /ss:bug-fix. Don't use it for a read only question about the code (use /ss:investigate) or for a new feature (use /ss:clarify).
+description: Takes a bug from a short report to a proven fix, with no spec. Finds the cause with evidence, reproduces the failure, writes a focused test that fails because of the bug, makes the smallest fix that removes the cause and proves both halves, then reviews and ships it to the endpoint you name, sized by a risk route (lightweight, standard or intensive). Use when the user says "fix this bug", "debug this", "why does this fail", "this is broken", "esse bug", "corrige esse bug", pastes an error or a stack trace and asks for a fix, or types /ss:bug-fix; /ss:go runs it as its bug-fix playbook. Don't use it for a read only question about the code (use /ss:investigate), a new feature (use /ss:clarify), or a lesson to keep after the fix (use /ss:learn).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.0.0
+  version: 2.0.0
 ---
 
 # Bug fix
 
-This skill is the entry point for one `/ss:go` playbook. The steps live in
-`<plugin-root>/skills/go/playbooks/bug-fix.md`, and that file is their only source: read it
-whole before the first step, and run it as the router does.
+- **The goal:** a bug fixed with its cause found and its fix proven.
+- **When it happens:** a short report: a pasted error, a stack trace, "this fails", "fix
+  this bug".
+- **What it solves:** fixes with no cause found and no proof, and a third blind attempt.
+- **What it outputs:** the cause, a reproduction and a focused test that fail before the fix
+  and pass after, the smallest fix, reviewed and shipped to the endpoint named, each in one
+  line of the report.
 
-1. **Read the router.** Read `<plugin-root>/skills/go/SKILL.md`, sections 2 to 5: how the
-   route is sized, how the steps run, the repeated correction, the close.
-2. **Size the route.** Record the five risk facts of the planned fix (blast radius,
-   reversible, data or auth, coverage, files) and run
-   `python3 <plugin-root>/scripts/route.py` with them, at the playbook's step 5. Say the
-   route and its reason in one line.
-3. **Run the steps.** Copy the playbook's steps into the todo list, word for word, and tick
-   each one only with the evidence it asks for.
-4. **Stop at the endpoint** the person named, or the one the playbook's step 2 settles.
+This skill holds the steps; `/ss:go`'s bug-fix playbook runs it. Read the router's sections
+2 to 5 once (`<plugin-root>/skills/go/SKILL.md`): how the route is sized, how the steps run,
+the repeated correction, the close. Copy the steps below into the todo list, word for word,
+and tick each one only with the evidence it asks for. The router stays on after this run.
 
-The router stays on after this run, as `/ss:go` does.
+## Steps
+
+1. Read the ground: run `<plugin-root>/scripts/preflight.py` (branch, `base_branch`, `pr`, `gh_authenticated`) and `<plugin-root>/scripts/resolve_checks.py` (`commands`, `runnable`, `policy`) once, and read the CI triggers in `.github/workflows/`. On a protected branch, create `fix/SLUG` before the first edit; on any other branch, stay on it.
+2. Settle the endpoint once: local commit, pushed branch or open PR. A phrase in the request ("and ship", "open the PR", "abre o PR") is the answer; say in one line which endpoint you read.
+3. Find the cause with `investigate`: read the error, the code it names and `git log -p --follow -n 5 -- FILE`, then state one hypothesis in one line. Test competing hypotheses in parallel with one read only `Agent` subagent each. Stop as soon as the reproduction confirms the cause. After three refuted hypotheses, stop, report each attempt, and fix nothing.
+4. Reproduce the failure with `prove-the-fix`: the smallest script or test, kept in the session's scratchpad, watched failing the way the report says. When it cannot be reproduced, stop and report what ran and the hypotheses still standing.
+5. Size the route with `<plugin-root>/scripts/route.py` from the five facts of the planned fix, and say the route and its reason in one line.
+6. Write the focused test that fails because of the bug, held to "The focused test" in `prove-the-fix`.
+7. Make the smallest fix that removes the cause, and show both halves of the proof as `prove-the-fix` gives them for `runnable`. A refactor or a neighboring bug goes in the report as a follow-up. When CI stays red on the focused test after the fix, go back to step 3 inside the three-hypothesis limit.
+8. Stop and hand to `/ss:clarify` when the fix grows past a small change (several modules, a public contract, a design decision) or depends on a business rule nobody decided: edit nothing more, and pass on the cause, the rule and the reproduction.
+9. Run the mechanical gate: the preservation check on the staged diff, commit the test as `test(SCOPE): ...` and the fix as `fix(SCOPE): ...` (pre-commit hooks run), then push and follow CI when the endpoint allows a push.
+10. Review per route with `review`, run as a playbook step: its verdict line comes back to this run.
+11. Ship per endpoint with `ship`, handing it the proof lines and the review verdict for the PR body. On the PR endpoint, a commit after step 10 (a CI fix, a thread fix) makes the verdict stale, and `ship` runs the review loop again on the head before its handoff, by `<plugin-root>/references/review-gate.md`. Report the cause, the fix, the route, the proof and the follow-ups, each in one line.
+
+Two situational skills fire by trigger (`<plugin-root>/references/triggers.md`): `attack-the-premise` when a second fix fails the same gate as the first, and `explain-the-number` when the bug is that something got slow, where a benchmark is the reproduction and its verdict is the proof.
+
+## Route
+
+| Route       | What runs                                                                            |
+| ----------- | ------------------------------------------------------------------------------------ |
+| lightweight | preservation check, mechanical gate, the review loop with only the correctness front |
+| standard    | mechanical gate, `/ss:review` in its default loop                                    |
+| intensive   | a blast radius pass first, `/ss:review deep` with its `edges` front                  |
+
+On the standard and intensive routes the goals are this skill's own, by `<plugin-root>/references/goal-loop.md`: **G1** the reproduction of step 4 fails before the fix and passes after, **G2** the focused test of step 6 fails before and passes after, and on intensive **G3** every caller in the blast radius pass stays correct. They stand without a question, said in one line after step 5; an expected outcome the report leaves open joins them as a goal in one decision sheet. Step 10's review loop judges every goal each round until all are achieved and the judge is pleased, and step 11's report carries the `Goals:` line.
+
+Every route then runs `ship`. The blast radius pass, before the fix, writes one line per caller of the changed code: does the fix keep it correct. A caller the fix would break widens the fix, and step 8 decides.
+
+## Endpoint
+
+Local commit, pushed branch or open PR, asked once through the question tool when the request leaves it open. At a local commit the run ends with the fix committed and the test-fails-first half shown locally, or the report says it was not shown. A performance fix whose verdict is `no measurable difference` or `inconclusive` is not proven, so it never chains into review or ship.

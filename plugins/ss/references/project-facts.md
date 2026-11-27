@@ -51,9 +51,10 @@ failed.
 
 ## Who writes
 
-Only `/ss:record-fact` writes a project fact. A playbook calls it at its close when the run
+Only `/ss:learn` writes a project fact, through its fact layer
+(`skills/learn/references/fact.md`). A playbook offers it at its close when the run
 learned something that passes the filter, and the person calls it directly as
-`/ss:record-fact`.
+`/ss:learn`.
 
 In a work session of `/ss:orchestrate`, the session sends the proposed line to the
 orchestrator through `SendMessage`, as `references/front-contract.md` describes, and the

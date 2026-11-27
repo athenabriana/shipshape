@@ -19,15 +19,14 @@ plugins/ss/
 ├── references/                        # plugin-level docs shared across skills (project-facts, handoff-gate, review-gate, decision-sheet, doc-style, voice, long-run, goal-loop, design-loop, ui-references, triggers, ...)
 ├── scripts/                           # plugin-level scripts shared across skills (preflight, check_project_facts, ...)
 └── skills/
-    ├── go                                 # the /ss:go router; playbooks/ holds one recipe per playbook
-    ├── bug-fix, learn                     # entry points that open the go playbook of the same name
-    ├── clarify, ship, babysit, record-fact
-    ├── investigate, edge-cases
+    ├── go                                 # the /ss:go router; playbooks/ holds one recipe per playbook, each running a skill
+    ├── clarify, bug-fix, ship, babysit
+    ├── investigate, research              # this repo and your sessions; everything outside it
     ├── ui-critique                        # a screen judged on screenshots by ss-design-critic, a11y each round, fixed until pleased
-    ├── review, review-setup
+    ├── review, review-setup               # review's edges front hunts the cases a diff misses
     ├── orchestrate                        # one front across work sessions
-    ├── caretake, takeover, research, write-readme
-    ├── correct                            # offered by /ss:go when the same correction lands twice
+    ├── caretake                           # the PRs that are not yours: the repo digest, or adopt or modernize one PR
+    ├── learn                              # a lesson kept as a check, a review rule or a project fact; offered by /ss:go when a correction lands twice
     └── explain-the-number, attack-the-premise, prove-the-fix   # situational, loaded by trigger (references/triggers.md)
 plugins/companion/                     # Telegram channel, vendored from the official plugin (Apache-2.0); UPSTREAM.md says how to pull fixes
 ```
@@ -36,9 +35,9 @@ plugins/companion/                     # Telegram channel, vendored from the off
 
 - Skills live in `plugins/ss/skills/<name>/SKILL.md`, invoked as `/ss:<name>`. Keep the dir name identical to the frontmatter `name`.
 - A skill's own `scripts/` and `references/*.md` are relative to the skill dir. Shared ones live at the plugin root and are written `<plugin-root>/...`; the SessionStart hook resolves that placeholder to the install path once per session.
-- Project facts live under `## Project facts` in the repo's `CLAUDE.md` (or `AGENTS.md`); `plugins/ss/references/project-facts.md` is the contract, and only `/ss:record-fact` writes them.
+- Project facts live under `## Project facts` in the repo's `CLAUDE.md` (or `AGENTS.md`); `plugins/ss/references/project-facts.md` is the contract, and only `/ss:learn` writes them.
 - A situational skill carries `kind: situational` under `metadata` and one row in `plugins/ss/references/triggers.md`, the trigger table an agent reads first: every orchestrate brief, the bug-fix playbook and `/ss:ship` send it there. `.github/scripts/validate-triggers.ts` checks that every situational skill has a row and every row a skill. All three set `user-invocable: false`.
-- A playbook is `plugins/ss/skills/go/playbooks/<name>.md` with `## Steps`, `## Route` and `## Endpoint`, and one row in the table under `## 1. Match a playbook` in `skills/go/SKILL.md`. `.github/scripts/validate-playbooks.ts` checks both ways.
+- A playbook is `plugins/ss/skills/go/playbooks/<name>.md` with `## Steps`, `## Route` and `## Endpoint`, whose steps run the skill that holds the method, and one row in the table under `## 1. Match a playbook` in `skills/go/SKILL.md`. `.github/scripts/validate-playbooks.ts` checks both ways.
 - Hook commands reference files via `${CLAUDE_PLUGIN_ROOT}/...`, which only works inside `hooks.json`.
 
 ## Skills
