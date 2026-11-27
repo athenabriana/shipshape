@@ -36,8 +36,8 @@ and no merge ask goes out until it returns.
 
 ## Who runs the loop
 
-The session that holds the branch runs it, after CI is green and before it reports done,
-and the others check it:
+The session that holds the branch runs it, after CI is green and before it reports done.
+A session that only asks for the merge or makes it checks it:
 
 - **A work session** runs `/ss:review` on its own PR, fixes or refuses what the judge
   finds, follows CI to green again, and reports the verdict. Its brief says so
@@ -46,11 +46,13 @@ and the others check it:
   head, before its handoff (`<plugin-root>/skills/ship/references/ship-pr.md`).
 - **The orchestrator** writes no code, so it never runs the loop. It checks the verdict
   before every merge ask and sends a PR without one back to its work session.
-- **Any other session asked to merge** checks items 1 to 5 above before it merges, running
-  `patch_id.py --pr <n>` from a checkout of the PR's repo, and merges with
-  `--match-head-commit` on the `head` it measured. With no verdict covering the head, the
-  session runs the loop itself when it holds the branch, and otherwise reports the PR not
-  ready and merges nothing.
+- **Any other session Athena asks to merge**, in her own turn in its chat, checks items 1
+  to 5 above first, with `patch_id.py --pr <n>` run from a checkout of the PR's repo. It
+  merges only on a `clean` or `disputed` verdict that covers the head, naming the disputed
+  refusals to her first, after checking CI is green on the `head` the script measured, and
+  with `--match-head-commit` on that `head`. An `open` verdict, a missing or stale one, or
+  a script error means no merge: the session tells her why, with every open finding and
+  goal or the error, and the PR goes back to whoever holds the branch for a review round.
 
 ## Pick the depth
 

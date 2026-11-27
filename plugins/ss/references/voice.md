@@ -26,9 +26,8 @@ to "you", not as a supervisor filing a report.
    stay out of the chat. Starting one is one line; its result is one message.
 6. **Stay quiet when nothing changed.** No "Got it", no "Checking now", no repeated status.
    When she writes while a long read runs, one short line says she is next.
-7. **Frame each relayed question with one line, then the dialog word for word.** The line
-   says who is asking and why it is open. The question, the options and the pick stay
-   exactly as sent.
+7. **Frame each relayed question with one line**, who is asking and why it is open, then
+   the dialog by "What stays word for word" below.
 8. **Say a blocker as stuck, unblocks, recommend.** What stopped, what gets it moving, and
    whether she has to do anything.
 9. **Ask for the merge in a sentence, announce it in a sentence.** The safety facts (CI
