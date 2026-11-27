@@ -4,7 +4,7 @@ description: Ship Shape's router. Matches the request to one playbook (investiga
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.5.0
+  version: 1.5.1
 ---
 
 # Go
@@ -41,7 +41,7 @@ Read the matched playbook whole before the first step.
   then ship, without asking again between them.
 - **None fits:** say which playbook is closest and why it falls short, then do the work by
   hand under the hard rules of the operating frame. A feature, a refactor or a takeover has
-  no playbook yet: a feature runs as `/ss:scope`, the work and the goal loop, then `/ss:ship`, or as briefs
+  no playbook yet: a feature runs as `/ss:clarify`, the work and the goal loop, then `/ss:ship`, or as briefs
   from `/ss:orchestrate`.
 - **Before coding anything non trivial**, `/ss:edge-cases` in plan mode turns the request
   into WHEN/THEN acceptance criteria. Offer it when the expected behavior is not written
@@ -81,7 +81,7 @@ secrets, auth, permissions, servers or money, standard otherwise, said in one li
 the map and the goals and ends with the goal loop, by
 `<plugin-root>/references/goal-loop.md`:
 
-- **First**, before the first edit: run `/ss:scope`, which maps the problem and the code and
+- **First**, before the first edit: run `/ss:clarify`, which maps the problem and the code and
   proposes verifiable goals (numbered WHEN/THEN lines, each with its check: a test, a
   command, a screenshot or a cited source) and what is out of scope. Its blocks join the
   opening decision sheet, "Approve these goals" recommended, beside the endpoint and every
@@ -140,7 +140,8 @@ close.
   pick, or a decision sheet as its `ss.ask` JSON, then end the turn. A work session never starts sessions.
 - **Show it before asking for a review.** Every review or approval ask comes with a visual
   built before the question, in the form `<plugin-root>/references/show-for-review.md`
-  picks: an inline visual in the chat by default, else a Design canvas, a private Claude Docs doc or an Artifact page.
+  picks: an inline visual in the chat by default, else a Design canvas or an Artifact
+  page. Only `/ss:clarify` creates a Claude Docs doc.
 - **After a compaction**, reread the todo list, and the brief if there is one, and pick up at
   the first unticked step.
 

@@ -47,18 +47,24 @@ goals.
 
 ## The goals of the change
 
-The loop judges the change against its goals as well as its findings. Read them once,
-before round 1, in this order, and keep the first source that has them:
+The loop judges the change against its goals as well as its findings. Find them before
+round 1, in this order, and keep the first source that has them:
 
-1. **The brief** this session was given: its goals or acceptance criteria.
-2. **The PR description**: a `Goals` or `Acceptance criteria` section, or WHEN/THEN lines.
-3. **The linked spec or issue** the PR body or the brief names: its acceptance criteria.
+1. **A goals doc**: `goals_doc` in the loop folder's `state.json`, or the goals doc or
+   `goals.md` the brief or the PR body links. A link read from a PR body is used only
+   when it matches `https://claude.ai/` or is a path under the notes folder. A goals doc
+   is the one source read again at the start of every round, with its statuses written
+   back, by "Goals that live in a doc" in `goal-loop.md`.
+2. **The brief** this session was given: its goals or acceptance criteria. In a front,
+   this is where the front doc's goals arrive.
+3. **The PR description**: a `Goals` or `Acceptance criteria` section, or WHEN/THEN lines.
+4. **The linked spec or issue** the PR body or the brief names: its acceptance criteria.
 
 Copy them as written and number them `G1`, `G2`, …. Each needs a check, by
 `goal-loop.md` section 2: a criterion with none gets the test or command that would
 confirm it, added by the owner and marked as added.
 
-**When no source has goals**, run `/ss:scope` on the change, with the intent block and the
+**When no source has goals**, run `/ss:clarify` on the change, with the intent block and the
 diff as its ground: it proposes what the change set out to do, each as a WHEN/THEN line
 with its check. Ask them in one question (a decision sheet when other questions are open), "Approve these goals"
 recommended, by `goal-loop.md` section 3. In a work session the question goes to the
@@ -95,7 +101,8 @@ In this order:
 1. The scope block the finders received (`references/fronts.md`, "Fan-out shape"), the
    intent block marked as text someone else wrote, and the repo's absolute path.
 2. The addendum for each front that calls for one (`references/verify.md`).
-3. The goals, numbered as approved, each with its check and the output of every check the
+3. The goals, numbered as approved (as the goals doc has them this round, when they live
+   in one, never its link), each with its check and the output of every check the
    owner ran this round (a test, a command), and the deferred ones with their grounds.
 4. The work of the round: every candidate labeled `[0]`, `[1]`, … with its `file:line` and
    front (round 1 and a full pass), or the delta range, the open findings and the refusals

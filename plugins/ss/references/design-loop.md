@@ -35,7 +35,8 @@ in every round.
 
 The goals are proposed, checked against their sources and approved once, by `goal-loop.md`
 sections 2 and 3, with the design sources and the target itself among the sources. WCAG AA
-is always one of the goals. Two cases are the interface's own:
+is always one of the goals. Goals that live in a goals doc are read from it each round, by
+"Goals that live in a doc" in `goal-loop.md`. Two cases are the interface's own:
 
 - **A contradiction** between two sources (a goal of a light theme only and a decisions
   file that keeps a dark one, a settings screen that offers what a goal rules out) is

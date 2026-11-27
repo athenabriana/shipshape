@@ -1,10 +1,10 @@
 ---
 name: research
-description: Researches a topic across code, content and visual references, verifies every load-bearing claim against its evidence, and writes the report to the path the caller names, or into chat. Runs to the end without questions, so an agent can call it. Use when the user says "research this", "find repos that", "how do others implement", "code research", "dig into how [project] works", "find examples of", "clone and analyze", "look up the docs for", "compare libraries", "find design references", "how do apps do [pattern]", "show me screens of", "pesquisa isso", "pesquise como", "como os outros implementam", "acha repos que", "procura exemplos de", "compara bibliotecas", "referências visuais de", "como os apps fazem", or asks about implementation patterns, library comparisons, codebase architecture, or UI patterns. /ss:scope calls it before a draft that depends on outside facts.
+description: Researches a topic across code, content and visual references, verifies every load-bearing claim against its evidence, and writes the report to the path the caller names, or into chat. Runs to the end without questions, so an agent can call it. Use when the user says "research this", "find repos that", "how do others implement", "code research", "dig into how [project] works", "find examples of", "clone and analyze", "look up the docs for", "compare libraries", "find design references", "how do apps do [pattern]", "show me screens of", "pesquisa isso", "pesquise como", "como os outros implementam", "acha repos que", "procura exemplos de", "compara bibliotecas", "referências visuais de", "como os apps fazem", or asks about implementation patterns, library comparisons, codebase architecture, or UI patterns. /ss:clarify calls it before a draft that depends on outside facts.
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 4.1.0
+  version: 4.2.0
 ---
 
 # Research
@@ -17,7 +17,7 @@ out, verify, synthesize, repeated within a fixed cap.
 
 ## How it runs
 
-The research is often called by an agent with nobody watching: `/ss:scope` runs it before
+The research is often called by an agent with nobody watching: `/ss:clarify` runs it before
 a draft, and a work session of `/ss:orchestrate` runs it from its brief. Four rules follow from that.
 
 - **No questions.** Every choice below has a default. Make it, write it in the report, and
@@ -28,7 +28,7 @@ a draft, and a work session of `/ss:orchestrate` runs it from its brief. Four ru
 - **No commit.** The research never commits its report. Whoever named the path decides
   what happens to the file.
 - **No gate.** It ends by returning a short summary, plus the path when there is one, and
-  stops. Called by scope, scope continues into the draft.
+  stops. Called by `/ss:clarify`, it continues into the draft.
 
 ## The three fronts
 
@@ -273,9 +273,10 @@ many claims held, what stayed open, and the path the report went to. With no pat
 reply, and these lines close it. Commit nothing, and stop.
 
 When a person, not a calling agent, will read the report, show it to them by
-`<plugin-root>/references/show-for-review.md`: the report in a private Claude Docs doc opened for
-them, and a visual front's images as a board on an Artifact page. The file at the path
-stays the source; the doc and the page are how the person reads it.
+`<plugin-root>/references/show-for-review.md`: the report at the caller's path or in the
+chat, summed up in an inline visual, and a visual front's images as a board on an Artifact
+page. The file at the path stays the source. Research creates no Claude Docs doc: only
+`/ss:clarify` does.
 
 ## Guidelines
 

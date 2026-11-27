@@ -10,7 +10,7 @@ follow it.
 
 The rule applies when the goal is clear: the person said what done looks like, or the
 brief carries the goal, the acceptance criteria and the endpoint. A request that still has
-an open shape goes to `/ss:scope` first, and the run starts once its goals are approved.
+an open shape goes to `/ss:clarify` first, and the run starts once its goals are approved.
 
 ## Ask every open question once, at the start
 
@@ -20,6 +20,8 @@ code and the repo's defaults leave open. Then ask them together:
 1. **One decision sheet**, by `<plugin-root>/references/decision-sheet.md`, with every open
    question as one block and a default on each: the recommended pick first, its subtitle
    saying "Recommended" and why. A single open decision goes through the question tool.
+   For big work, `/ss:clarify` writes a private Claude Docs doc first, by "When the goals
+   get a doc" in its `SKILL.md`, and the sheet follows it.
 2. **Say the promise in the sheet's header line or the dialog**: after this, the session
    runs to the endpoint and asks again only on a real blocker.
 3. **Take the answers as final for this run.** A decision the person skipped keeps its
@@ -27,7 +29,7 @@ code and the repo's defaults leave open. Then ask them together:
    open, by "Read the answer" in the decision-sheet page.
 
 Work that runs the goal loop of `<plugin-root>/references/goal-loop.md` adds the blocks
-`/ss:scope` proposes: the goals, numbered, each with its check, "Approve these goals" first,
+`/ss:clarify` proposes: the goals, numbered, each with its check, "Approve these goals" first,
 and what is out of scope. Their approval
 is the only time the goals are asked; after it they hold for the run.
 

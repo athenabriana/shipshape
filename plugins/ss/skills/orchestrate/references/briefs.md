@@ -187,7 +187,7 @@ Every brief repeats these, whatever the task:
   the brief's goals are achieved. It has no default round limit: only the usage window or
   a cap Athena set in the brief stops it sooner. Copy the goals and acceptance criteria
   into the brief, because the critic judges them one by one.
-- **Every review or approval ask carries a visual**, a page, a doc or a rendered file built
+- **Every review or approval ask carries a visual**, a page, a canvas or a rendered file built
   before the question, by `<plugin-root>/references/show-for-review.md`.
 
 ## How to report
