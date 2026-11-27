@@ -1,0 +1,3 @@
+{
+  "ignorePatterns": ["plugins/companion/server.ts", "plugins/companion/bun.lock"]
+}

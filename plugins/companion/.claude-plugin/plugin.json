@@ -1,0 +1,11 @@
+{
+  "name": "companion",
+  "description": "Telegram channel for Ship Shape: a bot that bridges your Telegram DMs to one Claude Code session, with pairing and an allowlist. Polls only when launched with COMPANION_CHANNEL=1. Manage access with /companion:access and setup with /companion:configure. Adapted from the official Telegram channel plugin (Apache-2.0).",
+  "version": "0.1.0",
+  "author": {
+    "name": "Athena Briana",
+    "email": "me@athenabriana.com"
+  },
+  "license": "Apache-2.0",
+  "keywords": ["telegram", "messaging", "channel", "mcp"]
+}

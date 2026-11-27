@@ -1,0 +1,11 @@
+companion (Ship Shape)
+Copyright 2026 Athena Briana
+
+This plugin is adapted from the Telegram channel plugin in
+anthropics/claude-plugins-official (https://github.com/anthropics/claude-plugins-official),
+path external_plugins/telegram, version 0.0.7, commit
+1e96c6b0a0f06cad576086243f3d06397c4ddf44, licensed under the Apache License,
+Version 2.0. The license text is in LICENSE.
+
+Changes from that version are listed in UPSTREAM.md, and each modified source
+file says it was modified in its header comment.
