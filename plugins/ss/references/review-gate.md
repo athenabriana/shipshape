@@ -36,9 +36,8 @@ and no merge ask goes out until it returns.
 
 ## Who runs the loop
 
-The session that holds the branch runs it, after CI is green and before it reports done,
-and a session that only asks for the merge, or makes it, checks the verdict. Each
-session's part:
+The session that holds the branch runs it, after CI is green and before it reports done.
+The orchestrator and any other session that makes a merge check it. Each session's part:
 
 - **A work session** runs `/ss:review` on its own PR, fixes or refuses what the judge
   finds, follows CI to green again, and reports the verdict. Its brief says so
@@ -50,13 +49,16 @@ session's part:
 - **Any other session Athena asks to merge**, in her own turn in its chat, checks items
   1–5 above first, with `patch_id.py --pr <n>` run from a checkout of the PR's repo
   (`--repo <path>` names one). A `clean` or `disputed` verdict that covers the head, with
-  every goal achieved or deferred, merges once CI is green on the `head` the script
-  measured, with `--match-head-commit` on that `head`; a `disputed` one names its refusals
-  to her first. An `open` verdict, a goal still open or a design verdict left open goes to
-  her in that chat as a merge ask by "The merge ask" below, and the merge waits for her
-  answer. A missing or stale verdict, a UI PR with no `Design:` line, or a script error
-  means no merge: the session tells her why, and that `/ss:review` has to run on the
-  branch.
+  every goal achieved or deferred, merges by the repository's method once CI is green on
+  the `head` the script measured, with `--match-head-commit` on that `head`, announced
+  with that commit before it runs; several PRs merge one at a time. A `disputed` verdict
+  merges only on her word given after its refusals were named to her, so when her word
+  came first they go to her as a merge ask. An `open` verdict, a goal still open, or a
+  design loop that left verdicts open goes to her in that chat as a merge ask by "The
+  merge ask" below, and the merge waits for her answer. A missing or stale verdict, a UI
+  PR with no design loop, or a script error means no merge: a session that holds the
+  branch runs the loop itself and asks her again with the new verdict, and any other tells
+  her why and that `/ss:review` has to run on the branch.
 
 ## Pick the depth
 

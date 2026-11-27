@@ -64,8 +64,8 @@ A relay rewrites the framing and every report, and keeps the decision exact:
 
 For example, the framing line in chat, then the dialog as the session sent it:
 
-> The router rename session needs a call from you before it goes on: what the learn
-> playbook should default to. It recommends a CI check.
+> The router rename session needs a call from you before it goes on: whether the old route
+> names stay as aliases. It recommends keeping them for one release.
 
 ## Feedback with a target
 
