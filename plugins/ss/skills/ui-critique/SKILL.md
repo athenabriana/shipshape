@@ -4,7 +4,7 @@ description: Critiques a UI on real screenshots and, by default, fixes it until 
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana; the accessibility pass absorbed from /ss:review's a11y front, itself from rafael's ui-accessibility skill (loja inspira-skills, MIT)
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # UI critique
@@ -28,9 +28,14 @@ way:
 | ------------------------------- | ------------------------------------------------------------------------------------ | ------------------------- |
 | a URL, localhost, a running app | opened in the browser or app tools, by `design-loop.md` "Real visuals, always"       | the code behind it, here  |
 | a folder or files of UI code    | run in an isolated instance (a dev server on its own port, a story, the `run` skill) | those files               |
-| a mockup or a Design canvas     | read from its link or export                                                         | the canvas                |
+| a Design canvas                 | its artboards read into the loop folder and rendered locally, by `canvas-target.md`  | the canvas, republished   |
+| a mockup image or export        | read as given                                                                        | the mockup's source       |
 | screenshots                     | read as given                                                                        | the code, when it is here |
 | nothing named                   | the UI of the current project, run as a folder                                       | the project's UI files    |
+
+A Design canvas is its own path: the fixes land on the canvas, with no faithful rebuild
+and no build step, by `references/canvas-target.md`, which also says what a canvas cannot
+show.
 
 Code is never judged from its text alone: a folder is rendered and screenshotted first. When
 nothing can render it, say so in one line, run the accessibility pass on the source alone,
@@ -50,6 +55,11 @@ and never report the round as a visual check.
 path the brief names. Keep every rung that resolves. None is required: with none, the
 critic judges the screens on their own craft and the design system pass is skipped, said
 in one line.
+
+**The loop folder** holds the state, the screenshots and any tool the loop writes, by
+`design-loop.md` "The loop folder": the notes folder the brief names, else
+`~/.ss/runs/<slug>/`. When it already has a `state.json`, this is a restart: resume from
+it, and never start round 1 over.
 
 **The UI references** are three to six real screens that solve the same pattern, gathered
 before round 1 by `<plugin-root>/references/ui-references.md`: Inspo and Screenrove first
@@ -72,12 +82,18 @@ blocks, each only when it is open:
   plainly is ("A new visitor understands the product and finds sign up", "The form can be
   filled and sent by keyboard alone"). The critic judges each goal; WCAG AA is always one of
   them, unasked.
+- **The goals' contradictions**, by `design-loop.md` "Check the goals before round 1": each
+  one with both sides quoted and the recommended pick first. Build-only goals are no
+  question: they are marked with their ground and listed in the sheet's header line.
 - **Mockup or real screen**, in critique and fix on code: "When changes are needed, start
   on a mockup or go straight to the real screen?", the mockup first and recommended, by
   `<plugin-root>/references/show-for-review.md` "A mockup first, or the real screen". A
   target that is already a mockup or a canvas skips this block.
 - **A cap**, only when the request hints at a limit without naming it. Otherwise there is
   none, and the loop runs until the verdicts hold or the usage window runs low.
+
+On a canvas, the sheet's header line also says that each round renders and screenshots the
+canvas: running this skill is the ask the Design type waits for before verifying.
 
 A request that already settles every block needs no sheet: start at once. In a work
 session the sheet travels to the orchestrator as one `ss.ask` JSON, by
@@ -93,15 +109,22 @@ Every round is the same, from round 1 to the last:
 
 1. **Screenshots.** Render the target and capture every task the goals name, each step and
    the states it passes by (empty, loading, error, disabled, hover, focus, overflow), at a
-   desktop width and at 390 px, by `design-loop.md` "Real visuals, always". After round 1,
-   capture again only what the last fixes touched, plus anything a finding asked for.
-2. **The critic and the checks, in one message.** One `Agent` call with
+   desktop width and at 390 px, by `design-loop.md` "Real visuals, always", into the loop
+   folder's `shots/r<N>/`. A canvas is rendered by `references/canvas-target.md`. After
+   round 1 the round is scoped: capture again what the last fixes touched, plus anything a
+   finding asked for, and a contact sheet of the rest; a full pass captures everything, by
+   `design-loop.md` "Scoped rounds and the full pass". With the browser in hand, run the rendered accessibility checks here too
+   (`references/a11y-pass.md` §3): the `Tab` walk, the accessibility tree, the live
+   regions.
+2. **The critic and the auditor, in one message.** One `Agent` call with
    `subagent_type: "ss:ss-design-critic"`, fresh and memoryless, with the prompt
-   `design-loop.md` "Dispatch the critic" lists, the UI references included; alongside it, the accessibility pass
-   (`references/a11y-pass.md`) and, when a design source resolved and the target is code,
-   the design system pass (`references/design-system-pass.md`). Both passes fan out as
-   read only subagents when the target is more than a handful of files, and the
-   rendered checks run here, in the main context, which holds the browser.
+   `design-loop.md` "Dispatch the critic" lists, the UI references included; beside it, one
+   with `subagent_type: "ss:ss-a11y-auditor"`, fresh and memoryless, given the screenshots,
+   the source, the tokens, the rendered checks of step 1, the round's open accessibility
+   findings, the target kind and the paths of `references/a11y-pass.md` and
+   `<plugin-root>/skills/review/references/front-a11y.md`. When a design source resolved
+   and the target is code, the design system pass (`references/design-system-pass.md`)
+   runs beside them. Record each agent's id in `state.json` as it is dispatched.
 3. **Pool the findings.** One numbered list across the three: each item with its source
    (critic, accessibility, design system), its severity in its own words (High, Medium,
    Low for the critic and the design system; Critical, Major, Minor, Enhancement for
@@ -109,7 +132,12 @@ Every round is the same, from round 1 to the last:
 4. **Decide the round.** It is **pleased** only when the critic returned
    `pleased: true` and `goals_achieved: true` and no accessibility or design system
    finding is open. Accessibility findings block like the critic's: a page the critic
-   loves and a keyboard cannot reach is not done.
+   loves and a keyboard cannot reach is not done. A check the auditor lists as "not
+   reachable on a canvas" blocks nothing: it is carried to the build. A scoped round that
+   comes back pleased is not the end: the next round is the full pass, and only a pleased
+   full pass ends the loop.
+5. **Show the convergence**, by `design-loop.md` "Convergence": the open findings by
+   severity and the trend so far, as the round's line in the task list.
 
 In critique only, round 1 ends here: go to the report.
 
@@ -117,15 +145,22 @@ In critique only, round 1 ends here: go to the report.
 
 In critique and fix, by `design-loop.md` "Fix, then repeat":
 
-- **On the mockup path**, the fixes land on the canvas first, through the loop
+- **On a canvas target**, the fixes are edited in the loop folder's copy of the
+  artboards, every fill board's height measured again, and the canvas republished to its
+  own URL, by `references/canvas-target.md`.
+- **On the mockup path** of a code target, the fixes land on the canvas first, through the loop
   `show-for-review.md` describes (the faithful rebuild, the design, the person's approval),
   and the code is written from the approved canvas.
-- **On the real screen**, fix every open finding, every severity, one change at a time.
+- **Fix in batches**, by `design-loop.md` "Fix, then repeat": group the findings that share
+  a cause (a token, a component, a pattern across screens), fix each group in one change,
+  and list the groups with the findings each closes in the round's line.
+- **On the real screen**, fix every open finding, every severity, group by group.
   An accessibility fix is the concrete fix its row names. A finding is refused only with
   a ground the next round can check: it contradicts the person's request, the goals or
   the design source, quoted. A refused finding rides into the next round with its ground.
-- **Commit each round** that changed code, in the repo's conventional style, so a stop at
-  any point is a clean step. Pushing and a PR are `/ss:ship`'s, offered at the gate.
+- **End each round at a clean step**: commit the code that changed, in the repo's
+  conventional style, or republish the canvas; then write `state.json`. A stop at any
+  point is then a clean step. Pushing and a PR are `/ss:ship`'s, offered at the gate.
 
 Then the next round, with the open findings and the refusals in the critic's prompt. The
 loop stops only as `design-loop.md` "When the loop stops" says: both verdicts true with no
@@ -139,6 +174,10 @@ By `design-loop.md` "Report", plus the accessibility line:
 - **The verdicts** of the last round: `pleased`, `goals_achieved` with each goal's status,
   and `WCAG AA: pass | fail | partial` with the count per priority. How many rounds ran,
   and why the loop stopped.
+- **The trend**: open findings per round, by severity, first to last, and each round's
+  fix groups.
+- **Carried to the build**: the build-only goals and the checks not reachable on a canvas,
+  each with its ground.
 - **A board of the screenshots**, by `<plugin-root>/references/show-for-review.md`: the
   before next to the after in critique and fix; in critique only, each finding pinned to
   its screenshot.
@@ -149,6 +188,7 @@ By `design-loop.md` "Report", plus the accessibility line:
   link. A finding that rests on a reference carries that reference's link beside it, and
   the board shows the reference next to the screen it judges.
 - **Decided on my own**, one line each, by `long-run.md`.
+- **The loop folder's path**, where the screenshots and the state stay.
 
 ## 6. Gate
 
@@ -178,12 +218,16 @@ options that apply:
 | a fix for one finding breaks another goal     | revert it, refuse the finding with that goal quoted as the ground, and keep going                     |
 | the critic contradicts the design source      | the design source wins; refuse the finding with the source quoted                                     |
 | a finding comes back after its second fix     | `attack-the-premise` fires, by `<plugin-root>/references/triggers.md`; fix it at its cause            |
-| the usage window runs low mid round           | finish the edit in hand, commit, report with the reset time                                           |
+| the usage window runs low mid round           | finish the edit in hand, commit or republish, report with the reset time                              |
+| the session restarts mid loop                 | read `state.json`; resume each unfinished agent with `SendMessage` to its id; retake missing shots    |
+| `Agent` cannot dispatch `ss:ss-a11y-auditor`  | a `general-purpose` subagent opened with the agent file's body, as for the critic, said in one line   |
+| a canvas board is not static                  | listed in one line; judged on the closest real visual; never reported as rendered                     |
 
 ## Bundled resources
 
 - `references/a11y-pass.md`: the accessibility pass of every round, WCAG AA over the rendered target and its source.
 - `references/design-system-pass.md`: the design system pass, the target's code against the project's design sources.
+- `references/canvas-target.md`: a Design canvas turned into screenshots, the contact sheets, the republish, and what a canvas cannot show.
 
 Shared, at the plugin root:
 
@@ -192,4 +236,6 @@ Shared, at the plugin root:
 - `<plugin-root>/references/show-for-review.md`: the mockup or the real screen, and the board.
 - `<plugin-root>/references/ui-references.md`: real screens for the pattern, Inspo first, given to the critic each round, and the setup of a missing source.
 - `<plugin-root>/agents/ss-design-critic.md`: the critic, very hard to please, and its two verdicts.
+- `<plugin-root>/agents/ss-a11y-auditor.md`: the accessibility auditor, WCAG AA with contrast computed from the tokens.
+- `<plugin-root>/scripts/render_canvas.py`: renders a canvas's artboards with headless Chrome, measures fill heights, and lays out contact sheets.
 - `<plugin-root>/skills/review/references/front-a11y.md` and `front-design.md`, `design-checklist.md` beside them: the criteria and finding shapes both passes share with `/ss:review`.
