@@ -96,10 +96,11 @@ close.
   changed, nothing removed the task did not ask to remove.
 - **Subagents.** Split independent work with `Agent` subagents, each with a standalone brief:
   goal, repo, worktree, branch, acceptance criteria, limits. They cannot ask anyone: they
-  return their questions, and you ask them through the question tool.
+  return their questions, and you ask them through the question tool, or a decision sheet
+  when several need their context (`<plugin-root>/references/decision-sheet.md`).
 - **In a work session** (a session whose brief says an orchestrator started it), the
   question tool is the orchestrator: `SendMessage` the question with its options and your
-  pick, then end the turn. A work session never starts sessions.
+  pick, or a decision sheet as its `ss.ask` JSON, then end the turn. A work session never starts sessions.
 - **Show it before asking for a review.** Every review or approval ask comes with a visual
   built before the question, in the form `<plugin-root>/references/show-for-review.md`
   picks: an inline visual in the chat by default, else a Design canvas, a private Claude Docs doc or an Artifact page.

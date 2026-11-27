@@ -49,7 +49,8 @@ run reuses it and creates nothing. A tick reads only "Run one tick" and "Stop th
 
 ## Ask the person
 
-Every question goes through `AskUserQuestion`: at most 4 per call, the recommended option
+Every question goes through `AskUserQuestion`, or a decision sheet by
+`<plugin-root>/references/decision-sheet.md`: at most 4 per call, the recommended option
 first, and everything the decision needs inside the question. In a work session, the question goes
 to the orchestrator as `<plugin-root>/references/front-contract.md` says. A tick never asks:
 nobody is on the line, so it reports.

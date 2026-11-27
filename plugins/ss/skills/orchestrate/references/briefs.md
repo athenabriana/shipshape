@@ -147,7 +147,8 @@ for facts, not for a voice. Write this section into every brief:
 
 - **A question for Athena** goes to the orchestrator through `SendMessage`, with its options,
   the recommended pick and, when it asks for a review, the link to its visual, as the front
-  contract says. Then the work session ends its turn
+  contract says. Several decisions that each need their context go as one `ss.ask` JSON,
+  by `<plugin-root>/references/decision-sheet.md`, and the orchestrator draws the sheet. Then the work session ends its turn
   and waits.
 - **A proposed project fact** goes to the orchestrator the same way, as the exact line.
 - **A page** (a board, a report) is published as an Artifact, and its URL goes to the

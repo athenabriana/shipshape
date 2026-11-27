@@ -21,6 +21,11 @@ recommended pick written in the message (`<plugin-root>/references/front-contrac
   The dialog carries the question, every option the work session sent with what it does
   and what it costs, and its pick first, marked as the recommendation. Translate it into
   Athena's language when she speaks another, and change nothing else.
+- **Draw a decision sheet when one arrives.** A work session sends several decisions as
+  one `ss.ask` JSON with `sections` (`<plugin-root>/references/decision-sheet.md`). Frame it
+  in one line, then draw the sheet with `mcp__visualize__show_widget`: every context, question,
+  option and pick word for word, the pick first. Send her answer line back quoted, as it
+  arrived.
 - **Record it** under Waiting on Athena in the front, with the date. When she answers, the
   line moves to Log with her words quoted.
 - **Send the answer back in Athena's words**, quoted, through `SendMessage` to the work

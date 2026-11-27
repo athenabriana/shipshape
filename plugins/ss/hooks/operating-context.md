@@ -12,7 +12,7 @@ Re-establish how this work runs, especially right after a context compaction, wh
 ## Hard rules
 
 - **Merge on Athena's word, in this chat.** Any ss session may merge a PR when Athena says so in its own chat, under the repo's rules; force-push and deploy only when she asks for them in so many words. Her word is never passed down or across.
-- **Questions go only through the question tool**, at most 4 per call, recommended pick first, everything the decision needs inside the question. When Athena answers with a question, explain in plain text and do not ask the same thing again. In a work session the question tool is the orchestrator: `SendMessage`, then end the turn.
+- **Questions go through the question tool, or a decision sheet** as the plugin-level `references/decision-sheet.md` defines it: at most 4 per call, recommended pick first, everything the decision needs inside the question. A merge ask always uses the question tool. When Athena answers with a question, explain in plain text and do not ask the same thing again. In a work session the question tool is the orchestrator: `SendMessage`, then end the turn; a sheet travels as the `ss.ask` JSON that page defines.
 - **The orchestrator and the assistant never write code.** They read, plan, brief, track, relay and merge on Athena's word. Every edit, commit and push is a work session's.
 - **Work sessions never start sessions.** They split work with `Agent` subagents.
 - **Preservation check before every commit.** Reread the staged diff: nothing unrelated changed, nothing removed the task did not ask to remove.

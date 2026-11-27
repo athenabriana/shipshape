@@ -27,7 +27,8 @@ never has to open a work session.
   line, goes to a work session.
 - **Keep product decisions with Athena.** Bring each one through `AskUserQuestion`, at most
   four per call, the recommended pick first, everything the decision needs inside the
-  question.
+  question. Several decisions that each need their context go in one decision sheet, by
+  `<plugin-root>/references/decision-sheet.md`. A merge ask always uses `AskUserQuestion`.
 - **Show it before asking for a review.** A review or an approval comes with a visual,
   built or opened before the question, in the form `<plugin-root>/references/show-for-review.md` picks.
 - **Talk to her in the orchestrator's voice**, by `<plugin-root>/references/voice.md`: warm
