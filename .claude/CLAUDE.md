@@ -15,7 +15,7 @@ plugins/ss/
 │   ├── operating-context.md            # the injected operating frame (edit to tune)
 │   ├── enter_worktree.py               # worktree isolation for local autonomous runs
 │   └── scheduling-decision.md          # /loop vs Desktop task vs Cloud Routine decision table
-├── references/                        # plugin-level docs shared across skills (project-facts, handoff-gate, doc-style, triggers, ...)
+├── references/                        # plugin-level docs shared across skills (project-facts, handoff-gate, doc-style, voice, triggers, ...)
 ├── scripts/                           # plugin-level scripts shared across skills (preflight, check_project_facts, ...)
 └── skills/
     ├── go                                 # the /ss:go router; playbooks/ holds one recipe per playbook
@@ -23,7 +23,8 @@ plugins/ss/
     ├── shape, ship, babysit, record-fact
     ├── investigate, edge-cases
     ├── review, review-setup
-    ├── caretake, takeover, research, write-readme, orchestrate
+    ├── orchestrate, assistant             # one front across work sessions; your assistant over all sessions
+    ├── caretake, takeover, research, write-readme
     ├── correct                            # offered by /ss:go when the same correction lands twice
     └── explain-the-number, attack-the-premise, prove-the-fix   # situational, loaded by trigger (references/triggers.md)
 ```

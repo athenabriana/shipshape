@@ -76,11 +76,13 @@ The playbook's own `## Route` section says how this applies to it, and wins wher
 are on and why, in one line.
 
 **Mechanical gate.** The cheap, objective checks come before any review front. The repo's
-pre-commit hooks run on commit. No test suite, lint, type check or build runs by hand: CI is
-the rest of the gate, and it runs when the branch is pushed. Push only when the endpoint or
-the playbook's scope allows it, then follow the run to the end with `Bash`
-`run_in_background` (`gh run watch <id> --exit-status`) and fix what it surfaces. An
-endpoint of "local commit" skips the CI half; say so in the close.
+pre-commit hooks run on commit. The rest of the gate is the project's checks, which
+`<plugin-root>/scripts/resolve_checks.py` names: run them locally when they are cheap and
+the repo's or the machine's `CLAUDE.md` allows it, or push and let CI run them. Push only
+when the endpoint or the playbook's scope allows it, then follow the run to the end with
+`Bash` `run_in_background` (`gh run watch <id> --exit-status`) and fix what it surfaces. An
+endpoint of "local commit" with no local run leaves the checks unrun; say so in the
+close.
 
 ## 3. Run it
 

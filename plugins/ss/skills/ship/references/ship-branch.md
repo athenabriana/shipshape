@@ -11,5 +11,5 @@ committed and the pre-commit hooks passed; CI greens the rest after the push.
 4. Report what shipped (commits, files, the CI result). No PR is opened. If they want
    one later, ship again with the PR destination.
 
-Pushing a feature branch is reversible, so ship runs it. Merge, approve, and
-force-push stay yours.
+Pushing a feature branch is reversible, so ship runs it. A merge waits for your word in
+this chat, and a force-push for you to ask for it in so many words.

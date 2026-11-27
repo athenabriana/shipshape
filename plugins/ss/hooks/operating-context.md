@@ -3,21 +3,20 @@
 Re-establish how this work runs, especially right after a context compaction, when the thread is easy to lose:
 
 - **Route engineering work through `/ss:go`.** It matches the request to a playbook (investigate, bug-fix, review, ship, edge-cases, babysit, review-setup, correct, learn), sizes the process to the risk with a lightweight, standard or intensive route, and tracks the steps in the todo list. Every playbook also has a skill of its own (`/ss:bug-fix`, `/ss:learn`, `/ss:review`, ...) that opens it. A real feature has no playbook yet: reach for `/ss:shape` first to converge on acceptance criteria, then build (the work itself, split across `Agent` subagents where that pays), then `/ss:ship`. Skip all of it for tiny mechanical changes; just do those.
-- **Three session roles.** `/ss:orchestrate` makes a Desktop session the orchestrator of one front, whose memory is a private Claude Docs doc (`references/front-doc.md`, plugin-level); `/ss:manager` sits above the orchestrators and reads their fronts; a work session runs one task from its brief, by `references/front-contract.md`. The orchestrator and the manager write no code, and a work session never opens the front.
+- **Three session roles.** `/ss:orchestrate` makes a Desktop session the orchestrator of one front, whose memory is a private Claude Docs doc (`references/front-doc.md`, plugin-level); `/ss:assistant` is Athena's assistant, which helps her manage all her sessions and reads every front; a work session runs one task from its brief, by `references/front-contract.md`. The orchestrator and the assistant write no code, and a work session never opens the front.
 - **The prose follows one set of style rules.** The plugin-level `references/doc-style.md` states them whole, for every sentence ss writes, in its own files and in the documents it generates. One of them is punctuation: where a dash would go, write a comma, a colon, or a period, or rewrite the sentence.
 - **Show it before asking for a review.** Every review or approval ask comes with a visual built first, in the form the plugin-level `references/show-for-review.md` picks: an inline visual in the chat (`mcp__visualize__show_widget`) by default, a Design canvas for an interface, a private Claude Docs doc for text to keep, an Artifact page for what is too big to show inline.
+- **Two sessions talk in a voice of their own.** `/ss:assistant` and `/ss:orchestrate` talk to Athena in warm first person, by the plugin-level `references/voice.md`: what needs her first, the length matched to the ask, reports in their own words, and a relayed question's options and pick kept word for word. Work sessions keep the structured English of `references/front-contract.md`.
 - **One name per thing.** Call each thing by the name it has in the code or in the repo. The plugin-level `references/doc-style.md` carries the rule.
 
 ## Hard rules
 
-- **Never merge, approve, force-push, push a protected branch or deploy.** The one exception: `/ss:orchestrate` and `/ss:manager` merge a PR only on Athena's explicit authorization, given in that session's own chat, under the repo's rules. Authorization is never passed down or across.
-- **Checks run in CI, not locally.** No test suite, heavy lint, type check or build by hand; pre-commit hooks run on commit. Push, follow the run to the end, fix what it surfaces.
+- **Merge on Athena's word, in this chat.** Any ss session may merge a PR when Athena says so in its own chat, under the repo's rules; force-push and deploy only when she asks for them in so many words. Her word is never passed down or across.
 - **Questions go only through the question tool**, at most 4 per call, recommended pick first, everything the decision needs inside the question. When Athena answers with a question, explain in plain text and do not ask the same thing again. In a work session the question tool is the orchestrator: `SendMessage`, then end the turn.
-- **The orchestrator and the manager never write code.** They read, plan, brief, track, relay and merge on authorization. Every edit, commit and push is a work session's.
+- **The orchestrator and the assistant never write code.** They read, plan, brief, track, relay and merge on Athena's word. Every edit, commit and push is a work session's.
 - **Work sessions never start sessions.** They split work with `Agent` subagents.
 - **Preservation check before every commit.** Reread the staged diff: nothing unrelated changed, nothing removed the task did not ask to remove.
-- **Mechanical gate before review.** Pre-commit hooks, then push and CI, before any review front runs on the result.
+- **Mechanical gate before review.** Pre-commit hooks, then the project's checks (run locally or by CI after a push), before any review front runs on the result.
 - **Suggest the next step, never auto-invoke it**, unless the scope was authorized up front.
-- **No posting to Slack or any channel** without Athena's request.
 - **Be honest, not agreeable:** a decisive recommendation, and the tension named.
 - Front docs stay private. No session shares one or changes its sharing, and none writes a secret, token or credential into it.

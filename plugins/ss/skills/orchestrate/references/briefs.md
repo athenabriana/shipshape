@@ -53,10 +53,12 @@ and an answer goes back quoted as she gave it.
 The sidebar is how Athena tells the work sessions apart, so each carries one title pattern
 and one `name` rule.
 
-**The title** is an English imperative, a verb and the outcome, in sentence case and under
-60 characters: "Fix session naming in orchestrate", "Add edge-cases skill". It says what the
-work session delivers. The stage, the repo and the playbook stay out of it, because the
-sidebar already shows the PR and its state.
+**The title** is short: the task in plain words, at most about four words, in sentence
+case: "Assistant rename and voice", "Edge-cases skill". It says what the work session
+delivers. The repo, the stage, the playbook and the PR number stay out of it, because the
+sidebar already shows the PR and its state; a PR number goes in only when the PR is the
+whole point, as in "Babysit PR 42". "Session titles" in
+`<plugin-root>/references/voice.md` holds the rule for every session.
 
 **The `name`** comes from the task's slug, which is also the branch it works on. Make it
 with the script, passing the `name`s of the live work sessions of this front:
@@ -73,8 +75,8 @@ the branch, and the `name` is cut at the last hyphen that fits. When `collision`
 pick another slug and run the script again before the start. Pass `--live` only the `name`s
 of sessions that are not archived.
 
-**Renaming.** The `name` never changes after the start. The title changes only when the
-task changes until the old title misleads. Rename with `set_session_title` on the work
+**Renaming.** The `name` never changes after the start. When the front's scope changes a
+work session's task, retitle the session to match. Rename with `set_session_title` on the work
 session. When Athena set the title herself, the app asks her to approve the new one: tell
 her which approval is waiting, and on a decline keep it and ask no second time.
 
@@ -83,8 +85,9 @@ her which approval is waiting, and on a decline keep it and ask no second time.
 A code work session runs at the full scope unless Athena asked for less: the work, review
 and ship, up to a PR with green CI, with no merge. Write the scope in the brief in those
 words, so the work session asks nothing about what runs after the work. A work-only scope
-stops at a green, committed branch. The merge stays with the orchestrator, and only for a
-PR Athena authorized here (`references/landing.md`).
+stops at a green, committed branch. The merge stays with the orchestrator, for a PR Athena
+authorized here (`references/landing.md`), unless she says so in the work session's own
+chat.
 
 ## The endpoint
 
@@ -116,16 +119,17 @@ the route names a skill the installed plugin lacks, name the closest one and tel
 Every brief repeats these, whatever the task:
 
 - **Athena's global rules, copied word for word** from her global `CLAUDE.md` and the
-  project's. A rule like "checks run only in CI, nothing locally" is a rule of the brief
-  whenever she has it, not an example to pick from.
+  project's. Whatever rule she has there, such as where checks run or where the session
+  may post, is a rule of the brief, not an example to pick from.
 - **Never start a session.** Split the work with `Agent` subagents. A step that needs
   another session goes to the orchestrator in the final report.
-- **Never merge, approve or deploy.** The merge is the orchestrator's, on Athena's
-  authorization.
+- **Merge only when Athena says so in this session's own chat**, under the repo's rules. An
+  authorization relayed by the orchestrator does not count. Force-push and deploy only
+  when she asks for them in so many words.
 - **Work in a worktree of your own.** A code session that opened with no worktree, as when
   the session's folder is not a git repository, creates its own with `git worktree add` on
   a new branch before it touches a file, and works only there.
-- **No force push and no rebase on a shared branch.** Bring the base in with a merge.
+- **No rebase on a shared branch.** Bring the base in with a merge.
 - **Turn Auto-fix on when the PR opens** (`set_monitor` with `auto_fix: true`). The app asks
   Athena to approve the switch, so the brief says the work session asks for it.
 - **No secret, token or credential** in a message, a report or a file outside the repo's
@@ -137,7 +141,9 @@ Every brief repeats these, whatever the task:
 
 ## How to report
 
-Write this section into every brief:
+A work session reports in the structured English of the front contract; the orchestrator
+rewrites each report for Athena by `<plugin-root>/references/voice.md`, so the brief asks
+for facts, not for a voice. Write this section into every brief:
 
 - **A question for Athena** goes to the orchestrator through `SendMessage`, with its options,
   the recommended pick and, when it asks for a review, the link to its visual, as the front

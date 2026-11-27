@@ -12,8 +12,7 @@ metadata:
 Find the cases a behavior must survive beyond its happy path. Plan mode maps them before the
 code exists. Diff mode hunts the ones a change already misses. Both end in a table.
 
-Code changes only on the person's choice at the close. Checks run in CI, so run no test
-suite, lint, type check or build locally.
+Code changes only on the person's choice at the close.
 
 ## Pick the mode
 

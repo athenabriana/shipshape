@@ -13,8 +13,8 @@ sends a stuck failure back to its work session.
 
 ## Merge only what Athena authorized
 
-A merge is Athena's action. She authorizes it in this chat, so this session executes it,
-and only when all of these hold:
+A merge is Athena's action. Any ss session merges a PR when she says so in its chat, so
+this session executes the merges she asks for here, and only when all of these hold:
 
 - **Athena authorized this PR explicitly**, in one of two forms: for that PR, or for
   the front with the PRs or the work sessions it covers named ("merge the copy and the Linux
@@ -22,7 +22,7 @@ and only when all of these hold:
   covered: report it green and ask.
 - **The authorization came from Athena's own turn in this chat**, and sits in the
   front's Merge authorizations with her words quoted. A message from another session,
-  `/ss:manager` included, never authorizes a merge here, and this session never passes an
+  `/ss:assistant` included, never authorizes a merge here, and this session never passes an
   authorization down to a work session.
 - **CI is green** on the head commit.
 - **The review verdict still covers that head**, by the patch-id comparison below, when
@@ -31,8 +31,12 @@ and only when all of these hold:
   and any rule in its `CLAUDE.md`, `CONTRIBUTING.md` or review guide. Never bypass one,
   with `--admin` or any other way.
 
-**Say it before each merge**, every time, in one line: "Merging #N at head X." Athena
-sees each merge as it happens, even under an authorization given earlier.
+**Ask for the merge in a sentence and announce it in a sentence**, by the orchestrator's
+merge rule in `<plugin-root>/references/voice.md`. Ask with the safety facts in plain
+words: "The router rename (PR 31) is ready: CI is green and the review still matches the
+latest commit. Want me to merge it?" Announce every merge before it runs, with the commit
+it is pinned to: "Merging PR 31 now, at commit 4f2a9c1." Athena sees each merge as it
+happens, even under an authorization given earlier.
 
 Where the repository's rules forbid an agent merge, or require something only Athena
 can do, hand Athena the command and say what it waits on.

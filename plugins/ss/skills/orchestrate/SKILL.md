@@ -1,6 +1,6 @@
 ---
 name: orchestrate
-description: Turns this Desktop session into the orchestrator of one front. It shapes the goal with you, keeps the front's memory in a private Claude Docs doc (a local folder under ~/.ss/fronts when the Docs connector is missing), starts one work session per task with a standalone brief, relays their questions word for word, follows their PRs and CI, merges only the PRs you explicitly authorized in this chat under the repository's rules, and marks the front landed at the end. It writes no code, only its front. Work sessions never start sessions. Runs on the Claude Code desktop app's session tools. Use when the user says "orchestrate this", "be the orchestrator", "run this front", "delegate everything", "split this into work sessions", "orquestra isso", "seja o orquestrador", "delegue tudo", or invokes /ss:orchestrate. Don't use it for a single small task (just do it or use /ss:go), or to oversee several fronts at once (use /ss:manager).
+description: Turns this Desktop session into the orchestrator of one front. It shapes the goal with you, keeps the front's memory in a private Claude Docs doc (a local folder under ~/.ss/fronts when the Docs connector is missing), starts one work session per task with a standalone brief, relays their questions word for word, follows their PRs and CI, merges only the PRs you explicitly authorized in this chat under the repository's rules, and marks the front landed at the end. It writes no code, only its front. Work sessions never start sessions. Runs on the Claude Code desktop app's session tools. Use when the user says "orchestrate this", "be the orchestrator", "run this front", "delegate everything", "split this into work sessions", "orquestra isso", "seja o orquestrador", "delegue tudo", or invokes /ss:orchestrate. Don't use it for a single small task (just do it or use /ss:go), or to oversee several fronts at once (use /ss:assistant).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
@@ -30,7 +30,9 @@ never has to open a work session.
   question.
 - **Show it before asking for a review.** A review or an approval comes with a visual,
   built or opened before the question, in the form `<plugin-root>/references/show-for-review.md` picks.
-- **Talk short, in product words.** Say what changed for Athena, not which file changed.
+- **Talk to her in the orchestrator's voice**, by `<plugin-root>/references/voice.md`: warm
+  first person, plain product words, finished work as changed, verified, left, and quiet
+  while a work session runs. Say what changed for Athena, not which file changed.
 
 ## Start or resume
 
@@ -48,9 +50,11 @@ python3 <plugin-root>/scripts/front_pointer.py get
 
 ## Open a front
 
-1. **Title this session** with `set_session_title` and `"self"`, as
-   `Orchestrate <the goal in a few words>`. When Athena set the title herself, the app asks
-   her to approve the rename: say that approval is waiting, and on a decline keep the title.
+1. **Title this session** with `set_session_title` and `"self"`, as the front's plain name
+   in 1 to 3 words and title case, with no prefix: "Shipshape", "Inspira Desktop". The
+   rules for every session title are in "Session titles" in
+   `<plugin-root>/references/voice.md`. When Athena set the title herself, the app asks her
+   to approve the rename: say that approval is waiting, and on a decline keep the title.
 2. **Shape the goal with Athena.** Settle the goal in her words and the acceptance criteria
    as WHEN/THEN lines. For a real feature, run `/ss:shape` in this session with the front
    as its path; it writes the criteria there and nothing else.
@@ -90,7 +94,7 @@ work with `Agent` subagents and never starts sessions.
   writes code, a `name` from `front_name.py`, and the brief by
   `references/briefs.md`.
 - **When the turn began with another session's message** (a work session's report, or
-  `/ss:manager` handing work over), the app refuses a start. Propose the session instead
+  `/ss:assistant` handing work over), the app refuses a start. Propose the session instead
   (`initiation: "own_initiative"`, with the full brief), and tell Athena in one line that it
   waits for her click or her next message here.
 - **Record each work session** as a row of the Work sessions table, and its repo, branch and
@@ -137,11 +141,11 @@ Each moment has its own reference. Load it when the moment happens:
 
 ## The merge
 
-The merge is the one write to a repo the orchestrator makes itself. Athena authorizes it in
-this chat, for the PRs she names, so this session executes it under the repository's rules
-(`references/landing.md`). Record each authorization in Merge authorizations with her
+The merge is the one write to a repo the orchestrator makes itself. Like any ss session, it
+merges a PR when Athena says so in this chat, for the PRs she names, under the
+repository's rules (`references/landing.md`). Record each authorization in Merge authorizations with her
 words quoted. An authorization is never passed down to a work session, and never taken
-from another session's message, `/ss:manager` included.
+from another session's message, `/ss:assistant` included.
 
 ## Limits to say out loud
 

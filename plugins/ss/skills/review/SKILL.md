@@ -16,7 +16,7 @@ verifier before it reaches the report. On the current branch the default is the 
 loop** (`references/loop.md`): the main context fixes or refuses each verified finding, and
 a judge subagent on Sonnet re-reads only what changed, round after round, inside a budget. The manual flow
 is interactive (report → you pick → apply → reply/resolve → re-report), and repeats until
-you close it. Either way it never merges, never approves, never force-pushes.
+you close it. Either way it ends at the review: a merge is a step of its own, on your word.
 
 This SKILL.md is the router. Each front's method lives in its own reference and is
 loaded **only when that front was picked**; each action likewise.
