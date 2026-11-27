@@ -11,7 +11,7 @@ Take a bug from a short report (a pasted error, a stack trace, "fix this bug") t
 5. Size the route with `<plugin-root>/scripts/route.py` from the five facts of the planned fix, and say the route and its reason in one line.
 6. Write the focused test that fails because of the bug, held to "The focused test" in `prove-the-fix`.
 7. Make the smallest fix that removes the cause, and show both halves of the proof as `prove-the-fix` gives them for `runnable`. A refactor or a neighboring bug goes in the report as a follow-up. When CI stays red on the focused test after the fix, go back to step 3 inside the three-hypothesis limit.
-8. Stop and hand to `/ss:shape` when the fix grows past a small change (several modules, a public contract, a design decision) or depends on a business rule nobody decided: edit nothing more, and pass on the cause, the rule and the reproduction.
+8. Stop and hand to `/ss:scope` when the fix grows past a small change (several modules, a public contract, a design decision) or depends on a business rule nobody decided: edit nothing more, and pass on the cause, the rule and the reproduction.
 9. Run the mechanical gate: the preservation check on the staged diff, commit the test as `test(SCOPE): ...` and the fix as `fix(SCOPE): ...` (pre-commit hooks run), then push and follow CI when the endpoint allows a push.
 10. Review per route with `review`, run as a playbook step: its verdict line comes back to this run.
 11. Ship per endpoint with `ship`, handing it the proof lines and the review verdict for the PR body. On the PR endpoint, a commit after step 10 (a CI fix, a thread fix) makes the verdict stale, and `ship` runs the review loop again on the head before its handoff, by `<plugin-root>/references/review-gate.md`. Report the cause, the fix, the route, the proof and the follow-ups, each in one line.
@@ -25,6 +25,8 @@ Two situational skills fire by trigger (`<plugin-root>/references/triggers.md`):
 | lightweight | preservation check, mechanical gate, the review loop with only the correctness front  |
 | standard    | mechanical gate, `/ss:review` in its default loop                                     |
 | intensive   | a blast radius pass first, `edge-cases` on the diff, `/ss:review deep` with its table |
+
+On the standard and intensive routes the goals are the playbook's own, by `<plugin-root>/references/goal-loop.md`: **G1** the reproduction of step 4 fails before the fix and passes after, **G2** the focused test of step 6 fails before and passes after, and on intensive **G3** every caller in the blast radius pass stays correct. They stand without a question, said in one line after step 5; an expected outcome the report leaves open joins them as a goal in one decision sheet. Step 10's review loop judges every goal each round until all are achieved and the judge is pleased, and step 11's report carries the `Goals:` line.
 
 Every route then runs `ship`. The blast radius pass, before the fix, writes one line per caller of the changed code: does the fix keep it correct. A caller the fix would break widens the fix, and step 8 decides.
 

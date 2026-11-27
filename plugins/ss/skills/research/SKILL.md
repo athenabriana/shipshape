@@ -1,10 +1,10 @@
 ---
 name: research
-description: Researches a topic across code, content and visual references, verifies every load-bearing claim against its evidence, and writes the report to the path the caller names, or into chat. Runs to the end without questions, so an agent can call it. Use when the user says "research this", "find repos that", "how do others implement", "code research", "dig into how [project] works", "find examples of", "clone and analyze", "look up the docs for", "compare libraries", "find design references", "how do apps do [pattern]", "show me screens of", "pesquisa isso", "pesquise como", "como os outros implementam", "acha repos que", "procura exemplos de", "compara bibliotecas", "referências visuais de", "como os apps fazem", or asks about implementation patterns, library comparisons, codebase architecture, or UI patterns. /ss:shape calls it before a draft that depends on outside facts.
+description: Researches a topic across code, content and visual references, verifies every load-bearing claim against its evidence, and writes the report to the path the caller names, or into chat. Runs to the end without questions, so an agent can call it. Use when the user says "research this", "find repos that", "how do others implement", "code research", "dig into how [project] works", "find examples of", "clone and analyze", "look up the docs for", "compare libraries", "find design references", "how do apps do [pattern]", "show me screens of", "pesquisa isso", "pesquise como", "como os outros implementam", "acha repos que", "procura exemplos de", "compara bibliotecas", "referências visuais de", "como os apps fazem", or asks about implementation patterns, library comparisons, codebase architecture, or UI patterns. /ss:scope calls it before a draft that depends on outside facts.
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 4.0.0
+  version: 4.1.0
 ---
 
 # Research
@@ -17,7 +17,7 @@ out, verify, synthesize, repeated within a fixed cap.
 
 ## How it runs
 
-The research is often called by an agent with nobody watching: `/ss:shape` runs it before
+The research is often called by an agent with nobody watching: `/ss:scope` runs it before
 a draft, and a work session of `/ss:orchestrate` runs it from its brief. Four rules follow from that.
 
 - **No questions.** Every choice below has a default. Make it, write it in the report, and
@@ -28,7 +28,7 @@ a draft, and a work session of `/ss:orchestrate` runs it from its brief. Four ru
 - **No commit.** The research never commits its report. Whoever named the path decides
   what happens to the file.
 - **No gate.** It ends by returning a short summary, plus the path when there is one, and
-  stops. Called by shape, shape continues into the draft.
+  stops. Called by scope, scope continues into the draft.
 
 ## The three fronts
 
@@ -63,7 +63,10 @@ Derive a kebab slug from the topic, two to five lowercase ASCII words joined by 
 Turn the topic into a plan before searching:
 
 - **Questions**: the 2–5 questions the report must settle ("how does X handle concurrency?",
-  "which approach scales to N?"). They become the verify checklist.
+  "which approach scales to N?"). They become the verify checklist, and they are the run's
+  goals in the terms of `<plugin-root>/references/goal-loop.md`: `G1`, `G2`, … (one per question), each
+  achieved only when it is answered with a claim that holds against its evidence. The
+  research asks nothing, so its own proposal stands, written in the report.
 - **Fronts**: which of code, content and visual the questions need.
 - **Constraints**: language, framework, license, platform, activity level, from the topic
   or the caller's context.
@@ -203,8 +206,9 @@ refuted ones. A claim with no verdict is an open question, never a finding.
 
 ### 6. Loop within the cap
 
-A refuted load-bearing claim, or a planned question still unanswered, sends the research
-back for another round: explore deeper in the repositories already cloned, scout a better
+This is the goal loop's round, with the verifiers as its judge: each round checks every
+question, answered with verified evidence or not yet. A refuted load-bearing claim, or a
+planned question still unanswered, sends the research back for another round: explore deeper in the repositories already cloned, scout a better
 one while under three clones, search new sources or reference pages. Run at most three
 verify rounds in total. After the last round, what is still open goes to the open section.
 When every load-bearing claim ends refuted, the report says nothing was verified and lists
@@ -220,6 +224,8 @@ Write the report to the destination from step 1, replacing any earlier version t
 ## Question
 
 [The topic as asked, and the 2–5 questions the report settles.]
+
+Goals: [n] of [m] achieved (questions answered with verified evidence), [each open one by number with what is missing].
 
 ## Fronts
 
@@ -262,8 +268,8 @@ when it is short: "Nothing." is a valid entry.
 
 ### 8. Return the summary
 
-Return three to five lines: the recommendation in one sentence, how many claims held, what
-stayed open, and the path the report went to. With no path, the report in chat is the
+Return three to five lines: the recommendation in one sentence, the `Goals:` line, how
+many claims held, what stayed open, and the path the report went to. With no path, the report in chat is the
 reply, and these lines close it. Commit nothing, and stop.
 
 When a person, not a calling agent, will read the report, show it to them by

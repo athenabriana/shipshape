@@ -67,6 +67,21 @@ test("keeps inline data images and #fragment references", () => {
   expect(readFileSync(renderSvg(svg, dir)).length).toBeGreaterThan(0);
 });
 
+test("lets an <a> link through: a PNG cannot be clicked, and nothing is loaded", () => {
+  const svg =
+    '<svg xmlns="http://www.w3.org/2000/svg" width="9" height="9"><a href="https://example.com"><rect width="9" height="9"/></a></svg>';
+  expect(prepareSvg(svg)).toBe(svg);
+});
+
+test("refuses an unterminated reference, and scans hostile input in linear time", () => {
+  expect(() => prepareSvg('<svg><image href="/etc/x.png/></svg>')).toThrow("unterminated");
+  const started = performance.now();
+  expect(() => prepareSvg("<svg>" + 'url("#a") '.repeat(100000) + 'href="')).toThrow(
+    "unterminated",
+  );
+  expect(performance.now() - started).toBeLessThan(2000);
+});
+
 test("throws on markup that is not SVG", () => {
   expect(() => renderSvg("not an svg", dir)).toThrow();
 });

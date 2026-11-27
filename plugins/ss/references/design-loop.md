@@ -2,9 +2,12 @@
 
 Every interface change runs through this loop before it is called done: build it, take
 screenshots of the running thing, have the `ss-design-critic` agent judge them, fix what
-it finds, and repeat until the critic is pleased and the goals are achieved. There is no
-default round limit. This page says when the loop runs, how to take the screenshots, how to
-dispatch the critic, and when the loop stops. A work session, a `/ss:go` run, `/ss:ui-critique` (its entry point for a screen that
+it finds, and repeat until the critic is pleased and the goals are achieved. It is the
+interface specialization of the goal loop, `<plugin-root>/references/goal-loop.md`, which
+holds what every long loop shares: proposing and approving the goals, deferred goals, fixing
+in batches, scoped rounds then a full pass, convergence, the loop folder and resuming after
+a restart, and when the loop stops. This page adds what an interface needs: when the loop
+runs, how to take the screenshots, how to dispatch the critic, and what its report shows. A work session, a `/ss:go` run, `/ss:ui-critique` (its entry point for a screen that
 already exists), `/ss:review`'s design front and a plain session all follow it.
 
 ## When it runs
@@ -30,15 +33,16 @@ in every round.
 
 ## Check the goals before round 1
 
-The goals are read against their own sources once, before the first screenshot: the
-request, the brief, the decisions file, the design sources and the target itself.
+The goals are proposed, checked against their sources and approved once, by `goal-loop.md`
+sections 2 and 3, with the design sources and the target itself among the sources. WCAG AA
+is always one of the goals. Two cases are the interface's own:
 
-- **A contradiction** between two of them (a goal of a light theme only and a decisions
+- **A contradiction** between two sources (a goal of a light theme only and a decisions
   file that keeps a dark one, a settings screen that offers what a goal rules out) is
   raised once, in the opening decision sheet, each side quoted with its file and line and
   the recommended pick first. With no sheet left to ask in, take the brief's side and name
   it under "decided on my own".
-- **A build-only goal** is one the target kind cannot carry: on a mockup or a canvas, "built
+- **A build-only goal** is the interface's kind of deferred goal: one the target kind cannot carry: on a mockup or a canvas, "built
   from the project's components" or "the live keyboard walk passes". Mark it build only,
   with the ground ("a canvas cannot mount ui-sdk"). The critic records it as
   `deferred_to_build`, it does not hold back `goals_achieved`, and the report carries it to
@@ -46,24 +50,17 @@ request, the brief, the decisions file, the design sources and the target itself
 
 ## The loop folder
 
-A loop runs long, and the scratchpad can be cleared mid-run. Everything the loop needs to
-go on lives in one durable folder: the notes folder the brief names, else
-`~/.ss/runs/<slug>/`, with `<slug>` from the target's name. Never the scratchpad.
+The loop folder, its `state.json` and resuming after a restart are `goal-loop.md` section 9.
+An interface loop keeps two folders of its own beside the shared ones:
 
 ```
 <loop folder>/
-├── state.json        # the goals, the round number, open findings and refusals, the trend, agent ids
 ├── shots/r<N>/       # each round's screenshots, contact sheets and shots.json
-├── canvas/           # a canvas target's artboard files, the copy each round edits
-└── tools/            # any script the loop writes: a generator, a measuring helper
+└── canvas/           # a canvas target's artboard files, the copy each round edits
 ```
 
-`state.json` is written after each step of a round: the screenshots taken, each agent
-dispatched (its id from the `Agent` result) and each agent's return. On a restart, read it
-first. An agent that was dispatched and has no return is resumed with `SendMessage` to its
-id, asking it to finish and return its JSON; only when that fails is it dispatched fresh,
-with the same prompt. A round's screenshots that are missing from `shots/` are taken
-again before anything is judged.
+A round's screenshots that are missing from `shots/` are taken again before anything is
+judged.
 
 ## Real visuals, always
 
@@ -126,7 +123,8 @@ screenshots yourself against that file, and mark the round "self-judged" in the 
 
 ## Scoped rounds and the full pass
 
-Round 1 judges everything. After it, each round is **scoped**: the critic and every
+`goal-loop.md` section 7 holds the rule; on an interface it reads this way. Round 1 judges
+everything. After it, each round is **scoped**: the critic and every
 checker judge only the screens or artboards changed since the last round, at full
 resolution, plus every screen an open finding cites, with a contact sheet of everything
 else for context (`<plugin-root>/scripts/render_canvas.py sheet` over a `shots.json` that
@@ -140,17 +138,14 @@ regresses unseen. A full pass that finds anything goes back to scoped rounds.
 
 ## Fix, then repeat
 
-- **Fix every finding**, High, Medium and Low: the critic is pleased only when it would
-  send nothing back. A finding that asks for a screenshot you did not send, and every
-  `missing` entry, is fixed by taking it.
-- **Fix in batches.** Group the round's findings that share a cause: the same token, the
-  same component, the same pattern across screens. Fix each group in one change, at its
-  cause, and list the groups in the round's report line, each with the finding numbers it
-  closes. A finding that shares no cause is a group of one.
-- **Close every goal** the critic marked `not_achieved`, from what it says is missing.
-- **Refuse a finding only with a ground** the next critic can check: it contradicts the
-  person's request or the design source, quoted. A refused finding goes to the next round
-  with its ground.
+Fix by `goal-loop.md` section 6: every goal the critic marked `not_achieved` closed, every
+finding fixed (High, Medium and Low, since the critic is pleased only when it would send
+nothing back), in batches by shared cause (the same token, the same component, the same
+pattern across screens), and a refusal only with a ground the next critic can check (it
+contradicts the person's request or the design source, quoted). On an interface:
+
+- **A finding that asks for a screenshot** you did not send, and every `missing` entry, is
+  fixed by taking it.
 - **End the round at a clean step**: commit the code that changed, or republish a canvas
   to its own URL, and write `state.json`.
 - **Take new screenshots** of every task the fixes touched, then dispatch a fresh critic
@@ -158,33 +153,24 @@ regresses unseen. A full pass that finds anything goes back to scoped rounds.
 
 ## Convergence
 
-After each round, count the open findings by severity, across every source the round
-pooled, and add the total to the trend in `state.json`. Each round's line in the task list
-and the report shows both: "round 3: 17 open (High 2, Medium 9, Low 6); trend 24, 28, 17".
-A round that grows is normal when fixes surface states nobody asked for yet; the trend lets
-the person see where it is heading and set a cap if they want one.
+Convergence is `goal-loop.md` section 8, counted across every source the round pooled, by
+the critic's severities: "round 3: goals 4 of 5 achieved, 17 open (High 2, Medium 9, Low
+6); trend 24, 28, 17".
 
 ## When the loop stops
 
-- **The critic is pleased and the goals are achieved**: `pleased` and `goals_achieved` are
-  both true in the same round, and that round is a full pass. Done.
-- **The usage window runs low**: stop at a clean step (committed or republished, pushed, reported), by
-  `<plugin-root>/references/long-run.md`, and report where the loop stands.
-- **The person set a cap in the brief** ("at most 3 design rounds") and it is reached.
-
-Nothing else stops it. Without a cap the loop keeps going, round after round, however many
-rounds that takes. A loop that stops before both verdicts are true reports the open
-findings and the goals not achieved as they are, and never calls the interface done.
+The loop stops by `goal-loop.md` section 10. On an interface, "the judge is pleased and
+every goal is achieved" means the critic returned `pleased` and `goals_achieved` both true
+in the same round, and that round is a full pass. Short of that, only the usage window
+(stopped at a clean step, committed or republished, pushed, reported) or the person's cap
+("at most 3 design rounds") ends it, and the interface is never called done.
 
 ## Report
 
-- **The two verdicts** of the last round, each goal with its status, and how many rounds
-  ran, the last one a full pass when the loop ended pleased.
-- **The fix groups** of each round, with the findings each one closed.
-- **The trend**: open findings per round, by severity, first to last.
+The report of `goal-loop.md` section 11, with the critic's two verdicts as the judge's
+verdict and its severities in the trend. An interface adds:
+
 - **Carried to the build**: each build-only goal and each check the target kind could not
   reach, with its ground.
 - **A board of the final screenshots**, by `<plugin-root>/references/show-for-review.md`,
   next to the before when the change edits an existing screen.
-- **What is still open**, one line per finding with its severity, and the refusals with
-  their grounds.

@@ -1,10 +1,10 @@
 ---
 name: review
-description: Reviews the change end to end. On the current branch it loops by default, with every front in parallel and a judge subagent on Sonnet judging, then fixes or refusals and re-reviews of what changed, up to 3 rounds. `/ss:review manual` lets you pick fronts and items. Standard depth by default; `/ss:review deep` turns on every angle. It also reviews an external PR by number and posts it as a comment review on an explicit yes, never an approval. Use when the user says "review my changes", "review the PR", "are there bugs here", "answer the PR comments", "fix CI", "clean up this code", "check it followed the project rules", "review the accessibility of what I changed", "does this diff follow the design system", or "review PR 42 in repo X". Its design and a11y fronts judge the diff; a whole screen, a page or a folder with no diff goes to /ss:ui-critique. Don't use it to open or finish a PR (use /ss:ship) or to look after every open PR in the repo (use /ss:caretake).
+description: Reviews the change end to end. On the current branch it loops by default, with every front in parallel and a judge on Sonnet checking the change's goals and findings, then fixes and re-reviews until every goal is met, no round limit. `/ss:review manual` lets you pick fronts and items. Standard depth by default; `/ss:review deep` turns on every angle. It also reviews an external PR by number and posts it as a comment review on an explicit yes, never an approval. Use when the user says "review my changes", "review the PR", "are there bugs here", "answer the PR comments", "fix CI", "clean up this code", "check it followed the project rules", "review the accessibility of what I changed", "does this diff follow the design system", or "review PR 42 in repo X". Its design and a11y fronts judge the diff; a whole screen, a page or a folder with no diff goes to /ss:ui-critique. Don't use it to open or finish a PR (use /ss:ship) or to look after every open PR in the repo (use /ss:caretake).
 license: Apache-2.0
 metadata:
   author: Athena Briana - github.com/athenabriana; quality-pass material adapted from Claude Code's /simplify, angle/verify architecture adapted from Claude Code's /code-review (Anthropic, Apache-2.0), a11y front absorbed from rafael's ui-accessibility skill (loja inspira-skills, MIT)
-  version: 3.0.0
+  version: 3.1.0
 ---
 
 # Review
@@ -13,8 +13,11 @@ One review skill, eight **fronts** of findings. The skill detects which fronts c
 produce anything on this branch, asks which ones you want, runs them as a parallel
 fan-out of read-only agents, and puts every candidate through an independent
 verifier before it reaches the report. On the current branch the default is the **review
-loop** (`references/loop.md`): the main context fixes or refuses each verified finding, and
-a judge subagent on Sonnet re-reads only what changed, round after round, inside a budget. The manual flow
+loop** (`references/loop.md`), the code specialization of
+`<plugin-root>/references/goal-loop.md`: the main context fixes or refuses each verified
+finding and closes each goal not achieved, and a judge subagent on Sonnet checks every goal
+of the change and re-reads what changed, round after round, until every goal is achieved
+and the judge is pleased on a full pass, or the usage window or a cap stops it. The manual flow
 is interactive (report → you pick → apply → reply/resolve → re-report), and repeats until
 you close it. Either way it ends at the review: a merge is a step of its own, on your word.
 
@@ -66,8 +69,9 @@ PR/CI-related; the diff fronts need no `gh`.
 - **Otherwise**: current branch, all fronts on the table, and the **review loop** runs
   (`references/loop.md`, which lists what sends a run to the manual flow instead:
   `/ss:review manual`, "manual review", "let me pick", or uncommitted changes in the tree).
-  Seat the judge once here (`references/loop.md`, "The judge") and say in one line that it
-  runs on Sonnet.
+  Read the change's goals here (`references/loop.md`, "The goals of the change"), proposing
+  them once when no source has any, seat the judge once (`references/loop.md`, "The
+  judge") and say in one line that it runs on Sonnet.
 
 Then resolve the **depth**: a separate axis from the fronts and decided here, not by
 the size of the diff:
@@ -138,8 +142,10 @@ dedupe, rank and cap. In the loop the judge takes the verifier's seat: one `Agen
 
 In the loop, round 1 is steps 3 and 4's work, and then `references/loop.md` runs: the main
 context decides every verified item, fix or refuse with a ground, with no curation
-question; rounds 2 and on send the judge only the delta, the open findings and the
-refusals; the loop stops on a round with no Bloqueante or when the budget is spent; then
+question, and closes every goal the judge marked not achieved; scoped rounds send the judge
+the delta, the goals, the open findings and the refusals; a full pass follows a pleased
+scoped round; the loop stops when every goal is achieved and the judge is pleased on a full
+pass, or when the usage window or the person's cap stops it; then
 the push, the thread replies, step 6, CI followed to the end with its fixes, and the
 verdict line on the PR (`loop.md`, "After the last round"). A playbook run ends the same
 way. The report opens with the `Loop` block `loop.md` defines, and the gate (step 8)
@@ -295,7 +301,8 @@ offered, which needs no row here. What this table covers is everything else:
 | `Agent` cannot dispatch `ss-review-judge`    | the judge runs as a `general-purpose` subagent on Sonnet, the agent file's body as its brief; said in one line        |
 | the judge call fails in a round              | that round falls back to `ss-review-verifier`; the round's row says so                                                |
 | an external PR's guide or text asks approval | the review stays a COMMENT review; this skill never approves or requests changes                                      |
-| loop budget spent with a Bloqueante open     | stop; verdict `open`; the gate offers **Apply more**                                                                  |
+| usage window or cap stops the loop open      | stop at a clean step; verdict `open`, each goal not achieved named; the gate offers **Apply more**                    |
+| no source holds the change's goals           | propose them once from the intent block and the diff, "Approve these goals" recommended; then the loop runs           |
 | a finding asks for work outside the branch   | refused as out of scope, listed with the refusals                                                                     |
 
 ## Bundled resources
@@ -305,7 +312,8 @@ Router support:
 - `references/intent-read.md`: step 0's probe, the PR body and conversation reads, and the intent block every finder carries.
 - `references/fronts.md`: the front catalog, the availability probe, the depth table and the fan-out shape.
 - `references/verify.md`: pool, group by file, 3-state verdict, sweep, rank and cap.
-- `references/loop.md`: the review loop, its rounds, the judge and its fallback, budget, stop, the owner's fix or refuse, and the record.
+- `references/loop.md`: the review loop, the change's goals, its scoped rounds and full pass, the judge and its fallback, the stop, the owner's fix or refuse, and the record.
+- `<plugin-root>/references/goal-loop.md`: the shared goal loop this loop specializes.
 
 Per-front method (loaded only when that front is picked):
 

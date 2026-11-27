@@ -105,10 +105,13 @@ round, run the loop on its latest head and report the new verdict.
 When the task ends, at done or at a blocker, send the orchestrator one message with:
 
 - **The result**: what changed, in the words of the goal the brief set.
+- **The goals**: the `Goals:` line of `<plugin-root>/references/goal-loop.md`, each goal
+  of the brief achieved, open with what is missing, or deferred with its ground. The task
+  is done only when every one is achieved or deferred.
 - **The PR url**, when there is one, and the state of its CI.
 - **The review verdict**, when there is a PR: the `Review:` line of
-  `<plugin-root>/references/review-gate.md`, with the rounds, the verdict, the depth, the
-  fixed and refused counts, and the head sha the last round read. A PR with no verdict is
+  `<plugin-root>/references/review-gate.md`, with the rounds, the verdict, the goal status,
+  the depth, the fixed and refused counts, and the head sha the last round read. A PR with no verdict is
   reported as not ready to merge, with the reason.
 - **The blockers**: what stopped the task, and what it takes to unblock it.
 - **Where it stopped and why**: the endpoint, a real blocker, the brief's cap, or the usage
