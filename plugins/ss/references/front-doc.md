@@ -200,10 +200,10 @@ where=<doc link and Now tab body id>   # or: <the front folder's path>
 ```
 
 `front_pointer.py` keys it on `CLAUDE_CODE_SESSION_ID`, writes it with `set` once at open,
-and removes it with `clear` when the front lands. The SessionStart hook runs on every
-compaction with the same session id, reads the pointer, and adds one line naming the
-front's slug and where to read it. The orchestrator's first step after a compaction is that
-one read: a Docs `read` of the Now tab whole for a doc front, a `Read` of `NOW.md` for a file
+and removes it with `clear` when the front lands. After a compaction Claude Code re-attaches
+`/ss:orchestrate`, whose first step on every start and after every compaction is
+`front_pointer.py get`, which names the front's slug and where to read it, then that one
+read: a Docs `read` of the Now tab whole for a doc front, a `Read` of `NOW.md` for a file
 front. The pointer holds a location, never the front's state.
 
 | command                                          | what it does                             |
@@ -251,8 +251,9 @@ front:
 ### During the outage
 
 Every turn starts with a `ToolSearch` check for the Docs `read` tool. The merge runs on the
-first turn it finds the tools and a read succeeds. After a compaction in this state, the
-hook's line names the outage folder and says to check for the tools on each turn.
+first turn it finds the tools and a read succeeds. After a compaction in this state,
+`front_pointer.py get` prints the pointer with `state` set to `outage` and the outage
+folder, and the check for the tools runs on each turn.
 
 ### Merge back
 

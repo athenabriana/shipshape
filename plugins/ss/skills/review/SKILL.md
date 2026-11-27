@@ -4,10 +4,13 @@ description: Judges a change against its goals until the judge is pleased. Runs 
 license: Apache-2.0
 metadata:
   author: Athena Briana - github.com/athenabriana; quality-pass material adapted from Claude Code's /simplify, angle/verify architecture adapted from Claude Code's /code-review (Anthropic, Apache-2.0), a11y front absorbed from rafael's ui-accessibility skill (loja inspira-skills, MIT)
-  version: 3.2.1
+  version: 3.2.2
 ---
 
 # Review
+
+`<plugin-root>` is `${CLAUDE_PLUGIN_ROOT}`: use that directory wherever this skill or a page it
+reads writes `<plugin-root>`.
 
 One review skill, nine **fronts** of findings. The skill detects which fronts can
 produce anything on this branch, asks which ones you want, runs them as a parallel

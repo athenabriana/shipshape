@@ -1,6 +1,6 @@
 # Ship Shape
 
-A **Claude Code plugin** (`ss`) published through the `shipshape` marketplace, which also ships `companion`, an optional Telegram channel plugin. Install via `claude plugin marketplace add athenabriana/shipshape` then `claude plugin install ss@shipshape`. Skills are invoked as `/ss:<skill>` (e.g. `/ss:ship`). `/ss:go` routes a request to a playbook sized to risk; the flow is clarify → build → ship. Long work runs on the goal loop (`plugins/ss/references/goal-loop.md`): goals proposed and approved once, then a fresh judge each round until every goal is achieved and the judge is pleased. `/ss:iterate` is its door (improve what exists until a measured bar is met, the judge picked for the target); `design-loop.md` is iterate's design judge, run by `/ss:ui-critique`, and `/ss:review`'s loop specializes it for code. `ss` ships a `SessionStart` operating-context hook, auto-active when the plugin is enabled.
+A **Claude Code plugin** (`ss`) published through the `shipshape` marketplace, which also ships `companion`, an optional Telegram channel plugin. Install via `claude plugin marketplace add athenabriana/shipshape` then `claude plugin install ss@shipshape`. Skills are invoked as `/ss:<skill>` (e.g. `/ss:ship`). `/ss:go` routes a request to a playbook sized to risk; the flow is clarify → build → ship. Long work runs on the goal loop (`plugins/ss/references/goal-loop.md`): goals proposed and approved once, then a fresh judge each round until every goal is achieved and the judge is pleased. `/ss:iterate` is its door (improve what exists until a measured bar is met, the judge picked for the target); `design-loop.md` is iterate's design judge, run by `/ss:ui-critique`, and `/ss:review`'s loop specializes it for code. `ss` ships no session hook: the skills' descriptions carry the routing, `/ss:go` and `/ss:orchestrate` being the two doors, and each skill carries the rules it enforces.
 
 ## Structure
 
@@ -10,10 +10,7 @@ A **Claude Code plugin** (`ss`) published through the `shipshape` marketplace, w
 plugins/ss/
 ├── .claude-plugin/plugin.json
 ├── agents/                            # read-only roles dispatched as ss:ss-<name>
-├── hooks/                             # session infra (auto-active, no skill)
-│   ├── hooks.json                      # SessionStart context injection
-│   ├── inject_context.py               # emits operating-context.md + the <plugin-root> line
-│   ├── operating-context.md            # the injected operating frame (edit to tune)
+├── hooks/                             # scripts the skills run (no hooks.json: ss registers no hook)
 │   ├── enter_worktree.py               # worktree isolation for local autonomous runs
 │   └── scheduling-decision.md          # /loop vs Desktop task vs Cloud Routine decision table
 ├── references/                        # plugin-level docs shared across skills (project-facts, handoff-gate, review-gate, decision-sheet, doc-style, voice, long-run, goal-loop, design-loop, ui-references, triggers, ...)
@@ -36,11 +33,11 @@ plugins/companion/                     # Telegram channel, vendored from the off
 
 - Skills live in `plugins/ss/skills/<name>/SKILL.md`, invoked as `/ss:<name>`. Keep the dir name identical to the frontmatter `name`.
 - A SKILL.md body (what follows its frontmatter) stays within 150 lines and 12,000 characters: the frontmatter, the opening, the steps as a short outline, and a pointer at each step to the `references/<topic>.md` it needs. Every file a body names exists. `.github/scripts/validate-skill-size.ts` checks both; its header says why the numbers.
-- A skill's own `scripts/` and `references/*.md` are relative to the skill dir. Shared ones live at the plugin root and are written `<plugin-root>/...`; the SessionStart hook resolves that placeholder to the install path once per session.
+- A skill's own `scripts/` and `references/*.md` are relative to the skill dir. Shared ones live at the plugin root and are written `<plugin-root>/...`; each SKILL.md resolves that placeholder in its opening, where Claude Code substitutes `${CLAUDE_PLUGIN_ROOT}` (it does so in SKILL.md only, never in `references/`), and the pages the skill reads use that line.
 - Project facts live under `## Project facts` in the repo's `CLAUDE.md` (or `AGENTS.md`); `plugins/ss/references/project-facts.md` is the contract, and only `/ss:learn` writes them.
 - A situational skill carries `kind: situational` under `metadata` and one row in `plugins/ss/references/triggers.md`, the trigger table an agent reads first: every orchestrate brief, the bug-fix playbook and `/ss:ship` send it there. `.github/scripts/validate-triggers.ts` checks that every situational skill has a row and every row a skill. All three set `user-invocable: false`.
 - A playbook is `plugins/ss/skills/go/playbooks/<name>.md` with `## Steps`, `## Route` and `## Endpoint`, whose steps run the skill that holds the method, and one row in the table under `## 1. Match a playbook` in `skills/go/SKILL.md`. `.github/scripts/validate-playbooks.ts` checks both ways.
-- Hook commands reference files via `${CLAUDE_PLUGIN_ROOT}/...`, which only works inside `hooks.json`.
+- `${CLAUDE_PLUGIN_ROOT}` is substituted in `hooks.json` and in a SKILL.md body, nowhere else: a page under `references/` or `agents/` writes `<plugin-root>`.
 
 ## Skills
 
@@ -68,7 +65,7 @@ Each skill is a folder with a `SKILL.md` containing YAML frontmatter (`name`, `d
 
 - No AI attribution in commits, PRs, or code comments
 - Conventional commit style: `<type>(<scope>): <description>`
-- The commit scope is the skill name (`clarify`, `caretake`, …), `hooks` for the hook layer, `companion` for the Telegram plugin, or `repo` for repo-wide changes
+- The commit scope is the skill name (`clarify`, `caretake`, …), `companion` for the Telegram plugin, or `repo` for repo-wide changes
 
 ## Project facts
 

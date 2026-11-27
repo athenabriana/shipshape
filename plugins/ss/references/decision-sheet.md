@@ -17,7 +17,7 @@ Use the question tool (`AskUserQuestion`) for:
 
 - **One decision whose options speak for themselves.**
 - **A merge ask, always.** A merge is Athena's word in this chat, so it keeps one shape,
-  by the merge rule in `<plugin-root>/hooks/operating-context.md`. A sheet never carries a
+  by "Merge on Athena's word" in `<plugin-root>/references/review-gate.md`. A sheet never carries a
   merge, a force-push or a deploy.
 - **The fallback when the visual tool is missing**, by the last section below.
 

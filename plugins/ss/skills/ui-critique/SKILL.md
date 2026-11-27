@@ -4,10 +4,13 @@ description: Gets a screen the critic is pleased with and that passes WCAG AA. R
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana; the accessibility pass absorbed from /ss:review's a11y front, itself from rafael's ui-accessibility skill (loja inspira-skills, MIT)
-  version: 1.3.0
+  version: 1.3.1
 ---
 
 # UI critique
+
+`<plugin-root>` is `${CLAUDE_PLUGIN_ROOT}`: use that directory wherever this skill or a page it
+reads writes `<plugin-root>`.
 
 Point it at a screen and it judges what the user gets: screenshots of the running thing,
 read by the `ss-design-critic` agent and walked for accessibility. By default it then fixes

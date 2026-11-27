@@ -46,9 +46,6 @@ jobs:
       - name: Unit tests
         run: python3 -m unittest discover -s plugins/ss/scripts -p 'test_*.py' -v
 
-      - name: Hook unit tests
-        run: python3 -m unittest discover -s plugins/ss/hooks -p 'test_*.py' -v
-
       - name: Companion plugin tests
         working-directory: plugins/companion
         run: bun install && bun test

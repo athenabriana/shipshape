@@ -5,11 +5,14 @@ user-invocable: false
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.0.1
+  version: 1.0.2
   kind: situational
 ---
 
 # Prove the fix
+
+`<plugin-root>` is `${CLAUDE_PLUGIN_ROOT}`: use that directory wherever this skill or a page it
+reads writes `<plugin-root>`.
 
 Your task fixes a bug: a run of the bug-fix playbook under `/ss:go`, or any session fixing one. This page is the proof that fix owes, and it holds wherever the fix is built. Your caller keeps its own steps (where the reproduction lives, how the commits are named, who reads the result); this page says what makes the fix proven.
 

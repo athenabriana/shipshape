@@ -4,10 +4,13 @@ description: Answers a question about this repo, its branch, its history or your
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.1.0
+  version: 1.1.1
 ---
 
 # Investigate
+
+`<plugin-root>` is `${CLAUDE_PLUGIN_ROOT}`: use that directory wherever this skill or a page it
+reads writes `<plugin-root>`.
 
 Answer a question about this repo, its branch, its history or your sessions in it, with
 evidence. This skill only reads: it never edits a file, commits or pushes.

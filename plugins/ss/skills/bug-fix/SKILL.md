@@ -4,10 +4,13 @@ description: Takes a bug from a short report to a proven fix, with no spec. Find
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 2.0.0
+  version: 2.0.1
 ---
 
 # Bug fix
+
+`<plugin-root>` is `${CLAUDE_PLUGIN_ROOT}`: use that directory wherever this skill or a page it
+reads writes `<plugin-root>`.
 
 - **The goal:** a bug fixed with its cause found and its fix proven.
 - **When it happens:** a short report: a pasted error, a stack trace, "this fails", "fix

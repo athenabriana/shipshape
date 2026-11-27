@@ -5,11 +5,14 @@ license: MIT
 user-invocable: false
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.0.1
+  version: 1.0.2
   kind: situational
 ---
 
 # Explain the number
+
+`<plugin-root>` is `${CLAUDE_PLUGIN_ROOT}`: use that directory wherever this skill or a page it
+reads writes `<plugin-root>`.
 
 You read this page because you are about to measure a number, or to trust, report or act on
 one: a latency, a speedup, a regression, a throughput. A number by itself says nothing about

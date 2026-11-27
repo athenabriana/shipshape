@@ -4,10 +4,13 @@ description: Tends one PR while it waits for review. Runs on "babysit PR 42" or 
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.0.1
+  version: 1.0.2
 ---
 
 # Babysit
+
+`<plugin-root>` is `${CLAUDE_PLUGIN_ROOT}`: use that directory wherever this skill or a page it
+reads writes `<plugin-root>`.
 
 Read `<plugin-root>/references/triggers.md` before anything else.
 

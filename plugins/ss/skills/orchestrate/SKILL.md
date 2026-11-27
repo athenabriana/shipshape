@@ -1,13 +1,16 @@
 ---
 name: orchestrate
-description: Runs one front across several work sessions. Runs when work is too big for one session; solves losing the thread between sessions and PRs. Turns this Desktop session into the orchestrator. It settles the goal with you through /ss:clarify, which creates the front's memory as a private Claude Docs doc that this session keeps up to date, then starts one work session per task with a standalone brief, relays their questions word for word, follows their PRs and CI, and merges only the PRs you authorized in this chat under the repository's rules. Outputs the briefs and the landed front. It writes no code, only its front, and work sessions never start sessions. Use when the user says "orchestrate this", "be the orchestrator", "run this front", "delegate everything", "split this into work sessions", "orquestra isso", "seja o orquestrador", "delegue tudo", or invokes /ss:orchestrate. Don't use it for a single small task (just do it or use /ss:go), or to watch several fronts at once (the sidebar lists the sessions).
+description: The second door, for one front of work too big for one session, run across several work sessions. Reach for it when a request spans several PRs, parallel sessions, or a rewrite or migration of a whole service. This Desktop session becomes the orchestrator. It settles the goal with you through /ss:clarify, which creates the front's memory as a private Claude Docs doc, then starts one work session per task with a standalone brief, relays their questions, follows their PRs and CI, and merges only what you authorized in this chat, after each PR's review loop. The orchestrator writes no code and gives no time estimates; work sessions never start sessions. Use when the user says "orchestrate this", "be the orchestrator", "delegate everything", "split this into several PRs", "run these in parallel sessions", "migrate the whole service", "orquestra isso", "seja o orquestrador", "delegue tudo", "várias frentes", "toca isso pra mim", or invokes /ss:orchestrate. Don't use it for a single small task (use /ss:go).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 3.1.1
+  version: 3.2.0
 ---
 
 # Orchestrate
+
+`<plugin-root>` is `${CLAUDE_PLUGIN_ROOT}`: use that directory wherever this skill or a page it
+reads writes `<plugin-root>`.
 
 This session becomes the orchestrator of **one front**: the work Athena asks for here, from
 the first request to the last landed PR. It scopes the goal with her, keeps the front's
@@ -43,8 +46,7 @@ Run this before anything else, on every start and after every compaction:
 python3 <plugin-root>/scripts/front_pointer.py get
 ```
 
-- **A pointer exists**: this session already runs a front. The SessionStart hook named it
-  too. Make one read of its Now tab (a Docs `read`, whole) or of its `NOW.md`, and continue
+- **A pointer exists**: this session already runs a front. Make one read of its Now tab (a Docs `read`, whole) or of its `NOW.md`, and continue
   from its Next line. When the pointer says `state=outage`, follow "A Docs outage on a doc
   front" in `<plugin-root>/references/front-doc.md` first.
 - **No pointer**: open a front, as the next section says.

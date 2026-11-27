@@ -1,13 +1,16 @@
 ---
 name: go
-description: Ship Shape's router, one door for engineering work, sized to its risk. Runs on any non trivial request and stays on until you turn it off; solves picking the right recipe and the right amount of process. Matches the request to one playbook (investigate, bug-fix, review, ui-critique, iterate, ship, babysit, review-setup, learn), sizes the route (lightweight, standard or intensive) with scripts/route.py from five risk facts, and outputs the playbook's steps in the todo list, each run by its skill, with clarify's goals first and the goal loop last on the standard and intensive routes. Offers /ss:learn when the same correction lands twice. Use when the user types /ss:go, says "use ss", "be rigorous", "do this properly", "fix it and ship it", "fix and babysit", "iterate on this", "until parity", or starts any non trivial engineering task. Don't use it for a tiny mechanical change (just do it) or a question about Claude Code itself.
+description: Ship Shape's router, the first door for engineering work in a repo. Reach for it before editing code on any non trivial request (a feature, a bug, a refactor, a PR to land). It matches one playbook (investigate, bug-fix, review, ui-critique, iterate, ship, babysit, review-setup, learn), sizes the route with scripts/route.py and runs its steps from the todo list. Three rules hold whether or not it runs. Never estimate time or effort, even when asked, and say the scope instead (files, steps, PRs). Ask through AskUserQuestion or a decision sheet with a recommended default on each question, never a list of open questions in prose. Merge only on Athena's word, after the review loop. Use when the user types /ss:go, says "use ss", "do this properly", "add a feature", "fix this bug", "fix it and ship it", "how long will this take", "estimate this", or starts any non trivial engineering task. Not for a one-line change (just do it) or a question about Claude Code.
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.7.0
+  version: 1.8.0
 ---
 
 # Go
+
+`<plugin-root>` is `${CLAUDE_PLUGIN_ROOT}`: use that directory wherever this skill or a page it
+reads writes `<plugin-root>`.
 
 One entry point. Match the request to a playbook, size the route, run the steps.
 
@@ -39,7 +42,7 @@ Read the matched playbook whole before the first step.
 - **A whole flow** ("fix it and ship it") is one playbook with its scope set: run bug-fix,
   then ship, without asking again between them.
 - **None fits:** say which playbook is closest and why it falls short, then do the work by
-  hand under the hard rules of the operating frame. A PR somebody else opened is
+  hand under the rules in step 3. A PR somebody else opened is
   `/ss:caretake`'s. A feature or a refactor has no playbook yet: a feature runs as `/ss:clarify`, the work and the goal loop, then `/ss:ship`, or as briefs
   from `/ss:orchestrate`.
 - **Before coding anything non trivial**, `/ss:clarify` maps the behavior, edges included,
@@ -101,6 +104,14 @@ Read `references/run.md` before the first step: it holds each rule below in full
   starts sessions.
 - **Show it before asking for a review**, by `<plugin-root>/references/show-for-review.md`.
   Only `/ss:clarify` creates a Claude Docs doc.
+- **Questions** go through the question tool or a decision sheet, by
+  `<plugin-root>/references/decision-sheet.md`.
+- **No time or effort estimates.** Size is scope (files, steps, PRs), never time, and no
+  deadline is asked for (`<plugin-root>/references/voice.md`).
+- **Merge on Athena's word in this chat**, and only once the review loop's verdict covers
+  the head (`<plugin-root>/references/review-gate.md`). Green CI alone is not enough.
+- **Be honest, not agreeable**: a decisive recommendation, the tension named. Prose follows
+  `<plugin-root>/references/doc-style.md`, each thing called by its name in the code.
 - **After a compaction**, reread the todo list and the brief, and pick up at the first
   unticked step.
 

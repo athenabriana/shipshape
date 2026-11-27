@@ -17,7 +17,7 @@ claude plugin marketplace add athenabriana/shipshape
 claude plugin install ss@shipshape
 ```
 
-the plugin turns on a `SessionStart` hook by itself. at the start of every session, the hook gives the agent a short note on how ss works and its hard rules. you do not run anything for it.
+ss adds no hook and nothing to a session until a skill runs. the skills' descriptions bring the agent to `/ss:go` for engineering work and to `/ss:orchestrate` for work too big for one session, and each skill carries the rules it enforces.
 
 ## the two core skills
 

@@ -4,10 +4,13 @@ description: Writes the repo's CODE_REVIEW_GUIDE.md, the rules /ss:review checks
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 2.5.1
+  version: 2.5.2
 ---
 
 # Review setup
+
+`<plugin-root>` is `${CLAUDE_PLUGIN_ROOT}`: use that directory wherever this skill or a page it
+reads writes `<plugin-root>`.
 
 Produce the repo's `CODE_REVIEW_GUIDE.md`, the single source of truth for what
 "good" means in this codebase: rules with IDs, finding levels, and evidence, validated

@@ -4,10 +4,13 @@ description: Looks after the PRs that are not yours. Over the whole repo it scan
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 5.0.0
+  version: 5.0.1
 ---
 
 # Caretake
+
+`<plugin-root>` is `${CLAUDE_PLUGIN_ROOT}`: use that directory wherever this skill or a page it
+reads writes `<plugin-root>`.
 
 - **The goal:** every PR in the repo that is not yours either safe to merge or moving.
 - **When it happens:** "what can I merge", a recurring maintenance digest, or one PR

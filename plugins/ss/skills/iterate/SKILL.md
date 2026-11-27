@@ -4,10 +4,13 @@ description: Improves something that already exists until a measurable bar is me
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.0.0
+  version: 1.0.1
 ---
 
 # Iterate
+
+`<plugin-root>` is `${CLAUDE_PLUGIN_ROOT}`: use that directory wherever this skill or a page it
+reads writes `<plugin-root>`.
 
 - **The goal:** an existing target that meets a measurable bar, proven by a check that can
   be trusted.

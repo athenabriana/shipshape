@@ -1,13 +1,16 @@
 ---
 name: clarify
-description: Clarifies the goals before work starts, the first step of the goal loop. Maps the problem and the code, drafts what gets built, and proposes numbered WHEN/THEN goals, each with its check, plus what is out of scope, approved once in one decision sheet. For big work (several PRs, repos or fronts, other readers, revisited across sessions, or too much for one sheet) it writes a private Claude Docs doc first; it is the only skill that creates one, the front doc included. Hands the goals to the caller's loop, or on its own offers to build or stop. Use when the user says "clarify", "clarify the goals", "esclarece", "esclarece os objetivos", "scope this", "define the scope", "qual o escopo", "define os objetivos", "shape this", "let's plan", "what should we build", "let's discuss before building", "write the acceptance criteria", "what are the edge cases", or starts a non trivial feature. Don't use it for small mechanical changes (just do those) or to find bugs (use /ss:review).
+description: Clarifies the goals and settles open decisions before work starts, the first step of the goal loop. Maps the problem and the code, asks what it needs in one decision sheet with a recommended default on each question, and proposes numbered WHEN/THEN goals, each with its check, plus what is out of scope, approved once. For big work (several PRs, repos or fronts, other readers, revisited across sessions) it writes a private Claude Docs doc first; it is the only ss skill that creates a planning doc, the front doc included. Hands the goals to the caller's loop, or offers to build or stop. Use when the user says "clarify", "esclarece", "scope this", "define os objetivos", "let's plan", "write a planning doc", "write a spec", "escreve um doc de planejamento", "help me decide", "ask me what you need first", "me ajuda a decidir", "what should we build", "what are the edge cases", or starts a non trivial feature. Don't use it for small mechanical changes (just do those) or to find bugs (use /ss:review).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 6.1.1
+  version: 6.2.0
 ---
 
 # Clarify
+
+`<plugin-root>` is `${CLAUDE_PLUGIN_ROOT}`: use that directory wherever this skill or a page it
+reads writes `<plugin-root>`.
 
 Define **what done means before any code**: the goals the work must reach, each one
 verifiable, and the lines it must not cross. This skill is the goal-definition step of the

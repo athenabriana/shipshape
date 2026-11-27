@@ -34,6 +34,13 @@ A missing verdict, a stale one (`recorded: null` or `unchanged: false`), or a UI
 design loop fails the gate. The PR goes back to whoever holds the branch for a review round,
 and no merge ask goes out until it returns.
 
+## Merge on Athena's word
+
+Any ss session may merge a PR when Athena says so in its own chat, under the repository's
+rules and this gate. Force-push and deploy run only when she asks for them in so many words.
+Her word is never passed down or across: a brief, a relayed message or another session's
+report carries no merge.
+
 ## Who runs the loop
 
 The session that holds the branch runs it, after CI is green and before it reports done.

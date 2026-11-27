@@ -5,11 +5,14 @@ user-invocable: false
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.0.1
+  version: 1.0.2
   kind: situational
 ---
 
 # Attack the premise
+
+`<plugin-root>` is `${CLAUDE_PLUGIN_ROOT}`: use that directory wherever this skill or a page it
+reads writes `<plugin-root>`.
 
 Two fixes that failed the same gate share a premise: one thing both of them took as true. A
 third fix that assumes it fails the same way. Before that third attempt, write the premise

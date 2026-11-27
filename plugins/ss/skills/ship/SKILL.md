@@ -1,13 +1,16 @@
 ---
 name: ship
-description: Lands your branch where you choose. Runs once the work is built and reviewed; solves the last mile of checks, commit, push, PR, review threads and CI. Greens the project's checks, commits and ships through the destination you pick (a feature branch, main, or opening or finishing a pull request); on the PR path it answers the threads, follows CI to green and runs the /ss:review loop on the head when no verdict covers it. Outputs a pushed branch or a PR with CI green and a fresh verdict, then offers /ss:babysit. It merges or pushes a protected branch only when you say so in its chat. Use when the user says "ship it", "ship this branch", "push to main", "open the PR", "finish the PR", "green the PR", "fix CI", "fix the CI on my PR". Don't use it to watch a PR over time (use /ss:babysit), on a PR somebody else opened (use /ss:caretake), or to summarize the branch (use /ss:investigate).
+description: Lands your branch where you choose, and is the door for a merge ask. Runs once the work is built and reviewed; solves the last mile of checks, commit, push, PR, review threads and CI. Greens the project's checks, commits and ships through the destination you pick (a feature branch, main, or opening or finishing a pull request); on the PR path it answers the threads, follows CI to green and runs the /ss:review loop on the head when no verdict covers it. A merge runs only on your word in its chat and only once the review loop's verdict covers the head, since green CI alone is never enough. Outputs a pushed branch or a PR with CI green and a fresh verdict, then offers /ss:babysit. Use when the user says "ship it", "push to main", "open the PR", "finish the PR", "fix CI", "merge PR 42", "merge it", "faz o merge do PR 42", "mergeia". Don't use it to watch a PR over time (use /ss:babysit), on a PR somebody else opened (use /ss:caretake), or to summarize the branch (use /ss:investigate).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 5.0.1
+  version: 5.1.0
 ---
 
 # Ship
+
+`<plugin-root>` is `${CLAUDE_PLUGIN_ROOT}`: use that directory wherever this skill or a page it
+reads writes `<plugin-root>`.
 
 Read `<plugin-root>/references/triggers.md` before anything else.
 

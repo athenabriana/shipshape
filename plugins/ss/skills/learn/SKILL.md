@@ -4,10 +4,13 @@ description: Keeps a lesson at the strongest layer that holds it, so the same mi
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 2.0.0
+  version: 2.0.1
 ---
 
 # Learn
+
+`<plugin-root>` is `${CLAUDE_PLUGIN_ROOT}`: use that directory wherever this skill or a page it
+reads writes `<plugin-root>`.
 
 - **The goal:** a lesson kept at the strongest layer that holds it, so the next agent cannot
   repeat the mistake.

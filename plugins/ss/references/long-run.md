@@ -83,8 +83,9 @@ with what the session already tried and its recommended pick, then end the turn.
 ## Bound the run: usage budget and the person's cap
 
 A long run stops on whichever comes first: the endpoint, a real blocker, the person's cap,
-or the usage window running low. There is no time floor and no time estimate: the
-"No time or effort estimates" rule of `<plugin-root>/hooks/operating-context.md` stands.
+or the usage window running low. There is no time floor and no time estimate: ss never says
+how long work will take and never asks for a deadline, by "No time or effort estimates" in
+`<plugin-root>/references/voice.md`.
 
 ### The person's cap
 

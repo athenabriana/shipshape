@@ -4,10 +4,13 @@ description: Researches what lies outside this repo (other projects' code, docs,
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 4.2.0
+  version: 4.2.1
 ---
 
 # Research
+
+`<plugin-root>` is `${CLAUDE_PLUGIN_ROOT}`: use that directory wherever this skill or a page it
+reads writes `<plugin-root>`.
 
 Research a topic and write a verified report to the path the caller names, or into chat
 when no path was named. The research picks the fronts the topic needs (code, content,
