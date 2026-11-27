@@ -66,10 +66,10 @@ python3 <plugin-root>/scripts/route.py --blast-radius <low|medium|high> --revers
 
 It prints one line, `<route>: <reason>`. The same facts give the same route on every run.
 
-| Route       | What runs                                                                                                                                       |
-| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| lightweight | preservation check, mechanical gate, the review loop with only the correctness front, then `/ss:ship`                                           |
-| standard    | the map and the goals, approved once; mechanical gate, `/ss:review` in its default loop until every goal is achieved, then `/ss:ship`            |
+| Route       | What runs                                                                                                                                                                 |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| lightweight | preservation check, mechanical gate, the review loop with only the correctness front, then `/ss:ship`                                                                     |
+| standard    | the map and the goals, approved once; mechanical gate, `/ss:review` in its default loop until every goal is achieved, then `/ss:ship`                                     |
 | intensive   | the map and the goals, approved once; a blast radius pass over the callers, `/ss:edge-cases` on the diff, `/ss:review deep` until every goal is achieved, then `/ss:ship` |
 
 On the open PR endpoint, every route ends with the `/ss:review` loop on the PR's latest

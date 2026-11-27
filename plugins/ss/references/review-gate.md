@@ -63,7 +63,7 @@ Two lines carry the verdict, and each goes in its own place:
 
 - **The PR description holds the verdict line** the loop writes, by "The verdict line" in
   `loop.md`: `Review loop: 2 rounds, verdict clean, patch-id <patch-id>, goals 4 of 4
-  achieved.` It is the only line `patch_id.py` reads, so its form stays exactly as
+achieved.` It is the only line `patch_id.py` reads, so its form stays exactly as
   `loop.md` gives it, the goal status after the patch-id.
 - **The report that calls the PR done holds the `Review:` line**, which never goes in the
   PR description:

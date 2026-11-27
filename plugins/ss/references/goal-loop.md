@@ -44,7 +44,7 @@ of the run can check it. Each goal carries:
 
 - **A number**, `G1`, `G2`, …, kept for the whole loop.
 - **One WHEN/THEN line**, in the words of the product: `WHEN a visitor submits the form
-  with an empty email THEN the field shows "Enter your email" and nothing is sent`.
+with an empty email THEN the field shows "Enter your email" and nothing is sent`.
 - **Its check**: how a judge confirms it, one of a test (its name, or the one to write), a
   command and the output it must print, a screenshot of a named state, or a cited source
   (a `file:line`, a URL and the passage). A goal nobody can check is rewritten until
@@ -179,7 +179,7 @@ findings as they are, and never calls the work done.
 ## 11. Report
 
 - **The goals line**, one per run: `Goals: 5 of 6 achieved, G4 deferred (needs production
-  data), none open.` Each goal not achieved is named with what is missing.
+data), none open.` Each goal not achieved is named with what is missing.
 - **The judge's last verdict** and how many rounds ran, the last one a full pass when the
   loop ended pleased.
 - **The fix groups** of each round, with the findings each one closed.
@@ -192,17 +192,17 @@ findings as they are, and never calls the work done.
 
 ## How each skill adopts it
 
-| skill or playbook   | the goals                                                                                                  | the judge and the end                                                                                    |
-| ------------------- | ---------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `/ss:go`            | standard and intensive routes: proposed after the map, approved in the opening sheet                      | the playbook's own judge; the endpoint waits for every goal achieved                                     |
-| `/ss:review`        | the change's goals, from the PR description, the brief, the linked spec or acceptance criteria; else proposed once | `ss-review-judge`, every goal plus the findings, no default round limit                          |
-| design loop         | the brief's goals, WCAG AA always one of them                                                              | `ss-design-critic`, `goals_achieved` and `pleased`, by `design-loop.md`                                   |
-| `/ss:ui-critique`   | asked once in its opening sheet, through `design-loop.md`                                                  | the critic and the `ss-a11y-auditor` each round                                                           |
-| `/ss:shape`         | its WHEN/THEN acceptance criteria are the goals, each with its check                                       | none of its own: the build that follows runs the loop against them                                        |
-| `/ss:edge-cases`    | plan mode's load-bearing rows feed the goals                                                               | none of its own: the caller's loop judges them                                                            |
-| bug-fix playbook    | the reproduction fails before the fix and passes after, plus the focused test                              | the review loop on the fix, every goal checked                                                            |
-| `/ss:research`      | the plan's questions, each answered with verified evidence                                                 | the claim verifier, within its own cap                                                                   |
-| `/ss:ship`          | the final goal is the review gate                                                                          | the `/ss:review` loop on the PR's head                                                                    |
-| `/ss:babysit`       | the final goal is the review gate                                                                          | a tick reports the gate, and calls the PR ready only when it passes                                      |
-| `/ss:takeover`      | the final goal is the review gate                                                                          | `/ss:ship`'s PR path, then the review loop                                                                |
-| `/ss:orchestrate`   | the front's goals go into each brief                                                                       | a work session's done means its goals were achieved, by its `Goals:` line                                |
+| skill or playbook | the goals                                                                                                          | the judge and the end                                                     |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| `/ss:go`          | standard and intensive routes: proposed after the map, approved in the opening sheet                               | the playbook's own judge; the endpoint waits for every goal achieved      |
+| `/ss:review`      | the change's goals, from the PR description, the brief, the linked spec or acceptance criteria; else proposed once | `ss-review-judge`, every goal plus the findings, no default round limit   |
+| design loop       | the brief's goals, WCAG AA always one of them                                                                      | `ss-design-critic`, `goals_achieved` and `pleased`, by `design-loop.md`   |
+| `/ss:ui-critique` | asked once in its opening sheet, through `design-loop.md`                                                          | the critic and the `ss-a11y-auditor` each round                           |
+| `/ss:shape`       | its WHEN/THEN acceptance criteria are the goals, each with its check                                               | none of its own: the build that follows runs the loop against them        |
+| `/ss:edge-cases`  | plan mode's load-bearing rows feed the goals                                                                       | none of its own: the caller's loop judges them                            |
+| bug-fix playbook  | the reproduction fails before the fix and passes after, plus the focused test                                      | the review loop on the fix, every goal checked                            |
+| `/ss:research`    | the plan's questions, each answered with verified evidence                                                         | the claim verifier, within its own cap                                    |
+| `/ss:ship`        | the final goal is the review gate                                                                                  | the `/ss:review` loop on the PR's head                                    |
+| `/ss:babysit`     | the final goal is the review gate                                                                                  | a tick reports the gate, and calls the PR ready only when it passes       |
+| `/ss:takeover`    | the final goal is the review gate                                                                                  | `/ss:ship`'s PR path, then the review loop                                |
+| `/ss:orchestrate` | the front's goals go into each brief                                                                               | a work session's done means its goals were achieved, by its `Goals:` line |
