@@ -17,6 +17,14 @@ skill shows the person in the moment, an `AskUserQuestion` label, an option's de
 a line it prints, follows the language the person is speaking. So a table of option labels
 inside a `SKILL.md` is the wording to say, never the string to print.
 
+## Where a rule lives
+
+A `SKILL.md` is an outline: what the skill does, its hard limits, each step in a few lines,
+and a pointer to the reference that step reads, saying when to read it. The detail lives in
+the skill's `references/<topic>.md`, one level down, named for what it holds. A rule several
+skills share lives once in `<plugin-root>/references/`. CI holds every `SKILL.md` body to
+150 lines and 12,000 characters.
+
 ## Precedence
 
 A project guideline first, this page second. Where a skill states its own contract, the

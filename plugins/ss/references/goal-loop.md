@@ -40,7 +40,8 @@ are found.
 ### Goals that live in a doc
 
 For big work, `/ss:clarify` writes the goals into a private Claude Docs doc (or `goals.md`
-when the Docs tools are missing), by "What the doc holds" in its `SKILL.md`, and hands its
+when the Docs tools are missing), by "What the doc holds" in
+`<plugin-root>/skills/clarify/references/goals-doc.md`, and hands its
 URL or path over with the goals. The loop records it in `state.json` as `goals_doc`, and
 the doc is where the goals live for the whole loop:
 

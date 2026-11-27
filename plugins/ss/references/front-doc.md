@@ -119,7 +119,7 @@ State: open · orchestrator <session id> · opened <date>
 ## Open a doc front
 
 `/ss:clarify` runs this and the next section, by "The front doc, when `/ss:orchestrate`
-calls" in its `SKILL.md`. Load the Docs tools first: call `ToolSearch` with `select:` and
+calls" in `<plugin-root>/skills/clarify/references/goals-doc.md`. Load the Docs tools first: call `ToolSearch` with `select:` and
 the bare tool names `read`, `batch`, `update` and `guide` as the server lists them, or
 load the `anthropic-skills:docs` skill. The server's name differs per account, so name the
 bare tool, never a full name from another machine. Before the first write, call `guide`

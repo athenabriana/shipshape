@@ -71,18 +71,14 @@ python3 <plugin-root>/scripts/front_pointer.py get
 
 ## Keep the front
 
-`<plugin-root>/references/front-doc.md` holds the template and every rule. The ones each
-turn needs:
-
-- **A turn that touches a doc front** starts with a `sinceRev` read of the Now tab, writes
-  one section per call, and never rereads between its own writes. A file front is one
-  `Read` of `NOW.md`.
-- **Now stays under about 120 lines.** A closed row moves to Log in the turn it closes. The
-  same cap holds for `NOW.md`.
-- **Quote Athena exactly** in the goal, in every decision and in every merge authorization.
-- **No secret, token or credential** goes into the front. Write where to find it, never its
-  value.
-- **One home per front.** Write only to the home the pointer's `home=` line names.
+`<plugin-root>/references/front-doc.md` holds the template and every rule; its "Keep it
+cheap" and "Rules every front keeps" are what each turn needs. Read it before the first
+write. In short: a `sinceRev` read of the Now tab (one `Read` of `NOW.md` for a file
+front), one section per call, no reread between your own writes, Now and `NOW.md` under
+about 120 lines with a closed row moved to Log in the turn it closes, Athena quoted exactly
+in the goal, every decision and every merge authorization, no secret, token or credential
+(write where to find it, never its value), and writes only to the home the pointer's
+`home=` line names.
 
 ## Start a work session
 
@@ -108,27 +104,11 @@ no front location, and it forbids starting sessions.
 
 ## What the mode needs
 
-The mode runs on the Claude Code desktop app's session tools and, for a doc front, the
-Claude Docs tools. When they are listed as deferred tools, load them with `ToolSearch`
-before the first call.
-
-| tool                                    | what the orchestrator uses it for                                       |
-| --------------------------------------- | ----------------------------------------------------------------------- |
-| `start_session`                         | start a work session; with `context: "fresh"`, `background` is required |
-| `SendMessage`                           | reach a work session; `to` takes its `local_…` id                       |
-| `list_sessions`                         | the state of every work session, with `linked: true`                    |
-| `list_events`                           | read the end of a work session's conversation                           |
-| `SendUserFile`                          | put a screenshot, a board or a report in front of Athena                |
-| `archive_session`                       | archive a work session as soon as it ends (`references/cleanup.md`)     |
-| `set_session_title`                     | title this session, and rename a work session when its task changes     |
-| Docs `read`, `batch`, `update`, `guide` | read and write the front doc (`<plugin-root>/references/front-doc.md`)  |
-
-**Wait without polling.** Pass `wake_when_done: true` to `start_session`, or
-`notify_when_idle: true` to `SendMessage`, and the app wakes the orchestrator when the work
-session ends its turn.
-
-When the session tools are not there at all, say that this session cannot start work
-sessions, and offer `/ss:go` in this session instead.
+The desktop app's session tools and, for a doc front, the Docs tools; load deferred ones
+with `ToolSearch`. Read `references/session-tools.md` before the first session tool call
+for the tool table, how to wait without polling (`wake_when_done`, `notify_when_idle`), and
+the limits to say out loud (Remote Control, "Trust repository", approvals that wait on
+Athena). When the session tools are not there at all, offer `/ss:go` in this session.
 
 ## The four moments
 
@@ -154,18 +134,6 @@ No merge ask goes out on green CI alone. Before each one, check the review gate
 PR's latest head. When it is missing or stale, send the PR back to its work session for a
 review round and ask nothing until it reports. The question text of the ask states the
 verdict.
-
-## Limits to say out loud
-
-- **A turn that began with another session's message cannot start a session.** Propose it,
-  and Athena starts it with one click or one word here.
-- **Remote Control can refuse to start sessions.** Ask Athena to type the request in the
-  desktop app.
-- **A repository the app never opened asks for "Trust repository"** before its first work
-  session. Ask Athena to open it once.
-- **Some calls wait on Athena's approval.** Outside auto mode, the app asks her to approve
-  each archive, each Auto-fix switch and each rename of a title she set: say which approval
-  is waiting.
 
 ## Land the front
 

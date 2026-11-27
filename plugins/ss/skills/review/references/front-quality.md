@@ -30,7 +30,7 @@ What this front adds is how to _hunt_ with them:
 ```
 
 Every finding here is a **Sugestão**, the front being behavior-preserving: the
-plugin-root `references/finding-levels.md` maps it that way and this front assigns no
+`<plugin-root>/references/finding-levels.md` maps it that way and this front assigns no
 level of its own.
 
 ## Failure scenario, for cleanup
