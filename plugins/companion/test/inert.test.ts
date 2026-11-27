@@ -5,7 +5,7 @@ import { join } from "path";
 
 const entry = join(import.meta.dir, "..", "start-server.ts");
 
-test("outside a channel session the server answers with no tools and touches no state", async () => {
+test("in any session the plugin's server answers with no tools and touches no state", async () => {
   const state = mkdtempSync(join(tmpdir(), "companion-inert-"));
   const proc = Bun.spawn([process.execPath, entry], {
     stdin: "pipe",

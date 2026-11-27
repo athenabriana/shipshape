@@ -118,7 +118,7 @@ def parent_pid(pid: int) -> int | None:
         return int(stat[stat.rindex(")") + 2 :].split()[1])
     except (OSError, ValueError, IndexError):
         pass
-    try:  # no /proc (macOS): ask ps, as channel.ts readProc does
+    try:  # no /proc (macOS): ask ps
         out = subprocess.run(["ps", "-o", "ppid=", "-p", str(pid)], capture_output=True, text=True, timeout=5)
         return int(out.stdout.strip()) if out.returncode == 0 and out.stdout.strip() else None
     except (OSError, ValueError, subprocess.SubprocessError):
@@ -126,8 +126,8 @@ def parent_pid(pid: int) -> int | None:
 
 
 def ancestor_pids() -> set[int]:
-    """This script's ancestors: the session that runs it is one of them. The same walk as
-    channel.ts readProc, in Python."""
+    """This script's ancestors: the session that runs it is one of them. Read from /proc,
+    or from ps where /proc is missing."""
     pids: set[int] = set()
     pid: int | None = os.getppid()
     for _ in range(12):

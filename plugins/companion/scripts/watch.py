@@ -4,8 +4,8 @@ The companion's watch: one line per change that may need Athena, nothing otherwi
 
 Part of the companion plugin, Apache License, Version 2.0 (see LICENSE and NOTICE).
 
-Run under Claude Code's `Monitor` tool, each stdout line wakes the companion session as
-an event, and a quiet watch costs no tokens. It looks at two things:
+Run by the companion service as a child process (`watch-runner.ts`), each stdout line
+wakes the companion's agent as an event, and a quiet watch costs no tokens. It looks at two things:
 
 - **Sessions**, every `--interval` seconds, from `sessions.py`: a session that starts
   waiting (a permission prompt or a question dialog), a session that stops on a question,

@@ -1,10 +1,10 @@
 ---
 name: configure
-description: Sets up the companion Telegram channel. Checks that the bot token is saved with private permissions, shows the access policy and pushes it toward a locked allowlist. Use when the person types "/companion:configure", asks to configure or set up Telegram, asks "who can reach me", or wants the Telegram channel's status.
+description: Sets up the companion, the Telegram assistant that runs as a service. Checks that the bot's token and Claude's are saved with private permissions, shows the access policy and pushes it toward a locked allowlist. Use when the person types "/companion:configure", asks to configure or set up Telegram or the companion, asks "who can reach me", or wants the companion's status.
 license: Apache-2.0
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 0.1.0
+  version: 0.2.0
   upstream: the official Telegram channel plugin's configure skill, at the version plugins/companion/UPSTREAM.md names
 user-invocable: true
 allowed-tools:
@@ -14,9 +14,10 @@ allowed-tools:
 
 # Telegram configure
 
-Checks the bot token and walks the person to a locked access policy. The token is a
-credential: whoever holds it can read and send as the bot, so this skill never reads its
-value, prints it or echoes it back.
+Checks the two tokens and walks the person to a locked access policy. Each token is a
+credential: whoever holds the bot's can read and send as the bot, and whoever holds
+Claude's spends the person's subscription, so this skill never reads either value, prints
+it or echoes it back.
 
 ## Find the state folder and the token script
 
@@ -27,9 +28,9 @@ echo "${TELEGRAM_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/companion-tele
 ```
 
 Use the printed path below wherever `STATE_DIR` appears. The default is
-`~/.local/state/companion-telegram`, outside `~/.claude/`, where a session in `dontAsk`
-mode cannot write. Upstream's folder, `~/.claude/channels/telegram`, is only read as a
-fallback: the channel copies an existing `.env` and `access.json` from it on its first start.
+`~/.local/state/companion-telegram`, outside `~/.claude/`. Upstream's folder,
+`~/.claude/channels/telegram`, is only read as a fallback: the service copies an existing
+`.env` and `access.json` from it on its first start.
 
 The token script is `scripts/token-env.sh` in the plugin, two folders up from this skill's
 base directory: `SKILL_BASE/../../scripts/token-env.sh`, written below as `TOKEN_SCRIPT`.
@@ -38,11 +39,13 @@ where the plugin is installed, so `allowed-tools` cannot name it: each call asks
 permission, and a session in `dontAsk` mode refuses it. There, tell the person to run the
 terminal command below and read `TOKEN_SCRIPT status` from them instead.
 
-| command               | what it does                                                                       |
-| --------------------- | ---------------------------------------------------------------------------------- |
-| `TOKEN_SCRIPT status` | prints `token: set`, `token: empty or malformed` or `token: missing`, and the mode |
-| `TOKEN_SCRIPT set`    | saves a token read from stdin, keeps the other keys, sets mode 600                 |
-| `TOKEN_SCRIPT clear`  | removes the token line, and `.env` when nothing else is left                       |
+| command                      | what it does                                                                       |
+| ---------------------------- | ---------------------------------------------------------------------------------- |
+| `TOKEN_SCRIPT status`        | prints `token: set`, `token: empty or malformed` or `token: missing`, and the mode |
+| `TOKEN_SCRIPT set`           | saves the bot's token read from stdin, keeps the other keys, sets mode 600         |
+| `TOKEN_SCRIPT clear`         | removes the token line, and `.env` when nothing else is left                       |
+| `TOKEN_SCRIPT status claude` | the same for Claude's token, the one `claude setup-token` prints                   |
+| `TOKEN_SCRIPT set claude`    | saves Claude's token                                                               |
 
 Arguments passed: `$ARGUMENTS`
 
@@ -50,23 +53,23 @@ Arguments passed: `$ARGUMENTS`
 
 ### No arguments: show the status, then lock it down
 
-1. **Token.** Run `TOKEN_SCRIPT status` and report what it says. A mode wider than `600`
-   means the file is readable by others: rerun `TOKEN_SCRIPT set` from the terminal command
-   below, which rewrites it as `600`.
-2. **Channel.** Check whether this session runs the channel. When the session's MCP
-   instructions say "The companion Telegram channel is off in this session", nothing here
-   polls the bot: the next step is to relaunch with the channel (the launch command is in the
-   plugin's `README.md`), and messages sent to the bot meanwhile reach no session.
+1. **Tokens.** Run `TOKEN_SCRIPT status` and `TOKEN_SCRIPT status claude`, and report what
+   they say. A mode wider than `600` means the file is readable by others: rerun
+   `TOKEN_SCRIPT set` from the terminal command below, which rewrites it as `600`.
+2. **Service.** No session runs the bot: the companion is a service of its own, started
+   with `scripts/run-service.sh` or its systemd unit (the plugin's `README.md` has both).
+   Say so, and that messages sent to the bot reach it only while it runs.
 3. **Access.** Read `STATE_DIR/access.json`. A missing file means `dmPolicy: "pairing"` and
    an empty allowlist. Show the DM policy and what it means in one line, the allowed senders,
    and the pending pairings with their codes.
 4. **Next step.** Give the one that fits:
-   - No token, or an empty one: the terminal command below.
-   - A token, but the channel is off here: relaunch with the channel.
-   - A token, the channel on, `pairing`, and nobody allowed: "Send your bot a message on
-     Telegram. It replies with a code. Approve it with `/companion:access pair CODE`."
-   - A token, the channel on, and someone allowed: "Ready. Message your bot to reach this
-     session."
+   - No bot token, or an empty one: the terminal command below.
+   - No Claude token: "Run `claude setup-token` in your terminal, then save what it prints
+     with `bash TOKEN_SCRIPT set claude`."
+   - Both tokens, `pairing`, and nobody allowed: "Start the service, send your bot a message
+     on Telegram. It replies with a code. Approve it with `/companion:access pair CODE`."
+   - Both tokens and someone allowed: "Ready. Start the service if it is not running, and
+     message your bot."
 5. **Lock it down.** Always continue with the section below. Never leave `pairing` as the
    policy the person ends on.
 
@@ -112,8 +115,8 @@ allowlist` right away, without waiting to be asked.
 
 ## Notes on timing
 
-- A missing folder or file means the channel is not set up yet, which is not an error.
-- The server reads `.env` once when it starts. After a token change, restart the channel
-  session, and say so.
+- A missing folder or file means the companion is not set up yet, which is not an error.
+- The service reads `.env` once when it starts. After a token change, restart the
+  service, and say so.
 - The server re-reads `access.json` on every inbound message, so a change made with
   `/companion:access` holds at once.

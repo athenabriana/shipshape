@@ -1,6 +1,6 @@
 # Ship Shape
 
-A **Claude Code plugin** (`ss`) published through the `shipshape` marketplace, which also ships `companion`, an optional Telegram channel plugin. Install via `claude plugin marketplace add athenabriana/shipshape` then `claude plugin install ss@shipshape`. Skills are invoked as `/ss:<skill>` (e.g. `/ss:ship`). `/ss:go` routes a request to a playbook sized to risk; the flow is clarify → build → ship. Long work runs on the goal loop (`plugins/ss/references/goal-loop.md`): goals proposed and approved once, then a fresh judge each round until every goal is achieved and the judge is pleased; `design-loop.md` and `/ss:review`'s loop specialize it. `ss` ships a `SessionStart` operating-context hook, auto-active when the plugin is enabled.
+A **Claude Code plugin** (`ss`) published through the `shipshape` marketplace, which also ships `companion`, an optional Telegram assistant that runs as an Agent SDK service. Install via `claude plugin marketplace add athenabriana/shipshape` then `claude plugin install ss@shipshape`. Skills are invoked as `/ss:<skill>` (e.g. `/ss:ship`). `/ss:go` routes a request to a playbook sized to risk; the flow is clarify → build → ship. Long work runs on the goal loop (`plugins/ss/references/goal-loop.md`): goals proposed and approved once, then a fresh judge each round until every goal is achieved and the judge is pleased; `design-loop.md` and `/ss:review`'s loop specialize it. `ss` ships a `SessionStart` operating-context hook, auto-active when the plugin is enabled.
 
 ## Structure
 
@@ -28,7 +28,7 @@ plugins/ss/
     ├── caretake                           # the PRs that are not yours: the repo digest, or adopt or modernize one PR
     ├── learn                              # a lesson kept as a check, a review rule or a project fact; offered by /ss:go when a correction lands twice
     └── explain-the-number, attack-the-premise, prove-the-fix   # situational, loaded by trigger (references/triggers.md)
-plugins/companion/                     # Telegram channel, vendored from the official plugin (Apache-2.0); UPSTREAM.md says how to pull fixes
+plugins/companion/                     # Telegram assistant service on the Agent SDK, adapted from the official channel plugin (Apache-2.0); UPSTREAM.md says how to pull fixes
 ```
 
 ### Naming Conventions

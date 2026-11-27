@@ -1,19 +1,19 @@
 /**
- * The companion server in a session that is not the channel session.
+ * The companion's MCP server in a Claude Code session: no tools, no bot.
  *
  * Part of the companion plugin, Apache License, Version 2.0 (see LICENSE and NOTICE).
  *
- * It answers the MCP handshake with no tools and tells the session that the channel is off
- * here, so the plugin can stay enabled without taking the bot from the session that holds
- * it. It never reads the token, never writes bot.pid and never starts the bot. It imports
- * nothing outside Bun itself, so an inert session runs no `bun install` either.
+ * The companion runs as a service of its own (`bun run companion`), so the plugin's MCP
+ * server never polls Telegram. It answers the MCP handshake with no tools and tells the
+ * session where the bot lives, so the plugin can stay enabled for its skills without
+ * taking the bot from the service. It never reads the token, never writes bot.pid and
+ * never starts the bot. It imports nothing outside Bun itself, so it runs no `bun install`.
  */
 
 const INSTRUCTIONS = [
-  "The companion Telegram channel is off in this session.",
-  "It polls only in a session launched with `--channels plugin:companion@MARKETPLACE`",
-  "(or `--dangerously-load-development-channels plugin:companion@MARKETPLACE`),",
-  "so messages sent to the bot do not reach this session.",
+  "The companion Telegram channel is off in this session: the companion runs as a service of its own",
+  "(`bun run companion` in the plugin's folder, or its systemd unit), answering through the Claude Agent SDK.",
+  "Messages sent to the bot reach that service, not this session, even when it was launched with `--channels`.",
   "If the user asks about the bot here, tell them that, and that `/companion:configure` shows the setup.",
 ].join(" ");
 
@@ -64,7 +64,7 @@ function handle(line: string): void {
 
 export function runInert(): Promise<never> {
   process.stderr.write(
-    "companion: inert. This session was not launched with the companion channel.\n",
+    "companion: inert. The companion runs as its own service now, not as a channel.\n",
   );
 
   let buffered = "";
