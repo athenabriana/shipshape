@@ -40,11 +40,12 @@ content.
 | ------- | --------------------------------------------------- | --------------------------------------- | --------------------------------------- |
 | code    | reading real code settles the question              | `file:line` in a cloned repo            | `git`, plus `gh` to search repositories |
 | content | docs, articles, discussions, changelogs settle it   | a URL plus the passage that supports it | web search and web fetch                |
-| visual  | the question is how a screen, flow or pattern looks | the page URL and the image it shows     | web search and `python`                 |
+| visual  | the question is how a screen, flow or pattern looks | the page URL and the image it shows     | Mobbin, or web search and `python`      |
 
-The visual front works from the open web with no account: public design galleries and the
-real products' own sites. A browser screenshot is optional and covers only pages the image
-script cannot read.
+The visual front uses Mobbin first, when the person has connected it, by
+`<plugin-root>/references/ui-references.md`. Without it, the front works from the open web
+with no account: public design galleries and the real products' own sites. A browser
+screenshot is optional and covers only pages the image script cannot read.
 
 ## Workflow
 
@@ -68,8 +69,8 @@ Turn the topic into a plan before searching:
   or the caller's context.
 
 Then check the tools for each chosen front. A front with no tool to run it (no web search,
-no `gh` and no named repo, no `python`) is skipped and named in the open section, and the
-research continues on the fronts it has. When no chosen front can run, write the report
+no `gh` and no named repo, neither Mobbin nor `python`) is skipped and named in the open
+section, and the research continues on the fronts it has. When no chosen front can run, write the report
 anyway: it states that nothing could be researched and lists what each front needed.
 
 ### 3. Set up the work folder
@@ -140,6 +141,14 @@ unsupported. Keep it under 500 words.
 ```
 
 #### Visual front
+
+Mobbin comes first. Search with `ToolSearch` for `search_screens`, `search_flows` and
+`search_sections` (their full names carry a prefix that differs per account). When they
+load, search them for the pattern by `<plugin-root>/references/ui-references.md`: keep each
+screen's link, open its image, and describe it against the questions; a Mobbin link is the
+evidence the way a page URL is. When none loads, say in the report that Mobbin was not
+connected and run the steps below. Either way, the report's images are references to learn
+from and never a look to copy.
 
 1. Search the web for reference pages: public design galleries and the real products' own
    sites, pages that show the screen or flow in question.

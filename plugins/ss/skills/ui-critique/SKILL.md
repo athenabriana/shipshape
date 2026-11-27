@@ -51,6 +51,12 @@ path the brief names. Keep every rung that resolves. None is required: with none
 critic judges the screens on their own craft and the design system pass is skipped, said
 in one line.
 
+**The UI references** are three to six real screens that solve the same pattern, gathered
+before round 1 by `<plugin-root>/references/ui-references.md`: Mobbin first when its tools
+are there, then live sites through the browser, then `/ss:research`'s visual front. Say in
+one line which source they came from. They are gathered once and go to the critic in every
+round.
+
 ## 2. Ask once, then run
 
 Follow `<plugin-root>/references/long-run.md`. Before the first screenshot, list what the
@@ -90,7 +96,7 @@ Every round is the same, from round 1 to the last:
    capture again only what the last fixes touched, plus anything a finding asked for.
 2. **The critic and the checks, in one message.** One `Agent` call with
    `subagent_type: "ss:ss-design-critic"`, fresh and memoryless, with the prompt
-   `design-loop.md` "Dispatch the critic" lists; alongside it, the accessibility pass
+   `design-loop.md` "Dispatch the critic" lists, the UI references included; alongside it, the accessibility pass
    (`references/a11y-pass.md`) and, when a design source resolved and the target is code,
    the design system pass (`references/design-system-pass.md`). Both passes fan out as
    read only subagents when the target is more than a handful of files, and the
@@ -138,6 +144,9 @@ By `design-loop.md` "Report", plus the accessibility line:
 - **What is still open**: one line per finding with its source and severity, and the
   refusals with their grounds. In critique only, every finding, ranked: Critical and
   High first, each with a concrete fix.
+- **The UI references**: the source line, then each reference with why it fits and its
+  link. A finding that rests on a reference carries that reference's link beside it, and
+  the board shows the reference next to the screen it judges.
 - **Decided on my own**, one line each, by `long-run.md`.
 
 ## 6. Gate
@@ -180,5 +189,6 @@ Shared, at the plugin root:
 - `<plugin-root>/references/design-loop.md`: the loop, the screenshots, the critic's prompt, when it stops, the report.
 - `<plugin-root>/references/long-run.md`: ask once, then run; the cap and the usage window.
 - `<plugin-root>/references/show-for-review.md`: the mockup or the real screen, and the board.
+- `<plugin-root>/references/ui-references.md`: real screens for the pattern, Mobbin first, given to the critic each round.
 - `<plugin-root>/agents/ss-design-critic.md`: the critic, very hard to please, and its two verdicts.
 - `<plugin-root>/skills/review/references/front-a11y.md` and `front-design.md`, `design-checklist.md` beside them: the criteria and finding shapes both passes share with `/ss:review`.
