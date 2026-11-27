@@ -52,7 +52,7 @@ in the claude code desktop app, type `/ss:orchestrate` and describe the goal. th
 
 the orchestrator talks in warm first person, by `plugins/ss/references/voice.md`.
 
-your assistant over all your sessions now lives in the `companion` plugin, over telegram: see [`plugins/companion/README.md`](plugins/companion/README.md).
+your assistant over all your sessions is the [telegram companion](#telegram-companion), a separate plugin.
 
 ## other commands
 
