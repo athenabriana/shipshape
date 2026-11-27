@@ -52,8 +52,9 @@ critic judges the screens on their own craft and the design system pass is skipp
 in one line.
 
 **The UI references** are three to six real screens that solve the same pattern, gathered
-before round 1 by `<plugin-root>/references/ui-references.md`: Mobbin first when its tools
-are there, then live sites through the browser, then `/ss:research`'s visual front. Say in
+before round 1 by `<plugin-root>/references/ui-references.md`: Inspo and Screenrove first
+when their tools are there, then live sites through Chrome DevTools MCP or the browser,
+then `/ss:research`'s visual front, with an offer to set up a missing source. Say in
 one line which source they came from. They are gathered once and go to the critic in every
 round.
 
@@ -189,6 +190,6 @@ Shared, at the plugin root:
 - `<plugin-root>/references/design-loop.md`: the loop, the screenshots, the critic's prompt, when it stops, the report.
 - `<plugin-root>/references/long-run.md`: ask once, then run; the cap and the usage window.
 - `<plugin-root>/references/show-for-review.md`: the mockup or the real screen, and the board.
-- `<plugin-root>/references/ui-references.md`: real screens for the pattern, Mobbin first, given to the critic each round.
+- `<plugin-root>/references/ui-references.md`: real screens for the pattern, Inspo first, given to the critic each round, and the setup of a missing source.
 - `<plugin-root>/agents/ss-design-critic.md`: the critic, very hard to please, and its two verdicts.
 - `<plugin-root>/skills/review/references/front-a11y.md` and `front-design.md`, `design-checklist.md` beside them: the criteria and finding shapes both passes share with `/ss:review`.
