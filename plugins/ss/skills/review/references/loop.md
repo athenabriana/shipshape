@@ -133,7 +133,7 @@ is `no verdict`, as `verify.md` §2 handles it.
 2. **The finders fan out** as `references/fronts.md` describes.
 3. **The judge checks every goal and judges the candidates.** It takes the verifier's seat in
    `references/verify.md` §2, with the same three verdicts and the same evidence rule, and
-   §4 ranks and caps what comes back. Files holding a runnable `correctness` candidate go to
+   §4 ranks and caps what comes back. Files holding a runnable `correctness` or `edges` candidate go to
    `ss-review-verifier` agents instead (`references/verify.md`, the execution lane). They
    take the judge's seat for those files, so they go out on Sonnet with no `model`
    override, even on a deep run, and every round 1 verdict comes from the judge's model.

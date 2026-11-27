@@ -1,6 +1,6 @@
-# Action → takeover
+# Mode → adopt
 
-Reached when the user names a PR somebody else opened and asks to take it over ("take over #12", or a `suggest: takeover` pick from `/ss:caretake`'s digest). takeover finishes that PR, CI green and review threads handled, while the PR's author keeps the credit. One PR per run. Never merge, never approve, never force-push.
+Reached when the user names a PR somebody else opened and asks to take it over ("take over #12", or a `suggest: takeover` pick from the digest). Adopt finishes that PR, CI green and review threads handled, while the PR's author keeps the credit. One PR per run. Never merge, never approve, never force-push.
 
 ## 1. Read the PR before touching the tree
 
@@ -30,10 +30,10 @@ After the checkout the current branch resolves to PR `<n>`, so `<plugin-root>/sc
 
 ## 4. Finish it through ship's PR path
 
-Follow `<plugin-root>/skills/ship/references/ship-pr.md` from "Triage comments → fix → push → reply" on, with the destination already settled: no destination question, and on the author's-branch path no PR to create.
+Follow `<plugin-root>/skills/ship/references/ship-pr.md` from "Answer the review threads" on, skipping "Create the PR", with the destination already settled: no destination question, and on the author's-branch path no PR to create.
 
 - **The author's branch**: the fixes are pushed onto the PR's head branch with a plain push. The PR, its author and its commits stay as they were.
-- **A new PR**: create `takeover/<n>` from the checked out head, so the author's commits come along with their authorship. Every fix commit ends with a `Co-authored-by: <author name> <author email>` trailer, the identity taken from the author's own commits (`git log --format='%an <%ae>' <base>..HEAD`). Open the PR with `gh pr create`, its body opening with `Takes over #<n> by @<author>.` and the original's context. Then comment once on the original PR: `Continued in #<new>, with your commits kept.`
+- **A new PR**: create `takeover/<n>` from the checked out head (adopt mode keeps the old branch prefix, like the digest's `takeover` key, so earlier runs and their PRs still match), so the author's commits come along with their authorship. Every fix commit ends with a `Co-authored-by: <author name> <author email>` trailer, the identity taken from the author's own commits (`git log --format='%an <%ae>' <base>..HEAD`). Open the PR with `gh pr create`, its body opening with `Takes over #<n> by @<author>.` and the original's context. Then comment once on the original PR: `Continued in #<new>, with your commits kept.`
 - The threads live on the original PR on both paths: the reply to a fix thread names the commit and, on the new-PR path, the new PR (`Fixed in <sha> on #<new>`).
 
 Ship's limits hold as written: an unclear thread pauses for the user, and CI still red after 3 fix cycles stops the run with the diagnosis of each attempt.

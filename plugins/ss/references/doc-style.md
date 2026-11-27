@@ -4,9 +4,8 @@
 
 Every sentence this plugin writes. That is two bodies of prose: the instruction
 agents read (`SKILL.md` bodies, `references/`, the repo `README.md`, `.claude/CLAUDE.md`) and
-the documents a skill generates for another repo (the README from `/ss:write-readme`, the
-CODE_REVIEW_GUIDE from `/ss:review-setup`, the report templates that live inside fenced
-blocks). A fenced block that is an output template is prose ss writes outward, so it follows
+the documents a skill generates for another repo (the CODE_REVIEW_GUIDE from
+`/ss:review-setup`, the report templates that live inside fenced blocks). A fenced block that is an output template is prose ss writes outward, so it follows
 this page too.
 
 This page states every rule ss writes by, so writing to it is a local read, never a fetch.
@@ -21,8 +20,7 @@ inside a `SKILL.md` is the wording to say, never the string to print.
 ## Precedence
 
 A project guideline first, this page second. Where a skill states its own contract, the
-contract wins: `/ss:write-readme` keeps all lowercase, its four blocks, and one badge per
-verifiable fact. What neither settles goes to the closest rule on this page.
+contract wins. What neither settles goes to the closest rule on this page.
 
 ## Dashes
 

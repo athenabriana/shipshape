@@ -1,16 +1,21 @@
 ---
 name: investigate
-description: Answers a read only question about code, a branch or its history with evidence, and never edits. Covers how a subsystem works, why something was built this way, a summary of every change on the current branch against main, and a catch-up on in-flight work from earlier Claude Code sessions. Use when the user says "how does X work", "why does Y do this", "why is Y like this", "where is X", "compare with main", "branch context", "what changed on this branch", "summarize my branch", "diff against main", "what did I do on this branch", "what was I doing", "catch me up", or "are we sure that". Don't use it to judge a diff for bugs or quality (use /ss:review), to fix a bug (use /ss:go), or to open or land a branch (use /ss:ship).
+description: Answers a question about this repo, its branch, its history or your sessions in it, with evidence, and never edits. Runs on "how does X work", "why is Y like this", "what changed on this branch", "catch me up", and as the cause-finding step of /ss:bug-fix; solves guessing about code that is right there. Outputs an answer whose every claim points at a path:line, a commit, a PR or a transcript line, a branch summary against main, or a table of recent sessions and what waits on you. Anything outside this repo (other projects, docs, design references) is /ss:research's. Use when the user says "how does X work", "why does Y do this", "where is X", "compare with main", "branch context", "what changed on this branch", "summarize my branch", "what did I do on this branch", "what was I doing", "catch me up", or "are we sure that". Don't use it to judge a diff (use /ss:review), to fix a bug (use /ss:bug-fix), or to land a branch (use /ss:ship).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.0.0
+  version: 1.1.0
 ---
 
 # Investigate
 
-Answer a question about the code, a branch or its history, with evidence. This skill only
-reads: it never edits a file, commits or pushes.
+Answer a question about this repo, its branch, its history or your sessions in it, with
+evidence. This skill only reads: it never edits a file, commits or pushes.
+
+**The line with `/ss:research`:** this skill covers what is here, in this repo and its
+sessions. Another project's code, docs, articles and design references are outside it, and
+go to `/ss:research`, which verifies every claim and writes a report. A question that needs
+both runs here first, then hands the outside part across.
 
 Every claim in the answer points at its evidence: a `path:line`, a commit, a PR, a
 transcript line. Say plainly what you could not confirm.

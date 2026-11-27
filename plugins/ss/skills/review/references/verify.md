@@ -9,7 +9,7 @@ Runs for the fan-out depths. At the tiny-diff depth there are no finder agents. 
 loop the judge still judges every candidate (`loop.md`, "The judge"), so the review keeps
 its independent reader. In the manual flow the "verify" step is a self-check in the main
 context: re-read each candidate against the file before keeping it, and run the execution
-lane below for a `correctness` candidate it covers, under the same rules a verifier
+lane below for a `correctness` or `edges` candidate it covers, under the same rules a verifier
 follows. The report then says the review had no independent verification.
 Verifiers dispatch on Sonnet like the finders, and go to Opus on the same condition they do, a deep run (`fronts.md`, "Model").
 
@@ -56,7 +56,7 @@ claim) sits in its file's group with `line: null`.
 verifier that opens `src/a.ts` once can judge every candidate in it: the file's
 candidates ride along in one prompt, each still labeled, each still judged on its own
 claim. When the pooled candidates touch more files than the cap allows, bundle the
-files across the calls. Every file holding a `correctness` candidate placed first,
+files across the calls. Every file holding a `correctness` or `edges` candidate placed first,
 then `rules` and `contract`, then the rest, so the heaviest files get the most
 attention and the cheap ones share. Nothing is dropped and no verdict changes; what
 changes is that one agent reads a file once for five candidates instead of five
@@ -74,7 +74,7 @@ What this pass hands it: the scope block, the candidates in its file labeled wit
 `local_index` and the `file:line` each sits at (a bundle of several files labels them
 `[0]`, `[1]`, … across the bundle and keeps the map back to each `index`), the addendum
 below when the front calls for one, and the three lines of the execution lane when
-its files hold a `correctness` candidate. Back comes one verdict per index, each judged
+its files hold a `correctness` or `edges` candidate. Back comes one verdict per index, each judged
 independently on its own claim, with evidence.
 
 **In the review loop the judge takes this seat.** The `ss-review-judge` agent
@@ -117,14 +117,14 @@ hallucinated rules.
 
 ## The execution lane: correctness proven by a run
 
-A `correctness` candidate whose failure scenario names a concrete trigger (a command, an
+A `correctness` or `edges` candidate whose failure scenario names a concrete trigger (a command, an
 input to a named entry point, a test) is decided by running that trigger. Reading it can
 make the case, and only the run proves it: such a candidate reaches CONFIRMED on a run
 that shows the failure, and on nothing else.
 
 **`runnable` gates the lane.** Resolve it once per review with
 `python3 <plugin-root>/scripts/resolve_checks.py`, the same answer `act-apply-fixes.md`
-reads, and give every verifier whose files hold a `correctness` candidate three lines in
+reads, and give every verifier whose files hold a `correctness` or `edges` candidate three lines in
 its prompt:
 
 - `runnable: true` or `runnable: false`;
@@ -156,7 +156,7 @@ carries no `runnable` line. In the loop, when `runnable` is true, send the files
 `correctness` candidate to `ss:ss-review-verifier` and the rest to the judge, all in one
 message, under the cap of §1, so one barrier closes the round. Those verifiers take the
 judge's seat for their files, so they go out on Sonnet with no `model` override, even on
-a deep run. A `correctness` finding the judge returns marked `not executed` goes to an
+a deep run. A `correctness` or `edges` finding the judge returns marked `not executed` goes to an
 `ss-review-verifier` on Sonnet for its run before its verdict stands.
 
 ## 3. Sweep (deep runs only)

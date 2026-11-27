@@ -1,10 +1,10 @@
 ---
 name: ship
-description: Takes the current branch to shipped, your way. It greens the project's checks, commits and ships through the destination you pick (push to a feature branch, push to main, or open or finish a pull request). On the PR path it handles the review comments, follows CI to green, runs the /ss:review loop on the head when no verdict covers it, and then offers a watcher for the PR through /ss:babysit. It merges or pushes a protected branch only when you say so in its chat; otherwise it hands you the command. Use when the user says "ship it", "ship this branch", "push to main", "open the PR", "finish the PR", "green the PR", "fix the CI on my PR". Don't use it to watch or babysit a PR by number (use /ss:babysit), to look after every open PR and dependency (use /ss:caretake), to finish somebody else's PR (use /ss:takeover) or to only summarize the branch (use /ss:investigate).
+description: Lands your branch where you choose. Runs once the work is built and reviewed; solves the last mile of checks, commit, push, PR, review threads and CI. Greens the project's checks, commits and ships through the destination you pick (a feature branch, main, or opening or finishing a pull request); on the PR path it answers the threads, follows CI to green and runs the /ss:review loop on the head when no verdict covers it. Outputs a pushed branch or a PR with CI green and a fresh verdict, then offers /ss:babysit. It merges or pushes a protected branch only when you say so in its chat. Use when the user says "ship it", "ship this branch", "push to main", "open the PR", "finish the PR", "green the PR", "fix CI", "fix the CI on my PR". Don't use it to watch a PR over time (use /ss:babysit), on a PR somebody else opened (use /ss:caretake), or to summarize the branch (use /ss:investigate).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 5.0.0
+  version: 5.0.1
 ---
 
 # Ship
@@ -90,7 +90,7 @@ clean commit.
 A commit in the diff range that carries a `Repro` trailer fixes a bug, and ship does not open or finish the PR until each such fix carries its proof: the original failure shown red, then the same reproduction green, with a focused test that fails without the fix. The trailers and their form are `prove-the-fix`'s (`<plugin-root>/skills/prove-the-fix/SKILL.md`, "The commits"). A branch with no commit carrying `Repro` skips this step and ships as it does today.
 
 1. **Find each fix's proof.** `git log --format='%H%n%(trailers)' <diff_range>` lists the fix commits with their trailers: `Repro`, `Repro-test`, `Repro-test-commit`, `Repro-proof`. A fix commit with `Repro` and any of the other three missing is a blocker: the fix did not land test first.
-   - **Place each test commit** with `python3 <plugin-root>/scripts/patch_id.py --resolve <sha>`, one `--resolve` per `Repro-test-commit`. Each entry of `resolved` answers for one sha. `on_branch: true` is the sha as the trailer wrote it. Otherwise a history rewrite (`/ss:takeover`'s modernize) gave the test commit a new sha, and `match` is the branch's commit with the same patch-id: it stands for the test commit in every step below, and the proof section names both shas.
+   - **Place each test commit** with `python3 <plugin-root>/scripts/patch_id.py --resolve <sha>`, one `--resolve` per `Repro-test-commit`. Each entry of `resolved` answers for one sha. `on_branch: true` is the sha as the trailer wrote it. Otherwise a history rewrite (`/ss:caretake`'s modernize mode) gave the test commit a new sha, and `match` is the branch's commit with the same patch-id: it stands for the test commit in every step below, and the proof section names both shas.
    - **`match: null` means the proof is missing**, a blocker as before. `available: false` says why: the old commit could not be read, locally or from `origin`, so its patch-id was never taken.
 2. **`Repro-proof: local`** is enough: whoever built the fix saw the reproduction and the test fail, and both pass after the fix. It goes into the proof section as it stands, and CI only has to be green at the end.
 3. **`Repro-proof: pending`** is proven by CI in two steps, one red run per pending fix, in the order their test commits sit on the branch:
@@ -155,7 +155,7 @@ The ground for the whole run in one call: `gh_authenticated`, branch, base, `mer
 
 ### <plugin-root>/scripts/resolve_checks.py
 
-Walk the checks authority chain without running anything. Its docstring states the chain, tier by tier, and is the one place that does. Prints `{commands, source, truncated, resolved_count, runnable, policy, notes, unresolved, candidates, git_root}`, where `unresolved` is what it saw and could not resolve, so an empty `commands` is never mistaken for a project with no checks. Shared with `prove-the-fix`, which reads its `runnable`, and `/ss:correct`, which reads its `commands`.
+Walk the checks authority chain without running anything. Its docstring states the chain, tier by tier, and is the one place that does. Prints `{commands, source, truncated, resolved_count, runnable, policy, notes, unresolved, candidates, git_root}`, where `unresolved` is what it saw and could not resolve, so an empty `commands` is never mistaken for a project with no checks. Shared with `prove-the-fix`, which reads its `runnable`, and `/ss:learn`'s check layer, which reads its `commands`.
 
 ### <plugin-root>/scripts/patch_id.py
 

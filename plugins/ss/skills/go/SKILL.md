@@ -1,10 +1,10 @@
 ---
 name: go
-description: Ship Shape's router. Matches the request to one playbook (investigate, bug-fix, review, ui-critique, ship, edge-cases, babysit, review-setup, correct, learn), sizes the route (lightweight, standard or intensive) with scripts/route.py from five risk facts, copies the playbook's steps into the todo list and runs each step's skill. Stays on until you turn it off, offers the learn playbook when the same correction lands twice, and shows a visual with every review ask. Use when the user types /ss:go, says "use ss", "be rigorous", "do this properly", "fix and babysit", "fix it and ship it", says "babysit PR 42", "critique this screen", "set up code review", "make this mistake impossible", or starts any non trivial engineering task. Don't use it for a tiny mechanical change (just do it) or for a question about Claude Code itself.
+description: Ship Shape's router, one door for engineering work, sized to its risk. Runs on any non trivial request and stays on until you turn it off; solves picking the right recipe and the right amount of process. Matches the request to one playbook (investigate, bug-fix, review, ui-critique, ship, babysit, review-setup, learn), sizes the route (lightweight, standard or intensive) with scripts/route.py from five risk facts, and outputs the playbook's steps in the todo list, each run by its skill, with clarify's goals first and the goal loop last on the standard and intensive routes. Offers /ss:learn when the same correction lands twice. Use when the user types /ss:go, says "use ss", "be rigorous", "do this properly", "fix it and ship it", "fix and babysit", or starts any non trivial engineering task. Don't use it for a tiny mechanical change (just do it) or a question about Claude Code itself.
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 1.5.1
+  version: 1.6.0
 ---
 
 # Go
@@ -25,14 +25,12 @@ stays the only source of the steps.
 | -------------- | ---------------------------------------------------------------------------------------------------- | --------------------------- |
 | `investigate`  | a read only question about the code, a branch or its history: how, why, where, what changed          | `playbooks/investigate.md`  |
 | `bug-fix`      | a defect, an error, a stack trace, "this fails", "fix this bug"                                      | `playbooks/bug-fix.md`      |
-| `review`       | judge a diff: the current branch, or a PR by number                                                  | `playbooks/review.md`       |
+| `review`       | judge a diff: the current branch, or a PR by number; "what could break" runs its `edges` front       | `playbooks/review.md`       |
 | `ui-critique`  | judge a screen, not a diff: a page, an app, a mockup or a folder of UI; "critique this screen", a11y | `playbooks/ui-critique.md`  |
 | `ship`         | land a branch: commit, push, open or finish a PR, green CI                                           | `playbooks/ship.md`         |
-| `edge-cases`   | "what could break", "edge cases": before coding (plan mode) or on a diff (diff mode)                 | `playbooks/edge-cases.md`   |
 | `babysit`      | "babysit PR 42", "watch PR 42", "fica de olho no PR 42": a watcher on any PR, by number              | `playbooks/babysit.md`      |
 | `review-setup` | write or update the repo's `CODE_REVIEW_GUIDE.md`: "set up code review", "the review guide is stale" | `playbooks/review-setup.md` |
-| `correct`      | a correction that landed twice: "make this mistake impossible", "turn this into a check"             | `playbooks/correct.md`      |
-| `learn`        | a lesson to keep, layer not named: "remember this", "don't let this happen again", "add this rule"   | `playbooks/learn.md`        |
+| `learn`        | a lesson to keep: "remember this", "make this mistake impossible", "record this fact"                | `playbooks/learn.md`        |
 
 Read the matched playbook whole before the first step.
 
@@ -40,12 +38,12 @@ Read the matched playbook whole before the first step.
 - **A whole flow** ("fix it and ship it") is one playbook with its scope set: run bug-fix,
   then ship, without asking again between them.
 - **None fits:** say which playbook is closest and why it falls short, then do the work by
-  hand under the hard rules of the operating frame. A feature, a refactor or a takeover has
-  no playbook yet: a feature runs as `/ss:clarify`, the work and the goal loop, then `/ss:ship`, or as briefs
+  hand under the hard rules of the operating frame. A PR somebody else opened is
+  `/ss:caretake`'s. A feature or a refactor has no playbook yet: a feature runs as `/ss:clarify`, the work and the goal loop, then `/ss:ship`, or as briefs
   from `/ss:orchestrate`.
-- **Before coding anything non trivial**, `/ss:edge-cases` in plan mode turns the request
-  into WHEN/THEN acceptance criteria. Offer it when the expected behavior is not written
-  down yet.
+- **Before coding anything non trivial**, `/ss:clarify` maps the behavior, edges included,
+  and turns the request into WHEN/THEN goals. Offer it when the expected behavior is not
+  written down yet.
 
 ## 2. Size the route
 
@@ -66,11 +64,11 @@ python3 <plugin-root>/scripts/route.py --blast-radius <low|medium|high> --revers
 
 It prints one line, `<route>: <reason>`. The same facts give the same route on every run.
 
-| Route       | What runs                                                                                                                                                                 |
-| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| lightweight | preservation check, mechanical gate, the review loop with only the correctness front, then `/ss:ship`                                                                     |
-| standard    | the map and the goals, approved once; mechanical gate, `/ss:review` in its default loop until every goal is achieved, then `/ss:ship`                                     |
-| intensive   | the map and the goals, approved once; a blast radius pass over the callers, `/ss:edge-cases` on the diff, `/ss:review deep` until every goal is achieved, then `/ss:ship` |
+| Route       | What runs                                                                                                                                                          |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| lightweight | preservation check, mechanical gate, the review loop with only the correctness front, then `/ss:ship`                                                              |
+| standard    | the map and the goals, approved once; mechanical gate, `/ss:review` in its default loop until every goal is achieved, then `/ss:ship`                              |
+| intensive   | the map and the goals, approved once; a blast radius pass over the callers, `/ss:review deep` with its `edges` front until every goal is achieved, then `/ss:ship` |
 
 On the open PR endpoint, every route ends with the `/ss:review` loop on the PR's latest
 head, once CI is green, before the handoff: a PR never goes up for merge without it
@@ -95,7 +93,7 @@ the map and the goals and ends with the goal loop, by
   close carries the `Goals:` line.
 
 The lightweight route keeps its steps as they are, with no goals. A playbook with no route
-(investigate, edge-cases, babysit, review-setup, correct, learn) runs its skill's own terms.
+(investigate, babysit, review-setup, learn) runs its skill's own terms.
 
 The playbook's own `## Route` section says how this applies to it, and wins where it differs.
 "Keep it light" or "be thorough" from the person overrides the script. Say which route you
@@ -153,8 +151,8 @@ occurrence reads as the same one. While the router is on, keep the classes of th
 session's corrections in mind.
 
 When the same class lands a second time in one session, ask through the question tool
-whether to run the `learn` playbook on it, which picks the layer that holds it: a check
-(`/ss:correct`), a review rule (`/ss:review-setup`) or a project fact (`/ss:record-fact`).
+whether to run the `learn` playbook on it, which picks the layer that holds it: a check, a
+review rule (through `/ss:review-setup`) or a project fact.
 The question names the class and both occurrences; "Learn it" is the recommended pick,
 and "Not now" the other option. Ask once per class, after the current step finishes, and
 go on with the task either way.
@@ -174,8 +172,7 @@ Say what changed, what is verified and by what evidence, the `Goals:` line on th
 and intensive routes, what is left, where the run stopped and why, and the choices made
 without asking. When the run
 learned a project fact that passes the filter in `<plugin-root>/references/project-facts.md`,
-offer `/ss:record-fact` with the exact line, or the `learn` playbook when the layer is not
-clear. End at the handoff gate
+offer the `learn` playbook with the exact line. End at the handoff gate
 (`<plugin-root>/references/handoff-gate.md`): the next step as a question, "stop here" always
 among the options, unless the scope was authorized up front.
 

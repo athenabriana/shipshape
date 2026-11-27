@@ -15,6 +15,7 @@ through the same door as any other run.
 | id            | Label         | What it covers                                                                                     | Available when                                                      | Reference              |
 | ------------- | ------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- | ---------------------- |
 | `correctness` | Correctness   | bugs in the diff, logic, edges, contracts, concurrency, security                                   | the diff is not empty                                               | `front-correctness.md` |
+| `edges`       | Edge cases    | inputs the diff does not handle, walked category by category, each one proven                      | the diff is not empty, and the run is deep or the front was named   | `front-edges.md`       |
 | `quality`     | Quality       | behavior-preserving cleanup, reuse, simplification, efficiency, dead weight, altitude, consistency | the diff is not empty                                               | `front-quality.md`     |
 | `rules`       | Project rules | deviations from the repo's `CODE_REVIEW_GUIDE.md`                                                  | the root has a guide, or the diff edits a facts file                | `front-rules.md`       |
 | `contract`    | Contract      | the diff built what was agreed, and only that, and contradicts no project fact                     | the brief or the PR body holds acceptance criteria                  | `front-contract.md`    |
@@ -73,6 +74,10 @@ call `/ss:ship` makes. What each field settles:
   `gh run list --branch <branch> --limit 1` is a probe left to the caller, like the
   design source above.
 - `gh_authenticated`: false makes `threads` and `ci` unavailable together.
+- depth and the ask, resolved by the caller at step 1 (preflight carries no field for
+  them): `edges` is available only when the run is deep or the user named it, so a
+  standard run never offers it at the step 2 question and the loop does not run it. An
+  external PR never offers it: its callers are read with `git grep` on a checkout.
 
 A front whose probe comes back empty is **not offered** and not reported as a
 failure. `gh` unauthenticated: say so once, with `gh auth login` as the remedy, and
@@ -83,11 +88,11 @@ or a visual direction the design reads) and which render tools were missing.
 
 ## Depth: two tiers by default, a third only when asked
 
-| Diff                             | Correctness angles                                | Quality | Rules      | Contract | A11y    | Design  | Verify                                   | Sweep   | Report cap |
-| -------------------------------- | ------------------------------------------------- | ------- | ---------- | -------- | ------- | ------- | ---------------------------------------- | ------- | ---------- |
-| ≲2 files / ≲100 lines            | the first 2 of the angle set, inline (no fan-out) | inline  | inline     | inline   | inline  | inline  | the judge in the loop, else a self-check | none    | 6          |
-| **any larger diff, the default** | the first 3 of the angle set (3 agents)           | 1 agent | 1 agent    | 1 agent  | 1 agent | 1 agent | 1-vote grouped by file                   | none    | 10         |
-| **deep, only on request**        | the whole angle set (up to 5 agents)              | 1 agent | 1–2 agents | 1 agent  | 1 agent | 1 agent | 1-vote grouped by file                   | 1 agent | 15         |
+| Diff                             | Correctness angles                                | Edges, when on                  | Quality | Rules      | Contract | A11y    | Design  | Verify                                   | Sweep   | Report cap |
+| -------------------------------- | ------------------------------------------------- | ------------------------------- | ------- | ---------- | -------- | ------- | ------- | ---------------------------------------- | ------- | ---------- |
+| ≲2 files / ≲100 lines            | the first 2 of the angle set, inline (no fan-out) | inline                          | inline  | inline     | inline   | inline  | inline  | the judge in the loop, else a self-check | none    | 6          |
+| **any larger diff, the default** | the first 3 of the angle set (3 agents)           | 3 slices (3 agents), when named | 1 agent | 1 agent    | 1 agent  | 1 agent | 1 agent | 1-vote grouped by file                   | none    | 10         |
+| **deep, only on request**        | the whole angle set (up to 5 agents)              | 4 slices (4 agents)             | 1 agent | 1–2 agents | 1 agent  | 1 agent | 1 agent | 1-vote grouped by file                   | 1 agent | 15         |
 
 **Size alone never reaches the third row.** A big diff runs the middle tier: the
 same three angles a medium one gets, no sweep, because a review that silently

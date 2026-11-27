@@ -1,6 +1,6 @@
 ---
 name: review
-description: Reviews the change end to end. On the current branch it loops by default, with every front in parallel and a judge on Sonnet checking the change's goals and findings, then fixes and re-reviews until every goal is met, no round limit. `/ss:review manual` lets you pick fronts and items. Standard depth by default; `/ss:review deep` turns on every angle. It also reviews an external PR by number and posts it as a comment review on an explicit yes, never an approval. Use when the user says "review my changes", "review the PR", "are there bugs here", "answer the PR comments", "fix CI", "clean up this code", "check it followed the project rules", "review the accessibility of what I changed", "does this diff follow the design system", or "review PR 42 in repo X". Its design and a11y fronts judge the diff; a whole screen, a page or a folder with no diff goes to /ss:ui-critique. Don't use it to open or finish a PR (use /ss:ship) or to look after every open PR in the repo (use /ss:caretake).
+description: Judges a change against its goals until the judge is pleased. Runs after the build and before every merge ask, or on an external PR by number; solves shipping a diff nobody checked against what it promised. On the current branch it loops by default, every front in parallel (edges among them when deep or named), each finding verified, then fixed and re-reviewed with a judge on Sonnet until every goal is met, no round limit. Outputs the verified findings, the fixes and the verdict line with the head sha. `/ss:review manual` lets you pick; `/ss:review deep` turns on every angle; `/ss:review edges` hunts the inputs a diff does not handle. Use when the user says "review my changes", "review the PR", "are there bugs here", "what could break", "edge cases", "o que pode quebrar", "answer the PR comments", "check it followed the project rules", or "review PR 42 in repo X". Don't use it on a screen with no diff (use /ss:ui-critique) or to land a branch (use /ss:ship).
 license: Apache-2.0
 metadata:
   author: Athena Briana - github.com/athenabriana; quality-pass material adapted from Claude Code's /simplify, angle/verify architecture adapted from Claude Code's /code-review (Anthropic, Apache-2.0), a11y front absorbed from rafael's ui-accessibility skill (loja inspira-skills, MIT)
@@ -9,7 +9,7 @@ metadata:
 
 # Review
 
-One review skill, eight **fronts** of findings. The skill detects which fronts can
+One review skill, nine **fronts** of findings. The skill detects which fronts can
 produce anything on this branch, asks which ones you want, runs them as a parallel
 fan-out of read-only agents, and puts every candidate through an independent
 verifier before it reaches the report. On the current branch the default is the **review
@@ -55,7 +55,8 @@ PR/CI-related; the diff fronts need no `gh`.
   that PR; posting the review requires explicit confirmation, and the review it posts is
   never an approval.
 - **Direct front ask**: the user already named the front ("CI broke", "answer the
-  comments", "check it followed the rules"): that front is the scope. Skip step
+  comments", "check it followed the rules", "what could break", "edge cases",
+  `/ss:review edges`): that front is the scope. Skip step
   2's question and go straight to it. Skipping the question never skips the probe:
   a front whose sources resolve there (design's) still
   gets them resolved first, because the finder's scope block carries the resolved
@@ -160,8 +161,8 @@ shape**. An a11y or design item shows its own priority in its own columns and th
 level it maps to. The row format lives in each `front-*.md` next to the method that
 produces it, so a front that changes its columns doesn't leave a stale template
 here. Group the items by front under the front's label from the catalog's Label
-column (Correctness, Quality, Project rules, Contract, Accessibility, Design
-system, PR threads, CI) and keep one numbering across the whole
+column (Correctness, Edge cases, Quality, Project rules, Contract, Accessibility,
+Design system, PR threads, CI) and keep one numbering across the whole
 report.
 
 **What the conversation already covers is marked, never dropped.** Read the report
@@ -276,6 +277,7 @@ offered, which needs no row here. What this table covers is everything else:
 | WHEN                                         | THEN                                                                                                                  |
 | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | diff vs base empty and no PR                 | report "nothing to review", stop                                                                                      |
+| an edge-case ask with no diff                | it is a plan's: say so in one line and hand it to `/ss:clarify`, whose behavior map walks the categories              |
 | no front available (empty probe)             | say what was probed and why each came back empty, stop                                                                |
 | no open PR (a review with no PR)             | `threads` and the comment-on-PR option not offered; `ci` still runs off the branch's last run; gate offers `/ss:ship` |
 | no open PR, at the intent read               | the intent block is that one line off the brief and the subjects; nothing has been said yet                           |
@@ -318,6 +320,7 @@ Router support:
 Per-front method (loaded only when that front is picked):
 
 - `references/front-correctness.md`: the correctness angles over the diff, and how the diff's content picks which of them run.
+- `references/front-edges.md`: the inputs the diff does not handle, category by category, on deep runs or when named.
 - `references/front-quality.md`: the cleanup lenses, one finder, behavior-preserving.
 - `references/front-rules.md`: `CODE_REVIEW_GUIDE.md` deviations, with the citation discipline, and the project facts growth check.
 - `references/front-contract.md`: the acceptance criteria from the brief or the PR body as the contract, and the project facts.

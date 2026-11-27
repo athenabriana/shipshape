@@ -206,9 +206,9 @@ already states what follows answers the gate.
 3. **Map the behavior.** Walk the happy path step by step (input, what happens, observable
    output) and every edge that changes the outcome for the user: empty, zero or huge input,
    invalid input, first run and repeat, concurrent use, failure and rollback, denied
-   permission, partial runs, existing data. `/ss:edge-cases` in plan mode can walk the
-   categories; its load-bearing rows come back as candidate goals. Map the outcome, not
-   only that the case exists.
+   permission, partial runs, existing data. Walk the categories of
+   `references/edge-categories.md`; its load-bearing rows come back as candidate goals.
+   Map the outcome, not only that the case exists.
 
 4. **Propose the goals**, in the form of `goal-loop.md` section 2: numbered `G1`, `G2`, …,
    one `WHEN <case> THEN <observable outcome>` line each, with its check (a test, a
