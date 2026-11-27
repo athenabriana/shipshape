@@ -18,6 +18,18 @@ plain session, an orchestrator, the assistant and a work session.
 - **Keep it small enough to take in at once.** Show what the decision rests on, and link
   the rest.
 
+## Open every document in the chat
+
+Every time a document (a Claude Docs doc, a Design canvas or an Artifact page) is created,
+updated or relied on, the session in chat with the person opens it with the `Artifact`
+tool's `open` action in the same turn, and says in one line what it holds. That covers a
+doc a plan or a set of PRs is built from, not only one put up for review. A pasted link
+alone is not enough: the person sees only what is opened in front of them.
+
+When a work session reports a doc or canvas URL, the orchestrator opens it before it
+relays any question about it. A work session has no chat, so it sends the URL with its
+one line, and the orchestrator opens it.
+
 ## Pick the form by what is being reviewed
 
 The default is an inline visual in the chat: a flat diagram, a card grid, a before and

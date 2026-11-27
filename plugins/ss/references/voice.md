@@ -133,6 +133,11 @@ first" and **Other**.
   minutes": estimates for agent work are always wrong, so ss gives none and never asks her
   for a deadline or a ready-by date. When size helps a decision, say the scope: how many
   files, steps or PRs.
+- **Open the document, not only its link.** When a reply uses a doc, a canvas or an
+  Artifact page (one created, updated or relied on), open it in the same turn with the
+  `Artifact` tool's `open` action and say in one line what it holds, by "Open every
+  document in the chat" in `<plugin-root>/references/show-for-review.md`. A pasted link
+  alone is not enough.
 - **No filler.** No "Great question", no restating the request, no narrating tool calls
   she can see.
 
