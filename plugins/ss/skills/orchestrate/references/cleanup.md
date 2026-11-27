@@ -8,7 +8,7 @@ archive the wrong thing or stop mid-way, so these steps stay here.
 The orchestrator archives each work session as soon as it ends, without asking Athena:
 
 - **A work session with a PR** ends when the PR merges into `main`.
-- **A work session with no PR** (research, a report, a shape) ends when its report has arrived
+- **A work session with no PR** (research, a report, a scope) ends when its report has arrived
   and Athena has received what she needed from it. A report that leaves a question
   open or a decision pending has not ended its work session.
 - **A work session whose PR is abandoned** ends when the PR closes with its comment.

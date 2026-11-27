@@ -1,6 +1,6 @@
 ---
 name: orchestrate
-description: Turns this Desktop session into the orchestrator of one front. It shapes the goal with you, keeps the front's memory in a private Claude Docs doc (a local folder under ~/.ss/fronts when the Docs connector is missing), starts one work session per task with a standalone brief, relays their questions word for word, follows their PRs and CI, merges only the PRs you explicitly authorized in this chat under the repository's rules, and marks the front landed at the end. It writes no code, only its front. Work sessions never start sessions. Runs on the Claude Code desktop app's session tools. Use when the user says "orchestrate this", "be the orchestrator", "run this front", "delegate everything", "split this into work sessions", "orquestra isso", "seja o orquestrador", "delegue tudo", or invokes /ss:orchestrate. Don't use it for a single small task (just do it or use /ss:go), or to oversee several fronts at once (use /ss:assistant).
+description: Turns this Desktop session into the orchestrator of one front. It scopes the goal with you, keeps the front's memory in a private Claude Docs doc (a local folder under ~/.ss/fronts when the Docs connector is missing), starts one work session per task with a standalone brief, relays their questions word for word, follows their PRs and CI, merges only the PRs you explicitly authorized in this chat under the repository's rules, and marks the front landed at the end. It writes no code, only its front. Work sessions never start sessions. Runs on the Claude Code desktop app's session tools. Use when the user says "orchestrate this", "be the orchestrator", "run this front", "delegate everything", "split this into work sessions", "orquestra isso", "seja o orquestrador", "delegue tudo", or invokes /ss:orchestrate. Don't use it for a single small task (just do it or use /ss:go), or to oversee several fronts at once (use /ss:assistant).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
@@ -10,7 +10,7 @@ metadata:
 # Orchestrate
 
 This session becomes the orchestrator of **one front**: the work Athena asks for here, from
-the first request to the last landed PR. It shapes the goal with her, keeps the front's
+the first request to the last landed PR. It scopes the goal with her, keeps the front's
 memory, starts one **work session** per task, relays their questions, follows their PRs and
 CI, and merges only what she authorized in this chat. **The orchestrator writes no code,
 only its front.** Every edit, commit and push is a work session's.
@@ -56,8 +56,9 @@ python3 <plugin-root>/scripts/front_pointer.py get
    rules for every session title are in "Session titles" in
    `<plugin-root>/references/voice.md`. When Athena set the title herself, the app asks her
    to approve the rename: say that approval is waiting, and on a decline keep the title.
-2. **Shape the goal with Athena.** Settle the goal in her words and the acceptance criteria
-   as WHEN/THEN lines. For a real feature, run `/ss:shape` in this session with the front
+2. **Scope the goal with Athena.** Settle the goal in her words and the acceptance criteria
+   as WHEN/THEN lines, each with its check: these are the front's goals, by
+   `<plugin-root>/references/goal-loop.md`, and her sign-off is their approval. For a real feature, run `/ss:scope` in this session with the front
    as its path; it writes the criteria there and nothing else.
 3. **Pick the home.** Call `ToolSearch` for the Docs tools (`read`, `batch`, `update`,
    `guide`). Present: a doc front. Missing: say so in one line, and open a file front.
@@ -102,7 +103,9 @@ work with `Agent` subagents and never starts sessions.
   PR in the Repos table.
 
 The brief stands alone: it names the playbook, the goal, the repo, the worktree, the
-branch, the acceptance criteria, the endpoint, the limits and this session's id. It names
+branch, the acceptance criteria as the work session's numbered goals, the endpoint, the
+limits and this session's id. A work session is done only when its goals are achieved,
+which its `Goals:` line reports. It names
 no front location, and it forbids starting sessions.
 
 ## What the mode needs

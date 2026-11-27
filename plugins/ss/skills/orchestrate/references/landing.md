@@ -65,10 +65,11 @@ merge-base to that head, reads the verdict line, and prints
   (`/ss:review`, the loop, on the latest head, by the review gate), tell Athena in one
   line that it waits on its review, and check again once the work session reports.
 - **`unchanged: true`**: the verdict holds, even when the work session merged the base in since.
-  Read `recorded.verdict`. `open` means Bloqueantes the loop left unsettled at its round
-  cap: send them back to the work session once, for one more loop on the latest head. When
+  Read `recorded.verdict` and `recorded.goals`, the goal status after the patch-id
+  (`none` on a lightweight run with no goals and `null` on a loop from before 5.13.0, both judged on the verdict alone). `open` means Bloqueantes the loop left unsettled, or a goal of the
+  change not achieved, when the usage window or a cap stopped it: send them back to the work session once, for one more loop on the latest head. When
   that loop also ends `open`, send nothing back again: the merge ask goes to Athena with
-  every open finding listed in the question text, and the recommended pick is to fix them
+  every open finding and every open goal listed in the question text, and the recommended pick is to fix them
   first. `clean` and `disputed` merge with `head` pinned, after checking CI is green on that same sha, and a
   `disputed` one names its disputed refusals to Athena first.
 - **`unchanged: false`**: the review read code that has changed since, such as a CI fix, a

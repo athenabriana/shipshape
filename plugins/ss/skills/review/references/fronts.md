@@ -41,7 +41,7 @@ call `/ss:ship` makes. What each field settles:
   the diff edits a facts file (`CLAUDE.md`, `.claude/CLAUDE.md` or `AGENTS.md`), for
   its project facts growth check alone.
 - acceptance criteria, resolved by the caller (preflight carries no field for them):
-  `WHEN … THEN …` lines under an `Acceptance criteria` heading in the brief this session
+  `WHEN … THEN …` lines under a `Goals` or an `Acceptance criteria` heading in the brief this session
   was given, or in the PR body (`pr` says whether there is one). Neither holding them makes
   `contract` unavailable.
 - `ui`: whether the diff's hunks contain UI, decided by **what the hunks contain**,

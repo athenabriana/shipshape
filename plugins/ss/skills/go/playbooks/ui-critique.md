@@ -18,6 +18,8 @@ The route never shortens the loop: it runs until both verdicts hold, a cap the p
 | standard    | `/ss:review` in its default loop over the fix commits |
 | intensive   | `/ss:review deep` over the fix commits                |
 
+The goals are the design loop's, by `<plugin-root>/references/design-loop.md`, which runs `<plugin-root>/references/goal-loop.md` on an interface: proposed and approved once in the opening sheet, WCAG AA always among them.
+
 ## Endpoint
 
 Critique only: the report. Critique and fix: the fixes as local commits on the branch, or the approved canvas on the mockup path. Shipping them is the `ship` playbook, offered at the close.

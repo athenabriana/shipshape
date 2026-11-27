@@ -18,6 +18,8 @@ The route sets the depth only, read from the five facts when the change is yours
 | standard    | `/ss:review`, its default loop             |
 | intensive   | `/ss:review deep`, every angle             |
 
+On the standard and intensive routes the loop judges the change against its goals, by `<plugin-root>/references/goal-loop.md`: read from the PR description, the brief, the linked spec or the acceptance criteria, or proposed once from the map when none exist. It runs until every goal is achieved and the judge is pleased, with no default round limit.
+
 ## Endpoint
 
 The review's own result: the fixes stay as local commits on the branch, and a PR somebody else opened gets a comment review. Shipping them is the `ship` playbook, offered at the close.

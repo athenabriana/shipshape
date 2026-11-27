@@ -1,6 +1,6 @@
 ---
 name: bug-fix
-description: Takes a bug from a short report to a proven fix, with no spec. Runs the bug-fix playbook of /ss:go under its risk route, so the cause is found, the failure reproduced, a focused test written and the smallest fix proven, then reviewed and shipped to the endpoint you name. Use when the user says "fix this bug", "debug this", "why does this fail", "this is broken", "esse bug", "corrige esse bug", pastes an error or a stack trace and asks for a fix, or types /ss:bug-fix. Don't use it for a read only question about the code (use /ss:investigate) or for a new feature (use /ss:shape).
+description: Takes a bug from a short report to a proven fix, with no spec. Runs the bug-fix playbook of /ss:go under its risk route, so the cause is found, the failure reproduced, a focused test written and the smallest fix proven, then reviewed and shipped to the endpoint you name. Use when the user says "fix this bug", "debug this", "why does this fail", "this is broken", "esse bug", "corrige esse bug", pastes an error or a stack trace and asks for a fix, or types /ss:bug-fix. Don't use it for a read only question about the code (use /ss:investigate) or for a new feature (use /ss:scope).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana

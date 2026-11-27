@@ -1,7 +1,7 @@
 # Front: contract, the diff against its acceptance criteria
 
-Available when the acceptance criteria resolve: `WHEN … THEN …` lines under an
-`Acceptance criteria` heading, in the brief this session was given or in the PR body. The
+Available when the acceptance criteria resolve: `WHEN … THEN …` lines under a `Goals` or
+an `Acceptance criteria` heading (the `Goals` block `/ss:scope` writes), in the brief this session was given or in the PR body. The
 brief wins when both hold them. It's the one front that can catch a diff where every line
 is correct and the wrong thing got built.
 
