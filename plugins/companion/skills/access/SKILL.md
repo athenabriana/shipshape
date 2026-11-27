@@ -5,12 +5,11 @@ license: Apache-2.0
 metadata:
   author: Athena Briana - github.com/athenabriana
   version: 0.1.0
-  upstream: anthropics/claude-plugins-official external_plugins/telegram 0.0.7 (skills/access)
+  upstream: the official Telegram channel plugin's access skill, at the version plugins/companion/UPSTREAM.md names
 user-invocable: true
 allowed-tools:
   - Read
   - Write
-  - Bash(ls *)
   - Bash(mkdir *)
   - Bash(echo *)
 ---

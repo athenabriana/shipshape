@@ -14,7 +14,7 @@
     {
       "name": "companion",
       "source": "./plugins/companion",
-      "description": "Telegram companion: a bot that bridges your Telegram DMs to one Claude Code session, with pairing and an allowlist. Polls only when launched with COMPANION_CHANNEL=1. Adapted from the official Telegram channel plugin (Apache-2.0)."
+      "description": "Telegram companion: a bot that bridges your Telegram DMs to one Claude Code session, with pairing and an allowlist. Polls only in the session launched with it as a channel. Adapted from the official Telegram channel plugin (Apache-2.0)."
     }
   ]
 }

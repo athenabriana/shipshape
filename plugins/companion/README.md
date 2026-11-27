@@ -12,12 +12,15 @@ came from, and `UPSTREAM.md` lists what changed and how to pull upstream fixes.
 
 Telegram lets one poller hold a bot token at a time, and this server replaces any stale
 poller it finds. A plugin's MCP server starts in every session where the plugin is enabled.
-So the server polls only when the session was launched with `COMPANION_CHANNEL=1`. Without
-it, the server answers Claude Code with no tools and never reads the token, never starts the
-bot and never touches another poller.
+So the server polls only in the session whose `claude` command named this plugin as a
+channel (`--channels plugin:companion@shipshape`, or the development flag below). It reads
+that from the nearest `claude` process's own command line, so a session started from inside
+the channel session, which inherits its environment but not its flags, stays out too.
 
-Keep the plugin enabled only in the folder the companion session runs from, and set the
-variable only in the command that launches it.
+Every other session gets a server with no tools that never reads the token, never starts
+the bot and never touches another poller. It installs nothing either, and it tells that
+session the channel is off there. Keep the plugin enabled only in the folder the companion
+session runs from all the same.
 
 ## Set it up
 
@@ -26,16 +29,7 @@ You need [Bun](https://bun.sh): the server runs on it.
 1. **Create a bot.** In Telegram, message [@BotFather](https://t.me/BotFather), send
    `/newbot`, and give it a display name and a username ending in `bot`. BotFather replies
    with a token like `123456789:AAH...`.
-2. **Save the token from your terminal.** Typed this way, the token never reaches a chat
-   transcript:
-
-   ```bash
-   mkdir -p ~/.claude/channels/telegram && chmod 700 ~/.claude/channels/telegram
-   read -rs -p "Bot token: " t && printf 'TELEGRAM_BOT_TOKEN=%s\n' "$t" > ~/.claude/channels/telegram/.env && unset t
-   chmod 600 ~/.claude/channels/telegram/.env
-   ```
-
-3. **Install the plugin at user scope, then enable it in one folder only.**
+2. **Install the plugin at user scope, then enable it in one folder only.**
 
    ```bash
    claude plugin marketplace add athenabriana/shipshape
@@ -44,12 +38,26 @@ You need [Bun](https://bun.sh): the server runs on it.
    ```
 
    In the companion folder's `.claude/settings.json`, set
-   `"enabledPlugins": { "companion@shipshape": true }`.
+   `"enabledPlugins": { "companion@shipshape": true }`. If you used the official Telegram
+   plugin before, turn it off everywhere (`claude plugin uninstall telegram@claude-plugins-official`):
+   it shares this plugin's state folder and has no such switch, so in any session where it is
+   enabled it would take the bot back.
+
+3. **Save the token from your terminal.** The plugin's script asks for it without showing
+   it, so it never reaches a chat transcript, and writes `.env` with mode `600`:
+
+   ```bash
+   bash "$(ls -d ~/.claude/plugins/cache/shipshape/companion/*/ | sort -V | tail -1)scripts/token-env.sh" set
+   ```
+
+   It writes to `~/.claude/channels/telegram/.env`, or under `TELEGRAM_STATE_DIR` or
+   `CLAUDE_CONFIG_DIR` when you set one, keeping any other keys in the file. A token you
+   already saved for the official plugin is in the same file and carries over.
 
 4. **Launch the session from that folder with the channel.**
 
    ```bash
-   COMPANION_CHANNEL=1 claude --dangerously-load-development-channels plugin:companion@shipshape
+   claude --dangerously-load-development-channels plugin:companion@shipshape
    ```
 
    During the channels research preview, `--channels` accepts only plugins on Anthropic's
@@ -59,7 +67,9 @@ You need [Bun](https://bun.sh): the server runs on it.
    `--channels plugin:companion@shipshape` instead and the warning goes away.
 
 5. **Pair.** Message your bot. It replies with a six-character code. In the session, run
-   `/companion:access pair CODE`.
+   `/companion:access pair CODE`. If the bot does not answer, check that this session was
+   launched with the channel flag above: `/companion:configure` says when the channel is off
+   in the session it runs in.
 6. **Lock it down.** Run `/companion:access policy allowlist`, so strangers get no reply at
    all.
 
@@ -85,3 +95,10 @@ API has no history or search, so the session sees only messages as they arrive.
 Everything sits in `~/.claude/channels/telegram/` (or `TELEGRAM_STATE_DIR`): the token in
 `.env`, the policy in `access.json`, the poller's PID in `bot.pid`, and downloads in
 `inbox/`. The `reply` tool refuses to send any file from that folder except `inbox/`.
+
+## What reaches Telegram
+
+When the session asks permission for a tool, the bot sends the request to every allowlisted
+person, and **See more** shows the tool's full input there: a command, a file's new content.
+Telegram stores that chat on its servers, and bot chats are not end-to-end encrypted. Answer
+in the terminal instead when the input may hold a secret.
