@@ -1,7 +1,7 @@
 {
   "name": "companion",
-  "description": "Telegram channel for Ship Shape: a bot that bridges your Telegram DMs to one Claude Code session, with pairing and an allowlist. Polls only in the session launched with --channels plugin:companion@shipshape (or the development flag), and stays inert everywhere else. Manage access with /companion:access and setup with /companion:configure. Adapted from the official Telegram channel plugin (Apache-2.0).",
-  "version": "0.1.0",
+  "description": "Telegram channel for Ship Shape: a bot that bridges your Telegram DMs to one Claude Code session, with pairing and an allowlist. Replies render Markdown, SVG diagrams arrive as images, voice notes are transcribed with whisper.cpp when it is installed, and a notify tool sends news unasked. Polls only in the session launched with --channels plugin:companion@shipshape (or the development flag), and stays inert everywhere else. Manage access with /companion:access and setup with /companion:configure. Adapted from the official Telegram channel plugin (Apache-2.0).",
+  "version": "0.2.0",
   "author": {
     "name": "Athena Briana",
     "email": "me@athenabriana.com"

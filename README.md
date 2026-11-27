@@ -44,11 +44,11 @@ for most engineering work, type `/ss:go` and then your request. for example:
 
 it stays on for the rest of the session until you turn it off. for a tiny mechanical change, skip it and just ask.
 
-a feature with no playbook goes through three stages: **shape** (`/ss:shape` settles what to build and writes the acceptance criteria), **build** (the agent does the work, split across subagents where that helps) and **ship** (`/ss:ship` lands the branch).
+a feature with no playbook goes through three stages: **scope** (`/ss:scope` maps the problem and settles the goals, verifiable WHEN/THEN lines approved once), **build** (the agent does the work, split across subagents where that helps) and **ship** (`/ss:ship` lands the branch).
 
 ### `/ss:orchestrate`
 
-in the claude code desktop app, type `/ss:orchestrate` and describe the goal. this session becomes the orchestrator of one front: it shapes the goal with you, keeps the front's memory in a private Claude Docs doc, starts one work session per task with a brief that stands alone, and brings you every question those sessions have. you only ever talk to the orchestrator. when a PR is green, it asks, and merges when you say so.
+in the claude code desktop app, type `/ss:orchestrate` and describe the goal. this session becomes the orchestrator of one front: it settles the goal with you, keeps the front's memory in a private Claude Docs doc, starts one work session per task with a brief that stands alone, and brings you every question those sessions have. you only ever talk to the orchestrator. when a PR is green, it asks, and merges when you say so.
 
 the orchestrator talks in warm first person, by `plugins/ss/references/voice.md`.
 
@@ -60,11 +60,11 @@ you can call any skill directly. `/ss:go` calls most of them for you.
 
 | command            | use it to                                                                                             |
 | ------------------ | ----------------------------------------------------------------------------------------------------- |
-| `/ss:shape`        | agree on what to build before coding, ending in acceptance criteria                                   |
+| `/ss:scope`        | define the goals before coding: verifiable WHEN/THEN lines and what is out of scope, approved once    |
 | `/ss:bug-fix`      | take a bug from a pasted error or "fix this bug" to a proven fix, through `/ss:go`'s bug-fix playbook |
 | `/ss:investigate`  | answer a question about the code, a branch or its history, without editing                            |
 | `/ss:edge-cases`   | list the edge cases of a plan, or find the ones a diff misses                                         |
-| `/ss:review`       | review your branch, fix what it finds and review again, up to 3 rounds                                |
+| `/ss:review`       | review your branch against its goals, fix what it finds and review again until the goals are met      |
 | `/ss:ui-critique`  | judge a screen on real screenshots, design and accessibility, and fix it until it holds up            |
 | `/ss:ship`         | green the checks, commit, and push or open a PR                                                       |
 | `/ss:babysit`      | watch a PR by number: answer review threads and fix red CI until it is done                           |
@@ -98,7 +98,7 @@ three free sources of real ui references, with no account and no api key. ss pul
 
 `companion` is a second, optional plugin in the same marketplace: a telegram bot that bridges your messages to one claude code session. it is adapted from the official telegram channel plugin (apache-2.0), so it needs no plugin from outside this repo. telegram lets one poller hold a bot at a time, so the server polls only in the session launched with `--channels plugin:companion@shipshape` (or the development flag) and stays inert in every other one.
 
-`plugins/companion/README.md` has the setup, and `plugins/companion/UPSTREAM.md` says what changed from upstream and how to pull its fixes.
+replies render markdown on the phone, the session can send drawn diagrams as images, and voice notes arrive as text once whisper.cpp is installed. `plugins/companion/README.md` has the setup, and `plugins/companion/UPSTREAM.md` says what changed from upstream and how to pull its fixes.
 
 ## develop locally
 

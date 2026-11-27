@@ -17,9 +17,14 @@ when all of these hold:
 3. **The verdict still covers that head**: `patch_id.py` prints `unchanged: true` when run
    as `python3 <plugin-root>/scripts/patch_id.py --pr <n>`. A merge of the base since the loop leaves it covered. Any
    new commit of the branch's own (a CI fix, a thread fix, a conflict resolution) does not.
-4. **The judge closed the loop**, with verdict `clean` or `disputed`. A loop that hit its
-   round cap with verdict `open` passes only with every open finding listed in the merge
-   ask, by its file, its line and one line of what it is.
+4. **The judge closed the loop**, with verdict `clean` or `disputed`, and every goal of the
+   change achieved or deferred with its ground, by
+   `<plugin-root>/references/goal-loop.md`. A loop that the person's cap or the usage
+   window stopped with verdict `open` passes only with every open finding listed in the
+   merge ask, by its file, its line and one line of what it is, and every goal not achieved
+   named with what is missing. A verdict line with `goals none` (the lightweight route with
+   no goals) or with no goal status at all (a loop from before 5.13.0) is judged on its
+   verdict alone. On the standard and intensive routes the loop always records its goals.
 5. **On a PR that changes UI**, the design loop ran on screenshots of the built screen
    (`<plugin-root>/references/design-loop.md`, or `/ss:ui-critique` on the screen), and the
    critic was pleased and the goals achieved, or the verdicts left open are listed in the
@@ -59,18 +64,21 @@ built it.
 Two lines carry the verdict, and each goes in its own place:
 
 - **The PR description holds the verdict line** the loop writes, by "The verdict line" in
-  `loop.md`: `Review loop: 2 rounds, verdict clean, patch-id <patch-id>.` It is the only
-  line `patch_id.py` reads, so its form stays exactly as `loop.md` gives it.
+  `loop.md`: `Review loop: 2 rounds, verdict clean, patch-id <patch-id>, goals 4 of 4
+achieved.` It is the only line `patch_id.py` reads, so its form stays exactly as
+  `loop.md` gives it, the goal status after the patch-id.
 - **The report that calls the PR done holds the `Review:` line**, which never goes in the
   PR description:
 
 ```
-Review: 2 rounds, verdict clean, depth standard, 6 fixed, 2 refused, head 4f2a9c1, patch-id <patch-id>.
+Review: 2 rounds, verdict clean, goals 4 of 4 achieved, depth standard, 6 fixed, 2 refused, head 4f2a9c1, patch-id <patch-id>.
 ```
 
-- **Rounds**: how many the loop ran, and the cap when it hit one.
+- **Rounds**: how many the loop ran, and the cap or the usage window when one stopped it.
 - **Verdict**: `clean`, `disputed` or `open`, and each open or disputed finding by file and
   line.
+- **Goals**: how many of the change's goals are achieved, and each one open or deferred by
+  its number, as in `goals 3 of 4 achieved, G2 open (no test pins the empty case)`.
 - **Depth**: `standard` or `deep`.
 - **Fixed and refused**: the counts, and the ground for each refusal.
 - **Head**: the short sha the last round read, after its fixes were pushed.
@@ -85,6 +93,8 @@ under the verdict line, so the orchestrator can read it from the PR. A UI PR wit
 
 The merge ask goes through the question tool, and the question text itself states the
 verdict in plain words, with the commit it covers: "CI is green on 4f2a9c1, and the review
-loop closed clean in 2 rounds on that commit. Want me to merge it?" Name the fixed and
+loop closed clean in 2 rounds on that commit with all 4 goals achieved. Want me to merge
+it?" Name the fixed and
 refused counts when the work session's report gave them. An `open` or `disputed` verdict
-names each finding left in the question text too, by file and line.
+names each finding left in the question text too, by file and line, and an open goal by
+its number and what is missing.

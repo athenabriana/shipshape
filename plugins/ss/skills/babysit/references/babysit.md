@@ -233,9 +233,13 @@ last change: given at patch-id RECORDED, the branch is now at PATCH_ID.` sits ri
 3. Answer with one report: why the watcher stopped (merged, closed, or approved with CI
    green) and the PR URL. When it is approved and green, run
    `python3 <plugin-root>/scripts/patch_id.py --repo GIT_ROOT --pr N` and say "ready to
-   merge on your word" only when the review gate passes: `unchanged: true` with verdict
-   `clean` or `disputed`, and on a UI PR the `Design:` line in the description. Otherwise
+   merge on your word" only when the review gate passes, the final goal of every PR by
+   `<plugin-root>/references/goal-loop.md`: `unchanged: true` with verdict `clean` or
+   `disputed`, every goal on the verdict line achieved or deferred (`goals none`, a lightweight
+   run with no goals, or no goal status, a loop from before 5.13.0, passes on its verdict
+   alone), and on a UI PR the `Design:` line in the description. Otherwise
    say the PR is not ready, and why: no review verdict, a verdict made stale by this
-   watcher's own fix pushes, or an `open` verdict with its findings. The next step is
+   watcher's own fix pushes, an `open` verdict with its findings, or a goal still open by
+   its number. The next step is
    `/ss:review` on the PR's head, run by the session that holds the branch. When a removal
    step failed, put the command in the report so the person can run it.

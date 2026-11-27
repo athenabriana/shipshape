@@ -60,18 +60,18 @@ Ask one question, or two in one call when the pick needs a setting to go with it
   with no "Stop here" of its own. It counts only with the pick it sets, and the
   first question's description says so.
 
-Example (shape's exit gate):
+Example (scope's exit gate, when it runs on its own):
 
 ```
-question, single choice: "Acceptance criteria signed off and written to the brief. What now?"
+question, single choice: "Goals signed off and written to the brief. What now?"
 options:
-  - "Build it now (Recommended)". This session builds against the criteria, with Agent subagents where steps run side by side, then offers /ss:ship.
-  - "Stop here". The criteria stay in the brief; a later session builds from them and lands the branch with /ss:ship.
+  - "Build it now (Recommended)". This session builds against the goals, with Agent subagents where steps run side by side, runs the goal loop, then offers /ss:ship.
+  - "Stop here". The goals stay in the brief; a later session builds from them and lands the branch with /ss:ship.
 ```
 
 ## Journey map (what gates typically offer)
 
-- `shape` → build it now in this session, then offer ship / stop
+- `scope` → on its own: build it now in this session, then offer ship / stop; called by a skill: no gate, the goals go back to the caller
 - `go` → the playbook's next step when its scope stops short of it (review after a fix, ship after a review) / stop
 - `edge-cases` → plan mode: build it now against the criteria / stop; diff mode: fix the proven cases / stop
 - `ship` → on an open PR, offer `/ss:babysit` / stop; on any other destination no gate, it reports what shipped and stops
