@@ -551,7 +551,8 @@ function decideGhApi(args: string[]): Decision {
 function decideGh(args: string[], command: string): Decision {
   const { positional, flags } = ghParse(args);
   const [group, sub] = positional;
-  if (group === "api") return decideGhApi(args);
+  // The words after `api`: the endpoint is the first positional one there.
+  if (group === "api") return decideGhApi(args.slice(args.indexOf("api") + 1));
   if (group === "pr" && positional.includes("merge")) return mergeDecision(command);
   if (flags.some(([f]) => f === "--hostname")) return deny("gh reaches only GitHub");
   if (group && sub && GH_READS[group]?.has(sub)) {
