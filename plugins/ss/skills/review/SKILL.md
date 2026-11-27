@@ -161,8 +161,8 @@ shape**. An a11y or design item shows its own priority in its own columns and th
 level it maps to. The row format lives in each `front-*.md` next to the method that
 produces it, so a front that changes its columns doesn't leave a stale template
 here. Group the items by front under the front's label from the catalog's Label
-column (Correctness, Quality, Project rules, Contract, Accessibility, Design
-system, PR threads, CI) and keep one numbering across the whole
+column (Correctness, Edge cases, Quality, Project rules, Contract, Accessibility,
+Design system, PR threads, CI) and keep one numbering across the whole
 report.
 
 **What the conversation already covers is marked, never dropped.** Read the report
@@ -277,6 +277,7 @@ offered, which needs no row here. What this table covers is everything else:
 | WHEN                                         | THEN                                                                                                                  |
 | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
 | diff vs base empty and no PR                 | report "nothing to review", stop                                                                                      |
+| an edge-case ask with no diff                | it is a plan's: say so in one line and hand it to `/ss:clarify`, whose behavior map walks the categories              |
 | no front available (empty probe)             | say what was probed and why each came back empty, stop                                                                |
 | no open PR (a review with no PR)             | `threads` and the comment-on-PR option not offered; `ci` still runs off the branch's last run; gate offers `/ss:ship` |
 | no open PR, at the intent read               | the intent block is that one line off the brief and the subjects; nothing has been said yet                           |
@@ -319,6 +320,7 @@ Router support:
 Per-front method (loaded only when that front is picked):
 
 - `references/front-correctness.md`: the correctness angles over the diff, and how the diff's content picks which of them run.
+- `references/front-edges.md`: the inputs the diff does not handle, category by category, on deep runs or when named.
 - `references/front-quality.md`: the cleanup lenses, one finder, behavior-preserving.
 - `references/front-rules.md`: `CODE_REVIEW_GUIDE.md` deviations, with the citation discipline, and the project facts growth check.
 - `references/front-contract.md`: the acceptance criteria from the brief or the PR body as the contract, and the project facts.

@@ -57,7 +57,7 @@ The sidebar is how Athena tells the work sessions apart, so each carries one tit
 and one `name` rule.
 
 **The title** is short: the task in plain words, at most about four words, in sentence
-case: "Assistant rename and voice", "Edge-cases skill". It says what the work session
+case: "Assistant rename and voice", "Edges review front". It says what the work session
 delivers. The repo, the stage, the playbook and the PR number stay out of it, because the
 sidebar already shows the PR and its state; a PR number goes in only when the PR is the
 whole point, as in "Babysit PR 42". "Session titles" in

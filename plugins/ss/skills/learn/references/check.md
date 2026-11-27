@@ -52,16 +52,16 @@ Run the check over the whole repo, or read its first CI run when `runnable` is f
 
 ## Step 6: Land the prose, when no check holds it
 
-A rule a check holds needs no prose: the check's message says the fix, and the check is the record. Only a rule that stayed at the documentation layer goes on, back to the layer pick of `SKILL.md`, to one of the two layers under the check:
+A rule a check holds needs no prose: the check's message says the fix, and the check is the record. Only a rule that stayed at the documentation layer goes on, to one of the two layers under the check. The person already answered the layer question, so this needs no second one: say in the report which layer took it.
 
 - **A rule about what a review should reject** goes to `CODE_REVIEW_GUIDE.md` through `/ss:review-setup` in update mode, with the real occurrences as its evidence and its Avoid example.
 - **A project fact** (a choice, a trap or a constraint the code cannot show) goes through the fact layer, `references/fact.md`, which quotes the exact line to the person and writes it only on their yes, by `<plugin-root>/references/project-facts.md`.
 
-Pick the one the rule is, and say which in the report. A rule that passes neither home's filter is not landed: name it in the report as prose that has no home.
+Pick the one the rule is, and say which in the report. Either one stays uncommitted and off this branch, as its layer's endpoint says in `SKILL.md`. A rule that passes neither home's filter is not landed: name it in the report as prose that has no home.
 
 ## Step 7: Commit
 
-Commit in the repo's conventional style, one commit per unit: the layer with its proof, the fixes of Step 5, and the prose of Step 6 when one landed. No AI attribution.
+Commit in the repo's conventional style, one commit per unit: the layer with its proof and the fixes of Step 5. The prose of Step 6 is not part of this branch. No AI attribution.
 
 ## Step 8: Open the PR
 

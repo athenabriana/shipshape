@@ -34,6 +34,10 @@ Nothing starts this skill unasked.
 
 ## Steps
 
+When the person already named the layer ("record this fact", "add a project fact", "turn
+this into a check", "add this review rule"), skip steps 2 to 4 and run that layer: its own
+approval is the one question.
+
 1. **State the lesson** in one line, with where it came from: the corrections and their
    commits or PR threads, or the person's own words quoted.
 2. **Pick the layer**, the first that holds the lesson:

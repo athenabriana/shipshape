@@ -31,9 +31,9 @@ dropped.
 2. **Write one row per case**, `WHEN <case> THEN <observable outcome>`, phrased so it reads
    as a test. Map the outcome, not only that the case exists.
 3. **Mark the load-bearing rows**: those whose wrong outcome would betray the reason the
-   behavior exists. They come first and become candidate goals in step 4, each with its
-   check.
+   behavior exists. They come first and become candidate goals in "Propose the goals",
+   each with its check.
 4. **A row with no known outcome is a question for the person.** It joins the one ask of
-   step 5 with a recommended outcome, never a guess.
+   "Ask once" with a recommended outcome, never a guess.
 5. **A row that taught something the code does not show** (a constraint, a trap) is
    offered to `/ss:learn` as a project fact, and kept only on a yes.

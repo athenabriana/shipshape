@@ -13,6 +13,11 @@ narrower question per category: which input that reaches this code gets a wrong 
 - **Deep:** every deep run picks it with the other fronts.
 - **The bug-fix intensive route:** the bug-fix skill's review step names it beside deep.
 
+It runs on the current branch only. An external PR does not offer it, since reading the
+callers needs a checkout. An ask with no diff (a plan, a feature not built yet, a function
+on a clean tree) is not this front's: it goes to `/ss:clarify`, whose behavior map walks the
+same categories.
+
 A standard run without either leaves it unoffered, since `correctness` already covers
 edges at that depth.
 

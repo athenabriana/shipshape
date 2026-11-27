@@ -74,6 +74,10 @@ call `/ss:ship` makes. What each field settles:
   `gh run list --branch <branch> --limit 1` is a probe left to the caller, like the
   design source above.
 - `gh_authenticated`: false makes `threads` and `ci` unavailable together.
+- depth and the ask, resolved by the caller at step 1 (preflight carries no field for
+  them): `edges` is available only when the run is deep or the user named it, so a
+  standard run never offers it at the step 2 question and the loop does not run it. An
+  external PR never offers it: its callers are read with `git grep` on a checkout.
 
 A front whose probe comes back empty is **not offered** and not reported as a
 failure. `gh` unauthenticated: say so once, with `gh auth login` as the remedy, and
