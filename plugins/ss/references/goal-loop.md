@@ -37,6 +37,26 @@ they leave out), or a playbook's own goals (the bug-fix playbook's reproduction 
 test). This page says what a goal is and how it is judged; `/ss:clarify` says how the goals
 are found.
 
+### Goals that live in a doc
+
+For big work, `/ss:clarify` writes the goals into a private Claude Docs doc titled
+`ss goals · <subject>` (or `goals.md` in the loop folder when the Docs connector is
+missing), and records its URL in `state.json` as `goals_doc`. The doc is then where the
+goals live for the whole loop:
+
+- **Each round reads the goals from the doc**, fresh, with the Docs `read` tool, and the
+  judge's prompt carries them as the doc has them. The judge agents only read files, so the
+  session reads the doc and hands the goals over. A goal the person edited in the doc
+  after approval is their word: the round judges against the edited goal, and the report
+  says which goal changed.
+- **Each round writes the status back**: every goal's `status:` in `## Goals` (`achieved`,
+  `not achieved: <what is missing>`, `deferred: <ground>`), and each PR, branch or commit
+  under `## Work` as it lands.
+- **A front keeps its goals in the front doc**, by `<plugin-root>/references/front-doc.md`:
+  `/ss:orchestrate` has clarify write them there, and no goals doc is made. A work session
+  never opens the front, so it reports goal status in its `Goals:` line and the
+  orchestrator writes it into the front doc.
+
 ## 2. What a goal is
 
 A **goal** is one observable result the work must reach, written so a judge with no memory
@@ -108,6 +128,9 @@ The judge returns, every round:
 - **Findings on quality**, each with its level, its location and its evidence.
 - **`pleased`**: true only when it would send nothing back.
 
+When the goals live in a doc, the session writes each goal's status back into it after the
+judge returns, by "Goals that live in a doc" above.
+
 The session runs each goal's check where the judge cannot (a test, a command) and hands it
 the output; the judge reads the output, never the session's word for it.
 
@@ -154,7 +177,7 @@ go on lives in one durable folder: the notes folder the brief names, else
 
 ```
 <loop folder>/
-├── state.json        # the approved goals, the round, its scope, open findings and refusals, the trend, agent ids
+├── state.json        # the approved goals (and goals_doc, the doc's URL, when they live in one), the round, its scope, open findings and refusals, the trend, agent ids
 ├── rounds/r<N>/      # what each round judged: check outputs, screenshots, the judge's return
 └── tools/            # any script the loop writes
 ```
@@ -183,6 +206,8 @@ findings as they are, and never calls the work done.
 
 ## 11. Report
 
+- **The goals doc**, when the goals live in one: its link, opened for the person with the
+  `Artifact` tool's `open` action, with its statuses already current.
 - **The goals line**, one per run: `Goals: 5 of 6 achieved, G4 deferred (needs production
 data), none open.` Each goal not achieved is named with what is missing.
 - **The judge's last verdict** and how many rounds ran, the last one a full pass when the
@@ -203,7 +228,7 @@ data), none open.` Each goal not achieved is named with what is missing.
 | `/ss:review`      | the change's goals, from the PR description, the brief, the linked spec or acceptance criteria; else proposed once | `ss-review-judge`, every goal plus the findings, no default round limit   |
 | design loop       | the brief's goals, WCAG AA always one of them                                                                      | `ss-design-critic`, `goals_achieved` and `pleased`, by `design-loop.md`   |
 | `/ss:ui-critique` | asked once through `/ss:clarify`, by `design-loop.md`                                                              | the critic and the `ss-a11y-auditor` each round                           |
-| `/ss:clarify`     | it defines them: the map, the WHEN/THEN goals with their checks, out of scope, approved once                       | none of its own: the caller's loop, or on its own the build that follows  |
+| `/ss:clarify`     | it defines them, approved once; big work gets a goals doc the loop reads and updates each round                    | none of its own: the caller's loop, or on its own the build that follows  |
 | `/ss:edge-cases`  | plan mode's load-bearing rows feed the goals                                                                       | none of its own: the caller's loop judges them                            |
 | bug-fix playbook  | the reproduction fails before the fix and passes after, plus the focused test                                      | the review loop on the fix, every goal checked                            |
 | `/ss:research`    | the plan's questions, each answered with verified evidence                                                         | the claim verifier, within its own cap                                    |

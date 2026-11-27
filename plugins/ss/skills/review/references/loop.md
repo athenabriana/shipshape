@@ -50,9 +50,12 @@ goals.
 The loop judges the change against its goals as well as its findings. Read them once,
 before round 1, in this order, and keep the first source that has them:
 
-1. **The brief** this session was given: its goals or acceptance criteria.
-2. **The PR description**: a `Goals` or `Acceptance criteria` section, or WHEN/THEN lines.
-3. **The linked spec or issue** the PR body or the brief names: its acceptance criteria.
+1. **A goals doc**: the `goals_doc` URL in the loop folder's `state.json`, or an
+   `ss goals · <subject>` doc the brief or the PR body links. Read it each round and write
+   each goal's status back, by "Goals that live in a doc" in `goal-loop.md`.
+2. **The brief** this session was given: its goals or acceptance criteria.
+3. **The PR description**: a `Goals` or `Acceptance criteria` section, or WHEN/THEN lines.
+4. **The linked spec or issue** the PR body or the brief names: its acceptance criteria.
 
 Copy them as written and number them `G1`, `G2`, …. Each needs a check, by
 `goal-loop.md` section 2: a criterion with none gets the test or command that would

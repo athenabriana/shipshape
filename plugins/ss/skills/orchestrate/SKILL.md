@@ -4,7 +4,7 @@ description: Turns this Desktop session into the orchestrator of one front. It s
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 3.0.0
+  version: 3.0.1
 ---
 
 # Orchestrate
@@ -59,7 +59,8 @@ python3 <plugin-root>/scripts/front_pointer.py get
 2. **Clarify the goal with Athena.** Run `/ss:clarify` in this session with the front as
    its path: it settles the goal in her words and the acceptance criteria as WHEN/THEN
    lines, each with its check, asks her in the form it picks, and writes the criteria into
-   the front and nothing else. These are the front's goals, by
+   the front and nothing else: the front doc holds the goals, and clarify makes no goals
+   doc of its own. These are the front's goals, by
    `<plugin-root>/references/goal-loop.md`, and her sign-off is their approval.
 3. **Pick the home.** Call `ToolSearch` for the Docs tools (`read`, `batch`, `update`,
    `guide`). Present: a doc front. Missing: say so in one line, and open a file front.
