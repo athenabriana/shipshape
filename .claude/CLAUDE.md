@@ -25,7 +25,7 @@ plugins/ss/
     ├── investigate, edge-cases
     ├── ui-critique                        # a screen judged on screenshots by ss-design-critic, a11y each round, fixed until pleased
     ├── review, review-setup
-    ├── orchestrate, assistant             # one front across work sessions; your assistant over all sessions
+    ├── orchestrate                        # one front across work sessions
     ├── caretake, takeover, research, write-readme
     ├── correct                            # offered by /ss:go when the same correction lands twice
     └── explain-the-number, attack-the-premise, prove-the-fix   # situational, loaded by trigger (references/triggers.md)

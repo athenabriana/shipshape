@@ -38,8 +38,8 @@ The session that holds the branch runs it, after CI is green and before it repor
   (`<plugin-root>/skills/orchestrate/references/briefs.md`).
 - **`/ss:ship`** on the PR path runs the loop once CI is green, when no verdict covers the
   head, before its handoff (`<plugin-root>/skills/ship/references/ship-pr.md`).
-- **The orchestrator and `/ss:assistant`** write no code, so they never run the loop. They
-  check the verdict before every merge ask and send a PR without one back to its work
+- **The orchestrator** writes no code, so it never runs the loop. It checks the verdict
+  before every merge ask and sends a PR without one back to its work
   session.
 
 ## Pick the depth
@@ -78,8 +78,8 @@ Review: 2 rounds, verdict clean, depth standard, 6 fixed, 2 refused, head 4f2a9c
 
 On a UI PR, the report adds a `Design:` line with the design loop's last verdicts, as in
 `Design: pleased, goals achieved, nothing open.` The PR description carries the same line
-under the verdict line, so the orchestrator and the assistant can read it from the PR. A UI
-PR with no `Design:` line in its description fails item 5 of the gate.
+under the verdict line, so the orchestrator can read it from the PR. A UI PR with no
+`Design:` line in its description fails item 5 of the gate.
 
 ## The merge ask
 

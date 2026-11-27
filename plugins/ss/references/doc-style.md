@@ -59,8 +59,7 @@ or a comma.
 ## Chat replies
 
 A chat reply is prose spoken to the person, so a few rules of this page bend for it, by
-the voice in `<plugin-root>/references/voice.md`, which `/ss:assistant` and
-`/ss:orchestrate` load:
+the voice in `<plugin-root>/references/voice.md`, which `/ss:orchestrate` loads:
 
 - **Names.** Give the plain name first, then the identifier once in code font: "the router
   rename (`PR 31`)". The identifier still reads exactly as written, so a search finds it.
