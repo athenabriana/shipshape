@@ -21,7 +21,17 @@ claude plugin install ss@shipshape-skills
 
 the plugin turns on a `SessionStart` hook by itself. at the start of every session, the hook gives the agent a short note on how ss works and the hard rules below. you do not run anything for it.
 
-## start here: `/ss:go`
+## the three core skills
+
+three skills do most of the work. each one runs at a different height:
+
+- **`/ss:go` does the work in one session.** it takes one request and carries it through.
+- **`/ss:orchestrate` runs one front across work sessions.** it splits a bigger goal into tasks, starts one work session per task and lands their PRs.
+- **`/ss:assistant` helps you manage all your sessions.** it is your assistant: it tells you what needs you, what changed and what to look at next.
+
+a _front_ is one stream of work an orchestrator runs, from the first request to the last merged PR. the orchestrator and the assistant write no code: every edit is a work session's.
+
+### `/ss:go`
 
 for most engineering work, type `/ss:go` and then your request. for example:
 
@@ -37,19 +47,21 @@ for most engineering work, type `/ss:go` and then your request. for example:
 
 it stays on for the rest of the session until you turn it off. for a tiny mechanical change, skip it and just ask.
 
-## the flow for a new feature
+a feature with no playbook goes through three stages: **shape** (`/ss:shape` settles what to build and writes the acceptance criteria), **build** (the agent does the work, split across subagents where that helps) and **ship** (`/ss:ship` lands the branch).
 
-a feature with no playbook goes through three stages:
+### `/ss:orchestrate`
 
-1. **shape:** `/ss:shape` settles what to build and writes the acceptance criteria.
-2. **build:** the agent does the work, split across subagents where that helps.
-3. **ship:** `/ss:ship` lands the branch.
+in the claude code desktop app, type `/ss:orchestrate` and describe the goal. this session becomes the orchestrator of one front: it shapes the goal with you, keeps the front's memory in a private Claude Docs doc, starts one work session per task with a brief that stands alone, and brings you every question those sessions have. you only ever talk to the orchestrator. when a PR is green, it asks, and merges when you say so.
+
+### `/ss:assistant`
+
+type `/ss:assistant` in its own desktop session, or ask "how are my sessions?". the assistant reads every open front and checks it against your live sessions. it leads with what needs you, or tells you nothing does, then says in a few sentences what changed and recommends one thing to look at next. it passes work to an orchestrator for you, and relays an orchestrator's question with one line of context and the options as they were sent.
+
+the assistant and the orchestrator talk in warm first person, by `plugins/ss/references/voice.md`.
 
 ## other commands
 
 you can call any skill directly. `/ss:go` calls most of them for you.
-
-**everyday work**
 
 | command            | use it to                                                                                             |
 | ------------------ | ----------------------------------------------------------------------------------------------------- |
@@ -58,23 +70,14 @@ you can call any skill directly. `/ss:go` calls most of them for you.
 | `/ss:investigate`  | answer a question about the code, a branch or its history, without editing                            |
 | `/ss:edge-cases`   | list the edge cases of a plan, or find the ones a diff misses                                         |
 | `/ss:review`       | review your branch, fix what it finds and review again, up to 3 rounds                                |
-| `/ss:ship`         | green the checks, commit, and push or open a PR (it never merges)                                     |
+| `/ss:ship`         | green the checks, commit, and push or open a PR                                                       |
 | `/ss:babysit`      | watch a PR by number: answer review threads and fix red CI until it is done                           |
 | `/ss:caretake`     | look after the repo: open PRs, Dependabot alerts and outdated dependencies                            |
 | `/ss:takeover`     | finish or rebase a PR someone else opened, keeping their credit                                       |
 | `/ss:research`     | research code, docs or visual references, checking every claim                                        |
 | `/ss:write-readme` | write a README in a minimal centered header style                                                     |
 
-**running several sessions** (in the claude code desktop app)
-
-| command           | use it to                                                                                      |
-| ----------------- | ---------------------------------------------------------------------------------------------- |
-| `/ss:orchestrate` | make this session the orchestrator of one front: it plans and starts one work session per task |
-| `/ss:manager`     | sit above the orchestrators: see what every front is doing and pass work along                 |
-
-a _front_ is one stream of work an orchestrator runs, from the first request to the last merged PR. the orchestrator and the manager write no code.
-
-**project memory**
+## project memory
 
 start with `/ss:learn`. the three commands below it are what `/ss:learn` calls, and you can also call one directly when you already know the layer.
 
@@ -91,9 +94,7 @@ three skills are not in the menu: `prove-the-fix`, `explain-the-number` and `att
 
 ## hard rules
 
-- ss never merges, approves, force-pushes, pushes a protected branch or deploys. the one exception: `/ss:orchestrate` and `/ss:manager` merge a PR when you authorize it in that session's own chat, under the repo's rules.
-- tests, lints, type checks and builds run in CI, not on your machine. ss pushes, follows the CI run to the end and fixes what fails.
-- ss never posts to Slack or any channel unless you ask.
+- any ss session may merge a PR when you say so in its chat, under the repo's rules. it force-pushes or deploys only when you ask for it in so many words.
 - before every commit, ss rereads the staged diff, so nothing unrelated changes.
 - every time ss needs you to review or approve something, it shows it first: an inline visual in the chat by default, a Design canvas for an interface, a private Claude Docs doc for text to keep, an Artifact page when it is too big to show inline.
 - ss suggests the next step and waits for you, unless you approved that scope up front.
@@ -105,7 +106,7 @@ three skills are not in the menu: `prove-the-fix`, `explain-the-number` and `att
 - **project facts:** `plugins/ss/references/project-facts.md`. a project fact is one short line the code cannot show, kept under `## Project facts` in `CLAUDE.md`. only `/ss:record-fact` writes them, after you approve each line.
 - **fronts:** `plugins/ss/references/front-doc.md` for the front's memory (a private Claude Docs doc, or a folder under `~/.ss/fronts`), and `plugins/ss/references/front-contract.md` for how a work session runs.
 - **review agents:** `/ss:review` uses three read only agents in `plugins/ss/agents/`: `ss-review-finder`, `ss-review-verifier` and `ss-review-judge`. you do not call them directly.
-- **writing style:** `plugins/ss/references/doc-style.md`.
+- **writing style:** `plugins/ss/references/doc-style.md`, and `plugins/ss/references/voice.md` for how the assistant and the orchestrator talk in chat.
 
 ## develop locally
 

@@ -75,8 +75,8 @@ loop's single push so the sha is real. A thread the owner refuses gets the `answ
 with the ground; an `unclear` one stays open and reaches the report.
 
 Replies match the language of the thread they answer. Pushing
-fixes to the PR branch is reversible, so it proceeds without pausing; merge,
-approve, and force-push stay the user's. This skill never runs them.
+fixes to the PR branch is reversible, so it proceeds without pausing. Merge and
+force-push are not part of a review: they wait for the user's word.
 
 ## Optional polish
 

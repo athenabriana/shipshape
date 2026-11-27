@@ -15,14 +15,14 @@ file front, the Docs outage and its merge, and the rules every front keeps.
   and a file front with `Write` and `Edit`.
 - **Work sessions never open it.** Their brief stands alone and their reports come back
   through the relay, so none spends turns loading the Docs tools or acts on a stale tab.
-- **The manager** reads Now tabs and `NOW.md` files and writes nothing.
+- **The assistant** reads Now tabs and `NOW.md` files and writes nothing.
 - **Athena** may edit a doc front by hand on claude.ai. The orchestrator's `sinceRev` read
   picks those edits up.
 
 ## The name
 
 The doc's title is `ss front · <slug>`, with `<slug>` from
-`<plugin-root>/scripts/front_name.py`. The prefix is how the manager finds every doc
+`<plugin-root>/scripts/front_name.py`. The prefix is how the assistant finds every doc
 front. When the front lands, the orchestrator renames the doc to
 `ss front · <slug> (landed)`, so a listing tells open from landed without a read.
 
@@ -50,11 +50,11 @@ script:
 
 Three tabs, so a reread costs one short tab and not the whole history:
 
-| tab          | holds                                                                                          | read when                            | size                                           |
-| ------------ | ---------------------------------------------------------------------------------------------- | ------------------------------------ | ---------------------------------------------- |
-| Now (`a0`)   | goal, acceptance criteria, repos, work sessions, waiting on Athena, merge authorizations, next | every compaction, every manager pass | under about 120 lines: closed rows move to Log |
-| Log (`a1`)   | dated decisions with Athena's words, closed work sessions, landed PRs                          | only by a `search` read on a word    | grows; never reread whole                      |
-| Notes (`a2`) | reports, research, anything too long for a message                                             | when a step names it                 | grows                                          |
+| tab          | holds                                                                                          | read when                              | size                                           |
+| ------------ | ---------------------------------------------------------------------------------------------- | -------------------------------------- | ---------------------------------------------- |
+| Now (`a0`)   | goal, acceptance criteria, repos, work sessions, waiting on Athena, merge authorizations, next | every compaction, every assistant pass | under about 120 lines: closed rows move to Log |
+| Log (`a1`)   | dated decisions with Athena's words, closed work sessions, landed PRs                          | only by a `search` read on a word      | grows; never reread whole                      |
+| Notes (`a2`) | reports, research, anything too long for a message                                             | when a step names it                   | grows                                          |
 
 `a0`, `a1` and `a2` are the tabs' `order` values, so the tray shows Now first.
 
@@ -309,7 +309,7 @@ Deleting a doc or a folder is Athena's call.
 ## Rules every front keeps
 
 - The goal and every decision quote Athena exactly.
-- A merge authorization is recorded only from Athena's own turn in that chat. The manager
+- A merge authorization is recorded only from Athena's own turn in that chat. The assistant
   records its own in its own chat, never in a front's Now tab or `NOW.md`.
 - No front holds a secret, token or credential. A step that meets one writes where to find
   it, never its value.

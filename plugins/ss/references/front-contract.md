@@ -22,8 +22,10 @@ Without such a brief, nothing on this page applies: the skill asks through
 - **It never opens the front.** The brief carries everything the task needs: the goal, the
   acceptance criteria, the repo, the branch, the endpoint and the limits. The front doc
   belongs to the orchestrator, which records what the work session reports.
-- **It never merges, approves or deploys.** The merge is the orchestrator's, on Athena's
-  authorization given in the orchestrator's chat.
+- **It never merges on a relayed word.** Like any ss session, it merges a PR only when
+  Athena says so in its own chat, under the repo's rules, and force-pushes or deploys only
+  when she asks for it in so many words. An authorization given in the orchestrator's chat
+  stays there.
 
 ## Write to the orchestrator in English
 

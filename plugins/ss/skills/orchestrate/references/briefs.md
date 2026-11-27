@@ -116,16 +116,17 @@ the route names a skill the installed plugin lacks, name the closest one and tel
 Every brief repeats these, whatever the task:
 
 - **Athena's global rules, copied word for word** from her global `CLAUDE.md` and the
-  project's. A rule like "checks run only in CI, nothing locally" is a rule of the brief
-  whenever she has it, not an example to pick from.
+  project's. Whatever rule she has there, such as where checks run or where the session
+  may post, is a rule of the brief, not an example to pick from.
 - **Never start a session.** Split the work with `Agent` subagents. A step that needs
   another session goes to the orchestrator in the final report.
-- **Never merge, approve or deploy.** The merge is the orchestrator's, on Athena's
-  authorization.
+- **Merge only when Athena says so in this session's own chat**, under the repo's rules. An
+  authorization relayed by the orchestrator does not count. Force-push and deploy only
+  when she asks for them in so many words.
 - **Work in a worktree of your own.** A code session that opened with no worktree, as when
   the session's folder is not a git repository, creates its own with `git worktree add` on
   a new branch before it touches a file, and works only there.
-- **No force push and no rebase on a shared branch.** Bring the base in with a merge.
+- **No rebase on a shared branch.** Bring the base in with a merge.
 - **Turn Auto-fix on when the PR opens** (`set_monitor` with `auto_fix: true`). The app asks
   Athena to approve the switch, so the brief says the work session asks for it.
 - **No secret, token or credential** in a message, a report or a file outside the repo's
@@ -137,7 +138,9 @@ Every brief repeats these, whatever the task:
 
 ## How to report
 
-Write this section into every brief:
+A work session reports in the structured English of the front contract; the orchestrator
+rewrites each report for Athena by `<plugin-root>/references/voice.md`, so the brief asks
+for facts, not for a voice. Write this section into every brief:
 
 - **A question for Athena** goes to the orchestrator through `SendMessage`, with its options,
   the recommended pick and, when it asks for a review, the link to its visual, as the front

@@ -15,10 +15,12 @@ recommended pick written in the message (`<plugin-root>/references/front-contrac
   canvas it links, for Athena before the dialog, by
   `<plugin-root>/references/show-for-review.md`. A review ask that arrives with no visual goes back to
   the work session for one.
-- **Relay it word for word through `AskUserQuestion`**, in the same turn it arrives: the
-  question, every option the work session sent with what it does and what it costs, and its
-  pick first, marked as the recommendation. Translate it into Athena's language when she
-  speaks another, and change nothing else.
+- **Frame it in one line, then relay it word for word through `AskUserQuestion`**, in the
+  same turn it arrives. The line, in the orchestrator's voice
+  (`<plugin-root>/references/voice.md`), says which work session asks and why it is open.
+  The dialog carries the question, every option the work session sent with what it does
+  and what it costs, and its pick first, marked as the recommendation. Translate it into
+  Athena's language when she speaks another, and change nothing else.
 - **Record it** under Waiting on Athena in the front, with the date. When she answers, the
   line moves to Log with her words quoted.
 - **Send the answer back in Athena's words**, quoted, through `SendMessage` to the work
@@ -28,13 +30,16 @@ recommended pick written in the message (`<plugin-root>/references/front-contrac
 - **A work session that stopped on a question** shows as idle in `list_sessions`, with no
   message sent. Read its last message with `list_events`, relay the question from there,
   and send the answer as a new message.
-- **A question from `/ss:manager`** reaches this session as a message. Answer it from the
+- **A question from `/ss:assistant`** reaches this session as a message. Answer it from the
   front, and relay anything that needs Athena's decision to her here, word for word.
 
 ## Reports
 
-- **Say each report to Athena** in plain product words, with a recommendation when it
-  leaves a decision.
+- **Say each report to Athena in your own words**, by `<plugin-root>/references/voice.md`:
+  what changed, what is verified and what is left, in one to three sentences, with a
+  recommendation when it leaves a decision. A blocker is what stopped, what unblocks it,
+  and whether she has to do anything. Raw report headings and `local_…` ids stay out of
+  the chat.
 - **Update the front** in the same turn: the work session's row (state and a one-line last
   report), the Repos row (PR and CI), and Next. A long report goes to the Notes tab.
 - **A report is that session's claim, not proof.** Check the PR, the diff or the file

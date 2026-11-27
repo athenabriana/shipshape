@@ -1,6 +1,6 @@
 ---
 name: caretake
-description: Looks after the repo. Never merges. Scans open PRs, Dependabot security alerts and outdated dependencies, reports what is safe to merge and suggests an action per PR (takeover or modernize, both run by /ss:takeover), in Slack or as a sticky comment. Use when the user says "look after the repo", "what can I merge", "triage my PRs", "review the open PRs", "check Dependabot", "are the dependency updates safe", or "set up a maintenance digest". Don't use it to act on one PR somebody else opened (use /ss:takeover), on the user's own branch or PR (use /ss:ship), or to review a diff (use /ss:review).
+description: Looks after the repo. It merges a PR only when you say so in its chat. Scans open PRs, Dependabot security alerts and outdated dependencies, reports what is safe to merge and suggests an action per PR (takeover or modernize, both run by /ss:takeover), in Slack or as a sticky comment. Use when the user says "look after the repo", "what can I merge", "triage my PRs", "review the open PRs", "check Dependabot", "are the dependency updates safe", or "set up a maintenance digest". Don't use it to act on one PR somebody else opened (use /ss:takeover), on the user's own branch or PR (use /ss:ship), or to review a diff (use /ss:review).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
@@ -9,7 +9,7 @@ metadata:
 
 # Caretake
 
-Look after a repo's open PRs and dependency updates, then tell the user **what is safe to merge** and what each blocked or stale PR needs: to Slack, as a sticky PR comment, or both. Merge is **never** performed by this skill; the human clicks merge. Acting on one PR is `/ss:takeover`'s: caretake suggests it and never runs it.
+Look after a repo's open PRs and dependency updates, then tell the user **what is safe to merge** and what each blocked or stale PR needs: to Slack, as a sticky PR comment, or both. It merges a PR only when the user says so in this chat, under the repo's rules. Acting on one PR is `/ss:takeover`'s: caretake suggests it and never runs it.
 
 ## Prerequisites
 
