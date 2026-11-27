@@ -56,7 +56,7 @@ Three tabs, so a reread costs one short tab and not the whole history:
 
 | tab          | holds                                                                                                        | read when                         | size                                           |
 | ------------ | ------------------------------------------------------------------------------------------------------------ | --------------------------------- | ---------------------------------------------- |
-| Now (`a0`)   | goal, acceptance criteria, out of scope, repos, work sessions, waiting on Athena, merge authorizations, next | every compaction                  | under about 120 lines: closed rows move to Log |
+| Now (`a0`)   | goal, acceptance criteria, out of scope, repos, work sessions, waiting on Athena, merge authorizations, next | every start and compaction        | under about 120 lines: closed rows move to Log |
 | Log (`a1`)   | dated decisions with Athena's words, closed work sessions, landed PRs                                        | only by a `search` read on a word | grows; never reread whole                      |
 | Notes (`a2`) | reports, research, anything too long for a message                                                           | when a step names it              | grows                                          |
 

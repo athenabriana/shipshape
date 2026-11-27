@@ -42,6 +42,7 @@ describe("size", () => {
     const exempt = { demo: "a reason" };
     const issues = checkSkill("demo", skill(body), SKILL_DIR, PLUGIN_DIR, () => false, exempt);
     expect(issues.map((issue) => issue.level)).toEqual(["warning"]);
+    expect(issues[0].message).toContain("a reason");
   });
 });
 
