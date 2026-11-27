@@ -14,6 +14,7 @@
 import { spawn } from "child_process";
 import { rmSync } from "fs";
 import { join } from "path";
+import { childEnv } from "./redact.ts";
 
 const TIMEOUT_MS = 180_000;
 const MAX_OUTPUT_BYTES = 1024 * 1024;
@@ -44,12 +45,13 @@ const NON_SPEECH = /^[[(][^\])]*[\])]$/;
 /**
  * Returns the transcript, or undefined when no transcriber is set up, it failed, or it heard
  * no speech. The command runs in a process group of its own, so a timeout ends ffmpeg and
- * whisper with it, and it never sees the bot token.
+ * whisper with it, and it never sees a token.
  */
 export function transcribe(audioPath: string, timeoutMs = TIMEOUT_MS): Promise<string | undefined> {
   const cmd = transcriberCommand();
   if (!cmd) return Promise.resolve(undefined);
-  const { TELEGRAM_BOT_TOKEN: _token, ...env } = process.env;
+  // Neither the bot's token nor Claude's ever reaches the transcriber.
+  const env = childEnv();
   return new Promise((resolve) => {
     let stdout = "";
     let stderr = "";

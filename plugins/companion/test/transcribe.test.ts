@@ -19,10 +19,12 @@ function fakeCommand(body: string): string {
 const saved = {
   COMPANION_TRANSCRIBE_CMD: process.env.COMPANION_TRANSCRIBE_CMD,
   TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN,
+  CLAUDE_CODE_OAUTH_TOKEN: process.env.CLAUDE_CODE_OAUTH_TOKEN,
 };
 beforeEach(() => {
   delete process.env.COMPANION_TRANSCRIBE_CMD;
   delete process.env.TELEGRAM_BOT_TOKEN;
+  delete process.env.CLAUDE_CODE_OAUTH_TOKEN;
 });
 afterEach(() => {
   for (const [key, value] of Object.entries(saved)) {
@@ -49,12 +51,13 @@ test("returns undefined when the command fails or prints nothing", async () => {
   expect(await transcribe("/tmp/x.ogg")).toBeUndefined();
 });
 
-test("drops non-speech tags, and keeps the bot token from the transcriber", async () => {
+test("drops non-speech tags, and keeps both tokens from the transcriber", async () => {
   process.env.TELEGRAM_BOT_TOKEN = "123:secret";
+  process.env.CLAUDE_CODE_OAUTH_TOKEN = "sk-ant-oat01-secret-for-the-test";
   process.env.COMPANION_TRANSCRIBE_CMD = fakeCommand(
-    'printf "[BLANK_AUDIO]\\n(music)\\ntoken=${TELEGRAM_BOT_TOKEN:-none}\\n"',
+    'printf "[BLANK_AUDIO]\\n(music)\\ntoken=${TELEGRAM_BOT_TOKEN:-none} claude=${CLAUDE_CODE_OAUTH_TOKEN:-none}\\n"',
   );
-  expect(await transcribe("/tmp/x.ogg")).toBe("token=none");
+  expect(await transcribe("/tmp/x.ogg")).toBe("token=none claude=none");
 });
 
 test("a timeout ends the transcriber's children too", async () => {

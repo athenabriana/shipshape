@@ -1,11 +1,11 @@
 {
   "name": "companion",
-  "description": "Telegram channel for Ship Shape: a bot that bridges your Telegram DMs to one Claude Code session, with pairing and an allowlist. Replies render Markdown, SVG diagrams arrive as images, voice notes are transcribed with whisper.cpp when it is installed, and a notify tool sends news unasked. Polls only in the session launched with --channels plugin:companion@shipshape (or the development flag), and stays inert everywhere else. Manage access with /companion:access and setup with /companion:configure. Adapted from the official Telegram channel plugin (Apache-2.0).",
-  "version": "0.2.0",
+  "description": "Telegram assistant for Ship Shape: a service that answers your Telegram DMs through the Claude Agent SDK, with no Claude Code session to keep open. It reads what each of your Claude Code sessions is doing, talks to them, relays their questions, watches your PRs and pings you only when something needs you, and merges on your word behind Ship Shape's review gate and a confirm tap. Permissions live in code: reads run, secrets and mutations are refused, anything else asks you with a button. Replies render Markdown, SVG diagrams arrive as images, voice notes are transcribed with whisper.cpp. Start it with scripts/run-service.sh; manage access with /companion:access and setup with /companion:configure. Adapted from the official Telegram channel plugin (Apache-2.0).",
+  "version": "0.3.0",
   "author": {
     "name": "Athena Briana",
     "email": "me@athenabriana.com"
   },
   "license": "Apache-2.0",
-  "keywords": ["telegram", "messaging", "channel", "mcp"]
+  "keywords": ["telegram", "assistant", "agent-sdk", "messaging"]
 }

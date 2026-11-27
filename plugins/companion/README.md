@@ -1,123 +1,217 @@
 # Companion
 
-A Telegram channel for Claude Code, shipped from the Ship Shape marketplace as
-`companion@shipshape`. A bot you create bridges your Telegram messages to one Claude Code
-session, and the session answers through the bot. Pairing and an allowlist decide who gets
-through.
+A personal assistant on Telegram, shipped from the Ship Shape marketplace as
+`companion@shipshape`. A bot you create talks to you from your phone; a small service on
+your machine answers through the [Claude Agent SDK](https://code.claude.com/docs/en/agent-sdk/overview),
+with a persona and permissions written in code. No Claude Code session in a terminal, no
+tmux, no channel flag.
 
-It is adapted from the official Telegram channel plugin (Apache-2.0). `NOTICE` says where it
-came from, and `UPSTREAM.md` lists what changed and how to pull upstream fixes.
+It keeps track of your Claude Code sessions for you: it reads what each one is doing,
+talks to them, brings you their questions word for word and sends your answers back,
+watches your PRs and pings you only when something needs you, and merges a PR on your word
+behind Ship Shape's review gate and a confirm tap.
 
-## How it stays out of your other sessions
+It started as the official Telegram channel plugin (Apache-2.0). `NOTICE` says where it came
+from, and `UPSTREAM.md` lists what changed and how to pull upstream fixes.
 
-Telegram lets one poller hold a bot token at a time, and this server replaces any stale
-poller it finds. A plugin's MCP server starts in every session where the plugin is enabled.
-So the server polls only in the session whose `claude` command named this plugin as a
-channel (`--channels plugin:companion@shipshape`, or the development flag below). It reads
-that from the nearest `claude` process's own command line, so a session started from inside
-the channel session, which inherits its environment but not its flags, stays out too.
+## How it works
 
-Every other session gets a server with no tools that never reads the token, never starts
-the bot and never touches another poller. It installs nothing either, and it tells that
-session the channel is off there. Keep the plugin enabled only in the folder the companion
-session runs from all the same.
+`server.ts` is a long-running program. It polls Telegram (pairing, the allowlist, the
+stale-poller guard and token redaction work as upstream), and for each message from its
+owner, in a direct chat, it runs one Agent SDK conversation:
+
+- **One owner.** The agent acts with your permissions, so it answers one person: the only
+  one on the allowlist, or `COMPANION_OWNER_ID` when more are paired. Anyone else
+  allowlisted gets one line saying so; group chats never reach it.
+- **One session per chat.** The chat's session id is kept in `sessions.json` in the state
+  folder and resumed on the next message, so the conversation carries across restarts. A
+  session idle for `COMPANION_SESSION_IDLE_DAYS` (7) or grown past
+  `COMPANION_SESSION_MAX_MB` (8) starts fresh; the memory folder carries what matters.
+  `/nova` starts a fresh one by hand, and `/stop` ends what the agent is doing. Messages
+  sent while it is answering are answered together, in the next turn.
+- **The persona is the system prompt.** `persona.md` is appended to Claude Code's own
+  system prompt, not recorded once, so a change reaches a resumed session too: warm, short
+  answers in Portuguese, no offers to look, no time estimates.
+- **Replies come back as before.** The final answer goes through the same Markdown, SVG and
+  chunking code the channel used. The agent also has the Telegram tools in-process
+  (`reply`, `notify`, `react`, `edit_message`, `download_attachment`) for progress notes,
+  drawings and pings. Voice notes are transcribed first, as before.
+- **The watch runs inside the service.** `scripts/watch.py` runs as a child process,
+  restarted when it ends, so nothing needs re-arming after a restart. It is the cheap
+  check: the model is called only when it prints a change, in a turn of its own, at most
+  `COMPANION_WATCH_DAILY_CAP` (24) times a day. The agent pings you with `notify` only when
+  an event needs you, and a watch that cannot run tells you once.
+- **Messages to your sessions go one way.** The agent sends with `SendMessage`, but it runs
+  one turn at a time, so a session's reply does not come back into its conversation: it
+  reads the reply later from the session itself (`sessions.py show`).
+- **Your settings stay out.** The agent loads no `~/.claude` settings, CLAUDE.md or plugins
+  (`settingSources: []`). Its working folder is `~/.local/share/companion/`, and its memory
+  is the `memory/` folder there.
+
+## Permissions, in code
+
+`permissions.ts` decides every tool call, from a `PreToolUse` hook that sees each one
+whatever the mode, and again in `canUseTool`. No tool is pre-approved in `allowedTools`,
+since an auto-approved tool never reaches `canUseTool`, and the agent has only the built-in
+tools it needs. The secret paths are Claude Code deny rules too, written from the home
+folder, so a `Grep` over a folder skips them.
+
+| kind    | what                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| allowed | `Read`, `Grep` and `Glob` under `~/Workspaces` (or `COMPANION_REPOS`), the plugin and its own folders; `git log/status/diff/show` and the other read-only git commands in your repositories; `gh pr view/list/checks/diff/status`, `gh run view/list`, `gh search`, `gh issue view/list`, read-only `gh api` (a plain GET, or GraphQL with the query inline); `sessions.py` and `merge_gate.py`; its Telegram tools (a file attached from where it may read); `SendMessage`, `ListAgents`; writes in its memory folder                                                                                                                                                                                        |
+| denied  | the state folder (tokens, `access.json`, `sessions.json`), secret files anywhere (`.env*`, `.npmrc`, `.netrc`, keys, `credentials`, `*secrets.*`, `.git/config`), SSH, cloud, `gh` and Claude credentials, session `.key` files, raw transcripts, `/proc`, printing the environment; `gh api` mutations, a GraphQL query read from a file, `--hostname`, `gh auth`, approving a review; every git write, force pushes included, and git flags that run or read outside the repository; a merge in any form but the gate's, `--admin` and `--auto` included; deploys; nested shells and interpreters (`bash -c`, `xargs`, `eval`, `python -c`); any write outside its memory folder, a shell redirect included |
+| asks    | everything else, a shell `cat`, `grep` or `find` included: a button on Telegram, **Ver mais** shows the command, and no answer within `COMPANION_ASK_TIMEOUT_SEC` (600 by default) denies. So do a tap after that deadline (the laptop slept), a message you send meanwhile, `/stop` and a restart                                                                                                                                                                                                                                                                                                                                                                                                            |
+
+A command with a pipe, a chain, a variable or a substitution is never allowed on its own:
+it asks, after the deny checks ran on the whole text.
+
+**Merges.** The agent merges only by running the exact command `merge_gate.py` prints. The
+service then runs the gate again, for that PR's head: CI green, the repository's rules
+clear, a `Review loop:` verdict that still covers the head. Only when it passes, and every
+message of the turn was one you typed (not a voice note, not a forward, not a watch
+event), does the confirm button reach you. Your tap is the second yes; a typed "yes" does
+not stand for it. Whether a PR changes a user interface, and so needs the design loop's
+`Design:` line, is the persona's check, not the code's.
 
 ## Set it up
 
-You need [Bun](https://bun.sh): the server runs on it.
+You need [Bun](https://bun.sh) and Claude Code on the machine. These steps change nothing
+until you start the service.
 
 1. **Create a bot.** In Telegram, message [@BotFather](https://t.me/BotFather), send
    `/newbot`, and give it a display name and a username ending in `bot`. BotFather replies
-   with a token like `123456789:AAH...`.
-2. **Install the plugin at user scope, then enable it in one folder only.**
+   with a token like `123456789:AAH...`. Skip this when you already have the bot.
+2. **Install the plugin.** It brings the `/companion:access` and `/companion:configure`
+   skills; its MCP server stays inert in every session.
 
    ```bash
    claude plugin marketplace add athenabriana/shipshape
    claude plugin install companion@shipshape
-   claude plugin disable companion@shipshape
    ```
 
-   In the companion folder's `.claude/settings.json`, set
-   `"enabledPlugins": { "companion@shipshape": true }`. If you used the official Telegram
-   plugin before, turn it off everywhere (`claude plugin uninstall telegram@claude-plugins-official`):
-   it shares this plugin's state folder and has no such switch, so in any session where it is
-   enabled it would take the bot back.
-
-3. **Save the token from your terminal.** The plugin's script asks for it without showing
-   it, so it never reaches a chat transcript, and writes `.env` with mode `600`:
+3. **Save the bot's token**, from your terminal (it asks without showing what you type and
+   writes `~/.local/state/companion-telegram/.env` with mode `600`):
 
    ```bash
    bash "$(ls -d ~/.claude/plugins/cache/shipshape/companion/*/ | sort -V | tail -1)scripts/token-env.sh" set
    ```
 
-   It writes to `~/.local/state/companion-telegram/.env` (under `XDG_STATE_HOME` when you
-   set it, or in `TELEGRAM_STATE_DIR`), keeping any other keys in the file. A token and an
-   `access.json` you already have from the official plugin, in `~/.claude/channels/telegram/`,
-   carry over: the channel copies them on its first start, and leaves the old folder as it
-   is.
-
-4. **Launch the session from that folder with the channel.**
+4. **Log in to Claude.** Run `claude setup-token` yourself, with your own Claude account.
+   It signs in with your Claude subscription in the browser and prints a token that lasts
+   one year and starts with `sk-ant-`. Then paste it into the same file, the same way,
+   without it ever reaching a chat:
 
    ```bash
-   claude --dangerously-load-development-channels plugin:companion@shipshape
+   bash "$(ls -d ~/.claude/plugins/cache/shipshape/companion/*/ | sort -V | tail -1)scripts/token-env.sh" set claude
    ```
 
-   During the channels research preview, `--channels` accepts only plugins on Anthropic's
-   allowlist or on your organization's `allowedChannelPlugins`. Until this plugin is on one
-   of those, it loads with `--dangerously-load-development-channels`, which shows a warning
-   you confirm on every launch. With `allowedChannelPlugins` set, use
-   `--channels plugin:companion@shipshape` instead and the warning goes away.
+   The service gives that token to the Claude Code process the SDK starts, and to nothing
+   else: the transcriber, the watch and the merge gate get neither token, and
+   `CLAUDE_CODE_SUBPROCESS_ENV_SCRUB=1` keeps it out of the commands the agent runs. Its
+   log says which login is in use, never the value. When the year is up, the agent tells
+   you in the chat; run `claude setup-token` again and save the new one the same way.
 
-5. **Pair.** Message your bot. It replies with a six-character code. In the session, run
-   `/companion:access pair CODE`. If the bot does not answer, check that this session was
-   launched with the channel flag above: `/companion:configure` says when the channel is off
-   in the session it runs in.
-6. **Lock it down.** Run `/companion:access policy allowlist`, so strangers get no reply at
-   all.
+   **Login and Anthropic's terms.** Anthropic's Agent SDK overview
+   ([overview](https://code.claude.com/docs/en/agent-sdk/overview)) says: "Unless
+   previously approved, Anthropic does not allow third party developers to offer claude.ai
+   login or rate limits for their products, including agents built on the Claude Agent
+   SDK. Use the API key authentication methods described in the Quickstart instead." This
+   plugin documents `claude setup-token` as its login, each person with their own account,
+   and you decide how that sentence applies to you. An API key works instead: put
+   `ANTHROPIC_API_KEY=...` in the same `.env` and leave `CLAUDE_CODE_OAUTH_TOKEN` out (with
+   both set, the service uses the setup-token).
 
-`/companion:configure` shows where the setup stands and the next step. `ACCESS.md` covers
-groups, mention patterns, delivery options and the `access.json` format.
+5. **Start it.**
 
-## Tools the session gets
+   ```bash
+   bash "$(ls -d ~/.claude/plugins/cache/shipshape/companion/*/ | sort -V | tail -1)scripts/run-service.sh"
+   ```
 
-The MCP server is named `telegram`, so the tools read `mcp__plugin_companion_telegram__NAME`.
+   It installs the dependencies and runs in the foreground; the log says
+   `companion: polling as @YOURBOT`. `Ctrl-C` stops it. (`bun run companion` in the plugin's
+   folder does the same, once `bun install` ran there.)
 
-| tool                  | what it does                                                                             |
-| --------------------- | ---------------------------------------------------------------------------------------- |
-| `reply`               | answers a chat with text, files and drawn images, split at 4096 characters               |
-| `notify`              | sends news nobody asked for yet to every allowlisted person, with no `chat_id`           |
-| `react`               | adds an emoji reaction, from Telegram's fixed list                                       |
-| `edit_message`        | edits a message the bot sent, for progress updates                                       |
-| `download_attachment` | saves an inbound file to `~/.local/state/companion-telegram/inbox/` and returns its path |
+6. **Pair**, the first time. Message the bot; it replies with a six-character code. In any
+   Claude Code session, run `/companion:access pair CODE`, then
+   `/companion:access policy allowlist` so strangers get no reply at all. A pairing you
+   already have carries over. Keep yourself the only one on the allowlist, or set
+   `COMPANION_OWNER_ID` to your Telegram user ID.
 
-Inbound photos download on arrival and reach the session as an `image_path`. Telegram's Bot
-API has no history or search, so the session sees only messages as they arrive.
+### Keep it running with systemd (optional)
+
+```ini
+# ~/.config/systemd/user/companion.service
+[Unit]
+Description=Companion, a Telegram assistant
+After=network-online.target
+
+[Service]
+ExecStart=/bin/bash -lc 'exec bash "$(ls -d ~/.claude/plugins/cache/shipshape/companion/*/ | sort -V | tail -1)scripts/run-service.sh"'
+Restart=always
+RestartSec=30
+
+[Install]
+WantedBy=default.target
+```
+
+```bash
+systemctl --user daemon-reload
+systemctl --user enable --now companion
+journalctl --user -u companion -f
+```
+
+A restart picks up a plugin update, since the launcher takes the newest installed copy.
+`Restart=always` brings it back even after another poller replaced it (an old channel
+session still loading 0.2.0, for example), so stop those first.
+
+### Stop and remove
+
+- Stop: `Ctrl-C` in the foreground, or `systemctl --user disable --now companion`.
+- Remove the unit: delete `~/.config/systemd/user/companion.service`, then
+  `systemctl --user daemon-reload`.
+- Remove the tokens: `token-env.sh clear claude` and `token-env.sh clear`. Revoke Claude's
+  token in your Claude account settings, and the bot's with BotFather's `/revoke`.
+- Remove everything: `claude plugin uninstall companion@shipshape`, then delete
+  `~/.local/state/companion-telegram/` and `~/.local/share/companion/`.
+
+## Sessions in other permission modes
+
+Claude Code holds a message between two sessions in different permission modes until
+someone approves it, and a desktop session has nowhere to show that approval. Setting
+`"crossSessionInbound": "accept"` in `~/.claude/settings.json` delivers them, so the
+assistant's `SendMessage` reaches every session. A repository's settings can only tighten
+it. It lets any local session message any other one without approval, so weigh it.
+
+## Settings
+
+Set these in the `.env` (or in the unit's environment):
+
+| variable                      | effect                                                                               |
+| ----------------------------- | ------------------------------------------------------------------------------------ |
+| `COMPANION_OWNER_ID`          | the one Telegram user ID the agent answers, needed when more than one is allowlisted |
+| `COMPANION_SESSION_IDLE_DAYS` | a chat's session idle this long starts fresh, by default 7                           |
+| `COMPANION_SESSION_MAX_MB`    | a chat's session whose transcript grew past this starts fresh, by default 8          |
+| `COMPANION_WATCH_DAILY_CAP`   | watch turns per day, at most, by default 24; past it, events are only logged         |
+| `COMPANION_REPOS`             | folders read without asking, `:`-separated, by default `~/Workspaces`                |
+| `COMPANION_MODEL`             | the model, by default Claude Code's                                                  |
+| `COMPANION_ASK_TIMEOUT_SEC`   | how long a permission button waits before it denies, by default 600                  |
+| `COMPANION_WATCH`             | `off` turns the watch off                                                            |
+| `COMPANION_DATA_DIR`          | the agent's working folder, by default `${XDG_DATA_HOME:-~/.local/share}/companion`  |
+| `TELEGRAM_STATE_DIR`          | the state folder, by default `${XDG_STATE_HOME:-~/.local/state}/companion-telegram`  |
 
 ## Formatting, images and voice
 
-The plugin adds three things to the upstream channel, so the companion reads well on a phone.
-
-- **Markdown replies.** `reply`, `notify` and `edit_message` take ordinary Markdown by
-  default (`format: "markdown"`): bold, italic, strikethrough, inline code, code blocks,
-  links, headings, lists and quotes. The plugin converts it to Telegram's HTML mode, and
-  sends plain text when Telegram still refuses the result. Underscores inside words and
-  paths, as in `__init__.py`, stay as written, and a backslash keeps the next mark literal.
-  `text` and `markdownv2` work as upstream.
+- **Markdown replies.** Answers and the `reply`, `notify` and `edit_message` tools take
+  ordinary Markdown, converted to Telegram's HTML mode, with plain text as the fallback when
+  Telegram refuses it. Underscores inside words and paths stay as written.
 - **Drawn images.** `reply` and `notify` take `svgs`, a list of SVG documents, and an `.svg`
-  path in `files` works too. Each renders to a PNG on a white background, at twice its size
-  up to 4000 pixels, and shows inline; the PNG is deleted once sent. The companion session
-  cannot write files, so it draws diagrams and charts this way. A drawing more than 20 times
-  wider than tall (or the reverse) is refused, since Telegram will not show it as a photo.
-  A drawing that refers to anything outside itself (an image file, a CSS `url()` that is not
-  a `#fragment`) is refused, so it never pulls a file from this machine. Inline `data:`
-  images work. Rendering uses `@resvg/resvg-js`, which ships
-  prebuilt for Linux, macOS and Windows, and loads only when a message carries an SVG.
-- **Voice notes as text.** Claude cannot listen to audio. When a transcriber is set up, a
-  voice note or audio file is transcribed on arrival and reaches the session as the
-  message, tagged `voice_transcript="true"`. `attachment_kind` says whether it was a voice
-  note or a forwarded audio file. The recording is deleted once transcribed, and the
-  transcription runs off Telegram's update queue, so a permission tap sent meanwhile is
-  not held up. Without a transcriber, it stays an attachment, as upstream.
+  path in `files` works too. Each renders to a PNG on a white background and shows inline;
+  the PNG is deleted once sent. A drawing that refers to anything outside itself is
+  refused. Rendering uses `@resvg/resvg-js`, which loads only when a message carries an SVG.
+- **Voice notes as text.** When a transcriber is set up, a voice note or audio file is
+  transcribed on arrival and reaches the agent as her words, tagged
+  `voice_transcript="true"`; the recording is deleted after. A merge word never counts by
+  voice.
 
 ### Set up voice transcription
 
@@ -137,13 +231,9 @@ cmake -S ~/.local/src/whisper.cpp -B ~/.local/src/whisper.cpp/build -DCMAKE_BUIL
 cmake --build ~/.local/src/whisper.cpp/build -j --config Release
 ```
 
-Then point the adapter at the binary, in the command that launches the companion session:
-`COMPANION_WHISPER_BIN=$HOME/.local/src/whisper.cpp/build/bin/whisper-cli`. Linking it into
-`~/.local/bin` works too, but Ubuntu puts that folder on `PATH` only when it existed at
-login, so a folder created now needs a new login first.
-
-Then download a model to the default path. `ggml-small.bin` handles Portuguese well on a
-CPU:
+Then set `COMPANION_WHISPER_BIN=$HOME/.local/src/whisper.cpp/build/bin/whisper-cli` in the
+`.env`, and download a model to the default path. `ggml-small.bin` handles Portuguese well
+on a CPU:
 
 ```bash
 m="${XDG_DATA_HOME:-$HOME/.local/share}/whisper-cpp"
@@ -151,75 +241,38 @@ mkdir -p "$m" && curl -L -o "$m/ggml-small.bin" \
   https://huggingface.co/ggerganov/whisper.cpp/resolve/main/ggml-small.bin
 ```
 
-With Homebrew (macOS, or Linuxbrew), `brew install whisper-cpp ffmpeg` replaces the apt and
-build steps.
-
-To check the setup without Telegram, run the adapter on any audio file:
+With Homebrew, `brew install whisper-cpp ffmpeg` replaces the apt and build steps. To check
+the setup without Telegram, run the adapter on any audio file:
 `scripts/transcribe-whisper-cpp.sh some-voice-note.ogg` prints the text, and exit code 3
 names what is missing.
-
-Restart the companion session after installing. These variables tune it, set in the
-command that launches the session:
 
 | variable                   | effect                                                                                   |
 | -------------------------- | ---------------------------------------------------------------------------------------- |
 | `COMPANION_WHISPER_BIN`    | the `whisper-cli` binary, when it is not on `PATH`                                       |
 | `COMPANION_WHISPER_MODEL`  | the model file, by default `${XDG_DATA_HOME:-~/.local/share}/whisper-cpp/ggml-small.bin` |
 | `COMPANION_WHISPER_LANG`   | the spoken language, such as `pt`, by default `auto`                                     |
-| `COMPANION_TRANSCRIBE_CMD` | another transcriber: an executable that takes the audio path and prints text             |
-
-Set `COMPANION_TRANSCRIBE_CMD=off` to keep voice notes as attachments. A cloud transcriber
-fits the same slot as a script that reads its own API key from its own file. The plugin
-never holds that key.
+| `COMPANION_TRANSCRIBE_CMD` | another transcriber: an executable that takes the audio path and prints text, or `off`   |
 
 ## Where the state lives
 
-Everything sits in `~/.local/state/companion-telegram/` (or `$XDG_STATE_HOME/companion-telegram`,
-or `TELEGRAM_STATE_DIR`): the token in `.env`, the policy in `access.json`, the poller's PID in
-`bot.pid`, pairing confirmations in `approved/`, and downloads in `inbox/`. The `reply` tool
-refuses to send any file from that folder except `inbox/`.
-
-Upstream keeps this under `~/.claude/channels/telegram/`. Claude Code's `dontAsk` permission
-mode refuses every write under a `.claude/` folder, whatever the allow rules say, so a
-companion session in that mode could not pair anyone or change the policy there. That is why
-the folder moved.
-
-## Run the companion read only
-
-A companion that only reads (`"defaultMode": "dontAsk"`, with everything else denied) still
-needs three writes for `/companion:access`: the policy file, the pairing confirmations, and
-the folder those go in. Allow exactly those in the companion folder's `.claude/settings.json`,
-with the path written out from your home folder:
-
-```json
-{
-  "permissions": {
-    "defaultMode": "dontAsk",
-    "allow": [
-      "Edit(//home/YOU/.local/state/companion-telegram/access.json)",
-      "Edit(//home/YOU/.local/state/companion-telegram/approved/**)",
-      "Bash(mkdir -p /home/YOU/.local/state/companion-telegram/approved)",
-      "mcp__plugin_companion_telegram__reply",
-      "mcp__plugin_companion_telegram__notify",
-      "mcp__plugin_companion_telegram__react",
-      "mcp__plugin_companion_telegram__edit_message",
-      "mcp__plugin_companion_telegram__download_attachment"
-    ],
-    "deny": [
-      "Read(//home/YOU/.local/state/companion-telegram/.env)",
-      "Edit(//home/YOU/.local/state/companion-telegram/.env)"
-    ]
-  }
-}
-```
-
-`Edit` rules cover every tool that writes a file, the `Write` tool included, and `//` starts an
-absolute path. The deny rules keep the session away from the token. Save the token from your
-terminal with the script in step 3, never from the session.
+- `~/.local/state/companion-telegram/` (or `$XDG_STATE_HOME/companion-telegram`, or
+  `TELEGRAM_STATE_DIR`), mode `700`: both tokens in `.env`, the policy in `access.json`, the
+  chat sessions in `sessions.json`, the watch's memory in `watch.json`, the poller's PID in
+  `bot.pid`, pairing confirmations in `approved/`, and downloads in `inbox/`. The agent can
+  read only `inbox/` there, and the `reply` tool refuses to send any other file from it.
+- `~/.local/share/companion/`: the agent's working folder, and its memory in `memory/`.
+- The conversations themselves are Claude Code transcripts, under `~/.claude/projects/`.
 
 ## What reaches Telegram
 
-When the session asks permission for a tool, the bot sends the request to every allowlisted
-person, and **See more** shows the tool's full input there: a command, a file's new content.
-Telegram stores that chat on its servers, and bot chats are not end-to-end encrypted. Answer
-in the terminal instead when the input may hold a secret.
+A permission button shows the command or path the agent wants, and **Ver mais** shows
+more of it. Telegram stores that chat on its servers, and bot chats are not end-to-end
+encrypted.
+
+## The old channel setup
+
+Up to 0.2.0 the companion was a Claude Code channel: a terminal session in tmux, launched
+with `--dangerously-load-development-channels plugin:companion@shipshape`, with its persona
+and permissions in that folder's files. That path is gone. The plugin's MCP server is now
+inert in every session, even one launched with the channel flag, so an old launcher cannot
+take the bot from the service: stop it (`companion.sh stop`) before you start the service.

@@ -1,10 +1,10 @@
 # Companion: Telegram access and delivery
 
-> Adapted from the official Telegram channel plugin's `ACCESS.md` (Apache-2.0). Only the names and the state folder changed: `/telegram:access` is `/companion:access` here, and the state lives in `~/.local/state/companion-telegram/`.
+> Adapted from the official Telegram channel plugin's `ACCESS.md` (Apache-2.0). The names and the state folder changed: `/telegram:access` is `/companion:access` here, and the state lives in `~/.local/state/companion-telegram/`. And since 0.3.0 the companion is a service whose agent serves one owner in a DM: the allowlist decides who can pair, and only the owner (the one person allowlisted, or `COMPANION_OWNER_ID`) is answered. Groups never reach the agent, so the group settings below only matter to the access file's format.
 
-A Telegram bot is publicly addressable. Anyone who finds its username can DM it, and without a gate those messages would flow straight into your assistant session. The access model described here decides who gets through.
+A Telegram bot is publicly addressable. Anyone who finds its username can DM it, and without a gate those messages would reach your assistant. The access model described here decides who gets through.
 
-By default, a DM from an unknown sender triggers **pairing**: the bot replies with a 6-character code and drops the message. You run `/companion:access pair <code>` from your assistant session to approve them. Once approved, their messages pass through.
+By default, a DM from an unknown sender triggers **pairing**: the bot replies with a 6-character code and drops the message. You run `/companion:access pair <code>` in any Claude Code session to approve them. Once approved, their messages pass through.
 
 All state lives in `~/.local/state/companion-telegram/access.json`. The `/companion:access` skill commands edit this file; the server re-reads it on every inbound message, so changes take effect without a restart. Set `TELEGRAM_ACCESS_MODE=static` to pin config to what was on disk at boot (pairing is unavailable in static mode since it requires runtime writes).
 
@@ -45,7 +45,7 @@ Pairing captures the ID automatically. To find one manually, have the person mes
 
 ## Groups
 
-Groups are off by default. Opt each one in individually.
+Groups are off by default, and the companion service does not answer them even when one is opted in: its agent acts with its owner's permissions. The settings stay for the file's format.
 
 ```
 /companion:access group add -1001654782309
