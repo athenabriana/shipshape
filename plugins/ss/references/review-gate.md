@@ -36,7 +36,8 @@ and no merge ask goes out until it returns.
 
 ## Who runs the loop
 
-The session that holds the branch runs it, after CI is green and before it reports done:
+The session that holds the branch runs it, after CI is green and before it reports done,
+and the others check it:
 
 - **A work session** runs `/ss:review` on its own PR, fixes or refuses what the judge
   finds, follows CI to green again, and reports the verdict. Its brief says so
@@ -46,8 +47,8 @@ The session that holds the branch runs it, after CI is green and before it repor
 - **The orchestrator** writes no code, so it never runs the loop. It checks the verdict
   before every merge ask and sends a PR without one back to its work session.
 - **Any other session asked to merge** checks the verdict before it merges. With none on
-  the head, it runs the loop itself when it holds the branch, and otherwise reports the PR
-  not ready and merges nothing.
+  the head, a session that holds the branch runs the loop itself, and any other reports the
+  PR not ready and merges nothing.
 
 ## Pick the depth
 
