@@ -101,7 +101,7 @@ A commit in the diff range that carries a `Repro` trailer fixes a bug, and ship 
    - CI red on another check: that red proves nothing about the bug.
    - No CI run appears for the test commit's sha: name the sha.
    - The fix is already on the remote (`git merge-base --is-ancestor <fix sha> origin/<branch>`) with no red run recorded: name the fix and hand the command that proves it by hand, a push of the test commit to a branch of its own (`git push origin <test sha>:refs/heads/<branch>-repro-<n>`) and a draft PR from it. Ship never force-pushes to put the test commit back on top.
-   - The destination is a protected branch: ship never pushes there, so it cannot take the two steps.
+   - The destination is a protected branch and you did not tell ship to push there: it cannot take the two steps.
 5. **The proof section.** One block per fix, written into the PR description on the PR path and into the report on every path: the reproduction, the focused test, the red half (`local`, or the red run's URL at the test commit's sha) and the green half (`local`, or CI green on the head).
 
 ## Step 2c: Check the review verdict still covers the branch
@@ -136,7 +136,7 @@ Shipping to a non-protected branch: confirm the target, push, report.
 
 ### references/ship-main.md
 
-Shipping to a protected branch: summary, then hand off the exact push command. Ship never runs it.
+Shipping to a protected branch: summary, then hand off the exact push command. Ship runs it only when you say so in its chat.
 
 ### references/ship-pr.md
 

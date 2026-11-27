@@ -83,8 +83,9 @@ her which approval is waiting, and on a decline keep it and ask no second time.
 A code work session runs at the full scope unless Athena asked for less: the work, review
 and ship, up to a PR with green CI, with no merge. Write the scope in the brief in those
 words, so the work session asks nothing about what runs after the work. A work-only scope
-stops at a green, committed branch. The merge stays with the orchestrator, and only for a
-PR Athena authorized here (`references/landing.md`).
+stops at a green, committed branch. The merge stays with the orchestrator, for a PR Athena
+authorized here (`references/landing.md`), unless she says so in the work session's own
+chat.
 
 ## The endpoint
 
