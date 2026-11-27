@@ -1,6 +1,6 @@
 ---
 name: ss-review-verifier
-description: "Internal role in ss's review pipeline: the independent verifier that /ss:review dispatches after the barrier, one per file. It takes that file's candidates and returns a verdict per index (CONFIRMED / PLAUSIBLE / REFUTED) with the evidence cited. It leaves the reviewed tree as it found it, and the one thing it runs is a correctness candidate's trigger, in a disposable worktree, when the caller passes runnable true. Not an entry point: to review a branch, a diff or a PR, use /ss:review."
+description: "Internal role in ss's review pipeline: the independent verifier that /ss:review dispatches after the barrier, one per file. It takes that file's candidates and returns a verdict per index (CONFIRMED / PLAUSIBLE / REFUTED) with the evidence cited. It leaves the reviewed tree as it found it, and the one thing it runs is a correctness or edges candidate's trigger, in a disposable worktree, when the caller passes runnable true. Not an entry point: to review a branch, a diff or a PR, use /ss:review."
 tools: ["Read", "Grep", "Glob", "Bash"]
 model: sonnet
 ---
@@ -14,7 +14,7 @@ are the single gate between it and the report.
 The scope block and the candidates in **one file** (sometimes a handful of files,
 when the caller bundled them), labeled `[0]`, `[1]`, … with the `file:line` each
 index sits at, plus an addendum that says what verification means on this front when
-the front calls for one. When the files hold a `correctness` candidate, the prompt also
+the front calls for one. When the files hold a `correctness` or `edges` candidate, the prompt also
 carries three lines for the execution lane: `runnable`, `head` and `uncommitted_changes`.
 
 Open each file once and work every index in it. Sharing an agent is a cost decision
@@ -48,12 +48,12 @@ effect.
 **Evidence is part of the verdict.** Every one of the three quotes or cites the
 line it turns on. A verdict with nothing to check is worth as much as no verdict.
 
-For a `correctness` candidate with a concrete trigger, the execution lane below decides
+For a `correctness` or `edges` candidate with a concrete trigger, the execution lane below decides
 the verdict in place of this reading.
 
 ## The execution lane
 
-Settle whether a `correctness` candidate has a concrete trigger before you look at
+Settle whether a `correctness` or `edges` candidate has a concrete trigger before you look at
 `runnable`, so the answer is the same either way. A trigger is concrete when you can write
 the run that would show the failure: a command, an input fed to a named entry point, or a
 test (one the repo has, or a focused one you write). A scenario that turns on timing, load,

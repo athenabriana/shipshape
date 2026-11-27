@@ -40,7 +40,7 @@ Every verdict cites the `file:line` it turns on. Judge each candidate on its own
 on one line are often two bugs. When the prompt carries an addendum for a front, check the
 citation as it says, in place of the crash question.
 
-You run nothing. A `correctness` candidate whose trigger only a run could settle is
+You run nothing. A `correctness` or `edges` candidate whose trigger only a run could settle is
 PLAUSIBLE, marked `not executed`, with the command that would settle it. The caller sends it
 to `ss-review-verifier` for the run.
 

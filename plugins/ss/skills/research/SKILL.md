@@ -1,10 +1,10 @@
 ---
 name: research
-description: Researches a topic across code, content and visual references, verifies every load-bearing claim against its evidence, and writes the report to the path the caller names, or into chat. Runs to the end without questions, so an agent can call it. Use when the user says "research this", "find repos that", "how do others implement", "code research", "dig into how [project] works", "find examples of", "clone and analyze", "look up the docs for", "compare libraries", "find design references", "how do apps do [pattern]", "show me screens of", "pesquisa isso", "pesquise como", "como os outros implementam", "acha repos que", "procura exemplos de", "compara bibliotecas", "referências visuais de", "como os apps fazem", or asks about implementation patterns, library comparisons, codebase architecture, or UI patterns. /ss:clarify calls it before a draft that depends on outside facts.
+description: Researches what lies outside this repo (other projects' code, docs, articles, visual references) and verifies every load-bearing claim against its evidence. Runs when a decision rests on outside facts, called by you, by /ss:clarify before a draft or by a work session from its brief; solves decisions built on unverified claims. Runs to the end without questions, so an agent can call it, and outputs a report at the path the caller names (or in chat) with an open section for what its cap left out. A question about this repo is /ss:investigate's. Use when the user says "research this", "find repos that", "how do others implement", "dig into how [another project] works", "clone and analyze", "look up the docs for", "compare libraries", "find design references", "how do apps do [pattern]", "show me screens of", "pesquisa isso", "como os outros implementam", "acha repos que", "compara bibliotecas", "referências visuais de", "como os apps fazem". Don't use it for a question about this repo (use /ss:investigate).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 4.1.0
+  version: 4.2.0
 ---
 
 # Research
@@ -14,6 +14,11 @@ when no path was named. The research picks the fronts the topic needs (code, con
 visual), gathers findings with evidence, and passes every load-bearing claim through an
 independent verifier that tries to refute it. The depth comes from the loop: plan, fan
 out, verify, synthesize, repeated within a fixed cap.
+
+**The line with `/ss:investigate`:** this skill covers what lies outside the repo it runs
+in: other projects, docs, articles, visual references. A question about this repo, its
+branch, its history or its sessions is `/ss:investigate`'s; the code front clones other
+repositories, and reads this one only to compare against them.
 
 ## How it runs
 

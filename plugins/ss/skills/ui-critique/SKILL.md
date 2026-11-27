@@ -1,10 +1,10 @@
 ---
 name: ui-critique
-description: Critiques a UI on real screenshots and, by default, fixes it until the ss-design-critic agent is pleased and every goal is met, with an accessibility check (WCAG AA) each round whose findings block the end too. Takes a running page or app (a URL or localhost), screenshots, a mockup, a Design canvas, or a folder or files of UI code, which it renders first. Asks once for the goals when none are given, then loops with no round limit until both verdicts hold, a cap you set, or the usage window runs low. Critique only on request or when the target cannot be edited. Use when the user says "ui critique", "critique this screen", "critica essa tela", "design review of this page", "is this UI good", "does this folder follow the design system", "accessibility audit", "a11y", "WCAG", "contrast", "just critique" or "don't change anything". Don't use it to review a branch's diff (use /ss:review, whose design and a11y fronts run there).
+description: Gets a screen the critic is pleased with and that passes WCAG AA. Runs when a page, app, mockup, Design canvas or folder of UI code needs judging, with no diff; solves UI judged by reading code instead of looking at it. Renders the target, screenshots it, and has the ss-design-critic agent and an accessibility audit judge it each round, then fixes and loops with no round limit until both verdicts hold, a cap you set, or the usage window runs low. Outputs the screenshots, the findings, the fixes and the two verdicts; critique only on request or when the target cannot be edited. Use when the user says "ui critique", "critique this screen", "critica essa tela", "design review of this page", "is this UI good", "does this folder follow the design system", "accessibility audit", "a11y", "WCAG", "contrast", "just critique" or "don't change anything". Don't use it on a branch's diff (use /ss:review, whose design and a11y fronts run there).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana; the accessibility pass absorbed from /ss:review's a11y front, itself from rafael's ui-accessibility skill (loja inspira-skills, MIT)
-  version: 1.2.0
+  version: 1.2.1
 ---
 
 # UI critique

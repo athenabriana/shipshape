@@ -42,8 +42,8 @@ the call and put its link in the `question`, by `<plugin-root>/references/show-f
 - **One gate per skill, at the end.** Mid-skill questions are the skill's own
   business (gray areas, confirmations); the handoff gate is the last interaction.
 - **Skills without a natural next step have no gate**: they just report and stop:
-  `legal-lens`, `caretake`, `takeover`, `review-setup`, `write-readme`,
-  `research`, `investigate`, `babysit`, `correct`, and `orchestrate` and `assistant`,
+  `legal-lens`, `caretake`, `review-setup`, `research`, `investigate`, `babysit`,
+  `learn`, and `orchestrate` and `assistant`,
   which stay resident until the person ends them.
 
 ## The format
@@ -73,6 +73,5 @@ options:
 
 - `clarify` → on its own: build it now in this session, then offer ship / stop; called by a skill: no gate, the goals go back to the caller
 - `go` → the playbook's next step when its scope stops short of it (review after a fix, ship after a review) / stop
-- `edge-cases` → plan mode: build it now against the criteria / stop; diff mode: fix the proven cases / stop
 - `ship` → on an open PR, offer `/ss:babysit` / stop; on any other destination no gate, it reports what shipped and stops
 - `review` → apply more items / run the fronts that were skipped / audit the running UI / review-setup / ship (when there is no PR) · three at most, by priority, plus stop

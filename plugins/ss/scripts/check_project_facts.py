@@ -24,7 +24,7 @@ flagged when it holds a date (`dated`), a PR or issue number (`numbered`), a sta
 The script always exits 0 and prints JSON. A problem it meets, like a directory that is
 not a git repo or a range git cannot resolve, goes in `errors`.
 
-Consumed by /ss:record-fact (to find the file and its count) and by /ss:review's rules
+Consumed by /ss:learn's fact layer (to find the file and its count) and by /ss:review's rules
 front (on a diff that touches `AGENTS.md` or `CLAUDE.md`).
 
 Usage:

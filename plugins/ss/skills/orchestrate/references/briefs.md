@@ -122,13 +122,14 @@ Pick the playbook or skill from what Athena asked for, and name it in the brief:
 | a bug                                          | `/ss:go`, its bug-fix playbook                                                |
 | a feature or a change of behavior              | the criteria from the front, the work with `Agent` subagents, then `/ss:ship` |
 | an idea that needs research first              | `/ss:research`, its report sent to the orchestrator                           |
-| missed cases in a plan or a diff               | `/ss:go`, its edge-cases playbook                                             |
+| missed cases in a diff                         | `/ss:review edges`                                                            |
 | a branch to read for bugs                      | `/ss:go`, its review playbook                                                 |
 | a built branch to land                         | `/ss:go`, its ship playbook                                                   |
-| someone else's PR to adopt or bring up to date | `/ss:takeover`                                                                |
-| a repeated correction Athena chose to fix      | `/ss:correct`                                                                 |
+| someone else's PR to adopt or bring up to date | `/ss:caretake`, on that PR                                                    |
+| a repeated correction Athena chose to fix      | `/ss:learn`                                                                   |
 
-`/ss:caretake` only reads, so the orchestrator runs it in place, with no work session. When
+`/ss:caretake`'s triage only reads, so the orchestrator runs it in place, with no work
+session; acting on one PR is a work session's. When
 the route names a skill the installed plugin lacks, name the closest one and tell Athena.
 
 ## The standing rules

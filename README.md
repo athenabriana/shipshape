@@ -39,7 +39,7 @@ for most engineering work, type `/ss:go` and then your request. for example:
 
 `/ss:go` does three things:
 
-1. **picks a playbook.** a playbook is a short recipe for one kind of work: `investigate`, `bug-fix`, `review`, `ui-critique`, `ship`, `edge-cases`, `babysit`, `review-setup`, `correct` or `learn`.
+1. **picks a playbook.** a playbook is a short recipe for one kind of work: `investigate`, `bug-fix`, `review`, `ui-critique`, `ship`, `babysit`, `review-setup` or `learn`.
 2. **sizes the process to the risk.** it picks a lightweight, standard or intensive route. a small, safe change gets a light check. a change that touches data or auth, or that is hard to undo, gets a deeper review.
 3. **runs the steps.** it copies the playbook's steps into the todo list and calls the skill for each step.
 
@@ -61,31 +61,26 @@ the assistant and the orchestrator talk in warm first person, by `plugins/ss/ref
 
 you can call any skill directly. `/ss:go` calls most of them for you.
 
-| command            | use it to                                                                                             |
-| ------------------ | ----------------------------------------------------------------------------------------------------- |
-| `/ss:clarify`      | define the goals before coding: verifiable WHEN/THEN lines and what is out of scope, approved once    |
-| `/ss:bug-fix`      | take a bug from a pasted error or "fix this bug" to a proven fix, through `/ss:go`'s bug-fix playbook |
-| `/ss:investigate`  | answer a question about the code, a branch or its history, without editing                            |
-| `/ss:edge-cases`   | list the edge cases of a plan, or find the ones a diff misses                                         |
-| `/ss:review`       | review your branch against its goals, fix what it finds and review again until the goals are met      |
-| `/ss:ui-critique`  | judge a screen on real screenshots, design and accessibility, and fix it until it holds up            |
-| `/ss:ship`         | green the checks, commit, and push or open a PR                                                       |
-| `/ss:babysit`      | watch a PR by number: answer review threads and fix red CI until it is done                           |
-| `/ss:caretake`     | look after the repo: open PRs, Dependabot alerts and outdated dependencies                            |
-| `/ss:takeover`     | finish or rebase a PR someone else opened, keeping their credit                                       |
-| `/ss:research`     | research code, docs or visual references, checking every claim                                        |
-| `/ss:write-readme` | write a README in a minimal centered header style                                                     |
+| command           | use it to                                                                                                         |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------- |
+| `/ss:clarify`     | define the goals before coding: verifiable WHEN/THEN lines, edges included, and what is out of scope              |
+| `/ss:bug-fix`     | take a bug from a pasted error or "fix this bug" to a proven fix                                                  |
+| `/ss:investigate` | answer a question about this repo, a branch, its history or your sessions, without editing                        |
+| `/ss:research`    | research what is outside this repo: other code, docs or visual references, checking every claim                   |
+| `/ss:review`      | review your branch against its goals, fix what it finds and review again; `/ss:review edges` for what could break |
+| `/ss:ui-critique` | judge a screen on real screenshots, design and accessibility, and fix it until it holds up                        |
+| `/ss:ship`        | green the checks, commit, and push or open a PR                                                                   |
+| `/ss:babysit`     | watch a PR by number: answer review threads and fix red CI until it is done                                       |
+| `/ss:caretake`    | look after the PRs that are not yours: triage the repo, or adopt or modernize one PR, keeping its credit          |
 
 ## project memory
 
-start with `/ss:learn`. the three commands below it are what `/ss:learn` calls, and you can also call one directly when you already know the layer.
+`/ss:learn` keeps a lesson ("remember this", "make this mistake impossible", "record this fact") at the strongest layer that holds it: a check on its own PR, a review rule, or a project fact as one line in the repo's `CLAUDE.md` or `AGENTS.md`. a review rule goes through `/ss:review-setup`, which you can also call to write the whole guide.
 
-| command            | use it to                                                                                                                                     |
-| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------- |
-| `/ss:learn`        | keep a lesson ("remember this", "don't let this happen again") at the strongest layer that holds it: a check, a review rule or a project fact |
-| `/ss:record-fact`  | save one project fact as a line in the repo's `CLAUDE.md` or `AGENTS.md`                                                                      |
-| `/ss:review-setup` | write or update `CODE_REVIEW_GUIDE.md`, the rules `/ss:review` checks against                                                                 |
-| `/ss:correct`      | turn a mistake that happened twice into a check, so it cannot happen a third time                                                             |
+| command            | use it to                                                                                    |
+| ------------------ | -------------------------------------------------------------------------------------------- |
+| `/ss:learn`        | keep a lesson at the strongest layer that holds it: a check, a review rule or a project fact |
+| `/ss:review-setup` | write or update `CODE_REVIEW_GUIDE.md`, the rules `/ss:review` checks against                |
 
 ## optional connectors
 

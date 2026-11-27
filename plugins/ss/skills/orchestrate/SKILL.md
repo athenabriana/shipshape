@@ -1,10 +1,10 @@
 ---
 name: orchestrate
-description: Turns this Desktop session into the orchestrator of one front. It scopes the goal with you, keeps the front's memory in a private Claude Docs doc (a local folder under ~/.ss/fronts when the Docs connector is missing), starts one work session per task with a standalone brief, relays their questions word for word, follows their PRs and CI, merges only the PRs you explicitly authorized in this chat under the repository's rules, and marks the front landed at the end. It writes no code, only its front. Work sessions never start sessions. Runs on the Claude Code desktop app's session tools. Use when the user says "orchestrate this", "be the orchestrator", "run this front", "delegate everything", "split this into work sessions", "orquestra isso", "seja o orquestrador", "delegue tudo", or invokes /ss:orchestrate. Don't use it for a single small task (just do it or use /ss:go), or to oversee several fronts at once (use /ss:assistant).
+description: Runs one front across several work sessions. Runs when work is too big for one session; solves losing the thread between sessions and PRs. Turns this Desktop session into the orchestrator. It settles the goal with you, keeps the front's memory in a private Claude Docs doc (or a folder under ~/.ss/fronts), starts one work session per task with a standalone brief, relays their questions word for word, follows their PRs and CI, and merges only the PRs you authorized in this chat under the repository's rules. Outputs the front doc, the briefs and the landed front. It writes no code, only its front, and work sessions never start sessions. Use when the user says "orchestrate this", "be the orchestrator", "run this front", "delegate everything", "split this into work sessions", "orquestra isso", "seja o orquestrador", "delegue tudo", or invokes /ss:orchestrate. Don't use it for a single small task (just do it or use /ss:go), or to oversee several fronts at once (use /ss:assistant).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 3.0.0
+  version: 3.0.1
 ---
 
 # Orchestrate
