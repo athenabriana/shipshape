@@ -1,10 +1,10 @@
 ---
 name: clarify
-description: Clarifies the goals before work starts, the first step of the goal loop. Maps the problem and the code, drafts what gets built with its happy path and edges, and proposes verifiable goals as numbered WHEN/THEN lines, each with its check, plus what is out of scope, all approved once in one decision sheet. Hands the approved goals to the caller's loop, or for a new feature on its own closes at a gate that offers to build it now or stop. Writes them into the brief or front doc the caller names, or into chat. /ss:go and other skills call it when goals are needed. Use when the user says "clarify", "clarify the goals", "esclarece", "esclarece os objetivos", "scope this", "define the scope", "qual o escopo", "define os objetivos", "shape this", "let's plan", "what should we build", "let's discuss before building", "write the acceptance criteria", "what are the edge cases", or starts a non trivial feature. Don't use it for small mechanical changes (just do those) or to find bugs (use /ss:review).
+description: Clarifies the goals before work starts, the first step of the goal loop. Maps the problem and the code, drafts what gets built, and proposes numbered WHEN/THEN goals, each with its check, plus what is out of scope, approved once in one decision sheet. For big work (several PRs, repos or fronts, other readers, revisited across sessions, or too much for one sheet) it writes a private Claude Docs doc first; it is the only skill that creates one, the front doc included. Hands the goals to the caller's loop, or on its own offers to build or stop. Use when the user says "clarify", "clarify the goals", "esclarece", "esclarece os objetivos", "scope this", "define the scope", "qual o escopo", "define os objetivos", "shape this", "let's plan", "what should we build", "let's discuss before building", "write the acceptance criteria", "what are the edge cases", or starts a non trivial feature. Don't use it for small mechanical changes (just do those) or to find bugs (use /ss:review).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
-  version: 6.0.0
+  version: 6.1.0
 ---
 
 # Clarify
@@ -15,6 +15,10 @@ goal loop, `<plugin-root>/references/goal-loop.md`: it maps the problem and the 
 proposes the goals and what is out of scope, has them approved once, and hands them to the
 loop that builds and judges against them. `goal-loop.md` says what a goal is and how it is
 judged; this skill says how the goals are found.
+
+**Clarify is the only skill that creates a Claude Docs doc**, the orchestrator's front doc
+included. Every other skill asks questions, with the question tool or a decision sheet,
+and calls clarify when the work needs a doc.
 
 > The point is building context and discussing before building. The goals keep that: the
 > converged conversation, written so the build and every judge after it check against the
@@ -44,14 +48,137 @@ settled while building with the code open. A technical risk you see is named in
   fit described in the draft before the work is ordered.
 
 Size is judged as the work goes, not locked at the start. When a Tiny or Medium task keeps
-surfacing gray areas, re-size up.
+surfacing gray areas, re-size up. At every size, "When the goals get a doc"
+below decides between a sheet and a doc: a small change that spans two repos still gets a
+doc.
+
+## A sheet or a doc
+
+The goals are approved in one decision sheet, by
+`<plugin-root>/references/decision-sheet.md`. For big work, clarify writes them into a
+private Claude Docs doc first, and the sheet follows it. The sections below say when, what
+the doc holds, how the front doc differs, and what to do without the Docs tools.
+
+### When the goals get a doc
+
+Write the goals into a doc when **any** of these holds (when `/ss:orchestrate` calls, the
+front doc is that doc, by "The front doc, when `/ss:orchestrate` calls"):
+
+- **The work spans several PRs, repos or fronts.**
+- **Other people will read it**: a proposal, a spec for the team.
+- **The person will come back to it across several sessions**, to check where the work
+  stands.
+- **The goals and their context do not fit one decision sheet.**
+
+Otherwise the goals go in a decision sheet in chat (or the dialog, for one quick pick).
+Check the threshold once the goals are drafted (step 4), and again when the work re-sizes.
+The test counts PRs, repos, readers, sessions and goals, never hours or days of work.
+
+### What the doc holds
+
+The doc is titled `ss goals · <subject>`, the subject in two to five words of the request.
+It holds these sections, in this order:
+
+```markdown
+# ss goals · <subject>
+
+## Goal
+
+"<the person's request, in their own words>"
+
+## Goals
+
+- G1 WHEN <case> THEN <observable outcome> · check: <test, command, screenshot or source> · status: open
+- G2 WHEN <case> THEN <observable outcome> · check: <...> · status: open
+
+## Out of scope
+
+- <a hard line, or an idea parked for later>
+
+## Open decisions
+
+- <the decision> · options: <a>, <b> · default: <a>
+
+## Decisions
+
+- <a business rule or a call closed with the person, in the words of the product>
+
+## Work, in order
+
+1. <foundation step>
+
+## Attention points
+
+- <a technical risk, and where it lives in the code>
+
+## PRs and commits
+
+- <PR, branch or commit link> · <what it carries> · <open, merged>
+```
+
+`## Goal`, `## Goals` and `## PRs and commits` are always there; the other sections appear
+only when they carry something. The sections they share with the goals block below mean
+the same there.
+
+- **Status** starts as `open`. The goal loop updates it each round, with the values in
+  "Goals that live in a doc" in `<plugin-root>/references/goal-loop.md`.
+- **Open decisions are asked in chat too.** The decision sheet that follows the doc carries
+  "Approve these goals" first and every open decision, so the person answers in one place.
+  Each answer moves from `## Open decisions` to `## Decisions` in the doc.
+- **`## PRs and commits` starts empty**, and the session that builds adds each PR, branch
+  or commit as it lands.
+
+To write it:
+
+1. **Load the Docs tools.** Call `ToolSearch` with the bare names (`create`, `batch`,
+   `update`, `read`, `guide`), or load the `anthropic-skills:docs` skill. Before the first
+   write, call `guide` with `topic.instructions` and follow it for the payload shapes.
+2. **Create the doc** with the sections above. It is private: never share it and never
+   change its sharing. Write no secret, token or credential into it.
+3. **Open it in the chat** with the `Artifact` tool's `open` action in the same turn, with
+   one line on what it holds, by "Open every document in the chat" in
+   `<plugin-root>/references/show-for-review.md`. Then ask the sheet.
+4. **Hand the doc's URL to the caller** with the approved goals. The loop records it in
+   `state.json` as `goals_doc`, by `goal-loop.md` section 9, and the brief or the PR
+   description the caller writes links it.
+
+In a work session, which has no chat with the person, the URL goes to the orchestrator
+with one line on what the doc holds, by `<plugin-root>/references/front-contract.md`; the
+orchestrator opens it before it relays the sheet.
+
+### The front doc, when `/ss:orchestrate` calls
+
+A front's goals live in its front doc (`<plugin-root>/references/front-doc.md`), and clarify
+creates it. When `/ss:orchestrate` calls clarify to open a front:
+
+1. **Pick the home and the slug**, by "Pick a slug no home holds" in `front-doc.md`: a doc
+   front when the Docs tools load, a file front otherwise, said in one line.
+2. **Create the front**, by "Open a doc front" or "Open a file front" in `front-doc.md`,
+   pointer included, and open a doc front for the person.
+3. **Write the opening sections** of the Now tab (or `NOW.md`): `## Goal` in the person's
+   words, the approved goals as `## Acceptance criteria`, and `## Out of scope`. Each
+   decision closed in the ask goes to the Log as a dated entry with the person's words.
+
+From there `/ss:orchestrate` keeps the front's running state up to date, and no goals doc
+is made: the front doc and a goals doc stay distinct, the goals doc being for work outside
+a front.
+
+### No Docs tools
+
+When `ToolSearch` finds no Docs tools, write the same structure to `goals.md` in the notes
+folder the brief names, else in the loop folder (`~/.ss/runs/<slug>/`, by `goal-loop.md`
+section 9). Send it with `SendUserFile` and `display: "render"`, and say in one line that
+the Docs connector was missing. A work session sends the path to the orchestrator instead,
+which sends the file. The sheet in chat follows, as with a doc, and the loop reads and
+updates `goals.md` as it would the doc.
 
 ## The steps
 
 Every question goes through the question tool or one decision sheet, by
-`<plugin-root>/references/decision-sheet.md`. In a front, every one of them (the gate
-included) goes through `<plugin-root>/references/front-contract.md` instead of a local
-dialog, and a brief that already states what follows answers the gate.
+`<plugin-root>/references/decision-sheet.md`, after the goals doc when the work is big. In
+a front, every one of them (the gate included) goes through
+`<plugin-root>/references/front-contract.md` instead of a local dialog, and a brief that
+already states what follows answers the gate.
 
 1. **Map the problem and the code.** Read the request in the person's own words, the
    brief, the linked spec or issue, the code the work will touch and its callers, the tests
@@ -95,11 +222,12 @@ dialog, and a brief that already states what follows answers the gate.
 
 5. **Name what is out of scope**: the hard lines, and the ideas parked for later.
 
-6. **Ask once.** One decision sheet carries the goals block ("Approve these goals"
-   first, editable in the same answer), the out of scope block, and every gray area of what
-   gets built that genuinely could go more than one way, each with concrete options and your
-   pick first, by `goal-loop.md` section 3 and `<plugin-root>/references/long-run.md`. On
-   the single call most expensive to get wrong, give the options without marking your
+6. **Ask once.** For big work, write the doc first, by "What the doc holds" (when
+   `/ss:orchestrate` calls, the front doc is the doc). One decision sheet carries the goals
+   block ("Approve these goals" first, editable in the same answer), the out of scope
+   block, and every gray area of what gets built that genuinely could go more than one
+   way, each with concrete options and your pick first, by `goal-loop.md` section 3 and
+   `<plugin-root>/references/long-run.md`. On the single call most expensive to get wrong, give the options without marking your
    pick, so the answer is the person's own. A technical detail is the builder's and is not
    asked, unless only the person can make it (a stack settled elsewhere, a contract another
    system depends on). When a caller has an opening sheet of its own, these blocks join it
@@ -117,9 +245,12 @@ The approved goals land as one block, written where the caller said:
 
 - **A path the caller gave** (a brief file, a front doc, a PR description): write the block
   there. A block from an earlier round in the same place is replaced whole.
-- **No path**: write the block into chat, as the last thing before the gate or the hand-off.
+- **No path, and the work is big**: the goals doc, by "What the doc holds" (or `goals.md`,
+  by "No Docs tools").
+- **No path otherwise**: write the block into chat, as the last thing before the gate or
+  the hand-off.
 
-Clarify creates no other file and commits nothing.
+Clarify creates no other file (beyond `goals.md`, by "No Docs tools") and commits nothing.
 
 ```markdown
 ## Goals
@@ -157,10 +288,11 @@ where it lives. The solution is the builder's, decided with the code open.
 ## The exit gate, when clarify runs on its own
 
 First **show what the person is signing off on**, as a visual built before the question, by
-`<plugin-root>/references/show-for-review.md`: the block as a private Claude Docs doc opened
-for them (or the brief or front doc it was written to, opened for them), and an interface on
-a Design canvas. Show what it does and why in two or three lines, the load-bearing goals,
-the work in order, and what is still open.
+`<plugin-root>/references/show-for-review.md`: the goals doc opened for them when the work
+is big (or the brief or front doc the goals were written to, opened for them), else the
+block as an inline visual in the chat, and an interface on a Design canvas. Show what it
+does and why in two or three lines, the load-bearing goals, the work in order, and what is
+still open.
 
 - **When something load-bearing is open**, do not offer to build. Ask one `AskUserQuestion`
   whose options are **resolve it now**, **defer it explicitly** (recorded under

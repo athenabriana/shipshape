@@ -58,6 +58,10 @@ State: open · orchestrator {orchestrator} · opened {date}
 
 - WHEN <...> THEN <...>
 
+## Out of scope
+
+- <a hard line, or an idea parked for later>
+
 ## Repos
 
 | repo | base | branch | PR | CI |
