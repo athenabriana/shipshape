@@ -141,3 +141,9 @@ export function balanceFences(chunks: string[]): string[] {
   }
   return out;
 }
+
+/** True when Telegram refused the message because of its formatting, not for another reason. */
+export function isParseError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err);
+  return /can't parse entities|unsupported start tag|can't find end tag|unclosed/i.test(msg);
+}
