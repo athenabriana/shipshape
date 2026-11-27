@@ -48,7 +48,7 @@ or a comma.
   itself.
 - Name each thing by what it does, and write the literal sentence. A figure of speech holds
   only where it names a mechanism the code has, like the safety valve that sends a build
-  back to `/ss:scope`, and a reader who does not know the figure still has to know what
+  back to `/ss:clarify-goals`, and a reader who does not know the figure still has to know what
   to do.
 - Call each thing by the name it already has in the code or in the repo: the file, the
   function, the branch, the PR, the `x` field. Quote that name exactly as written, because
