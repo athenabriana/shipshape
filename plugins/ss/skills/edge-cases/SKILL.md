@@ -58,8 +58,8 @@ Walk each one. Keep only those the behavior can reach, and say in one line which
    the reason the behavior exists. Put those first.
 4. **Ask what nobody decided.** A row with no known outcome is a product question for the
    person. Ask with `AskUserQuestion`, at most 4 questions per call, the recommended outcome
-   first, each question naming the case and what each choice does. Several open rows that
-   each need context go in one decision sheet (`<plugin-root>/references/decision-sheet.md`). In a work session, the question
+   first, each question naming the case and what each choice does. Two or more open rows, or
+   one that needs a line of context, go in one decision sheet (`<plugin-root>/references/decision-sheet.md`). In a work session, the question
    goes to the orchestrator as `<plugin-root>/references/front-contract.md` says. The row
    stays marked `open` until it is settled.
 5. **Write the table where the caller says.** That is a path the caller gives (a session

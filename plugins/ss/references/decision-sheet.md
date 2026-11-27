@@ -1,24 +1,29 @@
 # Decision sheet: several decisions in one inline form
 
-A _decision sheet_ is one inline form in the chat where each decision is a block: a short
-context paragraph, then the question with its options. The person reads the facts right
-above each choice, answers them all, and presses **Continue** once. This page says when to
-use one, how to build and parse it, how a work session sends one, and what to do when the
-visual tool is missing. It ends with a complete example to copy.
+A _decision sheet_ is one inline form in the chat where each decision is a block: the
+question, one short line of context under it, then the options. The person answers every
+block and presses **Continue** once. This page says when to use one, how to build and
+parse it, how a work session sends one, and what to do when the visual tool is missing.
+It ends with a complete example to copy.
 
-## When to use one
+## Pick the question tool or a sheet
 
-- **Two or more decisions at once.** One sheet holds them all, so the person decides them
-  together, each with its own facts.
-- **One decision whose context needs more than a line.** The paragraph above the question
-  carries what a dialog's question line cannot.
+The split: the dialog for one quick pick, the sheet for anything bigger. When in doubt,
+the sheet.
 
-Use the question tool (`AskUserQuestion`) instead in two cases:
+Use the question tool (`AskUserQuestion`) for:
 
-- **A single simple pick**, whose facts fit in the question and the option descriptions.
-- **A merge ask, always.** A merge is Athena's word in this chat, so it keeps one shape:
-  the question tool, by the merge rule in `<plugin-root>/hooks/operating-context.md`. A
-  sheet never carries a merge, a force-push or a deploy.
+- **One decision whose options speak for themselves.**
+- **A merge ask, always.** A merge is Athena's word in this chat, so it keeps one shape,
+  by the merge rule in `<plugin-root>/hooks/operating-context.md`. A sheet never carries a
+  merge, a force-push or a deploy.
+- **The fallback when the visual tool is missing**, by the last section below.
+
+Use a decision sheet for:
+
+- **Two or more decisions at once.**
+- **A decision that needs a line of context to make sense.**
+- **A decision that needs typed details**: a reason, a name, a date, free text.
 
 A decision sheet replaces writing a Claude Docs doc and then asking separately. A doc stays
 the form for text the person will keep or edit, by
@@ -29,13 +34,18 @@ person has to see, show that first, then the sheet.
 
 Every decision is one block, in this order:
 
-1. **Context.** Two or three lines in plain words: the facts this choice needs and what
-   each pick changes. Nothing else.
-2. **Question.** Asked as a question from you, not a field label: "Where should the status
-   view live?", not "Surface:".
+1. **Question.** The block's main line, the `.elicit-question` label, asked as a question
+   from you, not a field label: "Where should the status view live?", not "Surface:".
+2. **Context.** One muted caption line right under the question: about 12px,
+   `var(--text-muted)`, at most about 90 characters. The facts the choice needs, nothing
+   more.
 3. **Options.** Two to four. The recommended pick comes first, and its subtitle says so
-   ("Recommended: ..."). Each subtitle says what that pick does or costs.
+   ("Recommended: ..."). Each subtitle says what that pick does or costs. A decision that
+   needs typed details takes a text input, a textarea or a date input here instead.
 4. **Other**, optional, when a reasonable answer is missing from the list.
+
+The context is never a paragraph and never sits above the question. When it does not fit
+one line, cut it, or move the detail into the recommended option's subtitle.
 
 After the last block comes one notes textarea, then **Skip** and **Continue**. The header
 reads "[subject] details", where the subject is the thing being decided: "Status view
@@ -50,19 +60,16 @@ Draw it with the desktop app's inline visual tool, following its `elicitation` g
 Vary the input format by the options, as that guidance says: cards for options with a
 subtitle, plain pills for short labels (with "(Recommended)" in the first pill's label,
 since a pill has no subtitle), a date input for a date. Give each option a `data-value`
-that is its id, so the answer comes back clean. Put the context paragraph inside the
-block's `.elicit-group`, above the `.elicit-question` label.
+that is its id, so the answer comes back clean. Put the context line inside the block's
+`.elicit-group`, right after the `.elicit-question` label.
 
-## Write the context lines
+## Write the context line
 
 The context follows `<plugin-root>/references/voice.md` and
 `<plugin-root>/references/doc-style.md`:
 
-- **Plain words, short sentences.** The facts the choice rests on, in the order the person
-  needs them.
-- **Say what each pick changes**, when the option subtitles cannot hold it.
-- **Name each thing once**, plain name first, then its identifier in code font when it has
-  one.
+- **One line, plain words.** The fact the choice rests on, at most about 90 characters.
+- **Name each thing once**, by its plain name.
 - **No recommendation in the context.** The recommendation lives in the first option's
   subtitle, so the person reads the facts before your lean.
 
@@ -114,13 +121,13 @@ The JSON is `ss.ask` version 1 with `sections`, one per decision:
     {
       "id": "status_surface",
       "header": "Surface",
-      "context": "Desktop shows each session's own status, but nothing shows every front at once. A mod pane stays beside the chat and reaches the other sessions. An inline status card works today but scrolls away.",
+      "context": "Nothing in Desktop shows every front at once today.",
       "question": "Where should the status view live?",
       "options": [
         {
           "id": "pane",
           "label": "Mod pane",
-          "description": "Recommended: pinned beside the chat, live. Early-access API.",
+          "description": "Recommended: pinned beside the chat, live, reaches every session.",
           "recommended": true
         },
         {
@@ -134,12 +141,24 @@ The JSON is `ss.ask` version 1 with `sections`, one per decision:
     {
       "id": "packaging",
       "header": "Packaging",
-      "context": "The mod API is early access and changes between releases. In its own plugin, a break cannot unload any ss skill.",
+      "context": "The mod API is early access and changes between releases.",
       "question": "How should the pane ship?",
       "options": [
-        { "id": "ss-pane", "label": "Own plugin", "recommended": true },
+        {
+          "id": "ss-pane",
+          "label": "Own plugin",
+          "description": "Recommended: a break in the mod cannot unload any ss skill.",
+          "recommended": true
+        },
         { "id": "inside-ss", "label": "Inside ss" }
       ]
+    },
+    {
+      "id": "ready_by",
+      "header": "Ready by",
+      "context": "A read-only pane takes about two days.",
+      "question": "When should the first version be ready?",
+      "fields": [{ "id": "ready_by", "type": "date", "label": "Ready by" }]
     }
   ],
   "notes": true
@@ -148,7 +167,10 @@ The JSON is `ss.ask` version 1 with `sections`, one per decision:
 
 - **`sections`**: one object per decision, in the order to ask them, the highest stakes
   first. Its `id` becomes the block's `data-name`, so the answer line names it.
-- **`context`**: the two or three lines drawn above the question.
+- **`context`**: one short string, at most about 90 characters, drawn as the caption line
+  under the question.
+- **`fields`**, instead of `options` for a decision that needs typed details: each one
+  `{ "id", "type", "label" }`, `type` being `text`, `textarea` or `date`.
 - **`options`**: the recommended one first, with `"recommended": true`.
 - **`other`** and **`notes`**: `true` adds the **Other** choice to a block, or the notes
   textarea to the sheet.
@@ -162,18 +184,18 @@ the work session reads it by "Read the answer" above.
 
 When `mcp__visualize__show_widget` is not there, ask the same decisions through
 `AskUserQuestion`, at most four per call, the highest stakes first. Put each block's
-context at the start of its `question`, then the question itself, so the dialog still
-carries the facts. The recommended pick stays first, with "(Recommended)" in its label.
+question first and its context line after it, in the same `question`, so the dialog still
+carries the facts. A typed detail becomes the **Other** answer of its question. The recommended pick stays first, with "(Recommended)" in its label.
 More than four decisions go in a second call after the first is answered.
 
 ## Example sheet
 
-A sheet with two decisions and a notes field. Copy it whole into
+A sheet with two picks, a date and a notes field. Copy it whole into
 `mcp__visualize__show_widget`, then change the subject, the blocks and the options.
 
 ```html
 <h2 class="sr-only">
-  A form with two decisions about the status view, each with its context, and a notes field.
+  A form with three decisions about the status view, each with a context line, and a notes field.
 </h2>
 <form class="elicit">
   <div class="elicit-header">
@@ -186,12 +208,10 @@ A sheet with two decisions and a notes field. Copy it whole into
   </div>
   <div class="elicit-body">
     <div class="elicit-group">
-      <p style="margin:0 0 8px; font-size:13px; line-height:1.6; color:var(--text-secondary)">
-        Desktop shows each session's own status, but nothing shows every front at once. A mod pane
-        stays beside the chat and reaches the other sessions. An inline status card works today but
-        scrolls away.
-      </p>
       <label class="elicit-question">Where should the status view live?</label>
+      <p style="margin:2px 0 8px; font-size:12px; line-height:1.5; color:var(--text-muted)">
+        Nothing in Desktop shows every front at once today.
+      </p>
       <div class="elicit-pills" data-name="status_surface" data-multi="false">
         <button
           type="button"
@@ -203,7 +223,7 @@ A sheet with two decisions and a notes field. Copy it whole into
           <span
             ><span style="font-size:13px; font-weight:500">Mod pane</span><br /><span
               style="font-size:11px; color:var(--text-muted)"
-              >Recommended: pinned, live</span
+              >Recommended: pinned beside the chat</span
             ></span
           >
         </button>
@@ -232,17 +252,23 @@ A sheet with two decisions and a notes field. Copy it whole into
       />
     </div>
     <div class="elicit-group">
-      <p style="margin:0 0 8px; font-size:13px; line-height:1.6; color:var(--text-secondary)">
-        The mod API is early access and changes between releases. In its own plugin, a break cannot
-        unload any ss skill.
-      </p>
       <label class="elicit-question">How should the pane ship?</label>
+      <p style="margin:2px 0 8px; font-size:12px; line-height:1.5; color:var(--text-muted)">
+        The mod API is early access and changes between releases.
+      </p>
       <div class="elicit-pills" data-name="packaging" data-multi="false">
         <button type="button" class="elicit-pill" data-value="ss-pane">
           Own plugin (Recommended)
         </button>
         <button type="button" class="elicit-pill" data-value="inside-ss">Inside ss</button>
       </div>
+    </div>
+    <div class="elicit-group">
+      <label class="elicit-question">When should the first version be ready?</label>
+      <p style="margin:2px 0 8px; font-size:12px; line-height:1.5; color:var(--text-muted)">
+        A read-only pane takes about two days.
+      </p>
+      <input type="date" class="elicit-date" data-name="ready_by" />
     </div>
     <div class="elicit-group">
       <label class="elicit-question">Anything I should know before I start?</label>
@@ -259,5 +285,5 @@ A sheet with two decisions and a notes field. Copy it whole into
 Its answer line reads, for example:
 
 ```
-Status view details — Status surface: pane · Packaging: ss-pane · Notes: start read-only
+Status view details — Status surface: pane · Packaging: ss-pane · Ready by: 2026-12-04 · Notes: start read-only
 ```

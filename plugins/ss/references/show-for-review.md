@@ -29,7 +29,7 @@ already reading, so use it for any review or decision unless one of the other ro
 | anything that fits on one screen (default) | an inline visual in the chat               | `mcp__visualize__show_widget`               |
 | an interface                               | a Design canvas                            | `Artifact` `quickstart`, `intent: "design"` |
 | text people will comment on or keep        | a private Claude Docs doc, opened for them | the Docs tools                              |
-| several decisions, each with its context   | a decision sheet                           | `mcp__visualize__show_widget`               |
+| decisions bigger than one quick pick       | a decision sheet                           | `mcp__visualize__show_widget`               |
 | something too big to show inline           | an Artifact page                           | `Artifact` `quickstart`, `intent: "other"`  |
 
 - **Anything that fits on one screen** is a flow, an architecture, a diff summary, a
@@ -39,9 +39,9 @@ already reading, so use it for any review or decision unless one of the other ro
 - **Text people will comment on or keep** is a plan, acceptance criteria, a research
   report, a README draft. It goes in a doc, and an inline visual can sum it up next to
   the question.
-- **Several decisions, each with its context** are asked in one decision sheet, by
-  `<plugin-root>/references/decision-sheet.md`: a short context paragraph above each
-  question, all in one inline form. It replaces writing a doc and then asking separately.
+- **Decisions bigger than one quick pick** are asked in one decision sheet, by
+  `<plugin-root>/references/decision-sheet.md`: each question with one context line
+  under it, all in one inline form. It replaces writing a doc and then asking separately.
   A doc stays the form for text to keep and edit.
 - **Something too big to show inline** is a board of many screenshots, a dashboard, a
   report with many findings. It goes on a page, and an inline visual can sum it up next

@@ -7,10 +7,10 @@ what usually comes next") without ever deciding for them.
 
 ## Why the tool (applies to any question, not just gates)
 
-Anything expecting an answer goes through `AskUserQuestion`, or through a decision
-sheet when several decisions need their context
-(`<plugin-root>/references/decision-sheet.md`). A merge ask always uses
-`AskUserQuestion`. A question printed as plain text has no response path, so the
+Anything expecting an answer goes through `AskUserQuestion` for one quick pick, or
+through a decision sheet for anything bigger: two or more decisions, a line of context,
+or typed details (`<plugin-root>/references/decision-sheet.md`). When in doubt, the
+sheet. A merge ask always uses `AskUserQuestion`. A question printed as plain text has no response path, so the
 flow stalls. The tool auto-provides
 an "Other" free-text option; a manual "Other"/"Change something" option is
 redundant.
