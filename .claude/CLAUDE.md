@@ -1,6 +1,6 @@
 # Ship Shape
 
-A **Claude Code plugin** (`ss`) published through the `shipshape` marketplace, which also ships `companion`, an optional Telegram channel plugin. Install via `claude plugin marketplace add athenabriana/shipshape` then `claude plugin install ss@shipshape`. Skills are invoked as `/ss:<skill>` (e.g. `/ss:ship`). `/ss:go` routes a request to a playbook sized to risk; the flow is clarify goals → build → ship. Long work runs on the goal loop (`plugins/ss/references/goal-loop.md`): goals proposed and approved once, then a fresh judge each round until every goal is achieved and the judge is pleased; `design-loop.md` and `/ss:review`'s loop specialize it. `ss` ships a `SessionStart` operating-context hook, auto-active when the plugin is enabled.
+A **Claude Code plugin** (`ss`) published through the `shipshape` marketplace, which also ships `companion`, an optional Telegram channel plugin. Install via `claude plugin marketplace add athenabriana/shipshape` then `claude plugin install ss@shipshape`. Skills are invoked as `/ss:<skill>` (e.g. `/ss:ship`). `/ss:go` routes a request to a playbook sized to risk; the flow is clarify → build → ship. Long work runs on the goal loop (`plugins/ss/references/goal-loop.md`): goals proposed and approved once, then a fresh judge each round until every goal is achieved and the judge is pleased; `design-loop.md` and `/ss:review`'s loop specialize it. `ss` ships a `SessionStart` operating-context hook, auto-active when the plugin is enabled.
 
 ## Structure
 
@@ -21,7 +21,7 @@ plugins/ss/
 └── skills/
     ├── go                                 # the /ss:go router; playbooks/ holds one recipe per playbook
     ├── bug-fix, learn                     # entry points that open the go playbook of the same name
-    ├── clarify-goals, ship, babysit, record-fact
+    ├── clarify, ship, babysit, record-fact
     ├── investigate, edge-cases
     ├── ui-critique                        # a screen judged on screenshots by ss-design-critic, a11y each round, fixed until pleased
     ├── review, review-setup
@@ -67,7 +67,7 @@ Each skill is a folder with a `SKILL.md` containing YAML frontmatter (`name`, `d
 
 - No AI attribution in commits, PRs, or code comments
 - Conventional commit style: `<type>(<scope>): <description>`
-- Scope is the skill name (`clarify-goals`, `caretake`, …), `hooks` for the hook layer, `companion` for the Telegram plugin, or `repo` for repo-wide changes
+- Scope is the skill name (`clarify`, `caretake`, …), `hooks` for the hook layer, `companion` for the Telegram plugin, or `repo` for repo-wide changes
 
 ## Project facts
 

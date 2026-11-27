@@ -1,7 +1,7 @@
 # The goal loop: clarify the goals, build, judge, fix, repeat
 
 Work that runs long runs against goals the person approved before the first edit.
-`/ss:clarify-goals` maps the problem and the code, proposes verifiable goals and has them approved
+`/ss:clarify` maps the problem and the code, proposes verifiable goals and has them approved
 once; the session builds, and then a fresh judge checks every goal and the quality of the result, round after
 round, until every goal is achieved and the judge is pleased. There is no default round
 limit. This page is the single source of that loop: what a goal is, when goals are
@@ -26,15 +26,15 @@ interface specialization (screenshots and the `ss-design-critic`), `/ss:review`'
 
 A tiny mechanical change, a read only question and a lightweight route skip it.
 
-## 1. Define the goals: `/ss:clarify-goals`
+## 1. Define the goals: `/ss:clarify`
 
-The goals come from `/ss:clarify-goals`, the goal-definition step of this loop: it maps the problem
+The goals come from `/ss:clarify`, the goal-definition step of this loop: it maps the problem
 and the code, proposes verifiable goals and what is out of scope, and has them approved
 once. Every skill that needs goals calls it, and its blocks join the caller's opening
 sheet. Goals that already exist skip it: a brief or a front that carries approved goals, a
-PR description, a spec or acceptance criteria with WHEN/THEN lines (clarify-goals adds only what
+PR description, a spec or acceptance criteria with WHEN/THEN lines (clarify adds only what
 they leave out), or a playbook's own goals (the bug-fix playbook's reproduction and focused
-test). This page says what a goal is and how it is judged; `/ss:clarify-goals` says how the goals
+test). This page says what a goal is and how it is judged; `/ss:clarify` says how the goals
 are found.
 
 ## 2. What a goal is
@@ -197,17 +197,17 @@ data), none open.` Each goal not achieved is named with what is missing.
 
 ## How each skill adopts it
 
-| skill or playbook   | the goals                                                                                                          | the judge and the end                                                     |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
-| `/ss:go`            | standard and intensive routes: `/ss:clarify-goals` first, its blocks in the opening sheet                          | the playbook's own judge; the endpoint waits for every goal achieved      |
-| `/ss:review`        | the change's goals, from the PR description, the brief, the linked spec or acceptance criteria; else proposed once | `ss-review-judge`, every goal plus the findings, no default round limit   |
-| design loop         | the brief's goals, WCAG AA always one of them                                                                      | `ss-design-critic`, `goals_achieved` and `pleased`, by `design-loop.md`   |
-| `/ss:ui-critique`   | asked once in its opening sheet, through `design-loop.md`                                                          | the critic and the `ss-a11y-auditor` each round                           |
-| `/ss:clarify-goals` | it defines them: the map, the WHEN/THEN goals with their checks, out of scope, approved once                       | none of its own: the caller's loop, or on its own the build that follows  |
-| `/ss:edge-cases`    | plan mode's load-bearing rows feed the goals                                                                       | none of its own: the caller's loop judges them                            |
-| bug-fix playbook    | the reproduction fails before the fix and passes after, plus the focused test                                      | the review loop on the fix, every goal checked                            |
-| `/ss:research`      | the plan's questions, each answered with verified evidence                                                         | the claim verifier, within its own cap                                    |
-| `/ss:ship`          | the final goal is the review gate                                                                                  | the `/ss:review` loop on the PR's head                                    |
-| `/ss:babysit`       | the final goal is the review gate                                                                                  | a tick reports the gate, and calls the PR ready only when it passes       |
-| `/ss:takeover`      | the final goal is the review gate                                                                                  | `/ss:ship`'s PR path, then the review loop                                |
-| `/ss:orchestrate`   | the front's goals go into each brief                                                                               | a work session's done means its goals were achieved, by its `Goals:` line |
+| skill or playbook | the goals                                                                                                          | the judge and the end                                                     |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
+| `/ss:go`          | standard and intensive routes: `/ss:clarify` first, its blocks in the opening sheet                                | the playbook's own judge; the endpoint waits for every goal achieved      |
+| `/ss:review`      | the change's goals, from the PR description, the brief, the linked spec or acceptance criteria; else proposed once | `ss-review-judge`, every goal plus the findings, no default round limit   |
+| design loop       | the brief's goals, WCAG AA always one of them                                                                      | `ss-design-critic`, `goals_achieved` and `pleased`, by `design-loop.md`   |
+| `/ss:ui-critique` | asked once in its opening sheet, through `design-loop.md`                                                          | the critic and the `ss-a11y-auditor` each round                           |
+| `/ss:clarify`     | it defines them: the map, the WHEN/THEN goals with their checks, out of scope, approved once                       | none of its own: the caller's loop, or on its own the build that follows  |
+| `/ss:edge-cases`  | plan mode's load-bearing rows feed the goals                                                                       | none of its own: the caller's loop judges them                            |
+| bug-fix playbook  | the reproduction fails before the fix and passes after, plus the focused test                                      | the review loop on the fix, every goal checked                            |
+| `/ss:research`    | the plan's questions, each answered with verified evidence                                                         | the claim verifier, within its own cap                                    |
+| `/ss:ship`        | the final goal is the review gate                                                                                  | the `/ss:review` loop on the PR's head                                    |
+| `/ss:babysit`     | the final goal is the review gate                                                                                  | a tick reports the gate, and calls the PR ready only when it passes       |
+| `/ss:takeover`    | the final goal is the review gate                                                                                  | `/ss:ship`'s PR path, then the review loop                                |
+| `/ss:orchestrate` | the front's goals go into each brief                                                                               | a work session's done means its goals were achieved, by its `Goals:` line |

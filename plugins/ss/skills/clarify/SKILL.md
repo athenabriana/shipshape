@@ -1,13 +1,13 @@
 ---
-name: clarify-goals
-description: Defines the goals before building, the first step of the goal loop. Maps the problem and the code, drafts what gets built with its happy path and edges, and proposes verifiable goals as numbered WHEN/THEN lines, each with its check, plus what is out of scope, all approved once in one decision sheet. Hands the approved goals to the caller's loop, or for a new feature on its own closes at a gate that offers to build it now or stop. Writes them into the brief or front doc the caller names, or into chat. /ss:go and other skills call it when goals are needed. Use when the user says "clarify the goals", "clarify goals", "esclarece os objetivos", "quais são os objetivos", "scope this", "define the scope", "qual o escopo", "define os objetivos", "shape this", "let's plan", "what should we build", "let's discuss before building", "write the acceptance criteria", "what are the edge cases", or starts a non trivial feature. Don't use it for small mechanical changes (just do those) or to find bugs (use /ss:review).
+name: clarify
+description: Clarifies the goals before work starts, the first step of the goal loop. Maps the problem and the code, drafts what gets built with its happy path and edges, and proposes verifiable goals as numbered WHEN/THEN lines, each with its check, plus what is out of scope, all approved once in one decision sheet. Hands the approved goals to the caller's loop, or for a new feature on its own closes at a gate that offers to build it now or stop. Writes them into the brief or front doc the caller names, or into chat. /ss:go and other skills call it when goals are needed. Use when the user says "clarify", "clarify the goals", "esclarece", "esclarece os objetivos", "scope this", "define the scope", "qual o escopo", "define os objetivos", "shape this", "let's plan", "what should we build", "let's discuss before building", "write the acceptance criteria", "what are the edge cases", or starts a non trivial feature. Don't use it for small mechanical changes (just do those) or to find bugs (use /ss:review).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
   version: 6.0.0
 ---
 
-# Clarify goals
+# Clarify
 
 Define **what done means before any code**: the goals the work must reach, each one
 verifiable, and the lines it must not cross. This skill is the goal-definition step of the
@@ -109,7 +109,7 @@ dialog, and a brief that already states what follows answers the gate.
    blocker: ask that one, then continue. Everything else is decided and recorded.
 
 8. **Write the goals** where the caller said (below), then hand them over, or open the exit
-   gate when clarify-goals runs on its own.
+   gate when clarify runs on its own.
 
 ## Write the goals
 
@@ -154,7 +154,7 @@ things the way the repo names them, because the goals' words become the words of
 **Attention points name the risk, not the fix.** One bullet each: the technical risk and
 where it lives. The solution is the builder's, decided with the code open.
 
-## The exit gate, when clarify-goals runs on its own
+## The exit gate, when clarify runs on its own
 
 First **show what the person is signing off on**, as a visual built before the question, by
 `<plugin-root>/references/show-for-review.md`: the block as a private Claude Docs doc opened

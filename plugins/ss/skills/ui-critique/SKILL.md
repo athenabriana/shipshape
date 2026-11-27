@@ -81,7 +81,7 @@ blocks, each only when it is open:
   each with the screenshot of a named state or the check that confirms it, by
   `goal-loop.md` section 2.
   Taken from the request or the brief when they state them, copied as written. When there
-  are none, `/ss:clarify-goals` proposes them in this sheet ("What should this screen do?"), with defaults drawn from what the screen
+  are none, `/ss:clarify` proposes them in this sheet ("What should this screen do?"), with defaults drawn from what the screen
   plainly is ("A new visitor understands the product and finds sign up", "The form can be
   filled and sent by keyboard alone"). The critic judges each goal; WCAG AA is always one of
   them, unasked.
