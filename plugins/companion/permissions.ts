@@ -190,9 +190,13 @@ const SECRET_GLOBS = [
   "*secret*.yaml",
   "*secret*.toml",
   ".git/config",
+  ".dev.vars",
+  "*.tfstate",
+  "*.tfstate.*",
+  "service-account*.json",
 ];
 const SECRET_NAME =
-  /^(\.env(\..*)?|\.envrc|\.netrc|\.npmrc|\.pypirc|\.git-credentials|.*\.(pem|key|p12|pfx|keystore|jks)|id_(rsa|dsa|ecdsa|ed25519).*|credentials(\.json)?|.*secrets?\.(json|ya?ml|toml))$/i;
+  /^(\.env(\..*)?|\.envrc|\.netrc|\.npmrc|\.pypirc|\.git-credentials|.*\.(pem|key|p12|pfx|keystore|jks)|id_(rsa|dsa|ecdsa|ed25519).*|credentials(\.json)?|.*secrets?\.(json|ya?ml|toml)|\.dev\.vars|.*\.tfstate(\..*)?|service-account.*\.json)$/i;
 
 /** True when a resolved path holds, or may hold, a credential. */
 export function isSecretPath(abs: string, paths: Paths): boolean {
@@ -213,9 +217,14 @@ function readable(abs: string, paths: Paths): boolean {
 
 /** A glob or search filter that names a secret file. */
 function namesSecret(glob: string): boolean {
-  return /\.env|\.envrc|\.netrc|\.npmrc|\.pypirc|credential|secrets?\.|\.pem|\.key|\.p12|\.pfx|id_(rsa|dsa|ecdsa|ed25519)|\.git\/config/i.test(
+  return /\.env|\.envrc|\.netrc|\.npmrc|\.pypirc|\.dev\.vars|tfstate|service-account|credential|secrets?\.|\.pem|\.key|\.p12|\.pfx|id_(rsa|dsa|ecdsa|ed25519)|\.git\/config/i.test(
     glob,
   );
+}
+
+/** A glob whose brackets, braces or `?` could spell a secret's name no list can read. */
+function obscureGlob(glob: string): boolean {
+  return /[[\]{}?]/.test(glob);
 }
 
 /**
@@ -393,7 +402,7 @@ function decideGit(args: string[], paths: Paths): Decision {
     return deny("git options that run, write or read outside the repository are refused");
   // A path argument is checked as a read: relative ones from the repository folder.
   for (const a of rest.filter((a) => !a.startsWith("-"))) {
-    for (const part of a.split(":").filter((p) => p.includes("/") || p.startsWith("."))) {
+    for (const part of a.split(":").filter(Boolean)) {
       if (isSecretPath(resolvePath(part, paths, base), paths)) return deny(SECRET);
     }
   }
@@ -494,12 +503,23 @@ function ghParse(args: string[]): { positional: string[]; flags: [string, string
   const flags: [string, string | undefined][] = [];
   for (let i = 0; i < args.length; i++) {
     const a = args[i];
-    if (a.startsWith("-") && a !== "-") {
+    if (a.startsWith("--")) {
       const eq = a.indexOf("=");
       if (eq > 0) flags.push([a.slice(0, eq), a.slice(eq + 1)]);
       else if (GH_VALUE_FLAGS.has(a)) flags.push([a, args[++i]]);
-      else if (/^-[XHfFqtpRLsAB]./.test(a)) flags.push([a.slice(0, 2), a.slice(2)]);
       else flags.push([a, undefined]);
+    } else if (a.startsWith("-") && a.length > 1) {
+      // A short cluster, read letter by letter as gh's flag parser does: `-iX DELETE`
+      // is `-i -X DELETE`, `-if title=x` is `-i -f title=x`, `-XPOST` is `-X POST`.
+      for (let j = 1; j < a.length; j++) {
+        const f = `-${a[j]}`;
+        if (GH_VALUE_FLAGS.has(f)) {
+          const rest = a.slice(j + 1).replace(/^=/, "");
+          flags.push([f, rest || args[++i]]);
+          break;
+        }
+        flags.push([f, undefined]);
+      }
     } else positional.push(a);
   }
   return { positional, flags };
@@ -602,6 +622,10 @@ export function decideBash(raw: string, paths: Paths): Decision {
     return deny("writing files from the shell is not the companion's: it writes only its memory");
 
   const words = shellWords(stripped);
+  // A `gh pr` command that is not plain (an escape, a substitution, a chain) could spell a
+  // merge no check here reads: it is refused, not asked.
+  if (!words && /\bgh\b/.test(bare) && /\bpr\b/.test(bare))
+    return deny("a gh pr command runs only written plainly, one per call");
   if (!words || words.length === 0) return ask("a command a plain split cannot vouch for");
   const [cmd, ...args] = words;
   if (/^\w+=/.test(cmd)) return ask("a command that sets variables");
@@ -657,13 +681,19 @@ export function decide(toolName: string, input: Record<string, unknown>, paths: 
     const pattern = str(input.pattern);
     if (toolName === "Glob") {
       if (namesSecret(pattern)) return deny(SECRET);
+      if (obscureGlob(pattern))
+        return ask("a pattern whose brackets or braces no check here can read");
       const fixed = pattern.split(/[*?[{]/)[0];
       const fixedAbs = resolvePath(fixed || ".", paths, abs);
       if (isSecretPath(fixedAbs, paths)) return deny(SECRET);
       if (!readable(fixedAbs, paths)) return ask("reading outside her repositories");
     }
-    if (toolName === "Grep" && namesSecret(str(input.glob) + " " + str(input.type)))
-      return deny(SECRET);
+    if (toolName === "Grep") {
+      const filter = `${str(input.glob)} ${str(input.type)}`;
+      if (namesSecret(filter)) return deny(SECRET);
+      if (obscureGlob(filter))
+        return ask("a filter whose brackets or braces no check here can read");
+    }
     return readable(abs, paths) ? allow : ask("reading outside her repositories");
   }
 

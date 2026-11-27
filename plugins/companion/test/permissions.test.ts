@@ -79,6 +79,13 @@ describe("reads", () => {
     expect(kind(decide("Glob", { pattern: `${P.home}/.ssh/*` }, P))).toBe("deny");
     expect(kind(decide("Glob", { pattern: "../../../.ssh/*" }, P))).toBe("deny");
     expect(kind(decide("Glob", { pattern: "**/.env*", path: repo }, P))).toBe("deny");
+    expect(kind(decide("Read", { file_path: join(repo, ".dev.vars") }, P))).toBe("deny");
+    expect(kind(decide("Read", { file_path: join(repo, "infra", "prod.tfstate") }, P))).toBe(
+      "deny",
+    );
+    // Brackets or braces could spell a secret's name: they ask, never pass silently.
+    expect(kind(decide("Glob", { pattern: "**/.e[n]v", path: repo }, P))).toBe("ask");
+    expect(kind(decide("Grep", { pattern: "x", glob: "*.{e,n}v", path: repo }, P))).toBe("ask");
     expect(kind(decide("Grep", { pattern: "x", glob: "**/.env*" }, P))).toBe("deny");
     expect(kind(decide("Grep", { pattern: "x", glob: "**/.npmrc", path: repo }, P))).toBe("deny");
   });
@@ -206,13 +213,18 @@ describe("bash", () => {
       "sudo ls",
       `python3 ${P.pluginRoot}/scripts/watch.py --once`,
       "gh pr view 1 | cat ~/.ssh/id_rsa",
+      "gh pr view 41 --json body | jq .body",
+      "gh pr mer\\ge 41 --repo a/b --admin",
+      "gh api repos/o/r/issues -if title=x",
+      "gh api repos/o/r/issues/1 -iX DELETE",
+      "gh api repos/o/r/actions/workflows/x/dispatches -iXPOST",
+      `git -C ${repo} show HEAD:credentials.json`,
     ])
       expect([c, bash(c)]).toEqual([c, "deny"]);
   });
 
   test("shell reads, and anything a plain split cannot vouch for, ask", () => {
     for (const c of [
-      "gh pr view 41 --json body | jq .body",
       "git log && git status",
       "echo $(whoami)",
       "curl https://example.com",
