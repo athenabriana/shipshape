@@ -27,7 +27,7 @@ turned into what would show it, or graded by a rubric line (`references/judge-ru
 
 ## 3. Replay and keep the transcripts
 
-The harness drives the bot through each scripted conversation the way a user would (its own
+The replayer drives the bot through each scripted conversation the way a user would (its own
 API, a test client, a channel's local stub), with the real model and settings, and writes
 each full transcript, tool calls included, to `rounds/r<N>/`. A model's answers vary, so
 each scenario runs at least 3 times, and a behavior is achieved only when every run shows it.

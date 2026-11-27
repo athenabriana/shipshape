@@ -8,14 +8,14 @@
  * its own `##` section, once and in this order: `## Steps`, `## Route`, `## Endpoint`.
  *
  * The router's frontmatter `description` is what the agent reads to pick `/ss:go` at all, and
- * it lists the playbooks by name, so every row's playbook must appear in it as a whole word.
+ * it lists the playbooks by name in "playbook (...)", so every row's playbook must be in that list.
  *
  * Usage:
  *   bun validate-playbooks.ts
  */
 
 import { readFile } from "fs/promises";
-import { basename, join, resolve } from "path";
+import { basename, join, relative, resolve } from "path";
 
 import {
   type FileIssues,
@@ -80,17 +80,25 @@ function readRows(markdown: string): { rows: Row[]; issues: ValidationIssue[] } 
   return { rows, issues: [] };
 }
 
-/** Each row's playbook named in the router's description, as a whole word. */
+/** The description's playbook list: the parentheses after "playbook (", e.g. "(investigate, bug-fix, ...)". */
+const LIST_REGEX = /playbook \(([^)]*)\)/;
+
+/**
+ * Each row's playbook named in that list. A comma-separated item compares whole, so
+ * `review` never passes on the strength of `review-setup`, and a trigger phrase elsewhere in
+ * the description ("iterate on this") cannot stand in for the list entry.
+ */
 function descriptionIssues(markdown: string, rows: Row[]): ValidationIssue[] {
   const description = parseFrontmatter(markdown).frontmatter["description"];
   if (typeof description !== "string") return [error("The router has no description")];
-  const escape = (text: string) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const list = description.match(LIST_REGEX);
+  if (!list) return [error('The router description has no "playbook (...)" list')];
+  const named = new Set(list[1]!.split(",").map((item) => item.trim()));
+  const where = relative(PLUGIN_DIR, ROUTER_FILE);
   return rows
-    .filter(
-      ({ playbook }) => !new RegExp(`(?<![\\w-])${escape(playbook)}(?![\\w-])`).test(description),
-    )
+    .filter(({ playbook }) => !named.has(playbook))
     .map(({ playbook }) =>
-      error(`The description of skills/go/SKILL.md does not name \`${playbook}\``),
+      error(`The playbook list in the description of ${where} does not name \`${playbook}\``),
     );
 }
 

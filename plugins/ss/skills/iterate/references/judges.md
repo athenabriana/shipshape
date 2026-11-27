@@ -11,18 +11,17 @@ its own page beside this one.
 | parity harness | a new system that must behave like an old one (an API, a CLI, a parser) | the same calls on both sides, responses normalized and diffed | `ss-iterate-judge`                       |
 | benchmark      | a number to reach: latency, throughput, memory, bundle size, cost       | a runner with warmup, repeats and the spread                  | `ss-iterate-judge`                       |
 | test reruns    | a test that must pass every time, or a suite's pass rate                | the test run N times, each run's result kept                  | `ss-iterate-judge`                       |
-| transcripts    | a bot or an agent that must behave a certain way in conversation        | scripted conversations replayed, transcripts graded per goal  | `ss-iterate-judge`                       |
+| conversation   | a bot or an agent that must behave a certain way in conversation        | scripted conversations replayed, transcripts graded per goal  | `ss-iterate-judge`                       |
 | rubric         | a prompt's output, a document, a generated text against criteria        | the rubric applied per criterion to a fixed set of samples    | `ss-iterate-judge`                       |
 | design         | a screen                                                                | screenshots, by `<plugin-root>/references/design-loop.md`     | `ss-design-critic` and `ss-a11y-auditor` |
 | code reviewer  | a diff whose bar is its quality and its goals, with nothing to measure  | the review fronts, by `/ss:review`                            | `ss-review-judge`                        |
 
-When two kinds fit, take both: each goal names its own check, and one round runs every
-check before the judge. A target with no measurable bar at all is not this skill's: ask the
-person for a rubric (the rubric kind), or send it to `/ss:review`.
-
-The design kind and the code reviewer have doors of their own: `/ss:ui-critique` and
-`/ss:review` run this same loop with those judges fixed, and keep their own setup, rounds
-and report. A run of this skill that reaches either says so in one line and hands over.
+When two measured kinds fit, take both: each goal names its own check, and one round runs
+every check before `ss-iterate-judge`. When a measured kind meets a screen goal or a pure
+code-quality goal, the measured goals stay on `ss-iterate-judge`, and the other goes to its
+own door (`/ss:ui-critique` or `/ss:review`) after the loop. A target with no measurable
+bar at all is not this skill's: ask the person for a rubric (the rubric kind), or send it
+to `/ss:review`.
 
 ## What every trustworthy check shares
 

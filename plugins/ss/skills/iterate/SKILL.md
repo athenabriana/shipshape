@@ -1,6 +1,6 @@
 ---
 name: iterate
-description: Improves something that already exists until a measurable bar is met. Runs when there is a target and a bar (parity with an old API, a benchmark, a flaky test's pass rate, a bot's behavior, a prompt's output, a document against a rubric); solves "keep improving" with no measure of done. Settles the bars through /ss:clarify in one sheet, picks the judge (a parity harness, a benchmark, test reruns, a transcript judge, the design critic, the code reviewer, or your rubric), runs the goal loop until every bar is met and the judge is pleased, then /ss:review on the diff. Outputs the measured trend, the goals line and the verdict. Use when the user says "iterate", "iterate on this", "until parity", "até ter paridade", "until it passes", "until it's faster", "melhore até", "itera nisso", "keep improving until". Don't use it for a new feature (use /ss:clarify), a bug (use /ss:bug-fix), or a diff to judge once (use /ss:review).
+description: Improves something that already exists until a measurable bar is met. Runs when there is a target and a bar (parity with an old API, a benchmark, a flaky test's pass rate, a bot's behavior, a prompt's output, a document against a rubric); solves "keep improving" with no measure of done. Settles the bars through /ss:clarify in one sheet, picks the judge (a parity harness, a benchmark, test reruns, a conversation judge, the design critic, the code reviewer, or your rubric), runs the goal loop until every bar is met and the judge is pleased, then /ss:review on the diff. Outputs the measured trend, the goals line and the verdict. Use when the user says "iterate", "iterate on this", "until parity", "até ter paridade", "until it passes", "until it's faster", "melhore até", "itera nisso", "keep improving until". Don't use it for a new feature (use /ss:clarify), a bug (use /ss:bug-fix), or a diff to judge once (use /ss:review).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
@@ -24,7 +24,7 @@ loop engine of ss. `goal-loop.md` holds the rule (goals approved once, a fresh j
 round, fixes in batches, scoped rounds then a full pass, the loop folder, when it stops);
 this skill adds the target, the judge and the measurement. Other doors run the same engine
 with their judge fixed: `/ss:ui-critique` with the design critic and the a11y auditor, and
-`/ss:review` with the code judge.
+`/ss:review` with the code reviewer.
 
 Hard limits: the check is fixed once the goals are approved, and changing it is a goal
 change that needs the person's word; pushing and a PR are `/ss:ship`'s; `/loop` is Claude
@@ -50,7 +50,8 @@ Its blocks join the one decision sheet of `<plugin-root>/references/long-run.md`
 
 - **The judge kind**, from step 3, the recommended one first.
 - **The cap**, when the person may want one ("at most 5 rounds"); none by default.
-- **The endpoint**: local commits, a pushed branch, or a PR.
+- **The endpoint**: local commits, or handed to `/ss:ship` at the end for a pushed branch
+  or a PR.
 
 Goals that already exist skip clarify, by `goal-loop.md` section 1. After the sheet the run
 goes to the end and asks again only on a real blocker.
@@ -65,7 +66,7 @@ trustworthy check shares, and when a kind's check must be built first. Pick by t
 | behaves like another system                | parity harness | `references/judge-parity.md`       |
 | a number: latency, throughput, size        | benchmark      | `references/judge-benchmark.md`    |
 | a test passes, every time                  | test reruns    | `references/judge-tests.md`        |
-| a bot or agent behaves in conversation     | transcripts    | `references/judge-conversation.md` |
+| a bot or agent behaves in conversation     | conversation   | `references/judge-conversation.md` |
 | output or text scored against a rubric     | rubric         | `references/judge-rubric.md`       |
 | a screen                                   | design         | `/ss:ui-critique`                  |
 | code quality of a diff, nothing to measure | code reviewer  | `/ss:review`                       |
@@ -76,19 +77,10 @@ Build the check before the first change and run it once as the **baseline**, int
 ## 4. Run the loop
 
 Read `references/round.md` before round 1: how a measured round runs on `goal-loop.md`
-sections 4 to 10. Each round:
-
-1. **Improve** the target against the open goals and findings, in batches by cause, and end
-   at a clean step (committed, the loop folder written).
-2. **Measure**: run the check, its raw output into `rounds/r<N>/`.
-3. **Judge**: one fresh `ss:ss-iterate-judge` with the goals, the outputs and the round's
-   work; scoped after round 1, then a full pass.
-4. **Show the trend** as the round's line: each goal's measured value against its bar, and
-   the findings open.
-
-Read `<plugin-root>/references/triggers.md` once before round 1: measured numbers fire
-`explain-the-number`, and a second failed fix on the same bar fires `attack-the-premise`.
-The loop stops only by `goal-loop.md` section 10.
+sections 4 to 10. Each round improves the target, measures it, sends a fresh
+`ss:ss-iterate-judge`, decides every finding and shows the measured trend; scoped after
+round 1, then a full pass. Read `<plugin-root>/references/triggers.md` once before round 1,
+since a measured loop fires its rows. The loop stops only by `goal-loop.md` section 10.
 
 ## 5. Review the diff, then report
 

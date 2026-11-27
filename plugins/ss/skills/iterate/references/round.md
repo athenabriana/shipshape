@@ -2,9 +2,7 @@
 
 Step 4 of `/ss:iterate` reads this page before round 1: how a round runs when the judge is
 `ss-iterate-judge`. The rule is `<plugin-root>/references/goal-loop.md` sections 4 to 10;
-this page says what a measured target adds to each step. The design kind runs
-`<plugin-root>/references/design-loop.md` through `/ss:ui-critique` instead, and the code
-reviewer runs `/ss:review`'s loop.
+this page says what a measured target adds to each step.
 
 ## The loop folder
 
@@ -15,7 +13,7 @@ The folder of `goal-loop.md` section 9, with what a measured loop keeps:
 ├── state.json        # the goals with their bars, the check's command, the judge kind, the round, open findings, the trend
 ├── rounds/r0/        # the baseline: the check run before the first change
 ├── rounds/r<N>/      # each round's raw check output and the judge's return
-└── tools/            # the check, when it does not live in the repo
+└── tools/            # the check and its fixed inputs (calls, samples, scenarios, rubric), when they do not live in the repo
 ```
 
 ## A round
@@ -32,8 +30,9 @@ The folder of `goal-loop.md` section 9, with what a measured loop keeps:
 3. **Judge.** One `Agent` call with `subagent_type: "ss:ss-iterate-judge"`, fresh and
    memoryless. Its prompt carries, in this order: the target and the repo path; the judge
    kind and its page's path; the goals with their bars, checks and deferred grounds; the
-   output paths of this round (and `rounds/r0/` in round 1); the approved differences when
-   the kind has them; the round's work, scoped or full by `goal-loop.md` section 7. Never
+   check's command and path, and each change to it the person approved, with their words;
+   the output paths of this round (and `rounds/r0/` in round 1); the approved differences
+   when the kind has them; the round's work, scoped or full by `goal-loop.md` section 7. Never
    the owner's opinion or the history of the build. Record the agent's id in `state.json`.
 4. **Decide.** Fix or refuse each finding with a ground, by `goal-loop.md` section 6. A
    `missing` entry is fixed by running what the judge asked for and handing it over.
@@ -52,9 +51,7 @@ one line and in the report.
 ## A number that moves the wrong way
 
 A fix that makes a measured bar worse is reverted before the next round, unless it closes
-another goal the person ranked higher. Say which in the round's line. A second fix on the
-same bar that fails to move it fires `attack-the-premise`, by
-`<plugin-root>/references/triggers.md`: question the cause before a third attempt.
+another goal the person ranked higher. Say which in the round's line.
 
 ## The report
 
