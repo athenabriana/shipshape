@@ -31,20 +31,24 @@ screen with two patterns gets two searches.
 Three free sources come first, each an MCP server with no account, no API key and no paid
 plan. All three are optional: the person sets them up once, and ss uses the ones that are
 there. Their full tool names carry a prefix that differs per setup, so find each by its
-bare tool names with `ToolSearch`, never by a full name written down.
+bare tool names with `ToolSearch`, never by a full name written down. Inspo and Screenrove
+both have a `search_screens` and a `get_screen`: the server name inside the full tool name
+tells them apart.
 
-| Source              | What it gives                                                                                          | Find it by                                                 |
-| ------------------- | ------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------- |
-| Inspo               | real production websites, desktop and mobile captures, with palette, fonts and a design guide per site | `recommend`, `search_screens`, `get_site_pages`            |
-| Awwwards MCP        | award-winning websites from awwwards.com, with screenshots                                             | `search_sites`, `get_site_details`, `shortlist_references` |
-| Chrome DevTools MCP | its own Chrome, to open any public page and screenshot it, at a desktop or a mobile size               | `new_page`, `emulate`, `take_screenshot`                   |
+| Source              | What it gives                                                                                                          | Find it by                                               |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------- |
+| Inspo               | real production websites, desktop and mobile captures, with palette, fonts and a design guide per site                 | `recommend`, `get_site_pages`, `get_design_system`       |
+| Screenrove          | screens and flows of shipped web products (Linear, Stripe, Notion and about 220 more), with a design guide per product | `get_screen_image`, `find_related_screens`, `list_flows` |
+| Chrome DevTools MCP | its own Chrome, to open any public page and screenshot it, at a desktop or a mobile size                               | `new_page`, `emulate`, `take_screenshot`                 |
 
 1. **Inspo.** Call `recommend` with the pattern as the brief, or `search_screens` for a
    single screen; `get_site_pages` walks one site's pages in order, for a flow. Results
    carry thumbnails and links to the full screenshots.
-2. **Awwwards MCP.** `search_sites` for the pattern, then `get_site_details` on the ones
-   that fit. Its own terms ask for inspiration use only, which is how ss uses every
-   reference.
+2. **Screenrove.** `search_screens` for the pattern, filtered by its tags (`list_tags` gives
+   them, for example `pattern=list-view&state=empty`); `list_flows` and `get_flow` for a
+   flow; `get_screen_image` for a screen's screenshot. Its terms allow learning from the
+   screens for original work and ask for no bulk download, and it asks agents to name each
+   screen's id and capture date in the report.
 3. **Chrome DevTools MCP**, for the real products that solve the pattern and that the
    galleries miss: `new_page` on the product's public page, `emulate` for a mobile size
    when the work is mobile, then `take_screenshot`.
@@ -55,7 +59,7 @@ bare tool names with `ToolSearch`, never by a full name written down.
    not show the pattern: public design galleries and the products' own pages, through its
    image script.
 
-Inspo and Awwwards MCP cover websites. For native mobile app screens, which no free source
+Inspo and Screenrove cover websites and web apps. For native mobile app screens, which no free source
 holds, use the product's mobile web at a mobile size, or the store listing and the
 product's own pages through `/ss:research`.
 
@@ -70,16 +74,17 @@ A missing source never blocks the work: go on with the next source in the order,
 the setup beside it.
 
 1. **Tell the person in one line** which source is missing or failed and why: "Inspo is not
-   set up", or the error in plain words ("Awwwards MCP did not start: it needs Node 22.13 or
-   newer").
+   set up", or the error in plain words ("Chrome DevTools MCP did not start: it needs Node").
 2. **Offer to help set it up**, once per session for each source, with the question tool
    (in a work session, through the orchestrator). The person can say no, and the work goes
    on.
 3. **On a yes, set it up by the source's kind**, from the table below:
-   - **A remote server** (Inspo): give the person the steps in Claude's connector
-     settings, which they follow themselves, since ss cannot connect accounts. In Claude
-     Code, the `claude mcp add` command does the same, and ss can run it.
-   - **A local server** (Awwwards MCP, Chrome DevTools MCP): show the exact command, and
+   - **A remote server** (Inspo, Screenrove): give the person the steps in Claude's
+     connector settings, which they follow themselves, since ss cannot connect accounts.
+     In Claude Code, the `claude mcp add` command does the same, and ss can run it after
+     the person says yes to it in that chat. Claude's Free plan allows one custom
+     connector, so on it the second remote server goes through that command.
+   - **A local server** (Chrome DevTools MCP): show the exact command, and
      run it only after the person says yes to it in that chat.
 4. **Check it.** Search with `ToolSearch` for the source's tool names. A server added in
    this session often shows only in the next one: when the tools are not there yet, say to
@@ -91,11 +96,11 @@ None of these sources needs an API key or a token. When a source ever asks for o
 person sets it as an environment variable or through the connector's own sign-in, never
 in a command, a file or the repo.
 
-| Source              | Needs               | Set it up                                                                                                                                                                                                                 |
-| ------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Inspo               | nothing             | Claude's settings, Connectors, "Add custom connector": name `Inspo`, URL `https://inspomcp.dev/api/mcp`, no sign-in. Or in Claude Code: `claude mcp add --transport http --scope user inspo https://inspomcp.dev/api/mcp` |
-| Awwwards MCP        | Node 22.13 or newer | `claude mcp add --scope user awwwards -- npx -y awwwards-mcp` (its first run builds a local index)                                                                                                                        |
-| Chrome DevTools MCP | Node LTS and Chrome | `claude mcp add --scope user chrome-devtools -- npx -y chrome-devtools-mcp@latest --no-usage-statistics` (the flag turns off the usage statistics it sends Google by default)                                             |
+| Source              | Needs               | Set it up                                                                                                                                                                                                                       |
+| ------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Inspo               | nothing             | Claude's settings, Connectors, "Add custom connector": name `Inspo`, URL `https://inspomcp.dev/api/mcp`, no sign-in. Or in Claude Code: `claude mcp add --transport http --scope user inspo https://inspomcp.dev/api/mcp`       |
+| Screenrove          | nothing             | Claude's settings, Connectors, "Add custom connector": name `Screenrove`, URL `https://screenrove.com/mcp`, no sign-in. Or in Claude Code: `claude mcp add --transport http --scope user screenrove https://screenrove.com/mcp` |
+| Chrome DevTools MCP | Node LTS and Chrome | `claude mcp add --scope user chrome-devtools -- npx -y chrome-devtools-mcp@latest --no-usage-statistics` (the flag turns off the usage statistics it sends Google by default)                                                   |
 
 ## Pick 3 to 6
 
@@ -105,7 +110,7 @@ Keep three to six references for the pattern, and for each one keep:
   panel".
 - **Why it fits**, in one line: what it does well for this pattern that the work can learn
   from (the hierarchy, how it handles the empty state, the density).
-- **The source link**: the gallery link (Inspo, Awwwards) or the page URL, so anyone can
+- **The source link**: the gallery link (Inspo, Screenrove) or the page URL, so anyone can
   open it again.
 - **The screenshot**, when there is one.
 

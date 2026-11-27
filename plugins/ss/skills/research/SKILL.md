@@ -36,13 +36,13 @@ A topic takes one or more fronts, and they combine. "How do apps do onboarding w
 paywall" takes visual and content; "how does vscode build its WSL server" takes code and
 content.
 
-| front   | when it fits                                        | evidence                                | tools it needs                                  |
-| ------- | --------------------------------------------------- | --------------------------------------- | ----------------------------------------------- |
-| code    | reading real code settles the question              | `file:line` in a cloned repo            | `git`, plus `gh` to search repositories         |
-| content | docs, articles, discussions, changelogs settle it   | a URL plus the passage that supports it | web search and web fetch                        |
-| visual  | the question is how a screen, flow or pattern looks | the page URL and the image it shows     | Inspo, Awwwards MCP, or web search and `python` |
+| front   | when it fits                                        | evidence                                | tools it needs                                |
+| ------- | --------------------------------------------------- | --------------------------------------- | --------------------------------------------- |
+| code    | reading real code settles the question              | `file:line` in a cloned repo            | `git`, plus `gh` to search repositories       |
+| content | docs, articles, discussions, changelogs settle it   | a URL plus the passage that supports it | web search and web fetch                      |
+| visual  | the question is how a screen, flow or pattern looks | the page URL and the image it shows     | Inspo, Screenrove, or web search and `python` |
 
-The visual front uses Inspo and Awwwards MCP first, when the person has set them up, by
+The visual front uses Inspo and Screenrove first, when the person has set them up, by
 `<plugin-root>/references/ui-references.md`. Without them, the front works from the open web
 with no account: public design galleries and the real products' own sites. A browser
 screenshot is optional and covers only pages the image script cannot read.
@@ -69,7 +69,7 @@ Turn the topic into a plan before searching:
   or the caller's context.
 
 Then check the tools for each chosen front. A front with no tool to run it (no web search,
-no `gh` and no named repo, none of Inspo, Awwwards MCP and `python`) is skipped and named in the open
+no `gh` and no named repo, none of Inspo, Screenrove and `python`) is skipped and named in the open
 section, and the research continues on the fronts it has. When no chosen front can run, write the report
 anyway: it states that nothing could be researched and lists what each front needed.
 
@@ -142,7 +142,7 @@ unsupported. Keep it under 500 words.
 
 #### Visual front
 
-Inspo and Awwwards MCP come first. Search with `ToolSearch` for their tools by the bare
+Inspo and Screenrove come first. Search with `ToolSearch` for their tools by the bare
 names in `<plugin-root>/references/ui-references.md` (their full names carry a prefix that
 differs per setup). When they load, search them for the pattern by that page: keep each
 screen's link, open its image, and describe it against the questions; a gallery link is

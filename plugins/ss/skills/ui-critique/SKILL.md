@@ -52,7 +52,7 @@ critic judges the screens on their own craft and the design system pass is skipp
 in one line.
 
 **The UI references** are three to six real screens that solve the same pattern, gathered
-before round 1 by `<plugin-root>/references/ui-references.md`: Inspo and Awwwards MCP first
+before round 1 by `<plugin-root>/references/ui-references.md`: Inspo and Screenrove first
 when their tools are there, then live sites through Chrome DevTools MCP or the browser,
 then `/ss:research`'s visual front, with an offer to set up a missing source. Say in
 one line which source they came from. They are gathered once and go to the critic in every
