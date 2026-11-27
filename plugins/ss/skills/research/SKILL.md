@@ -64,7 +64,7 @@ Turn the topic into a plan before searching:
 
 - **Questions**: the 2–5 questions the report must settle ("how does X handle concurrency?",
   "which approach scales to N?"). They become the verify checklist, and they are the run's
-  goals in the terms of `<plugin-root>/references/goal-loop.md`: `Q1`, `Q2`, …, each
+  goals in the terms of `<plugin-root>/references/goal-loop.md`: `G1`, `G2`, … (one per question), each
   achieved only when it is answered with a claim that holds against its evidence. The
   research asks nothing, so its own proposal stands, written in the report.
 - **Fronts**: which of code, content and visual the questions need.
@@ -225,7 +225,7 @@ Write the report to the destination from step 1, replacing any earlier version t
 
 [The topic as asked, and the 2–5 questions the report settles.]
 
-Goals: [n] of [m] questions answered with verified evidence; [each open one by number].
+Goals: [n] of [m] achieved (questions answered with verified evidence), [each open one by number with what is missing].
 
 ## Fronts
 

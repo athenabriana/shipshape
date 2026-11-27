@@ -49,6 +49,18 @@ class RecordedVerdictTest(unittest.TestCase):
         self.assertEqual(got["patch_id"], other)
         self.assertEqual(got["goals"], "2 of 2 achieved")
 
+    def test_period_inside_goal_status(self) -> None:
+        body = f"Review loop: 2 rounds, verdict open, patch-id {PID}, goals 1 of 2 achieved, G2 open (no test in loop.md yet).\nNext line."
+        self.assertEqual(recorded_verdict(body)["goals"], "1 of 2 achieved, G2 open (no test in loop.md yet)")
+
+    def test_crlf_body(self) -> None:
+        body = f"Context.\r\nReview loop: 3 rounds, verdict clean, patch-id {PID}, goals 4 of 4 achieved.\r\nMore.\r\n"
+        self.assertEqual(recorded_verdict(body)["goals"], "4 of 4 achieved")
+
+    def test_goals_none(self) -> None:
+        got = recorded_verdict(f"Review loop: 1 round, verdict clean, patch-id {PID}, goals none.")
+        self.assertEqual(got["goals"], "none")
+
     def test_no_line(self) -> None:
         self.assertIsNone(recorded_verdict("No verdict here."))
 

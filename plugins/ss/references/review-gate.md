@@ -22,8 +22,9 @@ when all of these hold:
    `<plugin-root>/references/goal-loop.md`. A loop that the person's cap or the usage
    window stopped with verdict `open` passes only with every open finding listed in the
    merge ask, by its file, its line and one line of what it is, and every goal not achieved
-   named with what is missing. A verdict line with no goal status (the lightweight route,
-   or a loop from before 5.13.0) is judged on its verdict alone.
+   named with what is missing. A verdict line with `goals none` (the lightweight route with
+   no goals) or with no goal status at all (a loop from before 5.13.0) is judged on its
+   verdict alone. On the standard and intensive routes the loop always records its goals.
 5. **On a PR that changes UI**, the design loop ran on screenshots of the built screen
    (`<plugin-root>/references/design-loop.md`, or `/ss:ui-critique` on the screen), and the
    critic was pleased and the goals achieved, or the verdicts left open are listed in the

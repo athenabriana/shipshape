@@ -42,7 +42,8 @@ the restricted fronts for that check (`references/front-rules.md`, section 6).
 The lightweight route also runs without goals of its own: it reads them when a source
 below has them, and otherwise proposes none and asks nothing. With no goals, it ends on
 the first round that brings no Bloqueante, or at the usage window or the person's cap, and
-its verdict line carries no goal status.
+its verdict line carries `goals none`, so a gate can tell it from a loop that skipped its
+goals.
 
 ## The goals of the change
 
@@ -269,8 +270,9 @@ Review loop: 3 rounds, verdict clean, patch-id <patch-id>, goals 4 of 4 achieved
 ```
 
 The goal status follows the patch-id: `goals 4 of 4 achieved`, `goals 3 of 4 achieved, G2
-open`, or `goals 3 of 4 achieved, G4 deferred` when a deferred goal stands. `patch_id.py`
-reads the goal status after the patch-id as `recorded.goals`, null on a line with none.
+open`, `goals 3 of 4 achieved, G4 deferred` when a deferred goal stands, or `goals none` on
+a lightweight run with no goals. `patch_id.py` reads the goal status after the patch-id as
+`recorded.goals`, to the end of the line; it is null only on a line from before 5.13.0.
 
 `/ss:ship` and the orchestrator's landing
 (`<plugin-root>/skills/orchestrate/references/landing.md`) compare it with the branch's
