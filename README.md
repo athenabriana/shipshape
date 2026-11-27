@@ -91,7 +91,9 @@ three free sources of real ui references, with no account and no api key. ss pul
 
 `companion` is a second, optional plugin in the same marketplace: a telegram assistant that runs as a service on your machine and answers through the claude agent sdk, with no claude code session to keep open. it reads what your sessions are doing, relays their questions, watches your prs and merges on your word behind the review gate, with its permissions in code. it is adapted from the official telegram channel plugin (apache-2.0), so it needs no plugin from outside this repo.
 
-replies render markdown on the phone, the session can send drawn diagrams as images, and voice notes arrive as text once whisper.cpp is installed. `plugins/companion/README.md` has the setup, and `plugins/companion/UPSTREAM.md` says what changed from upstream and how to pull its fixes.
+it serves one person, in a direct chat. replies render markdown on the phone, the agent can send drawn diagrams as images, and voice notes arrive as text once whisper.cpp is installed. you start it with `scripts/run-service.sh` (a systemd user unit is in its readme), and a behavior harness (`plugins/companion/behavior/`) replays scripted conversations against the real agent, for `/ss:iterate`'s conversation judge.
+
+its login is a token from `claude setup-token`, each person with their own claude account; an `ANTHROPIC_API_KEY` works instead. anthropic's agent sdk overview says: "Unless previously approved, Anthropic does not allow third party developers to offer claude.ai login or rate limits for their products, including agents built on the Claude Agent SDK." you decide how that applies to you. `plugins/companion/README.md` has the setup, and `plugins/companion/UPSTREAM.md` says what changed from upstream and how to pull its fixes.
 
 ## develop locally
 

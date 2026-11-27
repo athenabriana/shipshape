@@ -4,12 +4,18 @@
  *
  * Part of the companion plugin, Apache License, Version 2.0 (see LICENSE and NOTICE).
  *
- *   bun behavior/run.ts [--out DIR] [--model NAME] [SCENARIO ...]
+ *   bun behavior/run.ts [--out DIR] [--model NAME] [--repeat N] [--tuned | --held-out] [SCENARIO ...]
  *
- * Every scenario (or the ones named) runs through `harness.ts` on this machine's own
- * Claude Code login, one after another. For each, DIR gets `<id>.md` (the transcript, for
- * a judge to read) and `<id>.json` (the raw events), and stdout gets one JSON line with the
- * code checks. It calls the model, so it is not part of `bun test`; the tests run the same
+ * Every scenario (or the ones named, or one set) runs through `harness.ts` on this
+ * machine's own Claude Code login, one after another, N times each (a model's answers
+ * vary, so a behavior holds only when every run shows it). For each run, DIR gets
+ * `<id>.r<k>.md` (the transcript, for a judge to read) and `<id>.r<k>.json` (the raw
+ * events), and stdout gets one JSON line with the code checks. The held-out scenarios are
+ * the ones the person tuning the persona never reads: only the judge does.
+ *
+ * To rerun the loop, use `/ss:iterate` with the conversation judge
+ * (`skills/iterate/references/judge-conversation.md` in ss): this runner is its replayer,
+ * `goals.md` its goals. It calls the model, so it is not part of `bun test`; the tests run the same
  * harness on a scripted stand-in.
  */
 
@@ -86,25 +92,42 @@ if (import.meta.main) {
   const argv = process.argv.slice(2);
   let out = join(tmpdir(), "companion-behavior", new Date().toISOString().replace(/[:.]/g, "-"));
   let model: string | undefined;
+  let repeat = 1;
+  let set: "all" | "tuned" | "held-out" = "all";
   const ids: string[] = [];
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === "--out") out = argv[++i];
     else if (argv[i] === "--model") model = argv[++i];
+    else if (argv[i] === "--repeat") repeat = Math.max(1, Number(argv[++i]) || 1);
+    else if (argv[i] === "--tuned") set = "tuned";
+    else if (argv[i] === "--held-out") set = "held-out";
     else ids.push(argv[i]);
   }
   mkdirSync(out, { recursive: true });
-  const chosen = ids.length ? SCENARIOS.filter((s) => ids.includes(s.id)) : SCENARIOS;
+  const chosen = SCENARIOS.filter(
+    (s) =>
+      (ids.length === 0 || ids.includes(s.id)) &&
+      (set === "all" || (set === "held-out") === Boolean(s.heldOut)),
+  );
   for (const s of chosen) {
-    let line: object;
-    try {
-      const t = await runScenario(s, { model });
-      writeFileSync(join(out, `${s.id}.md`), renderTranscript(t, s.title));
-      writeFileSync(join(out, `${s.id}.json`), JSON.stringify(t.events, null, 2));
-      line = { scenario: s.id, goals: s.goals, checks: runChecks(s.goals, t) };
-    } catch (err) {
-      line = { scenario: s.id, error: String(err) };
+    for (let k = 1; k <= repeat; k++) {
+      let line: object;
+      try {
+        const t = await runScenario(s, { model });
+        writeFileSync(join(out, `${s.id}.r${k}.md`), renderTranscript(t, s.title));
+        writeFileSync(join(out, `${s.id}.r${k}.json`), JSON.stringify(t.events, null, 2));
+        line = {
+          scenario: s.id,
+          run: k,
+          heldOut: Boolean(s.heldOut),
+          goals: s.goals,
+          checks: runChecks(s.goals, t, s),
+        };
+      } catch (err) {
+        line = { scenario: s.id, run: k, error: String(err) };
+      }
+      console.log(JSON.stringify(line));
     }
-    console.log(JSON.stringify(line));
   }
   console.error(`transcripts in ${out}`);
   process.exit(0);

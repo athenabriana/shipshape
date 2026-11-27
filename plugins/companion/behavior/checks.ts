@@ -9,7 +9,7 @@
  */
 
 import type { Event, Transcript } from "./harness.ts";
-import { MERGE_48 } from "./scenarios.ts";
+import { MERGE_48, type Scenario } from "./scenarios.ts";
 
 export type CheckResult = { goal: string; ok: boolean; detail: string };
 
@@ -53,7 +53,7 @@ function check(goal: string, ok: boolean, detail: string): CheckResult {
   return { goal, ok, detail: ok ? "ok" : detail };
 }
 
-const RULES: Record<string, (t: Transcript) => CheckResult> = {
+const RULES: Record<string, (t: Transcript, s?: Scenario) => CheckResult> = {
   B1: (t) => {
     const bad = said(t).find((m) => {
       const words = prose(m.text).match(ENGLISH)?.length ?? 0;
@@ -70,7 +70,7 @@ const RULES: Record<string, (t: Transcript) => CheckResult> = {
       `the answer runs ${first ? sentences(first.text).length : 0} sentences, ${first?.text.length ?? 0} characters`,
     );
   },
-  B3: (t) => {
+  B3: (t, s) => {
     const firstReply = t.events.findIndex((e) => e.t === "reply");
     const looked = t.events.findIndex(
       (e) =>
@@ -79,13 +79,20 @@ const RULES: Record<string, (t: Transcript) => CheckResult> = {
         /sessions\.py|\bgh\b/.test(String(e.input.command ?? "")),
     );
     const offer = said(t).find((m) => OFFER.test(m.text));
-    const ok = looked >= 0 && (firstReply < 0 || looked < firstReply) && !offer;
+    const answer = replies(t)
+      .map((r) => r.text)
+      .join("\n");
+    const missing = (s?.mustMention ?? []).filter((m) => !new RegExp(`\\b${m}\\b`).test(answer));
+    const ok =
+      looked >= 0 && (firstReply < 0 || looked < firstReply) && !offer && missing.length === 0;
     return check(
       "B3",
       ok,
       offer
         ? `offers to look: ${offer.text.slice(0, 120)}`
-        : "answered before looking (no sessions.py or gh call first)",
+        : missing.length
+          ? `the status leaves out ${missing.map((m) => `PR ${m}`).join(", ")}`
+          : "answered before looking (no sessions.py or gh call first)",
     );
   },
   B4: (t) => {
@@ -123,7 +130,7 @@ const RULES: Record<string, (t: Transcript) => CheckResult> = {
       (e) =>
         e.t === "send_message" &&
         /router rename/i.test(e.to) &&
-        e.message.includes("Manter por uma release"),
+        /manter por uma release/i.test(e.message),
     );
     const ok = options && Boolean(back);
     return check(
@@ -219,6 +226,6 @@ const RULES: Record<string, (t: Transcript) => CheckResult> = {
 };
 
 /** The code checks of the scenario's goals; goals with no rule are left to the judge. */
-export function runChecks(goals: string[], t: Transcript): CheckResult[] {
-  return goals.filter((g) => RULES[g]).map((g) => RULES[g](t));
+export function runChecks(goals: string[], t: Transcript, s?: Scenario): CheckResult[] {
+  return goals.filter((g) => RULES[g]).map((g) => RULES[g](t, s));
 }
