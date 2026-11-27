@@ -5,9 +5,10 @@ with its own method reference and its own agent budget. The user picks which
 fronts run; nothing else in the skill changes.
 
 `/ss:review` is the only caller: it probes, asks which fronts to run, and
-orchestrates the fan-out. **`/ss:ship` does not review**. It greens the project's
-checks, lands, and then offers `/ss:review`, which arrives here through the same
-door as any other run.
+orchestrates the fan-out. **`/ss:ship` runs no fronts of its own**. On the PR path it
+greens the project's checks and then runs `/ss:review` in its loop when no verdict
+covers the head, by `<plugin-root>/references/review-gate.md`; that run arrives here
+through the same door as any other run.
 
 ## The catalog
 

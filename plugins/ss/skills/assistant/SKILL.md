@@ -145,12 +145,21 @@ The assistant merges a PR only when all of these hold:
 - **Athena named the PR in her own turn in this chat**, with her explicit authorization.
   The assistant keeps that authorization in this chat. It never writes it into a front's Now
   tab or `NOW.md`, and never passes it to an orchestrator or a work session.
-- **CI is green** on the head commit, and the review verdict still covers that head, by
-  the patch-id check in `<plugin-root>/skills/orchestrate/references/landing.md`.
+- **CI is green** on the head commit.
+- **The review gate passes**, by `<plugin-root>/references/review-gate.md`: the
+  `/ss:review` loop ran on the PR's latest head and its verdict still covers that head, by
+  the patch-id check in `<plugin-root>/skills/orchestrate/references/landing.md`. On a UI
+  PR the description also carries the design loop's `Design:` line. Check it
+  before any merge ask, not only before the merge. When the verdict is missing or stale,
+  ask nothing: send the PR back for a review round, to its front's orchestrator in one
+  message, which sends it to the work session, and tell Athena in one line that it waits
+  on its review.
 - **The repository's own rules allow it**: required reviews, branch protection, and any
   rule in its `CLAUDE.md`, `CONTRIBUTING.md` or review guide. Never bypass one.
 
-Say it before each merge, in one sentence, by the orchestrator's merge rule in
+Ask for a merge through `AskUserQuestion`, with the verdict in the question text in plain
+words: "CI is green on 4f2a9c1, and the review loop closed clean in 2 rounds on
+that commit." Say it before each merge, in one sentence, by the orchestrator's merge rule in
 `<plugin-root>/references/voice.md`: "Merging PR 31 now, at commit 4f2a9c1." Merge with
 the repository's method and `--match-head-commit`. After the merge, tell the front's
 orchestrator in one message, so it records the landing in its front.
