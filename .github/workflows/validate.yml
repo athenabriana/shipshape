@@ -47,6 +47,9 @@ jobs:
         working-directory: plugins/companion
         run: bun install && bun test
 
+      - name: Companion script tests
+        run: python3 -m unittest discover -s plugins/companion/scripts -p 'test_*.py' -v
+
       - name: Check formatting
         id: fmt
         run: bun run fmt:check
