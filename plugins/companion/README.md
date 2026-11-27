@@ -108,8 +108,9 @@ The plugin adds three things to the upstream channel, so the companion reads wel
   up to 4000 pixels, and shows inline; the PNG is deleted once sent. The companion session
   cannot write files, so it draws diagrams and charts this way. A drawing more than 20 times
   wider than tall (or the reverse) is refused, since Telegram will not show it as a photo.
-  Images an SVG references are dropped unless they are inline `data:` images, so a drawing
-  never pulls a file from this machine. Rendering uses `@resvg/resvg-js`, which ships
+  A drawing that refers to anything outside itself (an image file, a CSS `url()` that is not
+  a `#fragment`) is refused, so it never pulls a file from this machine. Inline `data:`
+  images work. Rendering uses `@resvg/resvg-js`, which ships
   prebuilt for Linux, macOS and Windows, and loads only when a message carries an SVG.
 - **Voice notes as text.** Claude cannot listen to audio. When a transcriber is set up, a
   voice note or audio file is transcribed on arrival and reaches the session as the

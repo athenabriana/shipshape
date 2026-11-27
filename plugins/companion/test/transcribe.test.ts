@@ -16,13 +16,19 @@ function fakeCommand(body: string): string {
 
 // Restore whatever the runner had, so a developer's own setting neither breaks these
 // tests nor leaks out of them.
-const original = process.env.COMPANION_TRANSCRIBE_CMD;
+const saved = {
+  COMPANION_TRANSCRIBE_CMD: process.env.COMPANION_TRANSCRIBE_CMD,
+  TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN,
+};
 beforeEach(() => {
   delete process.env.COMPANION_TRANSCRIBE_CMD;
+  delete process.env.TELEGRAM_BOT_TOKEN;
 });
 afterEach(() => {
-  if (original === undefined) delete process.env.COMPANION_TRANSCRIBE_CMD;
-  else process.env.COMPANION_TRANSCRIBE_CMD = original;
+  for (const [key, value] of Object.entries(saved)) {
+    if (value === undefined) delete process.env[key];
+    else process.env[key] = value;
+  }
 });
 
 test("defaults to the bundled whisper.cpp adapter, and 'off' turns it off", () => {
@@ -49,7 +55,6 @@ test("drops non-speech tags, and keeps the bot token from the transcriber", asyn
     'printf "[BLANK_AUDIO]\\n(music)\\ntoken=${TELEGRAM_BOT_TOKEN:-none}\\n"',
   );
   expect(await transcribe("/tmp/x.ogg")).toBe("token=none");
-  delete process.env.TELEGRAM_BOT_TOKEN;
 });
 
 test("a timeout ends the transcriber's children too", async () => {

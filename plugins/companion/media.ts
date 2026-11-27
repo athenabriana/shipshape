@@ -68,20 +68,28 @@ function systemFamilies(): {
 let families: ReturnType<typeof systemFamilies> | undefined;
 
 /**
- * Makes model-written SVG safe and parseable: adds the SVG namespace when the root lacks it
- * (the renderer finds no root element without it), and drops every image reference that is
- * not inline data, so a drawing can never pull a file from this machine into the picture.
+ * Makes model-written SVG safe and parseable. Any reference to something outside the
+ * document (an href, or a CSS url(), that is not inline data or a #fragment) refuses the
+ * drawing, so it can never pull a file from this machine into the picture. Scanning every
+ * attribute value this way does not depend on how the element is spelled or nested. Adds
+ * the SVG namespace when the root lacks it, since the renderer finds no root without it.
  */
 export function prepareSvg(svg: string): string {
-  let out = svg.replace(
-    /<image\b[^>]*?\b(?:xlink:)?href\s*=\s*(["'])(?!data:)[\s\S]*?\1[^>]*?\/?>(?:\s*<\/image>)?/gi,
-    "",
-  );
-  out = out.replace(/<feImage\b[^>]*?\/?>(?:\s*<\/feImage>)?/gi, "");
-  if (!/<svg\b[^>]*\bxmlns\s*=/i.test(out)) {
-    out = out.replace(/<svg\b/i, '<svg xmlns="http://www.w3.org/2000/svg"');
+  const refs = [
+    ...svg.matchAll(/\bhref\s*=\s*(["'])([\s\S]*?)\1/gi),
+    ...svg.matchAll(/url\(\s*(["']?)([^)'"]*)\1\s*\)/gi),
+    ...svg.matchAll(/@import\s+(["']?)([^;'"]*)/gi),
+  ].map((m) => m[2].trim());
+  const outside = refs.find((ref) => !/^(data:|#)/i.test(ref));
+  if (outside !== undefined) {
+    throw new Error(
+      `svg refers to "${outside.slice(0, 80)}"; only inline data: images and #fragments are allowed`,
+    );
   }
-  return out;
+  if (!/<svg\b[^>]*\bxmlns\s*=/i.test(svg)) {
+    return svg.replace(/<svg\b/i, '<svg xmlns="http://www.w3.org/2000/svg"');
+  }
+  return svg;
 }
 
 /** Renders SVG markup to a PNG in `dir` and returns its path. Throws on markup it cannot render. */

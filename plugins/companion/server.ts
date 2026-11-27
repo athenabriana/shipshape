@@ -538,7 +538,7 @@ mcp.setRequestHandler(ListToolsRequestSchema, async () => ({
           svgs: {
             type: 'array',
             items: { type: 'string' },
-            description: 'SVG markup to send as images: diagrams, charts, sketches. Each item is one whole document, `<svg xmlns="http://www.w3.org/2000/svg" width="W" height="H">...</svg>`, at most 20 times wider than tall or the reverse. Use <text> for labels (foreignObject renders blank) and system fonts (sans-serif, serif, monospace); only inline data: images are kept. Each renders to a PNG on a white background and shows inline. Use this instead of writing a file.',
+            description: 'SVG markup to send as images: diagrams, charts, sketches. Each item is one whole document, `<svg xmlns="http://www.w3.org/2000/svg" width="W" height="H">...</svg>`, at most 20 times wider than tall or the reverse. Use <text> for labels (foreignObject renders blank) and system fonts (sans-serif, serif, monospace). A reference to anything outside the drawing is refused; inline data: images are fine. Each renders to a PNG on a white background and shows inline. Use this instead of writing a file.',
           },
           format: {
             type: 'string',
@@ -627,6 +627,11 @@ async function downloadToInbox(file_id: string): Promise<string> {
   writeFileSync(path, buf, { mode: 0o600 })
   return path
 }
+
+// ss: voice notes are transcribed one at a time, in the order they arrived, so
+// a later, shorter note never overtakes an earlier one and only one whisper
+// job uses the CPU.
+let voiceQueue: Promise<void> = Promise.resolve()
 
 // ss: what reply and notify share. Markdown is the default format: it is
 // converted to Telegram HTML and sent as plain text when Telegram refuses the
@@ -1188,7 +1193,7 @@ async function handleInbound(
   // update queue: a permission tap or a text sent meanwhile is not held up.
   if (attachment && (attachment.kind === 'voice' || attachment.kind === 'audio')) {
     const typing = setInterval(() => void bot.api.sendChatAction(chat_id, 'typing').catch(() => {}), 4000)
-    void (async () => {
+    voiceQueue = voiceQueue.then(async () => {
       let words: string | undefined
       try {
         words = await transcribeAttachment(attachment, downloadToInbox)
@@ -1199,7 +1204,10 @@ async function handleInbound(
       }
       const caption = ctx.message?.caption
       emit(words ? (caption ? `${caption}\n\n${words}` : words) : text, Boolean(words))
-    })()
+    }).catch(err => {
+      // A failed note must not stop the ones queued after it.
+      process.stderr.write(`companion: voice note failed: ${err}\n`)
+    })
     return
   }
 

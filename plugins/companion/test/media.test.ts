@@ -48,20 +48,23 @@ test("refuses a shape Telegram will not show as a photo, before rendering", () =
   ).toThrow("20:1");
 });
 
-test("never pulls a local image file into the picture", () => {
+test("refuses any reference to a file outside the drawing", () => {
   const red = join(dir, "red.png");
   writeFileSync(red, RED_PNG);
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="10" height="10"><image xlink:href="${red}" width="10" height="10"/><image href="file://${red}" width="10" height="10"/></svg>`;
-  expect(prepareSvg(svg)).not.toContain(red);
-  const path = renderSvg(svg, dir);
-  // White background, no red: the image was dropped.
-  const plain = renderSvg('<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"/>', dir);
-  expect(readFileSync(path).equals(readFileSync(plain))).toBe(true);
+  const attempts = [
+    `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><image xlink:href="${red}" width="9" height="9"/></svg>`,
+    `<svg xmlns="http://www.w3.org/2000/svg"><image title=">" href="${red}" width="9" height="9"/></svg>`,
+    `<svg xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg"><svg:image href='file://${red}' width="9" height="9"/></svg>`,
+    `<svg xmlns="http://www.w3.org/2000/svg"><rect width="9" height="9" style="fill: url(${red})"/></svg>`,
+    `<svg xmlns="http://www.w3.org/2000/svg"><style>@import "${red}";</style></svg>`,
+  ];
+  for (const svg of attempts) expect(() => renderSvg(svg, dir)).toThrow("only inline data:");
 });
 
-test("keeps inline data images", () => {
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg"><image href="data:image/png;base64,${RED_PNG.toString("base64")}" width="1" height="1"/></svg>`;
-  expect(prepareSvg(svg)).toContain("data:image/png");
+test("keeps inline data images and #fragment references", () => {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10"><defs><linearGradient id="g"/></defs><rect width="10" height="10" fill="url(#g)"/><image href="data:image/png;base64,${RED_PNG.toString("base64")}" width="1" height="1"/></svg>`;
+  expect(prepareSvg(svg)).toBe(svg);
+  expect(readFileSync(renderSvg(svg, dir)).length).toBeGreaterThan(0);
 });
 
 test("throws on markup that is not SVG", () => {

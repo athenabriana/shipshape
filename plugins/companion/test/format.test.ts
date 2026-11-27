@@ -86,6 +86,17 @@ describe("balanceFences", () => {
       "```py\ny=2\n```\nend",
     ]);
   });
+
+  test("agrees with the converter on one-line and indented blocks", () => {
+    expect(balanceFences(["run ```npm test``` now", "next"])).toEqual([
+      "run ```npm test``` now",
+      "next",
+    ]);
+    expect(balanceFences(["- step:\n  ```sh\n  make", "  ```\ndone"])).toEqual([
+      "- step:\n  ```sh\n  make\n```",
+      "```sh\n  ```\ndone",
+    ]);
+  });
 });
 
 describe("sendFormatted", () => {

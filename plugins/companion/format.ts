@@ -118,29 +118,26 @@ export async function sendFormatted<T>(
   return send(text, format === "markdownv2" ? "MarkdownV2" : undefined);
 }
 
+/** The code blocks markdownToTelegramHtml() recognizes, so both agree on what is open. */
+const FENCE = /```(?:([\w+-]+)[^\S\n]*\n|\n?)([\s\S]*?)```/g;
+
 /**
- * Splits Markdown into chunks that each render on their own: a code block cut by a chunk
- * boundary is closed at the end of one chunk and reopened at the start of the next.
+ * Makes each Markdown chunk render on its own: a code block cut by a chunk boundary is
+ * closed at the end of one chunk and reopened, with its language, at the start of the next.
  */
 export function balanceFences(chunks: string[]): string[] {
   const out: string[] = [];
   let reopen = "";
   for (const raw of chunks) {
     const text = reopen + raw;
-    const fences = text.match(/^```[\w+-]*/gm) ?? [];
-    if (fences.length % 2 === 1) {
+    const open = /```(?:([\w+-]+)[^\S\n]*\n)?/.exec(text.replace(FENCE, ""));
+    if (open) {
       out.push(`${text}\n\`\`\``);
-      reopen = `${fences[fences.length - 1]}\n`;
+      reopen = `\`\`\`${open[1] ?? ""}\n`;
     } else {
       out.push(text);
       reopen = "";
     }
   }
   return out;
-}
-
-/** True when Telegram refused the message because of its formatting, not for another reason. */
-export function isParseError(err: unknown): boolean {
-  const msg = err instanceof Error ? err.message : String(err);
-  return /can't parse entities|unsupported start tag|can't find end tag|unclosed/i.test(msg);
 }
