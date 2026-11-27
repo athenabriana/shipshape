@@ -67,20 +67,60 @@ function systemFamilies(): {
 
 let families: ReturnType<typeof systemFamilies> | undefined;
 
+/** How far back the scanner looks for the element an href belongs to. */
+const TAG_LOOKBACK = 4096;
+
+/**
+ * Every outside reference in the document: href values, CSS url() targets and @import
+ * targets. One pass over the text, so a hostile document cannot make it slow; a reference
+ * left unterminated refuses the drawing. An href on an <a> link is skipped: a PNG cannot be
+ * clicked, and the renderer never loads it.
+ */
+function outsideReferences(svg: string): string[] {
+  const refs: string[] = [];
+  // The last "<" before the current match, and the next one after it: each indexOf
+  // only ever moves forward, so finding an href's element costs one pass in total.
+  let tagStart = -1;
+  let nextLt = svg.indexOf("<");
+  const start = /\bhref\s*=\s*(["'])|url\(\s*(["']?)|@import\s+(["']?)/gi;
+  for (let m = start.exec(svg); m; m = start.exec(svg)) {
+    const from = start.lastIndex;
+    const quote = m[1] ?? m[2] ?? m[3] ?? "";
+    let end: number;
+    if (quote) end = svg.indexOf(quote, from);
+    else if (m[2] !== undefined) end = svg.indexOf(")", from);
+    else {
+      const stop = /[;\s]/g;
+      stop.lastIndex = from;
+      end = stop.exec(svg)?.index ?? -1;
+    }
+    if (end < 0) throw new Error("svg has an unterminated reference");
+    start.lastIndex = end + 1;
+    if (m[1]) {
+      while (nextLt !== -1 && nextLt < m.index) {
+        tagStart = nextLt;
+        nextLt = svg.indexOf("<", nextLt + 1);
+      }
+      const tag =
+        tagStart >= 0 && m.index - tagStart <= TAG_LOOKBACK
+          ? /^<\s*(?:[\w-]+:)?([\w-]+)/.exec(svg.slice(tagStart, tagStart + 64))
+          : null;
+      if (tag?.[1].toLowerCase() === "a") continue;
+    }
+    refs.push(svg.slice(from, end).trim());
+  }
+  return refs;
+}
+
 /**
  * Makes model-written SVG safe and parseable. Any reference to something outside the
- * document (an href, or a CSS url(), that is not inline data or a #fragment) refuses the
- * drawing, so it can never pull a file from this machine into the picture. Scanning every
- * attribute value this way does not depend on how the element is spelled or nested. Adds
- * the SVG namespace when the root lacks it, since the renderer finds no root without it.
+ * document (an href, a CSS url() or an @import that is not inline data or a #fragment)
+ * refuses the drawing, so it can never pull a file from this machine into the picture.
+ * Scanning the raw text this way does not depend on how the element is spelled or nested.
+ * Adds the SVG namespace when the root lacks it, since the renderer finds no root without it.
  */
 export function prepareSvg(svg: string): string {
-  const refs = [
-    ...svg.matchAll(/\bhref\s*=\s*(["'])([\s\S]*?)\1/gi),
-    ...svg.matchAll(/url\(\s*(["']?)([^)'"]*)\1\s*\)/gi),
-    ...svg.matchAll(/@import\s+(["']?)([^;'"]*)/gi),
-  ].map((m) => m[2].trim());
-  const outside = refs.find((ref) => !/^(data:|#)/i.test(ref));
+  const outside = outsideReferences(svg).find((ref) => !/^(data:|#)/i.test(ref));
   if (outside !== undefined) {
     throw new Error(
       `svg refers to "${outside.slice(0, 80)}"; only inline data: images and #fragments are allowed`,
