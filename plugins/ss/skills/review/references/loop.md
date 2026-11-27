@@ -7,7 +7,10 @@ refusing it with a ground. A **judge** that did not write the code, the `ss-revi
 agent on Sonnet, checks every goal of the change and judges the findings, in round 1 and in
 every round after. The loop ends when every goal is achieved and the judge is pleased on a
 full pass, or when the usage window or the person's cap stops it. There is no default round
-limit. This file is the contract; `SKILL.md` routes here.
+limit. The round structure (round 1 full, scoped rounds, a full pass, fixes in batches,
+convergence, the loop folder, when it stops) is the one loop engine of `goal-loop.md`, the
+same one `/ss:iterate` opens; this file is the review's contract on top of it, and
+`SKILL.md` routes here.
 
 ## The loop in the router: rounds in place of steps 5 and 7
 

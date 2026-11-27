@@ -38,7 +38,7 @@ for most engineering work, type `/ss:go` and then your request. for example:
 
 `/ss:go` does three things:
 
-1. **picks a playbook.** a playbook is a short recipe for one kind of work: `investigate`, `bug-fix`, `review`, `ui-critique`, `ship`, `babysit`, `review-setup` or `learn`.
+1. **picks a playbook.** a playbook is a short recipe for one kind of work: `investigate`, `bug-fix`, `review`, `ui-critique`, `iterate`, `ship`, `babysit`, `review-setup` or `learn`.
 2. **sizes the process to the risk.** it picks a lightweight, standard or intensive route. a small, safe change gets a light check. a change that touches data or auth, or that is hard to undo, gets a deeper review.
 3. **runs the steps.** it copies the playbook's steps into the todo list and calls the skill for each step.
 
@@ -64,6 +64,7 @@ you can call any skill directly. `/ss:go` calls most of them for you.
 | `/ss:research`    | research what is outside this repo: other code, docs or visual references, checking every claim                   |
 | `/ss:review`      | review your branch against its goals, fix what it finds and review again; `/ss:review edges` for what could break |
 | `/ss:ui-critique` | judge a screen on real screenshots, design and accessibility, and fix it until it holds up                        |
+| `/ss:iterate`     | improve what exists until a measured bar is met: parity with an old API, a benchmark, a pass rate, a rubric       |
 | `/ss:ship`        | green the checks, commit, and push or open a PR                                                                   |
 | `/ss:babysit`     | watch a PR by number: answer review threads and fix red CI until it is done                                       |
 | `/ss:caretake`    | look after the PRs that are not yours: triage the repo, or adopt or modernize one PR, keeping its credit          |

@@ -2,13 +2,15 @@
 
 Every interface change runs through this loop before it is called done: build it, take
 screenshots of the running thing, have the `ss-design-critic` agent judge them, fix what
-it finds, and repeat until the critic is pleased and the goals are achieved. It is the
-interface specialization of the goal loop, `<plugin-root>/references/goal-loop.md`, which
-holds what every long loop shares: proposing and approving the goals, deferred goals, fixing
-in batches, scoped rounds then a full pass, convergence, the loop folder and resuming after
-a restart, and when the loop stops. This page adds what an interface needs: when the loop
-runs, how to take the screenshots, how to dispatch the critic, and what its report shows. A work session, a `/ss:go` run, `/ss:ui-critique` (its entry point for a screen that
-already exists), `/ss:review`'s design front and a plain session all follow it.
+it finds, and repeat until the critic is pleased and the goals are achieved. This page is
+the design judge of `/ss:iterate`. The loop itself is the one engine,
+`<plugin-root>/references/goal-loop.md`: proposing and approving the goals, deferred goals,
+fixing in batches, scoped rounds then a full pass, convergence, the loop folder and resuming
+after a restart, and when the loop stops. This page adds only what an interface needs: when
+the loop runs, how to take the screenshots, how to dispatch the critic, and what its report
+shows. `/ss:ui-critique` is iterate's door for a screen that already exists, and runs this
+judge with the `ss-a11y-auditor` beside it; a work session, a `/ss:go` run,
+`/ss:review`'s design front and a plain session follow the same page.
 
 ## When it runs
 
@@ -139,11 +141,10 @@ regresses unseen. A full pass that finds anything goes back to scoped rounds.
 
 ## Fix, then repeat
 
-Fix by `goal-loop.md` section 6: every goal the critic marked `not_achieved` closed, every
-finding fixed (High, Medium and Low, since the critic is pleased only when it would send
-nothing back), in batches by shared cause (the same token, the same component, the same
-pattern across screens), and a refusal only with a ground the next critic can check (it
-contradicts the person's request or the design source, quoted). On an interface:
+Fix by `goal-loop.md` section 6. On an interface, every severity is fixed (High, Medium
+and Low, since the critic is pleased only when it would send nothing back), a shared cause
+is the same token, the same component or the same pattern across screens, and a refusal's
+ground is the person's request or the design source, quoted. Then:
 
 - **A finding that asks for a screenshot** you did not send, and every `missing` entry, is
   fixed by taking it.

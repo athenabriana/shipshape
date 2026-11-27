@@ -7,16 +7,22 @@ round, until every goal is achieved and the judge is pleased. There is no defaul
 limit. This page is the single source of that loop: what a goal is, when goals are
 approved, how a round runs, how the loop survives a restart, and when it stops.
 
-Each skill runs it in its own terms. `<plugin-root>/references/design-loop.md` is the
-interface specialization (screenshots and the `ss-design-critic`), `/ss:review`'s loop
-(`<plugin-root>/skills/review/references/loop.md`) is the code specialization (the
-`ss-review-judge`), and the table at the end says what every other skill takes from here.
+This page is the rule, and `/ss:iterate` is its door: improve an existing target, measure
+it, judge it, repeat until the bar is met, with the judge picked for the target
+(`<plugin-root>/skills/iterate/references/judges.md`). Every other loop runs this same
+engine with its judge fixed. `<plugin-root>/references/design-loop.md` is iterate's design
+judge (screenshots and the `ss-design-critic`), which `/ss:ui-critique` runs on a screen;
+`/ss:review`'s loop (`<plugin-root>/skills/review/references/loop.md`) is the code
+specialization (the `ss-review-judge`). The table at the end says what every other skill
+takes from here.
 
 ## When it runs
 
 - **`/ss:go` on the standard and intensive routes**: every playbook that changes something
   opens with the map and the goals and ends with this loop. The lightweight route keeps
   its own steps and needs no goals.
+- **`/ss:iterate`**, on any target with a measurable bar: parity with another system, a
+  benchmark, a pass rate, a bot's behavior, a rubric.
 - **`/ss:review`'s loop**, on the current branch, at every depth.
 - **The design-review loop** of `design-loop.md`, on every interface change, and
   `/ss:ui-critique`.
@@ -124,8 +130,9 @@ as hard to please in the last round as in the first. Its prompt carries the work
 the numbered goals copied as approved with their checks and the deferred ones with their
 grounds, the open findings and refusals from the last round, and the round's scope (below).
 It never carries the builder's opinion, a self-score or the history of the build. Which
-agent judges is the specialization's: the `ss-review-judge` for code, the
-`ss-design-critic` for an interface, an independent verifier for research.
+agent judges is the specialization's: the `ss-iterate-judge` for a measured bar, the
+`ss-review-judge` for code, the `ss-design-critic` for an interface, an independent
+verifier for research.
 
 The judge returns, every round:
 
@@ -226,16 +233,17 @@ data), none open.` Each goal not achieved is named with what is missing.
 
 ## How each skill adopts it
 
-| skill or playbook | the goals                                                                                                          | the judge and the end                                                     |
-| ----------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------- |
-| `/ss:go`          | standard and intensive routes: `/ss:clarify` first, its blocks in the opening sheet                                | the playbook's own judge; the endpoint waits for every goal achieved      |
-| `/ss:review`      | the change's goals, from the PR description, the brief, the linked spec or acceptance criteria; else proposed once | `ss-review-judge`, every goal plus the findings, no default round limit   |
-| design loop       | the brief's goals, WCAG AA always one of them                                                                      | `ss-design-critic`, `goals_achieved` and `pleased`, by `design-loop.md`   |
-| `/ss:ui-critique` | asked once in its opening sheet, through `design-loop.md`                                                          | the critic and the `ss-a11y-auditor` each round                           |
-| `/ss:clarify`     | it defines them, approved once; big work gets a goals doc the loop reads and updates each round                    | none of its own: the caller's loop, or on its own the build that follows  |
-| `/ss:bug-fix`     | the reproduction fails before the fix and passes after, plus the focused test                                      | the review loop on the fix, every goal checked                            |
-| `/ss:research`    | the plan's questions, each answered with verified evidence                                                         | the claim verifier, within its own cap                                    |
-| `/ss:ship`        | the final goal is the review gate                                                                                  | the `/ss:review` loop on the PR's head                                    |
-| `/ss:babysit`     | the final goal is the review gate                                                                                  | a tick reports the gate, and calls the PR ready only when it passes       |
-| `/ss:caretake`    | adopt mode: the final goal is the review gate                                                                      | `/ss:ship`'s PR path, then the review loop                                |
-| `/ss:orchestrate` | the front's goals go into each brief                                                                               | a work session's done means its goals were achieved, by its `Goals:` line |
+| skill or playbook | the goals                                                                                                          | the judge and the end                                                                                      |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `/ss:go`          | standard and intensive routes: `/ss:clarify` first, its blocks in the opening sheet                                | the playbook's own judge; the endpoint waits for every goal achieved                                       |
+| `/ss:iterate`     | `/ss:clarify`'s goals, each bar with its check, approved once with the check and the baseline                      | the judge kind picked for the target; `ss-iterate-judge` for a measured bar, then `/ss:review` on the diff |
+| `/ss:review`      | the change's goals, from the PR description, the brief, the linked spec or acceptance criteria; else proposed once | `ss-review-judge`, every goal plus the findings, no default round limit                                    |
+| design loop       | the brief's goals, WCAG AA always one of them                                                                      | iterate's design judge: `ss-design-critic`, `goals_achieved` and `pleased`, by `design-loop.md`            |
+| `/ss:ui-critique` | asked once in its opening sheet, through `design-loop.md`                                                          | iterate's door for a screen: the critic and the `ss-a11y-auditor` each round                               |
+| `/ss:clarify`     | it defines them, approved once; big work gets a goals doc the loop reads and updates each round                    | none of its own: the caller's loop, or on its own the build that follows                                   |
+| `/ss:bug-fix`     | the reproduction fails before the fix and passes after, plus the focused test                                      | the review loop on the fix, every goal checked                                                             |
+| `/ss:research`    | the plan's questions, each answered with verified evidence                                                         | the claim verifier, within its own cap                                                                     |
+| `/ss:ship`        | the final goal is the review gate                                                                                  | the `/ss:review` loop on the PR's head                                                                     |
+| `/ss:babysit`     | the final goal is the review gate                                                                                  | a tick reports the gate, and calls the PR ready only when it passes                                        |
+| `/ss:caretake`    | adopt mode: the final goal is the review gate                                                                      | `/ss:ship`'s PR path, then the review loop                                                                 |
+| `/ss:orchestrate` | the front's goals go into each brief                                                                               | a work session's done means its goals were achieved, by its `Goals:` line                                  |
