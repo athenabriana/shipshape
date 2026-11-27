@@ -60,7 +60,7 @@ Ask one question, or two in one call when the pick needs a setting to go with it
   with no "Stop here" of its own. It counts only with the pick it sets, and the
   first question's description says so.
 
-Example (clarify's exit gate, when it runs on its own):
+Example (`/ss:clarify`'s exit gate, when it runs on its own):
 
 ```
 question, single choice: "Goals signed off and written to the brief. What now?"

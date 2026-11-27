@@ -28,7 +28,7 @@ a draft, and a work session of `/ss:orchestrate` runs it from its brief. Four ru
 - **No commit.** The research never commits its report. Whoever named the path decides
   what happens to the file.
 - **No gate.** It ends by returning a short summary, plus the path when there is one, and
-  stops. Called by clarify, it continues into the draft.
+  stops. Called by `/ss:clarify`, it continues into the draft.
 
 ## The three fronts
 

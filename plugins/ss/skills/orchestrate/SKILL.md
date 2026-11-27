@@ -58,13 +58,13 @@ python3 <plugin-root>/scripts/front_pointer.py get
    to approve the rename: say that approval is waiting, and on a decline keep the title.
 2. **Clarify the goal and create the front.** Run `/ss:clarify` in this session to open
    the front: it settles the goal in her words and the acceptance criteria as WHEN/THEN
-   lines, each with its check, asks her in the form it picks, then picks the home and the
-   slug, creates the front (a doc front when the Docs tools load, a file front otherwise),
-   records the pointer, opens a doc front for her, and writes the opening sections, by
-   "The front doc, when `/ss:orchestrate` calls" in its `SKILL.md`. These are the front's
-   goals, by `<plugin-root>/references/goal-loop.md`, and her sign-off is their approval.
-   The orchestrator creates no Claude Docs doc itself: from here it keeps the front's
-   running state up to date.
+   lines, each with its check, asks her once, then picks the home and the slug, creates the
+   front (a doc front when the Docs tools load, a file front otherwise), records the
+   pointer, opens a doc front for her, and writes the opening sections, by "The front doc,
+   when `/ss:orchestrate` calls" in its `SKILL.md`. These are the front's goals, by
+   `<plugin-root>/references/goal-loop.md`, and her sign-off is their approval. The
+   orchestrator creates no Claude Docs doc itself: from here it keeps the front's running
+   state up to date.
 3. **Read the project facts.** When a repo's `CLAUDE.md` (or `AGENTS.md`) has
    `## Project facts` (`<plugin-root>/references/project-facts.md`), read it, so each brief
    names the facts that cover the code it touches.

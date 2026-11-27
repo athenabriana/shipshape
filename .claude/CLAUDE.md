@@ -67,7 +67,7 @@ Each skill is a folder with a `SKILL.md` containing YAML frontmatter (`name`, `d
 
 - No AI attribution in commits, PRs, or code comments
 - Conventional commit style: `<type>(<scope>): <description>`
-- Scope is the skill name (`clarify`, `caretake`, …), `hooks` for the hook layer, `companion` for the Telegram plugin, or `repo` for repo-wide changes
+- The commit scope is the skill name (`clarify`, `caretake`, …), `hooks` for the hook layer, `companion` for the Telegram plugin, or `repo` for repo-wide changes
 
 ## Project facts
 

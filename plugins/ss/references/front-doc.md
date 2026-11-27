@@ -66,7 +66,7 @@ Three tabs, so a reread costs one short tab and not the whole history:
 ### The Now template
 
 The Now tab and `NOW.md` share this shape. `front_store.py create` writes it for a file
-front; the orchestrator writes the same text into a new doc's Now tab.
+front; `/ss:clarify` writes the same text into a new doc's Now tab, by "Open a doc front".
 
 ```markdown
 # ss front · <slug>

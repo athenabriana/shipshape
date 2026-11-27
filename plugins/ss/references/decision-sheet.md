@@ -9,9 +9,9 @@ It ends with a complete example to copy.
 ## Pick the question tool or a sheet
 
 The split: the dialog for one quick pick, the sheet for anything bigger. When in doubt,
-the sheet. Before work starts, `/ss:clarify` owns the ask and applies this split, with a
-third form for big work: a private Claude Docs doc first, then the sheet for what it
-leaves open, so the person answers in one place. Only clarify creates that doc.
+the sheet. For big work, `/ss:clarify` writes the goals into a private Claude Docs doc
+first and the sheet follows it, so the person answers in one place. Only clarify creates
+that doc.
 
 Use the question tool (`AskUserQuestion`) for:
 

@@ -72,16 +72,16 @@ round.
 ## 2. Ask once, then run
 
 Follow `<plugin-root>/references/long-run.md`. Before the first screenshot, list what the
-request, the brief and the repo leave open, and hand it all to `/ss:clarify`, which asks
-it once (a decision sheet, by `<plugin-root>/references/decision-sheet.md`), each block
-with a default, the header line saying that after this the run goes to the end and asks
-again only on a real blocker. The blocks, each only when it is open:
+request, the brief and the repo leave open, and ask it all in one decision sheet
+(`<plugin-root>/references/decision-sheet.md`), each block with a default, the header line
+saying that after this the run goes to the end and asks again only on a real blocker. The
+blocks, each only when it is open:
 
 - **The goals.** What the screen should let a user do and what done looks like, numbered,
   each with the screenshot of a named state or the check that confirms it, by
   `goal-loop.md` section 2.
   Taken from the request or the brief when they state them, copied as written. When there
-  are none, `/ss:clarify` proposes them in the same ask ("What should this screen do?"), with defaults drawn from what the screen
+  are none, `/ss:clarify` proposes them in this sheet ("What should this screen do?"), with defaults drawn from what the screen
   plainly is ("A new visitor understands the product and finds sign up", "The form can be
   filled and sent by keyboard alone"). The critic judges each goal; WCAG AA is always one of
   them, unasked.

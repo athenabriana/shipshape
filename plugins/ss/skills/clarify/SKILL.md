@@ -1,6 +1,6 @@
 ---
 name: clarify
-description: Clarifies the goals before work starts and owns every ask that gets alignment, as the goal loop's first step. Maps the problem and the code, proposes numbered WHEN/THEN goals with their checks and what is out of scope, and asks once (the question tool for one pick, a decision sheet for more). For big work it writes a private Claude Docs doc first, and it is the only skill that creates one, the front doc included. /ss:go, /ss:orchestrate, /ss:review, /ss:ui-critique and /ss:edge-cases hand it their open questions. Use when the user says "clarify", "clarify the goals", "esclarece", "esclarece os objetivos", "scope this", "define the scope", "qual o escopo", "define os objetivos", "shape this", "let's plan", "what should we build", "let's discuss before building", "write the acceptance criteria", or starts a non trivial feature. Don't use it for small mechanical changes (just do those) or to find bugs (use /ss:review).
+description: Clarifies the goals before work starts, the first step of the goal loop. Maps the problem and the code, drafts what gets built, and proposes numbered WHEN/THEN goals, each with its check, plus what is out of scope, approved once in one decision sheet. For big work (several PRs, repos or fronts, other readers, revisited across sessions, or too much for one sheet) it writes a private Claude Docs doc first; it is the only skill that creates one, the front doc included. Hands the goals to the caller's loop, or on its own offers to build or stop. Use when the user says "clarify", "clarify the goals", "esclarece", "esclarece os objetivos", "scope this", "define the scope", "qual o escopo", "define os objetivos", "shape this", "let's plan", "what should we build", "let's discuss before building", "write the acceptance criteria", "what are the edge cases", or starts a non trivial feature. Don't use it for small mechanical changes (just do those) or to find bugs (use /ss:review).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
@@ -15,11 +15,6 @@ goal loop, `<plugin-root>/references/goal-loop.md`: it maps the problem and the 
 proposes the goals and what is out of scope, has them approved once, and hands them to the
 loop that builds and judges against them. `goal-loop.md` says what a goal is and how it is
 judged; this skill says how the goals are found.
-
-Clarify is also the one owner of getting alignment before work: it asks the person, or
-writes the Claude doc they read, and no other skill builds its own opening ask. A caller
-hands its open questions to clarify, and clarify picks the form (below) and asks them all
-at once, beside the goals.
 
 **Clarify is the only skill that creates a Claude Docs doc**, the orchestrator's front doc
 included. Every other skill asks questions, with the question tool or a decision sheet,
@@ -39,13 +34,8 @@ settled while building with the code open. A technical risk you see is named in
 - **A caller that needs goals**: `/ss:go` on its standard and intensive routes, the
   `/ss:review` loop when no source holds the change's goals, `/ss:orchestrate` when it
   settles a front's goal, `/ss:ui-critique` when none are given. The caller names where
-  the goals go. Clarify returns the approved goals to the caller and has no exit gate: the
-  caller's loop is what follows.
-- **A caller with open questions before work**: `/ss:go`'s endpoint and route questions,
-  `/ss:ui-critique`'s opening blocks (mockup or real screen, a cap, the goals'
-  contradictions), `/ss:edge-cases`' rows with no known outcome, `/ss:orchestrate`'s front
-  goal. The caller passes its blocks, each with a default; clarify asks them in the one
-  form it picks and returns the answers.
+  the goals go and whether the approval rides its own opening sheet. Clarify returns the
+  approved goals to the caller and has no exit gate: the caller's loop is what follows.
 - **On its own**, for a new feature: the same steps, then the exit gate below.
 
 ## Auto-size by complexity
@@ -58,33 +48,16 @@ settled while building with the code open. A technical risk you see is named in
   fit described in the draft before the work is ordered.
 
 Size is judged as the work goes, not locked at the start. When a Tiny or Medium task keeps
-surfacing gray areas, re-size up. At every size, "When the goals get a doc" below decides
-between a sheet and a doc: a small change that spans two repos still gets a doc.
+surfacing gray areas, re-size up. At every size, "When the goals get a doc"
+below decides between a sheet and a doc: a small change that spans two repos still gets a
+doc.
 
-## Pick the form: a dialog, a sheet or a doc
+## A sheet or a doc
 
-The form follows what is being settled, by `<plugin-root>/references/decision-sheet.md`
-and `<plugin-root>/references/show-for-review.md`:
-
-- **The question tool** (`AskUserQuestion`): one decision whose options speak for
-  themselves.
-- **One decision sheet**: two or more decisions, a decision that needs a line of context,
-  or one that needs typed details (a reason, a name, a date).
-- **A private Claude Docs doc, then one sheet (or the dialog) for what it leaves open**:
-  big work, by "When the goals get a doc" below.
-
-When unsure between the dialog and a sheet, pick the sheet.
-
-- **A caller's document is the doc.** When the caller names a front doc, a brief or a PR
-  description as the path, the goals go there and no second doc is made.
-- **A size is never a duration.** The thresholds count goals, decisions, PRs and sessions;
-  no ask carries a time estimate or asks for a deadline.
-- **A merge ask is not clarify's.** The session that holds the PR asks it with the question
-  tool, by the merge rule.
-- **In a front**, every ask (the gate included) goes through
-  `<plugin-root>/references/front-contract.md` instead of a local dialog: a sheet as its
-  `ss.ask` JSON, a doc as its URL with one line. A brief that already states what follows
-  answers the gate.
+The goals are approved in one decision sheet, by
+`<plugin-root>/references/decision-sheet.md`. For big work, clarify writes them into a
+private Claude Docs doc first, and the sheet follows it. The sections below say when, what
+the doc holds, how the front doc differs, and what to do without the Docs tools.
 
 ### When the goals get a doc
 
@@ -200,6 +173,11 @@ updates `goals.md` as it would the doc.
 
 ## The steps
 
+Every question goes through the question tool or one decision sheet, by
+`<plugin-root>/references/decision-sheet.md`, after the goals doc when the work is big. In a front, every one of them (the gate
+included) goes through `<plugin-root>/references/front-contract.md` instead of a local
+dialog, and a brief that already states what follows answers the gate.
+
 1. **Map the problem and the code.** Read the request in the person's own words, the
    brief, the linked spec or issue, the code the work will touch and its callers, the tests
    near it, the repo's `CLAUDE.md` (or `AGENTS.md`) with its `## Project facts`, and the
@@ -242,16 +220,16 @@ updates `goals.md` as it would the doc.
 
 5. **Name what is out of scope**: the hard lines, and the ideas parked for later.
 
-6. **Ask once**, in the form picked above. For big work, write the doc first, by "What the
-   doc holds". The ask carries the goals block ("Approve these goals" first, editable in
-   the same answer), the out of scope block, and every block a caller handed over. It also
-   carries every gray area of what gets built that genuinely could go more than one way,
-   each with concrete options and your pick first, by `goal-loop.md` section 3 and
-   `<plugin-root>/references/long-run.md`. On the single call most expensive to get wrong, give the options without marking your
+6. **Ask once.** For big work, write the doc first, by "What the doc holds". One decision
+   sheet carries the goals block ("Approve these goals"
+   first, editable in the same answer), the out of scope block, and every gray area of what
+   gets built that genuinely could go more than one way, each with concrete options and your
+   pick first, by `goal-loop.md` section 3 and `<plugin-root>/references/long-run.md`. On
+   the single call most expensive to get wrong, give the options without marking your
    pick, so the answer is the person's own. A technical detail is the builder's and is not
    asked, unless only the person can make it (a stack settled elsewhere, a contract another
-   system depends on). The promise goes in the sheet's header line or the dialog: after
-   this, the run goes to the end and asks again only on a real blocker.
+   system depends on). When a caller has an opening sheet of its own, these blocks join it
+   instead of opening a second one.
 
 7. **Fold the answers in.** An answer that opens a new load-bearing gray area is a real
    blocker: ask that one, then continue. Everything else is decided and recorded.
