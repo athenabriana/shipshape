@@ -69,7 +69,7 @@ of the run can check it. Each goal carries:
 
 - **A number**, `G1`, `G2`, …, kept for the whole loop.
 - **One WHEN/THEN line**, in the words of the product: `WHEN a visitor submits the form
-  with an empty email THEN the field shows "Enter your email" and nothing is sent`.
+with an empty email THEN the field shows "Enter your email" and nothing is sent`.
 - **Its check**: how a judge confirms it, one of a test (its name, or the one to write), a
   command and the output it must print, a screenshot of a named state, or a cited source
   (a `file:line`, a URL and the passage). A goal nobody can check is rewritten until
@@ -212,7 +212,7 @@ findings as they are, and never calls the work done.
 - **The goals doc**, when the goals live in one: its statuses current, and the doc opened
   for the person by `<plugin-root>/references/show-for-review.md`.
 - **The goals line**, one per run: `Goals: 5 of 6 achieved, G4 deferred (needs production
-  data), none open.` Each goal not achieved is named with what is missing.
+data), none open.` Each goal not achieved is named with what is missing.
 - **The judge's last verdict** and how many rounds ran, the last one a full pass when the
   loop ended pleased.
 - **The fix groups** of each round, with the findings each one closed.
