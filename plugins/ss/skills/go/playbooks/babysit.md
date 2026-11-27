@@ -13,4 +13,4 @@ None: a watcher changes no code by itself; each fix it makes on a red run goes t
 
 ## Endpoint
 
-None: the watcher stops on its own when the PR is merged, closed, or approved with CI green. Its runs merge nothing: the word to merge is given in a chat, and a run has none.
+None: the watcher stops on its own when the PR is merged, closed, or approved with CI green. Its last report calls the PR ready to merge only when the review gate of `<plugin-root>/references/review-gate.md` passes too. Its runs merge nothing: the word to merge is given in a chat, and a run has none.

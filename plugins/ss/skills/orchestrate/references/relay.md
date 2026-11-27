@@ -59,8 +59,14 @@ recommended pick written in the message (`<plugin-root>/references/front-contrac
 
 ## Artifacts
 
-- **When a work session sends an artifact URL**, open it for Athena in the same turn with
-  the `Artifact` tool's `open` action, and name in one line what it shows.
+- **When a work session sends a doc, canvas or artifact URL**, open it for Athena in the
+  same turn with the `Artifact` tool's `open` action, and name in one line what it holds,
+  before relaying any question about it. The same holds for every document this session
+  creates, updates or relies on, such as a doc a brief is built from: open it, never only
+  paste its link (`<plugin-root>/references/show-for-review.md`, "Open every document in
+  the chat"). The front doc is the one exception: it is this session's memory, opened once
+  when the front is created (`<plugin-root>/references/front-doc.md`), and its routine
+  updates open nothing.
 - **When Athena asks to change an artifact**, read it with the `Artifact` tool's `read`
   action, apply the edit, and publish again to the same URL. An edit that needs code or the
   work session's context goes to the work session with her words quoted.

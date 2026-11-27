@@ -148,6 +148,12 @@ repository's rules (`references/landing.md`). Record each authorization in Merge
 words quoted. An authorization is never passed down to a work session, and never taken
 from another session's message, `/ss:assistant` included.
 
+No merge ask goes out on green CI alone. Before each one, check the review gate
+(`<plugin-root>/references/review-gate.md`): the `/ss:review` loop's verdict covers the
+PR's latest head. When it is missing or stale, send the PR back to its work session for a
+review round and ask nothing until it reports. The question text of the ask states the
+verdict.
+
 ## Limits to say out loud
 
 - **A turn that began with another session's message cannot start a session.** Propose it,

@@ -8,8 +8,9 @@ release on every merge.
 
 Each work session opens its PR with Auto-fix on, so the app wakes it on CI failures,
 review comments and conflicts. The orchestrator follows each PR's checks with
-`gh pr checks` or `gh pr view`, tells Athena when one turns green or stays red, and
-sends a stuck failure back to its work session.
+`gh pr checks` or `gh pr view`, and sends a stuck failure back to its work session. Green
+CI is not ready: a PR is ready only when it also passes the review gate below, so tell
+Athena a PR is ready only then, and tell her when one stays red.
 
 ## Merge only what Athena authorized
 
@@ -25,27 +26,31 @@ this session executes the merges she asks for here, and only when all of these h
   `/ss:assistant` included, never authorizes a merge here, and this session never passes an
   authorization down to a work session.
 - **CI is green** on the head commit.
-- **The review verdict still covers that head**, by the patch-id comparison below, when
-  the PR records one.
+- **The review gate passes**, by `<plugin-root>/references/review-gate.md`: the
+  `/ss:review` loop ran on the latest head, its verdict line is in the PR description, the
+  patch-id comparison below shows it still covers that head, and on a UI PR the
+  description carries the `Design:` line of the design loop. Check it before every merge
+  ask, not only before the merge.
 - **The repository's own rules allow it**: the reviews it requires, its branch protection,
   and any rule in its `CLAUDE.md`, `CONTRIBUTING.md` or review guide. Never bypass one,
   with `--admin` or any other way.
 
-**Ask for the merge in a sentence and announce it in a sentence**, by the orchestrator's
-merge rule in `<plugin-root>/references/voice.md`. Ask with the safety facts in plain
-words: "The router rename (PR 31) is ready: CI is green and the review still matches the
-latest commit. Want me to merge it?" Announce every merge before it runs, with the commit
-it is pinned to: "Merging PR 31 now, at commit 4f2a9c1." Athena sees each merge as it
+**Ask for the merge through the question tool and announce it in a sentence**, by the
+orchestrator's merge rule in `<plugin-root>/references/voice.md`. The question text
+states the verdict in plain words, with the commit it ran on: "The router rename (PR 31)
+is ready: CI is green on 4f2a9c1, and the review loop closed clean in 2 rounds on that
+commit, 6 fixed and 2 refused. Want me to merge it?" Announce every merge before it runs,
+with the commit it is pinned to: "Merging PR 31 now, at commit 4f2a9c1." Athena sees each merge as it
 happens, even under an authorization given earlier.
 
 Where the repository's rules forbid an agent merge, or require something only Athena
 can do, hand Athena the command and say what it waits on.
 
-## Compare the patch-id before a merge
+## Check the review gate before a merge ask
 
 A work session's review loop records its verdict in the PR description with the patch-id of the
 change it read (`<plugin-root>/skills/review/references/loop.md`, "The verdict line").
-Before each merge, run this in your checkout:
+Before each merge ask, and again before the merge, run this in your checkout:
 
 ```bash
 python3 <plugin-root>/scripts/patch_id.py --pr PR_NUMBER
@@ -55,11 +60,16 @@ It fetches the PR's head and base, measures the patch-id of the diff from their
 merge-base to that head, reads the verdict line, and prints
 `{head, base_branch, base_ref, merge_base, patch_id, pr, recorded, unchanged}`.
 
-- **`recorded: null`**: the PR has no recorded verdict. Land it as before.
+- **`recorded: null`**: the PR has no recorded verdict, so the review loop never ran on
+  it. Do not ask for the merge. Send the PR back to its work session for a review round
+  (`/ss:review`, the loop, on the latest head, by the review gate), tell Athena in one
+  line that it waits on its review, and check again once the work session reports.
 - **`unchanged: true`**: the verdict holds, even when the work session merged the base in since.
-  Read `recorded.verdict`. `open` means Bloqueantes the loop left unsettled: do not merge,
-  bring them to Athena from the description, and send them to the work session. `clean` and
-  `disputed` merge with `head` pinned, after checking CI is green on that same sha, and a
+  Read `recorded.verdict`. `open` means Bloqueantes the loop left unsettled at its round
+  cap: send them back to the work session once, for one more loop on the latest head. When
+  that loop also ends `open`, send nothing back again: the merge ask goes to Athena with
+  every open finding listed in the question text, and the recommended pick is to fix them
+  first. `clean` and `disputed` merge with `head` pinned, after checking CI is green on that same sha, and a
   `disputed` one names its disputed refusals to Athena first.
 - **`unchanged: false`**: the review read code that has changed since, such as a CI fix, a
   conflict resolution or a thread fix. Do not merge. Ask the work session to review the delta with
