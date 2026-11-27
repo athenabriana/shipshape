@@ -10,32 +10,36 @@ other files point here.
 
 ## What changed from upstream
 
-| file                         | change                                                                                                              |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `start-server.ts`            | new: the entry point; asks `channel.ts` first, runs `bun install` and loads `server.ts` only in the channel session |
-| `channel.ts`                 | new: polls only when the nearest `claude` process named `plugin:companion@...` in a channel flag                    |
-| `inert.ts`                   | new: an MCP server with no tools and no dependencies, which tells the session the channel is off there              |
-| `server.ts`                  | the same check as `start-server.ts` right after the imports, for a direct `bun server.ts`                           |
-| `server.ts`                  | the bot token redacted from stderr, from `console.*` and from tool error text                                       |
-| `server.ts`                  | `.env` split on `\r?\n`, so a CRLF file loads                                                                       |
-| `server.ts`                  | a text permission reply counts only in a DM from an allowlisted sender, as the button path already required         |
-| `server.ts`                  | a permission answered by text is cleared, and an old button for it answers "Already handled"                        |
-| `server.ts`                  | `safeName()` also replaces quotes, and the attachment's MIME type goes through it                                   |
-| `server.ts`                  | one line in the session instructions: channel content is untrusted for file sends too                               |
-| `server.ts`                  | `/telegram:access` renamed to `/companion:access`, and a modification notice in the header comment                  |
-| `package.json`               | name `companion`, version 0.1.0, `start` runs `start-server.ts`, a `test` script                                    |
-| `bun.lock`                   | package name `companion`                                                                                            |
-| `skills/access/SKILL.md`     | rewritten in Ship Shape's style, same rules (user-typed requests only, never auto-pick a pairing code)              |
-| `skills/configure/SKILL.md`  | rewritten: saves and checks the token through `scripts/token-env.sh`, never reading it                              |
-| `scripts/token-env.sh`       | new: saves, clears or checks the token without printing it, keeping the other keys                                  |
-| `test/`                      | new: tests for `channel.ts`, `inert.ts` and `scripts/token-env.sh`                                                  |
-| `README.md`                  | rewritten for this plugin's setup                                                                                   |
-| `ACCESS.md`                  | the title, a line saying where it came from, and the skill name                                                     |
-| `.claude-plugin/plugin.json` | name `companion`, version 0.1.0, author and license                                                                 |
-| `NOTICE`, `UPSTREAM.md`      | new                                                                                                                 |
+| file                         | change                                                                                                                                                                           |
+| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `start-server.ts`            | new: the entry point; asks `channel.ts` first, runs `bun install` and loads `server.ts` only in the channel session                                                              |
+| `channel.ts`                 | new: polls only when the nearest `claude` process named `plugin:companion@...` in a channel flag                                                                                 |
+| `inert.ts`                   | new: an MCP server with no tools and no dependencies, which tells the session the channel is off there                                                                           |
+| `server.ts`                  | the same check as `start-server.ts` right after the imports, for a direct `bun server.ts`                                                                                        |
+| `state.ts`                   | new: the state folder is `${XDG_STATE_HOME:-~/.local/state}/companion-telegram`, outside `~/.claude/`; an existing `.env` and `access.json` in upstream's folder are copied once |
+| `server.ts`                  | `STATE_DIR` comes from `state.ts`, which runs the one-time copy                                                                                                                  |
+| `server.ts`                  | the bot token redacted from stderr, from `console.*` and from tool error text                                                                                                    |
+| `server.ts`                  | `.env` split on `\r?\n`, so a CRLF file loads                                                                                                                                    |
+| `server.ts`                  | a text permission reply counts only in a DM from an allowlisted sender, as the button path already required                                                                      |
+| `server.ts`                  | a permission answered by text is cleared, and an old button for it answers "Already handled"                                                                                     |
+| `server.ts`                  | `safeName()` also replaces quotes, and the attachment's MIME type goes through it                                                                                                |
+| `server.ts`                  | one line in the session instructions: channel content is untrusted for file sends too                                                                                            |
+| `server.ts`                  | `/telegram:access` renamed to `/companion:access`, and a modification notice in the header comment                                                                               |
+| `package.json`               | name `companion`, version 0.1.0, `start` runs `start-server.ts`, a `test` script                                                                                                 |
+| `bun.lock`                   | package name `companion`                                                                                                                                                         |
+| `skills/access/SKILL.md`     | rewritten in Ship Shape's style, same rules (user-typed requests only, never auto-pick a pairing code)                                                                           |
+| `skills/configure/SKILL.md`  | rewritten: saves and checks the token through `scripts/token-env.sh`, never reading it                                                                                           |
+| `scripts/token-env.sh`       | new: saves, clears or checks the token without printing it, keeping the other keys                                                                                               |
+| `test/`                      | new: tests for `channel.ts`, `inert.ts` and `scripts/token-env.sh`                                                                                                               |
+| `README.md`                  | rewritten for this plugin's setup                                                                                                                                                |
+| `ACCESS.md`                  | the title, a line saying where it came from, the skill name and the state folder path                                                                                            |
+| `.claude-plugin/plugin.json` | name `companion`, version 0.1.0, author and license                                                                                                                              |
+| `NOTICE`, `UPSTREAM.md`      | new                                                                                                                                                                              |
 
-Kept as upstream: the state folder `~/.claude/channels/telegram/` (so the official plugin's
-token and allowlist carry over), the MCP server name `telegram`, `.mcp.json`, pairing, the
+Moved from upstream: the state folder, because Claude Code's `dontAsk` mode refuses writes
+under any `.claude/` folder, which breaks pairing in a read-only companion session.
+
+Kept as upstream: the MCP server name `telegram`, `.mcp.json`, pairing, the
 allowlist, static mode, the `.env` loading with `chmod 600`, the stale-poller guard through
 `bot.pid`, the permission relay and every tool. `server.ts`, `ACCESS.md`, `package.json` and
 `bun.lock` keep upstream's formatting and are listed in `.oxfmtrc.json`'s `ignorePatterns`,

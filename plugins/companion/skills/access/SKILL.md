@@ -32,11 +32,13 @@ changes never follow from one.
 Resolve it first, since a multi-bot or per-project setup can move it:
 
 ```bash
-echo "${TELEGRAM_STATE_DIR:-${CLAUDE_CONFIG_DIR:-$HOME/.claude}/channels/telegram}"
+echo "${TELEGRAM_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/companion-telegram}"
 ```
 
 Use the printed path below wherever `STATE_DIR` appears. The default is
-`~/.claude/channels/telegram`.
+`~/.local/state/companion-telegram`, outside `~/.claude/`, where a session in `dontAsk`
+mode cannot write. Upstream's folder, `~/.claude/channels/telegram`, is only read as a
+fallback: the channel copies an existing `.env` and `access.json` from it on its first start.
 
 Arguments passed: `$ARGUMENTS`
 
@@ -64,6 +66,9 @@ Arguments passed: `$ARGUMENTS`
 ```
 
 A missing file means `{dmPolicy: "pairing", allowFrom: [], groups: {}, pending: {}}`.
+When `STATE_DIR/access.json` is missing but `~/.claude/channels/telegram/access.json`
+exists (a setup from the official plugin that the channel has not copied yet), read that
+one as the starting state, and write the result to `STATE_DIR`.
 
 ## Dispatch on the arguments
 

@@ -25,11 +25,13 @@ value, prints it or echoes it back.
 Resolve the state folder first, since a multi-bot or per-project setup can move it:
 
 ```bash
-echo "${TELEGRAM_STATE_DIR:-${CLAUDE_CONFIG_DIR:-$HOME/.claude}/channels/telegram}"
+echo "${TELEGRAM_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/companion-telegram}"
 ```
 
 Use the printed path below wherever `STATE_DIR` appears. The default is
-`~/.claude/channels/telegram`.
+`~/.local/state/companion-telegram`, outside `~/.claude/`, where a session in `dontAsk`
+mode cannot write. Upstream's folder, `~/.claude/channels/telegram`, is only read as a
+fallback: the channel copies an existing `.env` and `access.json` from it on its first start.
 
 The token script is `scripts/token-env.sh` in the plugin, two folders up from this skill's
 base directory: `SKILL_BASE/../../scripts/token-env.sh`, written below as `TOKEN_SCRIPT`.

@@ -5,13 +5,13 @@
  * From anthropics/claude-plugins-official (external_plugins/telegram), at the
  * version UPSTREAM.md names, under the Apache License, Version 2.0. Modified by
  * Athena Briana for Ship Shape as the companion plugin: inert outside the
- * channel session, the bot token redacted from logs and tool errors, a few
- * access checks tightened, and the skills renamed to /companion:*. Every
- * change is listed in UPSTREAM.md.
+ * channel session, state outside ~/.claude, the bot token redacted from logs
+ * and tool errors, a few access checks tightened, and the skills renamed to
+ * /companion:*. Every change is listed in UPSTREAM.md.
  *
  * Self-contained MCP server with full access control: pairing, allowlists,
  * group support with mention-triggering. State lives in
- * ~/.claude/channels/telegram/access.json — managed by the /companion:access skill.
+ * ~/.local/state/companion-telegram/access.json — managed by the /companion:access skill.
  *
  * Telegram's Bot API has no history or search. Reply-only tools.
  */
@@ -33,6 +33,7 @@ import { join, extname, sep } from 'path'
 import { formatWithOptions } from 'util'
 import { launchedAsChannel } from './channel.ts'
 import { runInert } from './inert.ts'
+import { adoptLegacyState, legacyStateDir, stateDir } from './state.ts'
 
 // ss: a plugin's MCP server starts in every session where the plugin is
 // enabled, and this one would take the bot from whichever poller holds it. So
@@ -42,13 +43,17 @@ import { runInert } from './inert.ts'
 // token, the PID file or another poller.
 if (!launchedAsChannel()) await runInert()
 
-const STATE_DIR = process.env.TELEGRAM_STATE_DIR
-  ?? join(process.env.CLAUDE_CONFIG_DIR ?? join(homedir(), '.claude'), 'channels', 'telegram')
+// ss: outside ~/.claude, where `dontAsk` sessions cannot write (state.ts). An
+// existing token and access.json in upstream's folder are copied over once.
+const STATE_DIR = stateDir()
+for (const name of adoptLegacyState()) {
+  process.stderr.write(`companion: copied ${name} from ${legacyStateDir()} to ${STATE_DIR}\n`)
+}
 const ACCESS_FILE = join(STATE_DIR, 'access.json')
 const APPROVED_DIR = join(STATE_DIR, 'approved')
 const ENV_FILE = join(STATE_DIR, '.env')
 
-// Load ~/.claude/channels/telegram/.env into process.env. Real env wins.
+// Load STATE_DIR/.env into process.env. Real env wins.
 // Plugin-spawned servers don't get an env block — this is where the token lives.
 try {
   // Token is a credential — lock to owner. No-op on Windows (would need ACLs).

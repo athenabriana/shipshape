@@ -7,12 +7,15 @@
 #   token-env.sh clear    removes the token line, and the file when nothing else is left
 #
 # The folder is the one the server reads: TELEGRAM_STATE_DIR, else
-# CLAUDE_CONFIG_DIR/channels/telegram, else ~/.claude/channels/telegram.
+# ${XDG_STATE_HOME:-~/.local/state}/companion-telegram. Upstream's folder,
+# ~/.claude/channels/telegram, is only checked by `status`, since the channel
+# copies a token from there on its first start.
 # Other keys in .env (such as TELEGRAM_ACCESS_MODE) are kept.
 set -euo pipefail
 umask 077
 
-dir="${TELEGRAM_STATE_DIR:-${CLAUDE_CONFIG_DIR:-$HOME/.claude}/channels/telegram}"
+dir="${TELEGRAM_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/companion-telegram}"
+legacy_env="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/channels/telegram/.env"
 env_file="$dir/.env"
 key=TELEGRAM_BOT_TOKEN
 
@@ -20,7 +23,14 @@ without_token() { [ -f "$env_file" ] && grep -v "^$key=" "$env_file" || true; }
 
 case "${1:-status}" in
   status)
-    if [ ! -f "$env_file" ]; then echo "token: missing"; exit 0; fi
+    if [ ! -f "$env_file" ]; then
+      if [ -z "${TELEGRAM_STATE_DIR:-}" ] && [ -f "$legacy_env" ] && grep -q "^$key=[0-9][0-9]*:." "$legacy_env"; then
+        echo "token: set in $legacy_env, copied to $env_file when the channel next starts"
+      else
+        echo "token: missing"
+      fi
+      exit 0
+    fi
     if grep -q "^$key=[0-9][0-9]*:." "$env_file"; then echo "token: set"
     elif grep -q "^$key=" "$env_file"; then echo "token: empty or malformed"
     else echo "token: missing"; fi

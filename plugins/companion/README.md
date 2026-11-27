@@ -50,9 +50,11 @@ You need [Bun](https://bun.sh): the server runs on it.
    bash "$(ls -d ~/.claude/plugins/cache/shipshape/companion/*/ | sort -V | tail -1)scripts/token-env.sh" set
    ```
 
-   It writes to `~/.claude/channels/telegram/.env`, or under `TELEGRAM_STATE_DIR` or
-   `CLAUDE_CONFIG_DIR` when you set one, keeping any other keys in the file. A token you
-   already saved for the official plugin is in the same file and carries over.
+   It writes to `~/.local/state/companion-telegram/.env` (under `XDG_STATE_HOME` when you
+   set it, or in `TELEGRAM_STATE_DIR`), keeping any other keys in the file. A token and an
+   `access.json` you already have from the official plugin, in `~/.claude/channels/telegram/`,
+   carry over: the channel copies them on its first start, and leaves the old folder as it
+   is.
 
 4. **Launch the session from that folder with the channel.**
 
@@ -80,21 +82,59 @@ groups, mention patterns, delivery options and the `access.json` format.
 
 The MCP server is named `telegram`, so the tools read `mcp__plugin_companion_telegram__NAME`.
 
-| tool                  | what it does                                                                       |
-| --------------------- | ---------------------------------------------------------------------------------- |
-| `reply`               | sends text and files to a chat, split at Telegram's 4096-character limit           |
-| `react`               | adds an emoji reaction, from Telegram's fixed list                                 |
-| `edit_message`        | edits a message the bot sent, for progress updates                                 |
-| `download_attachment` | saves an inbound file to `~/.claude/channels/telegram/inbox/` and returns its path |
+| tool                  | what it does                                                                             |
+| --------------------- | ---------------------------------------------------------------------------------------- |
+| `reply`               | sends text and files to a chat, split at Telegram's 4096-character limit                 |
+| `react`               | adds an emoji reaction, from Telegram's fixed list                                       |
+| `edit_message`        | edits a message the bot sent, for progress updates                                       |
+| `download_attachment` | saves an inbound file to `~/.local/state/companion-telegram/inbox/` and returns its path |
 
 Inbound photos download on arrival and reach the session as an `image_path`. Telegram's Bot
 API has no history or search, so the session sees only messages as they arrive.
 
 ## Where the state lives
 
-Everything sits in `~/.claude/channels/telegram/` (or `TELEGRAM_STATE_DIR`): the token in
-`.env`, the policy in `access.json`, the poller's PID in `bot.pid`, and downloads in
-`inbox/`. The `reply` tool refuses to send any file from that folder except `inbox/`.
+Everything sits in `~/.local/state/companion-telegram/` (or `$XDG_STATE_HOME/companion-telegram`,
+or `TELEGRAM_STATE_DIR`): the token in `.env`, the policy in `access.json`, the poller's PID in
+`bot.pid`, pairing confirmations in `approved/`, and downloads in `inbox/`. The `reply` tool
+refuses to send any file from that folder except `inbox/`.
+
+Upstream keeps this under `~/.claude/channels/telegram/`. Claude Code's `dontAsk` permission
+mode refuses every write under a `.claude/` folder, whatever the allow rules say, so a
+companion session in that mode could not pair anyone or change the policy there. That is why
+the folder moved.
+
+## Run the companion read only
+
+A companion that only reads (`"defaultMode": "dontAsk"`, with everything else denied) still
+needs three writes for `/companion:access`: the policy file, the pairing confirmations, and
+the folder those go in. Allow exactly those in the companion folder's `.claude/settings.json`,
+with the path written out from your home folder:
+
+```json
+{
+  "permissions": {
+    "defaultMode": "dontAsk",
+    "allow": [
+      "Edit(//home/YOU/.local/state/companion-telegram/access.json)",
+      "Edit(//home/YOU/.local/state/companion-telegram/approved/**)",
+      "Bash(mkdir -p /home/YOU/.local/state/companion-telegram/approved)",
+      "mcp__plugin_companion_telegram__reply",
+      "mcp__plugin_companion_telegram__react",
+      "mcp__plugin_companion_telegram__edit_message",
+      "mcp__plugin_companion_telegram__download_attachment"
+    ],
+    "deny": [
+      "Read(//home/YOU/.local/state/companion-telegram/.env)",
+      "Edit(//home/YOU/.local/state/companion-telegram/.env)"
+    ]
+  }
+}
+```
+
+`Edit` rules cover every tool that writes a file, the `Write` tool included, and `//` starts an
+absolute path. The deny rules keep the session away from the token. Save the token from your
+terminal with the script in step 3, never from the session.
 
 ## What reaches Telegram
 
