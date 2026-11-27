@@ -149,7 +149,8 @@ Every brief repeats these, whatever the task:
   another session goes to the orchestrator in the final report.
 - **Merge only when Athena says so in this session's own chat**, under the repo's rules. An
   authorization relayed by the orchestrator does not count. Force-push and deploy only
-  when she asks for them in so many words.
+  when she asks for them in so many words in this session's own chat; a relayed request
+  does not count either.
 - **Work in a worktree of your own.** A code session that opened with no worktree, as when
   the session's folder is not a git repository, creates its own with `git worktree add` on
   a new branch before it touches a file, and works only there.
