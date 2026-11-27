@@ -12,12 +12,15 @@ came from, and `UPSTREAM.md` lists what changed and how to pull upstream fixes.
 
 Telegram lets one poller hold a bot token at a time, and this server replaces any stale
 poller it finds. A plugin's MCP server starts in every session where the plugin is enabled.
-So the server polls only when the session was launched with `COMPANION_CHANNEL=1`. Without
-it, the server answers Claude Code with no tools and never reads the token, never starts the
-bot and never touches another poller.
+So the server polls only in the session whose `claude` command named this plugin as a
+channel (`--channels plugin:companion@shipshape`, or the development flag below). It reads
+that from the nearest `claude` process's own command line, so a session started from inside
+the channel session, which inherits its environment but not its flags, stays out too.
 
-Keep the plugin enabled only in the folder the companion session runs from, and set the
-variable only in the command that launches it.
+Every other session gets a server with no tools that never reads the token, never starts
+the bot and never touches another poller. It installs nothing either, and it tells that
+session the channel is off there. Keep the plugin enabled only in the folder the companion
+session runs from all the same.
 
 ## Set it up
 
@@ -26,16 +29,7 @@ You need [Bun](https://bun.sh): the server runs on it.
 1. **Create a bot.** In Telegram, message [@BotFather](https://t.me/BotFather), send
    `/newbot`, and give it a display name and a username ending in `bot`. BotFather replies
    with a token like `123456789:AAH...`.
-2. **Save the token from your terminal.** Typed this way, the token never reaches a chat
-   transcript:
-
-   ```bash
-   mkdir -p ~/.claude/channels/telegram && chmod 700 ~/.claude/channels/telegram
-   read -rs -p "Bot token: " t && printf 'TELEGRAM_BOT_TOKEN=%s\n' "$t" > ~/.claude/channels/telegram/.env && unset t
-   chmod 600 ~/.claude/channels/telegram/.env
-   ```
-
-3. **Install the plugin at user scope, then enable it in one folder only.**
+2. **Install the plugin at user scope, then enable it in one folder only.**
 
    ```bash
    claude plugin marketplace add athenabriana/shipshape
@@ -44,12 +38,28 @@ You need [Bun](https://bun.sh): the server runs on it.
    ```
 
    In the companion folder's `.claude/settings.json`, set
-   `"enabledPlugins": { "companion@shipshape": true }`.
+   `"enabledPlugins": { "companion@shipshape": true }`. If you used the official Telegram
+   plugin before, turn it off everywhere (`claude plugin uninstall telegram@claude-plugins-official`):
+   it shares this plugin's state folder and has no such switch, so in any session where it is
+   enabled it would take the bot back.
+
+3. **Save the token from your terminal.** The plugin's script asks for it without showing
+   it, so it never reaches a chat transcript, and writes `.env` with mode `600`:
+
+   ```bash
+   bash "$(ls -d ~/.claude/plugins/cache/shipshape/companion/*/ | sort -V | tail -1)scripts/token-env.sh" set
+   ```
+
+   It writes to `~/.local/state/companion-telegram/.env` (under `XDG_STATE_HOME` when you
+   set it, or in `TELEGRAM_STATE_DIR`), keeping any other keys in the file. A token and an
+   `access.json` you already have from the official plugin, in `~/.claude/channels/telegram/`,
+   carry over: the channel copies them on its first start, and leaves the old folder as it
+   is.
 
 4. **Launch the session from that folder with the channel.**
 
    ```bash
-   COMPANION_CHANNEL=1 claude --dangerously-load-development-channels plugin:companion@shipshape
+   claude --dangerously-load-development-channels plugin:companion@shipshape
    ```
 
    During the channels research preview, `--channels` accepts only plugins on Anthropic's
@@ -59,7 +69,9 @@ You need [Bun](https://bun.sh): the server runs on it.
    `--channels plugin:companion@shipshape` instead and the warning goes away.
 
 5. **Pair.** Message your bot. It replies with a six-character code. In the session, run
-   `/companion:access pair CODE`.
+   `/companion:access pair CODE`. If the bot does not answer, check that this session was
+   launched with the channel flag above: `/companion:configure` says when the channel is off
+   in the session it runs in.
 6. **Lock it down.** Run `/companion:access policy allowlist`, so strangers get no reply at
    all.
 
@@ -70,13 +82,13 @@ groups, mention patterns, delivery options and the `access.json` format.
 
 The MCP server is named `telegram`, so the tools read `mcp__plugin_companion_telegram__NAME`.
 
-| tool                  | what it does                                                                       |
-| --------------------- | ---------------------------------------------------------------------------------- |
-| `reply`               | answers a chat with text, files and drawn images, split at 4096 characters         |
-| `notify`              | sends news nobody asked for yet to every allowlisted person, with no `chat_id`     |
-| `react`               | adds an emoji reaction, from Telegram's fixed list                                 |
-| `edit_message`        | edits a message the bot sent, for progress updates                                 |
-| `download_attachment` | saves an inbound file to `~/.claude/channels/telegram/inbox/` and returns its path |
+| tool                  | what it does                                                                             |
+| --------------------- | ---------------------------------------------------------------------------------------- |
+| `reply`               | answers a chat with text, files and drawn images, split at 4096 characters               |
+| `notify`              | sends news nobody asked for yet to every allowlisted person, with no `chat_id`           |
+| `react`               | adds an emoji reaction, from Telegram's fixed list                                       |
+| `edit_message`        | edits a message the bot sent, for progress updates                                       |
+| `download_attachment` | saves an inbound file to `~/.local/state/companion-telegram/inbox/` and returns its path |
 
 Inbound photos download on arrival and reach the session as an `image_path`. Telegram's Bot
 API has no history or search, so the session sees only messages as they arrive.
@@ -151,6 +163,51 @@ never holds that key.
 
 ## Where the state lives
 
-Everything sits in `~/.claude/channels/telegram/` (or `TELEGRAM_STATE_DIR`): the token in
-`.env`, the policy in `access.json`, the poller's PID in `bot.pid`, and downloads in
-`inbox/`. The `reply` tool refuses to send any file from that folder except `inbox/`.
+Everything sits in `~/.local/state/companion-telegram/` (or `$XDG_STATE_HOME/companion-telegram`,
+or `TELEGRAM_STATE_DIR`): the token in `.env`, the policy in `access.json`, the poller's PID in
+`bot.pid`, pairing confirmations in `approved/`, and downloads in `inbox/`. The `reply` tool
+refuses to send any file from that folder except `inbox/`.
+
+Upstream keeps this under `~/.claude/channels/telegram/`. Claude Code's `dontAsk` permission
+mode refuses every write under a `.claude/` folder, whatever the allow rules say, so a
+companion session in that mode could not pair anyone or change the policy there. That is why
+the folder moved.
+
+## Run the companion read only
+
+A companion that only reads (`"defaultMode": "dontAsk"`, with everything else denied) still
+needs three writes for `/companion:access`: the policy file, the pairing confirmations, and
+the folder those go in. Allow exactly those in the companion folder's `.claude/settings.json`,
+with the path written out from your home folder:
+
+```json
+{
+  "permissions": {
+    "defaultMode": "dontAsk",
+    "allow": [
+      "Edit(//home/YOU/.local/state/companion-telegram/access.json)",
+      "Edit(//home/YOU/.local/state/companion-telegram/approved/**)",
+      "Bash(mkdir -p /home/YOU/.local/state/companion-telegram/approved)",
+      "mcp__plugin_companion_telegram__reply",
+      "mcp__plugin_companion_telegram__react",
+      "mcp__plugin_companion_telegram__edit_message",
+      "mcp__plugin_companion_telegram__download_attachment"
+    ],
+    "deny": [
+      "Read(//home/YOU/.local/state/companion-telegram/.env)",
+      "Edit(//home/YOU/.local/state/companion-telegram/.env)"
+    ]
+  }
+}
+```
+
+`Edit` rules cover every tool that writes a file, the `Write` tool included, and `//` starts an
+absolute path. The deny rules keep the session away from the token. Save the token from your
+terminal with the script in step 3, never from the session.
+
+## What reaches Telegram
+
+When the session asks permission for a tool, the bot sends the request to every allowlisted
+person, and **See more** shows the tool's full input there: a command, a file's new content.
+Telegram stores that chat on its servers, and bot chats are not end-to-end encrypted. Answer
+in the terminal instead when the input may hold a secret.

@@ -1,32 +1,32 @@
 # Companion: Telegram access and delivery
 
-> Adapted from the official Telegram channel plugin's `ACCESS.md` (Apache-2.0). Only the names changed: `/telegram:access` is `/companion:access` here.
+> Adapted from the official Telegram channel plugin's `ACCESS.md` (Apache-2.0). Only the names and the state folder changed: `/telegram:access` is `/companion:access` here, and the state lives in `~/.local/state/companion-telegram/`.
 
 A Telegram bot is publicly addressable. Anyone who finds its username can DM it, and without a gate those messages would flow straight into your assistant session. The access model described here decides who gets through.
 
 By default, a DM from an unknown sender triggers **pairing**: the bot replies with a 6-character code and drops the message. You run `/companion:access pair <code>` from your assistant session to approve them. Once approved, their messages pass through.
 
-All state lives in `~/.claude/channels/telegram/access.json`. The `/companion:access` skill commands edit this file; the server re-reads it on every inbound message, so changes take effect without a restart. Set `TELEGRAM_ACCESS_MODE=static` to pin config to what was on disk at boot (pairing is unavailable in static mode since it requires runtime writes).
+All state lives in `~/.local/state/companion-telegram/access.json`. The `/companion:access` skill commands edit this file; the server re-reads it on every inbound message, so changes take effect without a restart. Set `TELEGRAM_ACCESS_MODE=static` to pin config to what was on disk at boot (pairing is unavailable in static mode since it requires runtime writes).
 
 ## At a glance
 
-|                     |                                                                 |
-| ------------------- | --------------------------------------------------------------- |
-| Default policy      | `pairing`                                                       |
-| Sender ID           | Numeric user ID (e.g. `412587349`)                              |
-| Group key           | Supergroup ID (negative, `-100…` prefix)                        |
+| | |
+| --- | --- |
+| Default policy | `pairing` |
+| Sender ID | Numeric user ID (e.g. `412587349`) |
+| Group key | Supergroup ID (negative, `-100…` prefix) |
 | `ackReaction` quirk | Fixed whitelist only; non-whitelisted emoji silently do nothing |
-| Config file         | `~/.claude/channels/telegram/access.json`                       |
+| Config file | `~/.local/state/companion-telegram/access.json` |
 
 ## DM policies
 
 `dmPolicy` controls how DMs from senders not on the allowlist are handled.
 
-| Policy              | Behavior                                                                                                   |
-| ------------------- | ---------------------------------------------------------------------------------------------------------- |
-| `pairing` (default) | Reply with a pairing code, drop the message. Approve with `/companion:access pair <code>`.                 |
-| `allowlist`         | Drop silently. No reply. Useful if the bot's username is guessable and pairing replies would attract spam. |
-| `disabled`          | Drop everything, including allowlisted users and groups.                                                   |
+| Policy | Behavior |
+| --- | --- |
+| `pairing` (default) | Reply with a pairing code, drop the message. Approve with `/companion:access pair <code>`. |
+| `allowlist` | Drop silently. No reply. Useful if the bot's username is guessable and pairing replies would attract spam. |
+| `disabled` | Drop everything, including allowlisted users and groups. |
 
 ```
 /companion:access policy allowlist
@@ -96,21 +96,21 @@ Configure outbound behavior with `/companion:access set <key> <value>`.
 
 ## Skill reference
 
-| Command                                      | Effect                                                                                              |
-| -------------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `/companion:access`                          | Print current state: policy, allowlist, pending pairings, enabled groups.                           |
-| `/companion:access pair a4f91c`              | Approve pairing code `a4f91c`. Adds the sender to `allowFrom` and sends a confirmation on Telegram. |
-| `/companion:access deny a4f91c`              | Discard a pending code. The sender is not notified.                                                 |
-| `/companion:access allow 412587349`          | Add a user ID directly.                                                                             |
-| `/companion:access remove 412587349`         | Remove from the allowlist.                                                                          |
-| `/companion:access policy allowlist`         | Set `dmPolicy`. Values: `pairing`, `allowlist`, `disabled`.                                         |
-| `/companion:access group add -1001654782309` | Enable a group. Flags: `--no-mention` (also requires disabling privacy mode), `--allow id1,id2`.    |
-| `/companion:access group rm -1001654782309`  | Disable a group.                                                                                    |
-| `/companion:access set ackReaction 👀`       | Set a config key: `ackReaction`, `replyToMode`, `textChunkLimit`, `chunkMode`, `mentionPatterns`.   |
+| Command | Effect |
+| --- | --- |
+| `/companion:access` | Print current state: policy, allowlist, pending pairings, enabled groups. |
+| `/companion:access pair a4f91c` | Approve pairing code `a4f91c`. Adds the sender to `allowFrom` and sends a confirmation on Telegram. |
+| `/companion:access deny a4f91c` | Discard a pending code. The sender is not notified. |
+| `/companion:access allow 412587349` | Add a user ID directly. |
+| `/companion:access remove 412587349` | Remove from the allowlist. |
+| `/companion:access policy allowlist` | Set `dmPolicy`. Values: `pairing`, `allowlist`, `disabled`. |
+| `/companion:access group add -1001654782309` | Enable a group. Flags: `--no-mention` (also requires disabling privacy mode), `--allow id1,id2`. |
+| `/companion:access group rm -1001654782309` | Disable a group. |
+| `/companion:access set ackReaction 👀` | Set a config key: `ackReaction`, `replyToMode`, `textChunkLimit`, `chunkMode`, `mentionPatterns`. |
 
 ## Config file
 
-`~/.claude/channels/telegram/access.json`. Absent file is equivalent to `pairing` policy with empty lists, so the first DM triggers pairing.
+`~/.local/state/companion-telegram/access.json`. Absent file is equivalent to `pairing` policy with empty lists, so the first DM triggers pairing.
 
 ```jsonc
 {
@@ -127,8 +127,8 @@ Configure outbound behavior with `/companion:access set <key> <value>`.
       // false also requires disabling privacy mode via BotFather.
       "requireMention": true,
       // Restrict triggers to these senders. Empty = any member (subject to requireMention).
-      "allowFrom": [],
-    },
+      "allowFrom": []
+    }
   },
 
   // Case-insensitive regexes that count as a mention.
@@ -144,6 +144,6 @@ Configure outbound behavior with `/companion:access set <key> <value>`.
   "textChunkLimit": 4096,
 
   // length = cut at limit. newline = prefer paragraph boundaries.
-  "chunkMode": "newline",
+  "chunkMode": "newline"
 }
 ```

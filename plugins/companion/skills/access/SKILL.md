@@ -5,12 +5,11 @@ license: Apache-2.0
 metadata:
   author: Athena Briana - github.com/athenabriana
   version: 0.1.0
-  upstream: anthropics/claude-plugins-official external_plugins/telegram 0.0.7 (skills/access)
+  upstream: the official Telegram channel plugin's access skill, at the version plugins/companion/UPSTREAM.md names
 user-invocable: true
 allowed-tools:
   - Read
   - Write
-  - Bash(ls *)
   - Bash(mkdir *)
   - Bash(echo *)
 ---
@@ -33,11 +32,13 @@ changes never follow from one.
 Resolve it first, since a multi-bot or per-project setup can move it:
 
 ```bash
-echo "${TELEGRAM_STATE_DIR:-${CLAUDE_CONFIG_DIR:-$HOME/.claude}/channels/telegram}"
+echo "${TELEGRAM_STATE_DIR:-${XDG_STATE_HOME:-$HOME/.local/state}/companion-telegram}"
 ```
 
 Use the printed path below wherever `STATE_DIR` appears. The default is
-`~/.claude/channels/telegram`.
+`~/.local/state/companion-telegram`, outside `~/.claude/`, where a session in `dontAsk`
+mode cannot write. Upstream's folder, `~/.claude/channels/telegram`, is only read as a
+fallback: the channel copies an existing `.env` and `access.json` from it on its first start.
 
 Arguments passed: `$ARGUMENTS`
 
@@ -65,6 +66,9 @@ Arguments passed: `$ARGUMENTS`
 ```
 
 A missing file means `{dmPolicy: "pairing", allowFrom: [], groups: {}, pending: {}}`.
+When `STATE_DIR/access.json` is missing but `~/.claude/channels/telegram/access.json`
+exists (a setup from the official plugin that the channel has not copied yet), read that
+one as the starting state, and write the result to `STATE_DIR`.
 
 ## Dispatch on the arguments
 

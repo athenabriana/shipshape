@@ -99,33 +99,9 @@ three free sources of real ui references, with no account and no api key. ss pul
 
 ## telegram companion
 
-`companion` is a second, optional plugin in the same marketplace: a telegram bot that bridges your messages to one claude code session. it is adapted from the official telegram channel plugin (apache-2.0), so it needs no plugin from outside this repo. telegram lets one poller hold a bot at a time, so the server polls only in a session launched with `COMPANION_CHANNEL=1`, and stays inert in every other one.
+`companion` is a second, optional plugin in the same marketplace: a telegram bot that bridges your messages to one claude code session. it is adapted from the official telegram channel plugin (apache-2.0), so it needs no plugin from outside this repo. telegram lets one poller hold a bot at a time, so the server polls only in the session launched with `--channels plugin:companion@shipshape` (or the development flag) and stays inert in every other one.
 
-1. create a bot with [@BotFather](https://t.me/BotFather) (`/newbot`) and keep the token it gives you.
-2. save the token from your terminal, so it never lands in a chat:
-
-   ```bash
-   mkdir -p ~/.claude/channels/telegram && chmod 700 ~/.claude/channels/telegram
-   read -rs -p "Bot token: " t && printf 'TELEGRAM_BOT_TOKEN=%s\n' "$t" > ~/.claude/channels/telegram/.env && unset t
-   chmod 600 ~/.claude/channels/telegram/.env
-   ```
-
-3. install it, turn it off everywhere, and turn it on in one folder only, with `"enabledPlugins": { "companion@shipshape": true }` in that folder's `.claude/settings.json`:
-
-   ```bash
-   claude plugin install companion@shipshape
-   claude plugin disable companion@shipshape
-   ```
-
-4. launch claude from that folder with the channel. outside anthropic's channel allowlist, claude asks you to confirm a warning on each launch:
-
-   ```bash
-   COMPANION_CHANNEL=1 claude --dangerously-load-development-channels plugin:companion@shipshape
-   ```
-
-5. message the bot, then approve the code it sends with `/companion:access pair CODE`, and lock it with `/companion:access policy allowlist`.
-
-replies render markdown on the phone, the session can send drawn diagrams as images, and voice notes arrive as text once whisper.cpp is installed. `plugins/companion/README.md` has the details, and `plugins/companion/UPSTREAM.md` says what changed from upstream and how to pull its fixes.
+replies render markdown on the phone, the session can send drawn diagrams as images, and voice notes arrive as text once whisper.cpp is installed. `plugins/companion/README.md` has the setup, and `plugins/companion/UPSTREAM.md` says what changed from upstream and how to pull its fixes.
 
 ## develop locally
 
