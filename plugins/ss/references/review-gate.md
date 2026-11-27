@@ -45,7 +45,9 @@ The session that holds the branch runs it, after CI is green and before it repor
   head, before its handoff (`<plugin-root>/skills/ship/references/ship-pr.md`).
 - **The orchestrator** writes no code, so it never runs the loop. It checks the verdict
   before every merge ask and sends a PR without one back to its work session.
-- **Any other session asked to merge** checks the verdict the same way before it merges.
+- **Any other session asked to merge** checks the verdict before it merges. With none on
+  the head, it runs the loop itself when it holds the branch, and otherwise reports the PR
+  not ready and merges nothing.
 
 ## Pick the depth
 
