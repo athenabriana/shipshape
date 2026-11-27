@@ -220,7 +220,10 @@ const quietWorld: World = {
   sessions: [sessions[2]],
   show: { dc56ef: base.show!.dc56ef },
   prs: { [`${REPO}#51`]: prs[`${REPO}#51`] },
-  checks: {},
+  checks: {
+    [`${REPO}#51`]:
+      "validate\tpass\t1m40s\thttps://github.com/athenabriana/shipshape/actions/runs/3",
+  },
   search: search.filter((p) => (p as { number: number }).number === 51),
   runs: "",
   gates: {},

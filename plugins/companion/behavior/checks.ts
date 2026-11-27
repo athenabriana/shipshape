@@ -97,8 +97,17 @@ const RULES: Record<string, (t: Transcript, s?: Scenario) => CheckResult> = {
   },
   B4: (t) => {
     const first = said(t)[0];
-    const ok = !first || !/^\W*nada precisa de voc/i.test(first.text);
-    return check("B4", ok, `opens with "Nada precisa de você": ${first?.text.slice(0, 80)}`);
+    const opener = sentences(first?.text ?? "")[0] ?? "";
+    const ok =
+      !first ||
+      !/^\W*(nada (precisa|espera|mudou|pra você|para você)|nenhuma decisão|não tem nada (pra|para) você)/i.test(
+        opener,
+      );
+    return check(
+      "B4",
+      ok,
+      `opens with a "nothing needs you" sentence: ${first?.text.slice(0, 80)}`,
+    );
   },
   B5: (t) => {
     const bad = said(t).find((m) => ESTIMATE.test(prose(m.text)));
