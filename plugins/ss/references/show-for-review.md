@@ -24,7 +24,9 @@ Every time a document (a Claude Docs doc, a Design canvas or an Artifact page) i
 updated or relied on, the session in chat with the person opens it with the `Artifact`
 tool's `open` action in the same turn, and says in one line what it holds. That covers a
 doc a plan or a set of PRs is built from, not only one put up for review. A pasted link
-alone is not enough: the person sees only what is opened in front of them.
+alone is not enough: the person sees only what is opened in front of them. The one
+exception is an orchestrator's front doc, its own memory, which opens once when the front
+is created (`<plugin-root>/references/front-doc.md`) and not on each routine update.
 
 When a work session reports a doc or canvas URL, the orchestrator opens it before it
 relays any question about it. A work session has no chat, so it sends the URL with its

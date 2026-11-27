@@ -10,7 +10,7 @@ Land the current branch: green its checks, commit, and ship it to the destinatio
 
 ## Route
 
-None: `ship` runs after the route of the playbook that built the change, and adds no gate of its own.
+None: `ship` runs after the route of the playbook that built the change. The one gate it adds is the review gate on the open PR endpoint, by `<plugin-root>/references/review-gate.md`.
 
 ## Endpoint
 

@@ -87,7 +87,9 @@ ship up to a PR with green CI, then the `/ss:review` loop on that PR's latest he
 merge. Write the scope in the brief in those words, so the work session asks nothing about
 what runs after the work. The review loop is part of every scope that ends in a PR, a
 reduced one included: without it the PR cannot go up for merge
-(`<plugin-root>/references/review-gate.md`). A work-only scope
+(`<plugin-root>/references/review-gate.md`). When Athena sets a cap that stops before the
+loop, such as "stop after the PR is green", her cap wins: copy it word for word, and the
+work session reports the PR as not ready to merge, with no review verdict. A work-only scope
 stops at a green, committed branch. The merge stays with the orchestrator, for a PR Athena
 authorized here (`references/landing.md`), unless she says so in the work session's own
 chat.
@@ -151,11 +153,13 @@ Every brief repeats these, whatever the task:
 - **No rebase on a shared branch.** Bring the base in with a merge.
 - **Review your own PR before reporting done**, by
   `<plugin-root>/references/review-gate.md`. Once CI is green, run `/ss:review` (the loop)
-  on the PR's latest head, at deep depth when the change touches tokens, auth, permissions,
-  servers or money and standard otherwise, said in one line. Fix or refuse what the judge
+  on the PR's latest head, at deep depth (`/ss:review deep`) when the change touches
+  tokens, secrets, auth, permissions, servers or money and standard otherwise, said in one
+  line. Fix or refuse what the judge
   finds, follow CI to green again, and let the loop write its verdict line into the PR
   description. A commit after the loop makes the verdict stale: run the loop again on the
-  delta. On a UI change the design loop runs too. Never report the PR done or ready to
+  delta. On a UI change the design loop runs too, and its `Design:` line goes in the PR
+  description. Never report the PR done or ready to
   merge on green CI alone.
 - **Turn Auto-fix on when the PR opens** (`set_monitor` with `auto_fix: true`). The app asks
   Athena to approve the switch, so the brief says the work session asks for it.

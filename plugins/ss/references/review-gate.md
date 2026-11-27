@@ -44,15 +44,25 @@ The session that holds the branch runs it, after CI is green and before it repor
 
 ## Pick the depth
 
-Run the loop deep (`/ss:review deep`) when the change touches tokens, secrets, auth,
-permissions, a server or an endpoint, or money. Run it at standard depth otherwise. Say the
-depth and the reason in one line before the loop starts, as in "Depth: deep, the change
-reads an auth token." or "Depth: standard, docs only."
+Run the loop deep, with the explicit argument `/ss:review deep`, when the change touches
+tokens, secrets, auth, permissions, servers or money. Run it at standard depth otherwise.
+Say the depth and the reason in one line before the loop starts, as in "Depth: deep, the
+change reads an auth token." or "Depth: standard, docs only."
+
+A playbook route that narrows the loop, such as the lightweight route's correctness front
+alone, meets the gate only on a change that needs standard depth. A change of one of the
+deep kinds above runs `/ss:review deep` on the head before any merge ask, whatever route
+built it.
 
 ## What the verdict carries
 
-The loop writes its verdict line into the PR description, by "The verdict line" in
-`loop.md`. The report that calls the PR done carries one line more:
+Two lines carry the verdict, and each goes in its own place:
+
+- **The PR description holds the verdict line** the loop writes, by "The verdict line" in
+  `loop.md`: `Review loop: 2 rounds, verdict clean, patch-id <patch-id>.` It is the only
+  line `patch_id.py` reads, so its form stays exactly as `loop.md` gives it.
+- **The report that calls the PR done holds the `Review:` line**, which never goes in the
+  PR description:
 
 ```
 Review: 2 rounds, verdict clean, depth standard, 6 fixed, 2 refused, head 4f2a9c1, patch-id <patch-id>.
@@ -66,11 +76,15 @@ Review: 2 rounds, verdict clean, depth standard, 6 fixed, 2 refused, head 4f2a9c
 - **Head**: the short sha the last round read, after its fixes were pushed.
 - **Patch-id**: from `patch_id.py`, the value the merge check compares.
 
-On a UI PR, add the design loop's last verdicts: pleased, goals achieved, and what is open.
+On a UI PR, the report adds a `Design:` line with the design loop's last verdicts, as in
+`Design: pleased, goals achieved, nothing open.` The PR description carries the same line
+under the verdict line, so the orchestrator and the assistant can read it from the PR. A UI
+PR with no `Design:` line in its description fails item 5 of the gate.
 
 ## The merge ask
 
-The merge ask goes through the question tool, and its description states the verdict in
-plain words: "CI is green on 4f2a9c1. The review loop closed clean in 2 rounds on that
-commit: 6 fixed, 2 refused." An `open` or `disputed` verdict names each finding left in
-that description.
+The merge ask goes through the question tool, and the question text itself states the
+verdict in plain words, with the commit it covers: "CI is green on 4f2a9c1, and the review
+loop closed clean in 2 rounds on that commit. Want me to merge it?" Name the fixed and
+refused counts when the work session's report gave them. An `open` or `disputed` verdict
+names each finding left in the question text too, by file and line.

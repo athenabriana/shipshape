@@ -89,11 +89,12 @@ and relays it from there, and its answer reaches the work session as a new messa
 
 A work session whose endpoint is a PR never reports it done, or ready to merge, on green CI
 alone. Once CI is green, it runs the `/ss:review` loop on its own PR, at the depth
-`<plugin-root>/references/review-gate.md` picks (deep for tokens, auth, permissions,
-servers or money, standard otherwise, said in one line). It fixes or refuses what the judge
-finds, pushes, follows CI to green again, and lets the loop write its verdict line into the
-PR description. On a PR that changes UI, the design loop on screenshots of the built screen
-runs too, until the critic is pleased and the goals are achieved.
+`<plugin-root>/references/review-gate.md` picks (deep for tokens, secrets, auth,
+permissions, servers or money, standard otherwise, said in one line). It fixes or refuses
+what the judge finds, pushes, follows CI to green again, and lets the loop write its
+verdict line into the PR description. On a PR that changes UI, the design loop on
+screenshots of the built screen runs too, until the critic is pleased and the goals are
+achieved, and its `Design:` line goes in the PR description under the verdict line.
 
 A commit after the loop, a CI fix or a thread fix, makes the verdict stale. Run the loop
 again on the delta before reporting. When the orchestrator sends a PR back for a review

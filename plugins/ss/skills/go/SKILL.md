@@ -75,7 +75,7 @@ It prints one line, `<route>: <reason>`. The same facts give the same route on e
 On the open PR endpoint, every route ends with the `/ss:review` loop on the PR's latest
 head, once CI is green, before the handoff: a PR never goes up for merge without it
 (`<plugin-root>/references/review-gate.md`). Deep depth when the change touches tokens,
-auth, permissions, servers or money, standard otherwise, said in one line.
+secrets, auth, permissions, servers or money, standard otherwise, said in one line.
 
 The playbook's own `## Route` section says how this applies to it, and wins where it differs.
 "Keep it light" or "be thorough" from the person overrides the script. Say which route you
