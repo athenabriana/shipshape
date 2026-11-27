@@ -19,8 +19,9 @@ the channel session, which inherits its environment but not its flags, stays out
 
 Every other session gets a server with no tools that never reads the token, never starts
 the bot and never touches another poller. It installs nothing either, and it tells that
-session the channel is off there. Keep the plugin enabled only in the folder the companion
-session runs from all the same.
+session the channel is off there. The plugin's `SessionStart` hook runs there too, from the
+plugin's own folder with `bun`, makes the same check, and prints nothing. Keep the plugin
+enabled only in the folder the companion session runs from all the same.
 
 ## Set it up
 
@@ -216,6 +217,109 @@ with the path written out from your home folder:
 `Edit` rules cover every tool that writes a file, the `Write` tool included, and `//` starts an
 absolute path. The deny rules keep the session away from the token. Save the token from your
 terminal with the script in step 3, never from the session.
+
+## Run it as your assistant
+
+In the channel session, and only there, the plugin's `SessionStart` hook loads
+`assistant.md`: the session becomes your assistant over all your Claude Code sessions. It
+answers in your language, short, after looking rather than offering to look. It sees every
+live session on the machine with `scripts/sessions.py` (the registry in
+`~/.claude/sessions/` and each session's transcript, text turns only, secrets masked),
+talks to them with `SendMessage`, brings you their questions and sends your answers back
+word for word. A watch (`scripts/watch.py`, run by the `Monitor` tool) wakes it only when
+something changed: a session waiting on you, a red CI run or a requested change on your PR,
+a review asked of you, or a PR of yours with green CI and a review verdict. It pings you
+with `notify` only when that needs you. It merges a PR only on your word in the Telegram
+chat, after `scripts/merge_gate.py` passes Ship Shape's review gate, and Claude Code's
+permission prompt for the merge reaches your phone as a button: your tap is the second
+yes.
+
+Four things make that work:
+
+1. **Permission mode `default`, not `dontAsk`.** `dontAsk` turns every prompt into a
+   denial, so the merge button could never appear. In `default`, what you allow runs, what
+   you deny never runs, and anything else asks you through the bot. This setup replaces
+   "Run the companion read only" above; it does not add to it.
+2. **An allowlist of one: you.** The bot sends every permission button to everyone in
+   `allowFrom`, and any of them can answer it. With a second person there, their tap
+   would confirm your merges.
+3. **Arm the watch at launch.** Monitors and crons live inside the session, so give it a
+   first prompt on the command line, before the flags (the channel flag reads the
+   arguments after it as channels):
+   `claude "Arme a vigia." --dangerously-load-development-channels plugin:companion@shipshape`
+4. **Let sessions in other permission modes talk to it.** Claude Code holds a message
+   between two sessions in different permission modes until someone approves it, and a
+   desktop session has nowhere to show that approval. `"crossSessionInbound": "accept"` in
+   `~/.claude/settings.json` delivers them. A repository's settings can only tighten it.
+   It lets any local session message any other one without approval, so weigh it.
+
+The companion folder's `.claude/settings.json`, with `PLUGIN` the installed plugin folder
+written out from your home folder, its version left as `*` so an update keeps matching
+(`.claude/plugins/cache/shipshape/companion/*`):
+
+```json
+{
+  "permissions": {
+    "defaultMode": "default",
+    "allow": [
+      "Read",
+      "Glob",
+      "Grep",
+      "ListAgents",
+      "SendMessage",
+      "Bash(python3 /home/YOU/PLUGIN/scripts/sessions.py*)",
+      "Bash(python3 /home/YOU/PLUGIN/scripts/merge_gate.py *)",
+      "Bash(python3 /home/YOU/PLUGIN/scripts/watch.py*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr checks:*)",
+      "Bash(gh run view:*)",
+      "Bash(gh search:*)",
+      "mcp__plugin_companion_telegram__reply",
+      "mcp__plugin_companion_telegram__notify",
+      "mcp__plugin_companion_telegram__edit_message",
+      "mcp__plugin_companion_telegram__react",
+      "mcp__plugin_companion_telegram__download_attachment"
+    ],
+    "ask": ["Bash(gh pr merge:*)"],
+    "deny": [
+      "AskUserQuestion",
+      "Read(//home/YOU/.local/state/companion-telegram/.env)",
+      "Edit(//home/YOU/.local/state/companion-telegram/.env)",
+      "Read(//home/YOU/.claude/sessions/*.key)",
+      "Read(//home/YOU/.claude/.credentials.json)",
+      "Read(//home/YOU/.config/gh/**)",
+      "Read(//home/YOU/.ssh/**)",
+      "Read(//home/YOU/.aws/**)",
+      "Read(//home/YOU/.netrc)",
+      "Read(//home/YOU/**/.env)",
+      "Read(//home/YOU/**/.env.*)",
+      "Read(//home/YOU/.claude.json)",
+      "Read(//home/YOU/.npmrc)",
+      "Read(//home/YOU/.docker/config.json)",
+      "Read(//home/YOU/.kube/**)",
+      "Read(//home/YOU/.config/gcloud/**)",
+      "Read(//home/YOU/.gnupg/**)",
+      "Read(//home/YOU/.git-credentials)",
+      "Bash(env:*)",
+      "Bash(printenv:*)",
+      "Bash(git push:*)",
+      "Bash(gh auth:*)",
+      "Bash(gh pr merge*--admin*)",
+      "Bash(gh pr merge*--auto*)",
+      "Bash(gh api*)"
+    ]
+  }
+}
+```
+
+`Read` stays open because the assistant reads session transcripts and repositories across
+your home folder; the deny rules close the files that hold credentials (add any other your
+machine keeps, such as a cloud CLI's), and a deny on
+`Read` also covers `Grep` and `Glob`. `AskUserQuestion` is denied because its dialog would
+wait in a terminal nobody watches. The merge deny rules match the flag anywhere in the
+command. Claude Code checks a `Monitor` command against the `Bash` rules, so the watch's own
+`Bash(...)` rule lets it run and nothing else, and every `Bash` deny rule applies to it.
+Writes to the session's own memory folder need no rule.
 
 ## What reaches Telegram
 
