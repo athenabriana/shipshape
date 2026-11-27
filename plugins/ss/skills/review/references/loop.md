@@ -18,8 +18,8 @@ the delta, the goals, the open findings and the refusals; a full pass follows a 
 scoped round; the loop stops when every goal is achieved and the judge is pleased on a full
 pass, or when the usage window or the person's cap stops it; then
 the push, the thread replies, step 6, CI followed to the end with its fixes, and the
-verdict line on the PR (`loop.md`, "After the last round"). A playbook run ends the same
-way. The report opens with the `Loop` block `loop.md` defines, and the gate (step 8)
+verdict line on the PR ("After the last round", below). A playbook run ends the same
+way. The report opens with the `Loop` block defined below, and the gate (step 8)
 follows.
 
 ## When the loop runs

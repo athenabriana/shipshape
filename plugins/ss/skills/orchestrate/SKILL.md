@@ -61,7 +61,7 @@ python3 <plugin-root>/scripts/front_pointer.py get
    lines, each with its check, asks her once, then picks the home and the slug, creates the
    front (a doc front when the Docs tools load, a file front otherwise), records the
    pointer, opens a doc front for her, and writes the opening sections, by "The front doc,
-   when `/ss:orchestrate` calls" in its `SKILL.md`. These are the front's goals, by
+   when `/ss:orchestrate` calls" in `<plugin-root>/skills/clarify/references/goals-doc.md`. These are the front's goals, by
    `<plugin-root>/references/goal-loop.md`, and her sign-off is their approval. The
    orchestrator creates no Claude Docs doc itself: from here it keeps the front's running
    state up to date.
@@ -107,8 +107,9 @@ no front location, and it forbids starting sessions.
 The desktop app's session tools and, for a doc front, the Docs tools; load deferred ones
 with `ToolSearch`. Read `references/session-tools.md` before the first session tool call
 for the tool table, how to wait without polling (`wake_when_done`, `notify_when_idle`), and
-the limits to say out loud (Remote Control, "Trust repository", approvals that wait on
-Athena). When the session tools are not there at all, offer `/ss:go` in this session.
+the limits to say out loud (a turn begun by another session's message starts none, Remote
+Control, "Trust repository", approvals that wait on Athena), and again whenever the app
+refuses a start. When the session tools are not there at all, offer `/ss:go` in this session.
 
 ## The four moments
 

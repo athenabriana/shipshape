@@ -87,7 +87,11 @@ export function measure(body: string): { lines: number; chars: number } {
 export function namedPaths(body: string, skillDir: string, pluginDir: string): NamedPath[] {
   const found: NamedPath[] = [];
   for (const match of body.matchAll(PATH_REGEX)) {
-    const text = match[1].replace(/[./-]+$/, "");
+    // A placeholder (`references/<topic>.md`, `{name}`) names no file of its own.
+    const next = body[(match.index ?? 0) + match[1].length];
+    if (next === "<" || next === "{") continue;
+    // Trailing emphasis or punctuation is not part of the path; a `*` left inside is a glob.
+    const text = match[1].replace(/[*./-]+$/, "");
     if (text.includes("*")) continue;
     const resolved = text.startsWith(PLUGIN_ROOT)
       ? join(pluginDir, text.slice(PLUGIN_ROOT.length))
@@ -110,7 +114,7 @@ export function checkSkill(
   const offset = markdown.length - body.length;
   const { lines, chars } = measure(body);
 
-  if (name in EXEMPT) {
+  if (Object.hasOwn(EXEMPT, name)) {
     const size = `${lines} lines, ${chars} chars`;
     return [{ level: "warning", message: `not checked (${size}): ${EXEMPT[name]}` }];
   }

@@ -23,7 +23,9 @@ you close it. Either way it ends at the review: a merge is a step of its own, on
 
 This SKILL.md is the router. Each front's method lives in its own reference and is
 loaded **only when that front was picked**; each action likewise. Every step below names
-the reference to read before it runs. A case no step covers is in `references/edge-cases.md`;
+the reference to read before it runs. Read `references/edge-cases.md` at step 0 and again
+whenever the run meets a case no step covers (an empty diff, no PR, `gh` unauthenticated,
+uncommitted changes, a dead agent, a stopped loop);
 a script, agent or reference by what it holds is in `references/resources.md`.
 
 ## Prerequisites
@@ -41,7 +43,9 @@ the legacy `.claude/skills/code-review/` check, and the **intent read**
 
 ## Step 1: Resolve the mode and the depth
 
-Read `references/mode-and-depth.md` for each mode's conditions before you pick:
+Read `references/mode-and-depth.md` before resolving the mode and the depth: each mode's
+conditions, the standard and deep definitions, and the goals read and judge seating of the
+loop mode.
 
 | Mode                 | When                                                                    | Goes to                                                                        |
 | -------------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------------------ |

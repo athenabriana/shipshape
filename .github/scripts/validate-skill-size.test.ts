@@ -46,7 +46,8 @@ describe("size", () => {
 
 describe("named files", () => {
   test("a bare path resolves in the skill, a <plugin-root> path in the plugin", () => {
-    const body = "Read `references/a.md`, then `<plugin-root>/references/b.md` and `<plugin-root>/skills/ship/references/c.md`.";
+    const body =
+      "Read `references/a.md`, then `<plugin-root>/references/b.md` and `<plugin-root>/skills/ship/references/c.md`.";
     expect(namedPaths(body, SKILL_DIR, PLUGIN_DIR).map((path) => path.resolved)).toEqual([
       "/p/skills/demo/references/a.md",
       "/p/references/b.md",
@@ -62,6 +63,14 @@ describe("named files", () => {
 
   test("a pattern with * is not checked, and the description is not read", () => {
     expect(errorsOf(skill("each `references/front-*.md` file\n"))).toEqual([]);
+  });
+
+  test("bold paths are checked, placeholders are not", () => {
+    const body =
+      "**references/bold.md** and `references/<topic>.md` and `<plugin-root>/skills/<name>/x.md`\n";
+    expect(errorsOf(skill(body))).toEqual([
+      "line 5: `references/bold.md` names a file that does not exist",
+    ]);
   });
 
   test("a path inside another path is matched once, as the longer one", () => {

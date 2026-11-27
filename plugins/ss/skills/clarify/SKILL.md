@@ -48,8 +48,8 @@ settled while building with the code open. A technical risk you see is named in
   fit described in the draft before the work is ordered.
 
 Size is judged as the work goes, not locked at the start. When a Tiny or Medium task keeps
-surfacing gray areas, re-size up. At every size, "When the goals get a doc" decides between
-a sheet and a doc: a small change that spans two repos still gets a doc.
+surfacing gray areas, re-size up. At every size, "When the goals get a doc" (in
+`references/goals-doc.md`, read at step 4) decides between a sheet and a doc: a small change that spans two repos still gets a doc.
 
 ## A sheet or a doc
 
