@@ -10,7 +10,7 @@ follow it.
 
 The rule applies when the goal is clear: the person said what done looks like, or the
 brief carries the goal, the acceptance criteria and the endpoint. A request that still has
-an open shape goes to `/ss:scope` first, and the run starts once its goals are approved.
+an open shape goes to `/ss:clarify` first, and the run starts once its goals are approved.
 
 ## Ask every open question once, at the start
 
@@ -27,7 +27,7 @@ code and the repo's defaults leave open. Then ask them together:
    open, by "Read the answer" in the decision-sheet page.
 
 Work that runs the goal loop of `<plugin-root>/references/goal-loop.md` adds the blocks
-`/ss:scope` proposes: the goals, numbered, each with its check, "Approve these goals" first,
+`/ss:clarify` proposes: the goals, numbered, each with its check, "Approve these goals" first,
 and what is out of scope. Their approval
 is the only time the goals are asked; after it they hold for the run.
 

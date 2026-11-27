@@ -50,7 +50,7 @@ improvement, and a "fix" that isn't justified against its finding is a guess.
      what is wrong, that is design-system debt to note, not a review edit.
    - A **contract gap** is closed by building the missing behavior or the missing
      test, not by editing the acceptance criteria. When a criterion itself turns out
-     to be wrong, that's a `/ss:scope` conversation, not a review edit.
+     to be wrong, that's a `/ss:clarify` conversation, not a review edit.
 2. Scope stays the code this branch already changed, no refactoring untouched
    code "while at it" (the scope rule in `quality-checklist.md`, next to this
    file).

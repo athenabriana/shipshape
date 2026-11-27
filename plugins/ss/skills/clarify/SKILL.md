@@ -1,13 +1,13 @@
 ---
-name: scope
-description: Defines the goals before building, the first step of the goal loop. Maps the problem and the code, drafts what gets built with the behavior map (happy path plus edges), and proposes verifiable goals as numbered WHEN/THEN lines, each with its check, plus what is out of scope, all approved once in one decision sheet. Hands the approved goals to the caller's loop, or for a new feature on its own closes at a gate that offers to build it now or stop. Writes them into the brief or front doc the caller names, or into chat. /ss:go and other skills call it when goals are needed. Use when the user says "scope this", "define the scope", "qual o escopo", "define os objetivos", "shape this", "let's plan", "what should we build", "let's discuss before building", "write the acceptance criteria", "what are the edge cases", or starts a non trivial feature. Don't use it for small mechanical changes (just do those) or to find bugs (use /ss:review).
+name: clarify
+description: Clarifies the goals before work starts, the first step of the goal loop. Maps the problem and the code, drafts what gets built with its happy path and edges, and proposes verifiable goals as numbered WHEN/THEN lines, each with its check, plus what is out of scope, all approved once in one decision sheet. Hands the approved goals to the caller's loop, or for a new feature on its own closes at a gate that offers to build it now or stop. Writes them into the brief or front doc the caller names, or into chat. /ss:go and other skills call it when goals are needed. Use when the user says "clarify", "clarify the goals", "esclarece", "esclarece os objetivos", "scope this", "define the scope", "qual o escopo", "define os objetivos", "shape this", "let's plan", "what should we build", "let's discuss before building", "write the acceptance criteria", "what are the edge cases", or starts a non trivial feature. Don't use it for small mechanical changes (just do those) or to find bugs (use /ss:review).
 license: MIT
 metadata:
   author: Athena Briana - github.com/athenabriana
   version: 6.0.0
 ---
 
-# Scope
+# Clarify
 
 Define **what done means before any code**: the goals the work must reach, each one
 verifiable, and the lines it must not cross. This skill is the goal-definition step of the
@@ -30,7 +30,7 @@ settled while building with the code open. A technical risk you see is named in
 - **A caller that needs goals**: `/ss:go` on its standard and intensive routes, the
   `/ss:review` loop when no source holds the change's goals, `/ss:orchestrate` when it
   settles a front's goal, `/ss:ui-critique` when none are given. The caller names where
-  the goals go and whether the approval rides its own opening sheet. Scope returns the
+  the goals go and whether the approval rides its own opening sheet. Clarify returns the
   approved goals to the caller and has no exit gate: the caller's loop is what follows.
 - **On its own**, for a new feature: the same steps, then the exit gate below.
 
@@ -109,7 +109,7 @@ dialog, and a brief that already states what follows answers the gate.
    blocker: ask that one, then continue. Everything else is decided and recorded.
 
 8. **Write the goals** where the caller said (below), then hand them over, or open the exit
-   gate when scope runs on its own.
+   gate when clarify runs on its own.
 
 ## Write the goals
 
@@ -119,7 +119,7 @@ The approved goals land as one block, written where the caller said:
   there. A block from an earlier round in the same place is replaced whole.
 - **No path**: write the block into chat, as the last thing before the gate or the hand-off.
 
-Scope creates no other file and commits nothing.
+Clarify creates no other file and commits nothing.
 
 ```markdown
 ## Goals
@@ -154,7 +154,7 @@ things the way the repo names them, because the goals' words become the words of
 **Attention points name the risk, not the fix.** One bullet each: the technical risk and
 where it lives. The solution is the builder's, decided with the code open.
 
-## The exit gate, when scope runs on its own
+## The exit gate, when clarify runs on its own
 
 First **show what the person is signing off on**, as a visual built before the question, by
 `<plugin-root>/references/show-for-review.md`: the block as a private Claude Docs doc opened
@@ -184,7 +184,7 @@ on a confident guess sends the whole loop the wrong way.
 ## Safety valve
 
 When building reveals that a business rule or a behavior is missing, or contradicts another,
-the build stops and comes back here to re-scope: that is a goal that was wrong, a real
+the build stops and comes back here to clarify the goals again: that is a goal that was wrong, a real
 blocker by `long-run.md`. A technical gap is not: the builder settles it and says what it
 chose.
 
