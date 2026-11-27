@@ -54,7 +54,7 @@ SECRET_PATTERNS = [
 # `password: x`, `"token": "x"`, `API_KEY="x"`: the name stays, the value goes. The match
 # starts only where a run of name characters starts, so a long run costs one pass, not n.
 NAMED_SECRET = re.compile(
-    r"(?i)(?<![\w-])([\w-]*?(?:password|passwd|pass|pwd|secret|token|api[_-]?key)[\w-]*)"
+    r"(?i)(?<![\w-])([\w-]*?(?:password|passwd|_pass|pass_|pwd|secret|token|api[_-]?key)[\w-]*)"
     r"([\"']?\s*[:=]\s*)(\"[^\"\n]*\"|'[^'\n]*'|[^\s,;]+)"
 )
 URL_CREDENTIALS = re.compile(r"(\b[a-z][a-z0-9+.-]*://[^/\s:@]+:)[^@\s/]+@", re.IGNORECASE)

@@ -291,8 +291,15 @@ written out from your home folder, its version left as `*` so an update keeps ma
       "Read(//home/YOU/.ssh/**)",
       "Read(//home/YOU/.aws/**)",
       "Read(//home/YOU/.netrc)",
-      "Read(**/.env)",
-      "Read(**/.env.*)",
+      "Read(//home/YOU/**/.env)",
+      "Read(//home/YOU/**/.env.*)",
+      "Read(//home/YOU/.claude.json)",
+      "Read(//home/YOU/.npmrc)",
+      "Read(//home/YOU/.docker/config.json)",
+      "Read(//home/YOU/.kube/**)",
+      "Read(//home/YOU/.config/gcloud/**)",
+      "Read(//home/YOU/.gnupg/**)",
+      "Read(//home/YOU/.git-credentials)",
       "Bash(env:*)",
       "Bash(printenv:*)",
       "Bash(git push:*)",
@@ -306,7 +313,8 @@ written out from your home folder, its version left as `*` so an update keeps ma
 ```
 
 `Read` stays open because the assistant reads session transcripts and repositories across
-your home folder; the deny rules close the files that hold credentials, and a deny on
+your home folder; the deny rules close the files that hold credentials (add any other your
+machine keeps, such as a cloud CLI's), and a deny on
 `Read` also covers `Grep` and `Glob`. `AskUserQuestion` is denied because its dialog would
 wait in a terminal nobody watches. The merge deny rules match the flag anywhere in the
 command. Claude Code checks a `Monitor` command against the `Bash` rules, so the watch's own

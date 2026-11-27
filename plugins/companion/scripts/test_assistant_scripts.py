@@ -50,7 +50,8 @@ class Redact(unittest.TestCase):
         self.assertEqual(S.redact("postgres://admin:S3cret@db/x"), "postgres://admin:[hidden]@db/x")
 
     def test_plain_words_survive(self):
-        self.assertEqual(S.redact("task-list for the passage"), "task-list for the passage")
+        for text in ["task-list for the passage", "tests passed: 12", "bypass=true", "compass: north"]:
+            self.assertEqual(S.redact(text), text)
 
     def test_private_key_block(self):
         out = S.redact("-----BEGIN RSA PRIVATE KEY-----\nabc\n-----END RSA PRIVATE KEY-----")
