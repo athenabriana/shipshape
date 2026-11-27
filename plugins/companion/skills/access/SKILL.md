@@ -66,9 +66,11 @@ Arguments passed: `$ARGUMENTS`
 ```
 
 A missing file means `{dmPolicy: "pairing", allowFrom: [], groups: {}, pending: {}}`.
-When `STATE_DIR/access.json` is missing but `~/.claude/channels/telegram/access.json`
-exists (a setup from the official plugin that the channel has not copied yet), read that
-one as the starting state, and write the result to `STATE_DIR`.
+When `TELEGRAM_STATE_DIR` is unset, `STATE_DIR/access.json` is missing, and
+`${CLAUDE_CONFIG_DIR:-$HOME/.claude}/channels/telegram/access.json` exists (a setup from the
+official plugin that the channel has not copied yet), read that one as the starting state,
+and write the result to `STATE_DIR`. With `TELEGRAM_STATE_DIR` set, the old folder is never
+read, as in the server.
 
 ## Dispatch on the arguments
 
