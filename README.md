@@ -101,7 +101,7 @@ three free sources of real ui references, with no account and no api key. ss pul
 
 `companion` is a second, optional plugin in the same marketplace: a telegram bot that bridges your messages to one claude code session. it is adapted from the official telegram channel plugin (apache-2.0), so it needs no plugin from outside this repo. telegram lets one poller hold a bot at a time, so the server polls only in the session launched with `--channels plugin:companion@shipshape` (or the development flag) and stays inert in every other one.
 
-`plugins/companion/README.md` has the setup, and `plugins/companion/UPSTREAM.md` says what changed from upstream and how to pull its fixes.
+replies render markdown on the phone, the session can send drawn diagrams as images, and voice notes arrive as text once whisper.cpp is installed. `plugins/companion/README.md` has the setup, and `plugins/companion/UPSTREAM.md` says what changed from upstream and how to pull its fixes.
 
 ## develop locally
 
