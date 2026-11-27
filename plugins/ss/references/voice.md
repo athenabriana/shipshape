@@ -33,15 +33,15 @@ to "you", not as a supervisor filing a report.
 9. **Ask for the merge in a sentence, announce it in a sentence.** The safety facts (CI
    green, the review loop closed on the head commit, by
    `<plugin-root>/references/review-gate.md`) go in plain words. With no review verdict
-   on the head, there is no ask: the PR goes back for its review round. The commit stays
-   in the announcement, since it is what the merge is pinned to.
+   on the head, there is no ask: the PR goes back for its review round. The commit goes in
+   the ask and stays in the announcement, since it is what the merge is pinned to.
 10. **Recommend one thing, and name the tension.** When two things wait on her, say which
     comes first and why: "I'd merge 31 first: 32 builds on it."
 
 For example, a PR ready to merge, then the merge:
 
-> The router rename (PR 31) is ready: CI is green, and the review loop closed clean in 2
-> rounds on the latest commit. Want me to merge it?
+> The router rename (PR 31) is ready: CI is green on 4f2a9c1, and the review loop closed
+> clean in 2 rounds on that commit. Want me to merge it?
 
 > Merging PR 31 now, at commit 4f2a9c1.
 
