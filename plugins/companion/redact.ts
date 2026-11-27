@@ -15,11 +15,11 @@ export const SECRET_VARS = ["TELEGRAM_BOT_TOKEN", "CLAUDE_CODE_OAUTH_TOKEN", "AN
 
 type Env = Record<string, string | undefined>;
 
-/** The values to mask: each secret, and its trimmed form, never an empty string. */
+/** The values to mask: each secret's trimmed form first, then the raw value, never a short string. */
 export function secretsOf(env: Env = process.env): string[] {
   const values = SECRET_VARS.flatMap((k) => {
     const v = env[k];
-    return v ? [v, v.trim()] : [];
+    return v ? [v.trim(), v] : [];
   });
   return [...new Set(values)].filter((v) => v.length >= 8);
 }

@@ -95,7 +95,7 @@ if (!TOKEN) {
 // token), so console is routed through the wrapper too. Tool errors go back to
 // Claude through redact() in the CallTool handler.
 // ss: both tokens (the bot's and Claude's) are masked, whichever line carries them.
-const SECRETS = [...new Set([...secretsOf(), TOKEN, TOKEN.trim()])].filter(Boolean)
+const SECRETS = [...new Set([...secretsOf(), TOKEN.trim(), TOKEN])].filter(Boolean)
 function redact(text: string): string {
   return redactWith(text, SECRETS)
 }
