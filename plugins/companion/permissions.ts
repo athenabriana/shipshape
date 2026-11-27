@@ -152,12 +152,9 @@ export function isSecretPath(abs: string, paths: Paths): boolean {
 }
 
 function readable(abs: string, paths: Paths): boolean {
-  return [
-    paths.dataDir,
-    paths.pluginRoot,
-    join(paths.stateDir, "inbox"),
-    ...paths.readRoots,
-  ].some((root) => inside(abs, root));
+  return [paths.dataDir, paths.pluginRoot, join(paths.stateDir, "inbox"), ...paths.readRoots].some(
+    (root) => inside(abs, root),
+  );
 }
 
 /** The deny rules Claude Code applies itself: a `Grep` over a folder skips these files too. */
@@ -283,7 +280,8 @@ const GIT_READS = new Set([
   "rev-list",
   "cat-file",
 ]);
-const GIT_BAD_ARGS = /^(-c|--config-env|--output|--exec-path|--upload-pack|--receive-pack|--ext-diff)(=|$)/;
+const GIT_BAD_ARGS =
+  /^(-c|--config-env|--output|--exec-path|--upload-pack|--receive-pack|--ext-diff)(=|$)/;
 const GH_READS: Record<string, Set<string>> = {
   pr: new Set(["view", "list", "checks", "diff", "status"]),
   run: new Set(["view", "list"]),
@@ -352,10 +350,11 @@ export function decideBash(raw: string, paths: Paths): Decision {
   // What is refused whatever its shape: a pipe cannot launder any of it. Quoted text (a
   // search phrase, a message) is left out of the word checks, never out of the secret one.
   const outsideQuotes = command.replace(/'[^']*'/g, "''").replace(/"[^"]*"/g, '""');
-  if (mentionsSecret(command, paths))
-    return deny("credentials and secrets are never read or sent");
-  if (/\bdeploy\b/i.test(outsideQuotes)) return deny("deploys are Athena's to run, never the companion's");
-  if (/\bgh\s+auth\b/.test(command)) return deny("gh's credentials are not the companion's to read");
+  if (mentionsSecret(command, paths)) return deny("credentials and secrets are never read or sent");
+  if (/\bdeploy\b/i.test(outsideQuotes))
+    return deny("deploys are Athena's to run, never the companion's");
+  if (/\bgh\s+auth\b/.test(command))
+    return deny("gh's credentials are not the companion's to read");
   if (/\bgh\s+pr\s+merge\b/.test(command) && /--admin\b|--auto\b/.test(command))
     return deny("a merge never goes around the rules: no --admin, no --auto");
   if (/\bgh\s+pr\s+merge\b/.test(outsideQuotes)) {
@@ -376,7 +375,12 @@ export function decideBash(raw: string, paths: Paths): Decision {
   if (/\bgh\s+api\b/.test(outsideQuotes)) {
     if (/graphql/.test(command) && /\bmutation\b/i.test(command))
       return deny("gh api mutations are not the companion's to run");
-    if (/(\s(-f|-F|--field|--raw-field|--input)(\s|=))|\s-X\s*(?!GET\b)\S|--method[\s=](?!GET\b)/i.test(outsideQuotes) && !/graphql/.test(command))
+    if (
+      /(\s(-f|-F|--field|--raw-field|--input)(\s|=))|\s-X\s*(?!GET\b)\S|--method[\s=](?!GET\b)/i.test(
+        outsideQuotes,
+      ) &&
+      !/graphql/.test(command)
+    )
       return deny("gh api mutations are not the companion's to run");
   }
   const stripped = command.replace(HARMLESS_REDIRECTS, " ").trim();
@@ -388,20 +392,31 @@ export function decideBash(raw: string, paths: Paths): Decision {
   const [cmd, ...args] = words;
   if (/^\w+=/.test(cmd)) return ask("a command that sets variables");
   if (ENV_DUMPERS.has(cmd)) return deny("the environment holds credentials and is never printed");
-  if (FILE_WRITERS.has(cmd)) return deny("the companion writes only its memory folder, with Write and Edit");
+  if (FILE_WRITERS.has(cmd))
+    return deny("the companion writes only its memory folder, with Write and Edit");
   if ((cmd === "sed" || cmd === "perl") && args.some((a) => /^-[a-zA-Z]*i/.test(a)))
     return deny("the companion writes only its memory folder, with Write and Edit");
 
   if (cmd === "git") {
     let i = 0;
-    while (i < args.length && (args[i] === "-C" || args[i] === "--no-pager")) i += args[i] === "-C" ? 2 : 1;
+    while (i < args.length && (args[i] === "-C" || args[i] === "--no-pager"))
+      i += args[i] === "-C" ? 2 : 1;
     const sub = args[i];
     const rest = args.slice(i + 1);
-    if (args.some((a) => GIT_BAD_ARGS.test(a))) return deny("git options that run or write things are refused");
+    if (args.some((a) => GIT_BAD_ARGS.test(a)))
+      return deny("git options that run or write things are refused");
     if (sub && GIT_READS.has(sub)) return allow;
-    if (sub === "branch" && rest.every((a) => /^(-a|-r|-v|-vv|--list|--show-current|--all|--remotes|--contains|--merged|--no-merged|[0-9a-f]{7,40})$/.test(a)))
+    if (
+      sub === "branch" &&
+      rest.every((a) =>
+        /^(-a|-r|-v|-vv|--list|--show-current|--all|--remotes|--contains|--merged|--no-merged|[0-9a-f]{7,40})$/.test(
+          a,
+        ),
+      )
+    )
       return allow;
-    if (sub === "remote" && (rest.length === 0 || rest[0] === "-v" || rest[0] === "get-url")) return allow;
+    if (sub === "remote" && (rest.length === 0 || rest[0] === "-v" || rest[0] === "get-url"))
+      return allow;
     return deny("git commands that change a repository are not the companion's: it writes no code");
   }
 
@@ -411,7 +426,14 @@ export function decideBash(raw: string, paths: Paths): Decision {
     if (group === "pr" && sub === "merge") {
       const m = MERGE_SHAPE.exec(words.join(" "));
       if (!m) return deny(MERGE_FORM);
-      return { kind: "merge", number: Number(m[1]), repo: m[2], method: m[3], head: m[4], command: words.join(" ") };
+      return {
+        kind: "merge",
+        number: Number(m[1]),
+        repo: m[2],
+        method: m[3],
+        head: m[4],
+        command: words.join(" "),
+      };
     }
     if (group && sub && GH_READS[group]?.has(sub)) {
       if (args.some((a) => a === "--web" || a === "-w")) return ask("opening a browser");
@@ -423,7 +445,8 @@ export function decideBash(raw: string, paths: Paths): Decision {
   if (cmd === "python3" || cmd === "python") {
     const script = args[0] ? resolvePath(args[0], paths) : "";
     const scripts = join(realish(resolve(paths.pluginRoot)), "scripts");
-    if (script === join(scripts, "sessions.py") || script === join(scripts, "merge_gate.py")) return allow;
+    if (script === join(scripts, "sessions.py") || script === join(scripts, "merge_gate.py"))
+      return allow;
     if (script === join(scripts, "watch.py")) return deny("the service runs the watch itself");
     return ask("a script");
   }
@@ -456,10 +479,15 @@ export function decide(toolName: string, input: Record<string, unknown>, paths: 
     if (toolName === "Glob" && (isAbsolute(pattern) || pattern.startsWith("~"))) {
       const fixed = pattern.split(/[*?[{]/)[0];
       const fixedAbs = resolvePath(fixed || "/", paths);
-      if (isSecretPath(fixedAbs, paths)) return deny("credentials and secrets are never read or sent");
+      if (isSecretPath(fixedAbs, paths))
+        return deny("credentials and secrets are never read or sent");
       if (!readable(fixedAbs, paths)) return ask("reading outside her repositories");
     }
-    if (toolName === "Grep" && str(input.glob) && /\.env|\.pem|\.key|credentials/i.test(str(input.glob)))
+    if (
+      toolName === "Grep" &&
+      str(input.glob) &&
+      /\.env|\.pem|\.key|credentials/i.test(str(input.glob))
+    )
       return deny("credentials and secrets are never read or sent");
     return readable(abs, paths) ? allow : ask("reading outside her repositories");
   }
@@ -473,7 +501,8 @@ export function decide(toolName: string, input: Record<string, unknown>, paths: 
   }
 
   if (toolName === "Bash") return decideBash(str(input.command), paths);
-  if (toolName === "BashOutput" || toolName === "KillShell" || toolName === "KillBash") return allow;
+  if (toolName === "BashOutput" || toolName === "KillShell" || toolName === "KillBash")
+    return allow;
   if (toolName === "WebFetch" || toolName === "WebSearch") return ask("reaching the web");
   return ask(`a tool outside the companion's list (${toolName})`);
 }

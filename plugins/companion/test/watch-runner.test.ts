@@ -22,9 +22,16 @@ test("lines arriving together wake the agent once, quiet ones only go to the log
     onEvents: (lines) => batches.push(lines),
     log: (l) => logs.push(l),
     spawnWatch: () =>
-      spawn("bash", ["-c", "echo 'watch-started | watch | 0'; echo 'ci-red | a/b#1 | x'; echo 'merge-ready | a/b#2 | y'; sleep 5"], {
-        stdio: ["ignore", "pipe", "pipe"],
-      }),
+      spawn(
+        "bash",
+        [
+          "-c",
+          "echo 'watch-started | watch | 0'; echo 'ci-red | a/b#1 | x'; echo 'merge-ready | a/b#2 | y'; sleep 5",
+        ],
+        {
+          stdio: ["ignore", "pipe", "pipe"],
+        },
+      ),
   });
   runner.start();
   await Bun.sleep(400);

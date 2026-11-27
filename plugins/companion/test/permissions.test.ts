@@ -39,13 +39,19 @@ const bash = (c: string) => kind(decideBash(c, P));
 
 describe("reads", () => {
   test("her repositories, the plugin, the memory and the inbox read without asking", () => {
-    expect(kind(decide("Read", { file_path: join(P.home, "Workspaces/repo/a.ts") }, P))).toBe("allow");
+    expect(kind(decide("Read", { file_path: join(P.home, "Workspaces/repo/a.ts") }, P))).toBe(
+      "allow",
+    );
     expect(kind(decide("Read", { file_path: "~/Workspaces/repo/README.md" }, P))).toBe("allow");
     expect(kind(decide("Read", { file_path: join(P.pluginRoot, "persona.md") }, P))).toBe("allow");
     expect(kind(decide("Read", { file_path: "memory/prefs.md" }, P))).toBe("allow");
-    expect(kind(decide("Read", { file_path: join(P.stateDir, "inbox", "1-a.jpg") }, P))).toBe("allow");
+    expect(kind(decide("Read", { file_path: join(P.stateDir, "inbox", "1-a.jpg") }, P))).toBe(
+      "allow",
+    );
     expect(kind(decide("Grep", { pattern: "x" }, P))).toBe("allow");
-    expect(kind(decide("Glob", { pattern: "**/*.ts", path: join(P.home, "Workspaces") }, P))).toBe("allow");
+    expect(kind(decide("Glob", { pattern: "**/*.ts", path: join(P.home, "Workspaces") }, P))).toBe(
+      "allow",
+    );
   });
 
   test("credentials are denied, the state folder above all", () => {
@@ -84,9 +90,13 @@ describe("reads", () => {
 
 describe("writes", () => {
   test("only the memory folder", () => {
-    expect(kind(decide("Write", { file_path: join(P.dataDir, "memory", "prefs.md") }, P))).toBe("allow");
+    expect(kind(decide("Write", { file_path: join(P.dataDir, "memory", "prefs.md") }, P))).toBe(
+      "allow",
+    );
     expect(kind(decide("Edit", { file_path: "memory/follow.md" }, P))).toBe("allow");
-    expect(kind(decide("Write", { file_path: join(P.home, "Workspaces/repo/a.ts") }, P))).toBe("deny");
+    expect(kind(decide("Write", { file_path: join(P.home, "Workspaces/repo/a.ts") }, P))).toBe(
+      "deny",
+    );
     expect(kind(decide("Write", { file_path: join(P.stateDir, "access.json") }, P))).toBe("deny");
     expect(kind(decide("Write", { file_path: "memory/../../../../.bashrc" }, P))).toBe("deny");
     expect(kind(decide("Edit", { file_path: join(P.dataDir, "watch.json") }, P))).toBe("deny");
@@ -180,7 +190,12 @@ describe("bash", () => {
 
   test("the merge passes only in the gate's exact form", () => {
     const sha = "a".repeat(40);
-    expect(decideBash(`gh pr merge 41 --repo athenabriana/shipshape --squash --match-head-commit ${sha}`, P)).toEqual({
+    expect(
+      decideBash(
+        `gh pr merge 41 --repo athenabriana/shipshape --squash --match-head-commit ${sha}`,
+        P,
+      ),
+    ).toEqual({
       kind: "merge",
       repo: "athenabriana/shipshape",
       number: 41,
@@ -188,8 +203,12 @@ describe("bash", () => {
       head: sha,
       command: `gh pr merge 41 --repo athenabriana/shipshape --squash --match-head-commit ${sha}`,
     });
-    expect(bash(`gh pr merge 41 --repo a/b --squash --match-head-commit ${sha} --delete-branch`)).toBe("deny");
-    expect(bash(`gh pr merge 41 --repo a/b --squash --match-head-commit ${sha}; echo`)).toBe("deny");
+    expect(
+      bash(`gh pr merge 41 --repo a/b --squash --match-head-commit ${sha} --delete-branch`),
+    ).toBe("deny");
+    expect(bash(`gh pr merge 41 --repo a/b --squash --match-head-commit ${sha}; echo`)).toBe(
+      "deny",
+    );
   });
 });
 
@@ -215,9 +234,26 @@ describe("other tools", () => {
 
 describe("shellWords", () => {
   test("splits plain words and quotes, refuses what it cannot vouch for", () => {
-    expect(shellWords(`gh pr view 1 --jq '.a | .b'`)).toEqual(["gh", "pr", "view", "1", "--jq", ".a | .b"]);
+    expect(shellWords(`gh pr view 1 --jq '.a | .b'`)).toEqual([
+      "gh",
+      "pr",
+      "view",
+      "1",
+      "--jq",
+      ".a | .b",
+    ]);
     expect(shellWords(`echo "a b"`)).toEqual(["echo", "a b"]);
-    for (const c of ["a | b", "a; b", "a && b", "$(x)", "`x`", "a > b", "a *", 'echo "$X"', "'open"])
+    for (const c of [
+      "a | b",
+      "a; b",
+      "a && b",
+      "$(x)",
+      "`x`",
+      "a > b",
+      "a *",
+      'echo "$X"',
+      "'open",
+    ])
       expect(shellWords(c)).toBeNull();
   });
 });

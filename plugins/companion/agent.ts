@@ -249,18 +249,21 @@ export class Companion {
   }
 
   /** The hook and the callback that hold the permission policy, for one turn. */
-  permissionHandlers(chatId: string, typed: boolean): { hook: HookCallback; canUseTool: CanUseTool } {
+  permissionHandlers(
+    chatId: string,
+    typed: boolean,
+  ): { hook: HookCallback; canUseTool: CanUseTool } {
     const { paths, io, gate } = this.cfg;
     const hook: HookCallback = async (input) => {
       if (input.hook_event_name !== "PreToolUse") return {};
       const d = decide(input.tool_name, (input.tool_input ?? {}) as Record<string, unknown>, paths);
-      const permissionDecision =
-        d.kind === "allow" ? "allow" : d.kind === "deny" ? "deny" : "ask";
+      const permissionDecision = d.kind === "allow" ? "allow" : d.kind === "deny" ? "deny" : "ask";
       return {
         hookSpecificOutput: {
           hookEventName: "PreToolUse",
           permissionDecision,
-          permissionDecisionReason: d.kind === "deny" || d.kind === "ask" ? d.reason : "companion policy",
+          permissionDecisionReason:
+            d.kind === "deny" || d.kind === "ask" ? d.reason : "companion policy",
         },
       };
     };
@@ -279,12 +282,21 @@ export class Companion {
       const yes = await io.askButton(chatId, text, preview(toolName, input), signal);
       return yes
         ? { behavior: "allow", updatedInput: input }
-        : { behavior: "deny", message: "Athena did not allow it (a tap on Deny, or no answer in time). Do not try another way." };
+        : {
+            behavior: "deny",
+            message:
+              "Athena did not allow it (a tap on Deny, or no answer in time). Do not try another way.",
+          };
     };
     return { hook, canUseTool };
   }
 
-  options(chatId: string, typed: boolean, abortController: AbortController, resume?: string): Options {
+  options(
+    chatId: string,
+    typed: boolean,
+    abortController: AbortController,
+    resume?: string,
+  ): Options {
     const { paths, persona, io } = this.cfg;
     const { hook, canUseTool } = this.permissionHandlers(chatId, typed);
     return {
@@ -327,7 +339,10 @@ export class Companion {
       let started = false;
       let result: { ok: boolean; text: string } | undefined;
       try {
-        for await (const msg of run({ prompt, options: this.options(chatId, typed, abort, resume) }) as AsyncIterable<SDKMessage>) {
+        for await (const msg of run({
+          prompt,
+          options: this.options(chatId, typed, abort, resume),
+        }) as AsyncIterable<SDKMessage>) {
           if (msg.type === "system" && msg.subtype === "init") {
             started = true;
             sessions.set(chatId, msg.session_id);
@@ -372,7 +387,8 @@ export class Companion {
         return;
       }
       const text = result.text.trim();
-      if (text && text !== SILENT) await io.deliver(chatId, { text, files: [], svgs: [], format: "markdown" });
+      if (text && text !== SILENT)
+        await io.deliver(chatId, { text, files: [], svgs: [], format: "markdown" });
     } catch (err) {
       io.log(`companion: the agent failed: ${redact(String(err))}`);
       if (answers)
